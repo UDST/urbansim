@@ -1,0 +1,9 @@
+{
+  "table": "dset.households",
+  "writetotmp": "households",
+  "model": "minimodel",
+  "var_lib": {
+    "zone_id": "dset.buildings.ix[_tbl_.building_id].zone_id.values"
+  },
+  "ind_vars": ["zone_id"]
+}

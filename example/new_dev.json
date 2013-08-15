@@ -1,0 +1,14 @@
+{
+  "table": "dset.buildings",
+  "writetotmp": "buildings",
+  "model": "transitionmodel",
+  "first_year": 2010,
+  "vacancy_targets": {
+    "targets": "dset.target_vacancies",
+    "supply": "dset.buildings.groupby('building_type_id').all_units.sum()",
+    "demands": ["dset.households.groupby(dset.buildings.building_type_id[dset.households.building_id].values).size()",
+                "dset.nhb_jobs().groupby(dset.buildings.building_type_id[dset.nhb_jobs().building_id].values).size()"]
+  },
+  "size_field": "all_units",
+  "geography_field": "parcel_id"
+}

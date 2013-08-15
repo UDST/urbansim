@@ -1,0 +1,9 @@
+{
+  "table": "dset.parcels",
+  "writetotmp": "parcels",
+  "model": "minimodel",
+  "var_lib": {
+    "nonres_sqft_divided_by_parcel_acres": "dset.fetch('buildings').groupby('parcel_id').non_residential_sqft.sum() / dset.parcels.parcel_acres"
+  },
+  "ind_vars": ["nonres_sqft_divided_by_parcel_acres"]
+}

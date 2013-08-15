@@ -1,0 +1,9 @@
+{
+  "table": "dset.households",
+  "writetotmp": "households",
+  "model": "transitionmodel",
+  "first_year": 2010,
+  "control_totals": "dset.annual_household_control_totals",
+  "geography_field": "building_id",
+  "amount_field": "total_number_of_households"
+}

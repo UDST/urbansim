@@ -1,0 +1,16 @@
+{
+  "table": "dset.zones",
+  "writetotmp": "zones",
+  "model": "minimodel",
+  "var_lib": {
+    "average_income": "dset.fetch('households').groupby('zone_id').income.mean()",
+    "population": "dset.fetch('households').groupby('zone_id').persons.sum()",
+    "population_in_range": "dset.compute_range(_tbl_.population,20.0)",
+    "job_density": "dset.fetch('jobs').groupby('zone_id').size() / dset.zones.acres",
+    "wealthy_hh": "dset.households[dset.households.income>65000].groupby('zone_id').size()",
+    "wealthy_hh_within_45min": "dset.compute_range(_tbl_.wealthy_hh,45.0).apply(np.log1p)",
+    "jobs": "dset.fetch('jobs').groupby('zone_id').size()",
+    "jobs_within_30min": "dset.compute_range(_tbl_.jobs,30.0).apply(np.log1p)"
+  },
+  "ind_vars": ["average_income","population","population_in_range","job_density","wealthy_hh","wealthy_hh_within_45min","jobs","jobs_within_30min"]
+}

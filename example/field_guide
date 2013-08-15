@@ -1,0 +1,526 @@
+<class 'pandas.io.pytables.HDFStore'>
+File path: ../data/mrcog.h5
+/annual_employment_control_totals             frame        (shape->[1612,1])   
+/annual_household_control_totals              frame        (shape->[31,1])     
+/annual_household_relocation_rates            frame        (shape->[9,5])      
+/annual_job_relocation_rates                  frame        (shape->[26,1])     
+/building_sqft_per_job                        frame        (shape->[19194,1])  
+/building_types                               frame        (shape->[1,2])      
+/buildings                                    frame        (shape->[326508,10])
+/counties                                     frame        (shape->[1,1])      
+/development_event_history                    frame        (shape->[91931,9])  
+/households                                   frame        (shape->[351317,15])
+/jobs                                         frame        (shape->[418460,3]) 
+/parcels                                      frame        (shape->[622350,14])
+/target_vacancies                             frame        (shape->[363,1])    
+/travel_data                                  frame        (shape->[839056,1]) 
+/zones                                        frame        (shape->[916,6])    
+
+
+TABLENAME /annual_employment_control_totals
+<class 'pandas.core.frame.DataFrame'>
+MultiIndex: 1612 entries, (11, 2010, 0) to (722, 2040, 1)
+Data columns (total 1 columns):
+number_of_jobs    1612  non-null values
+dtypes: int32(1)
+       number_of_jobs
+count     1612.000000
+mean     11001.086228
+std      16938.260010
+min          9.000000
+25%        543.500000
+50%       2110.500000
+75%      15661.750000
+max      90659.000000
+
+
+TABLENAME /annual_household_control_totals
+      total_number_of_households
+year                            
+2010                      351317
+2011                      353317
+2012                      355317
+2013                      357317
+2014                      359317
+2015                      361317
+2016                      363317
+2017                      365317
+2018                      367317
+2019                      369317
+2020                      371317
+2021                      373317
+2022                      375317
+2023                      377317
+2024                      379317
+2025                      381317
+2026                      383317
+2027                      385317
+2028                      387317
+2029                      389317
+2030                      391317
+2031                      393317
+2032                      395317
+2033                      397317
+2034                      399317
+2035                      401317
+2036                      403317
+2037                      405317
+2038                      407317
+2039                      409317
+2040                      411317
+       total_number_of_households
+count                   31.000000
+mean                381317.000000
+std                  18184.242263
+min                 351317.000000
+25%                 366317.000000
+50%                 381317.000000
+75%                 396317.000000
+max                 411317.000000
+
+
+TABLENAME /annual_household_relocation_rates
+   age_of_head_max  age_of_head_min  income_max  income_min  \
+0               -1               65          -1       60000   
+1               -1               65       60000       30000   
+2               -1               65       30000           0   
+3               65               40          -1       60000   
+4               65               40       60000       30000   
+5               65               40       30000           0   
+6               40                0          -1       60000   
+7               40                0       60000       30000   
+8               40                0       30000           0   
+
+   probability_of_relocating  
+0                     0.0034  
+1                     0.0025  
+2                     0.0051  
+3                     0.0135  
+4                     0.0115  
+5                     0.0172  
+6                     0.0188  
+7                     0.0248  
+8                     0.0349  
+       age_of_head_max  age_of_head_min    income_max    income_min  \
+count         9.000000         9.000000      9.000000      9.000000   
+mean         34.666667        35.000000  29999.666667  30000.000000   
+std          28.857408        28.394542  25981.195127  25980.762114   
+min          -1.000000         0.000000     -1.000000      0.000000   
+25%          -1.000000         0.000000     -1.000000      0.000000   
+50%          40.000000        40.000000  30000.000000  30000.000000   
+75%          65.000000        65.000000  60000.000000  60000.000000   
+max          65.000000        65.000000  60000.000000  60000.000000   
+
+       probability_of_relocating  
+count                   9.000000  
+mean                    0.014633  
+std                     0.010686  
+min                     0.002500  
+25%                     0.005100  
+50%                     0.013500  
+75%                     0.018800  
+max                     0.034900  
+
+
+TABLENAME /annual_job_relocation_rates
+           job_relocation_probability
+sector_id                            
+11                              0.005
+21                              0.005
+22                              0.005
+23                              0.005
+31                              0.005
+32                              0.005
+33                              0.005
+42                              0.005
+44                              0.005
+45                              0.005
+48                              0.005
+49                              0.005
+51                              0.005
+52                              0.005
+53                              0.005
+54                              0.005
+55                              0.005
+56                              0.005
+61                              0.005
+62                              0.005
+71                              0.005
+81                              0.005
+92                              0.005
+99                              0.005
+721                             0.005
+722                             0.005
+       job_relocation_probability
+count                      26.000
+mean                        0.005
+std                         0.000
+min                         0.005
+25%                         0.005
+50%                         0.005
+75%                         0.005
+max                         0.005
+
+
+TABLENAME /building_sqft_per_job
+<class 'pandas.core.frame.DataFrame'>
+MultiIndex: 19194 entries, (1011, 1) to (9531, 99)
+Data columns (total 1 columns):
+building_sqft_per_job    19194  non-null values
+dtypes: int32(1)
+       building_sqft_per_job
+count           19194.000000
+mean              802.571429
+std              1304.978167
+min               250.000000
+25%               250.000000
+50%               439.000000
+75%               718.000000
+max              6358.000000
+
+
+TABLENAME /building_types
+                       building_type_name  is_residential
+building_type_id                                         
+1                           single_family               1
+2                            multi_family               1
+3                       commerical_retail               0
+4                     commercial_services               0
+5                                  office               0
+6                              industrial               0
+7                                 medical               0
+8                             educational               0
+9                         airport_related               0
+10                  transport_and_parking               0
+11                           agricultural               0
+13                           recreational               0
+16                                utility               0
+17                              community               0
+18                      kirkland_air_base               0
+19                              mixed_use               0
+20                                 prison               0
+31                       commercial_major               0
+51                           office_major               0
+61                wholesale_and_warehouse               0
+99                                  other               0
+       is_residential
+count       21.000000
+mean         0.095238
+std          0.300793
+min          0.000000
+25%          0.000000
+50%          0.000000
+75%          0.000000
+max          1.000000
+
+
+TABLENAME /buildings
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 326508 entries, 1 to 331841
+Data columns (total 10 columns):
+building_type_id              326508  non-null values
+improvement_value             326508  non-null values
+imputation_flag               326508  non-null values
+non_residential_sqft          326508  non-null values
+parcel_id                     326508  non-null values
+residential_units             326508  non-null values
+sqft_per_unit                 326508  non-null values
+unit_price_non_residential    326508  non-null values
+unit_price_residential        326508  non-null values
+year_built                    326508  non-null values
+dtypes: float32(4), int32(6)
+       building_type_id  improvement_value  imputation_flag  \
+count     326508.000000       3.265080e+05    326508.000000   
+mean           2.436893       2.597783e+05         0.522391   
+std           10.340911       6.863368e+05         3.544074   
+min            1.000000       0.000000e+00         0.000000   
+25%            1.000000       1.259790e+05         0.000000   
+50%            1.000000       1.816625e+05         0.000000   
+75%            1.000000       2.671692e+05         0.000000   
+max           99.000000       1.114399e+08        29.000000   
+
+       non_residential_sqft     parcel_id  residential_units  sqft_per_unit  \
+count         326508.000000  326508.00000      326508.000000  326508.000000   
+mean             439.578314  360085.78067           1.162630    1648.509047   
+std            17844.399485  134911.96058           6.546508    1494.373908   
+min                0.000000       2.00000           0.000000       0.000000   
+25%                0.000000  260047.75000           1.000000    1005.000000   
+50%                0.000000  356388.00000           1.000000    1494.000000   
+75%                0.000000  447500.50000           1.000000    2019.000000   
+max          4835352.000000  622377.00000         875.000000  217224.000000   
+
+       unit_price_non_residential  unit_price_residential     year_built  
+count               326508.000000           326508.000000  326508.000000  
+mean                    10.268862           222915.643500    1972.552391  
+std                   5404.829966           320680.774147     121.712673  
+min                      0.000000                0.000000       0.000000  
+25%                      0.000000           117202.687500    1966.000000  
+50%                      0.000000           174408.312500    1983.000000  
+75%                      0.000000           255208.851562    1995.000000  
+max                3086193.000000         12090169.000000    2013.000000  
+
+
+TABLENAME /counties
+          county_name
+county_id            
+1          BERNALILLO
+2            SANDOVAL
+3            SANTA FE
+4            TORRANCE
+5            VALENCIA
+       county_name
+count            5
+unique           5
+top       TORRANCE
+freq             1
+
+
+TABLENAME /development_event_history
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 91931 entries, 276987 to 276712
+Data columns (total 9 columns):
+building_type_id        91931  non-null values
+improvement_value       91931  non-null values
+imputation_flag         91931  non-null values
+non_residential_sqft    91931  non-null values
+parcel_id               91931  non-null values
+residential_units       91931  non-null values
+sqft_per_unit           91931  non-null values
+stories                 91931  non-null values
+year_built              91931  non-null values
+dtypes: float32(3), int32(6)
+       building_type_id  improvement_value  imputation_flag  \
+count      91931.000000       9.193100e+04     91931.000000   
+mean           1.581273       3.351167e+05         0.422175   
+std            4.747788       1.164470e+06         3.191921   
+min            1.000000       0.000000e+00         0.000000   
+25%            1.000000       1.623608e+05         0.000000   
+50%            1.000000       2.206353e+05         0.000000   
+75%            1.000000       3.228503e+05         0.000000   
+max           61.000000       1.114399e+08        29.000000   
+
+       non_residential_sqft      parcel_id  residential_units  sqft_per_unit  \
+count          91931.000000   91931.000000       91931.000000   91931.000000   
+mean             708.859308  348713.092559           1.236275    1840.319022   
+std            15764.521038  123995.250468           7.198007     946.630379   
+min                0.000000       4.000000           0.000000       0.000000   
+25%                0.000000  255538.500000           1.000000    1299.000000   
+50%                0.000000  340033.000000           1.000000    1715.000000   
+75%                0.000000  423482.500000           1.000000    2270.000000   
+max           993028.000000  621770.000000         473.000000   64505.000000   
+
+            stories    year_built  
+count  91931.000000  91931.000000  
+mean       1.277632   2000.460693  
+std        0.464853      5.116586  
+min        0.000000   1990.000000  
+25%        1.000000   1996.000000  
+50%        1.000000   2001.000000  
+75%        2.000000   2005.000000  
+max       16.000000   2012.000000  
+
+
+TABLENAME /households
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 351317 entries, 1 to 351317
+Data columns (total 15 columns):
+age_of_head     351317  non-null values
+building_id     351317  non-null values
+cars            351317  non-null values
+children        351317  non-null values
+county          351317  non-null values
+frequency       351317  non-null values
+hhid            351317  non-null values
+income          351317  non-null values
+persons         351317  non-null values
+recent_mover    351317  non-null values
+state           351317  non-null values
+tenure          351317  non-null values
+tract           351317  non-null values
+unit            351317  non-null values
+workers         351317  non-null values
+dtypes: int32(15)
+         age_of_head    building_id           cars       children  \
+count  351317.000000  351317.000000  351317.000000  351317.000000   
+mean       50.035284  157890.649525       1.849082       3.340499   
+std        16.588433   98058.281700       1.034981       1.020656   
+min        16.000000      -1.000000       0.000000       1.000000   
+25%        37.000000   74464.000000       1.000000       2.000000   
+50%        50.000000  161076.000000       2.000000       4.000000   
+75%        61.000000  237853.000000       2.000000       4.000000   
+max        93.000000  331841.000000       6.000000       4.000000   
+
+              county      frequency           hhid         income  \
+count  351317.000000  351317.000000  351317.000000  351317.000000   
+mean       12.925742       1.503562    4724.860123   64207.290604   
+std        21.457303       1.484323    2731.777069   60375.103384   
+min         1.000000       1.000000       1.000000   -6600.000000   
+25%         1.000000       1.000000    2346.000000   25000.000000   
+50%         1.000000       1.000000    4729.000000   49000.000000   
+75%         1.000000       1.000000    7102.000000   84400.000000   
+max        61.000000      45.000000    9452.000000  785200.000000   
+
+             persons   recent_mover   state         tenure          tract  \
+count  351317.000000  351317.000000  351317  351317.000000  351317.000000   
+mean        2.480381       1.559569      35       1.310956  119125.329782   
+std         1.470187       0.496440       0       0.462885  311887.176791   
+min         1.000000       1.000000      35       1.000000     107.000000   
+25%         1.000000       1.000000      35       1.000000    1200.000000   
+50%         2.000000       2.000000      35       1.000000    3737.000000   
+75%         3.000000       2.000000      35       2.000000   10311.000000   
+max        13.000000       2.000000      35       2.000000  971400.000000   
+
+                unit        workers  
+count  351317.000000  351317.000000  
+mean        1.344822       1.119470  
+std         0.629996       0.864895  
+min         1.000000       0.000000  
+25%         1.000000       0.000000  
+50%         1.000000       1.000000  
+75%         2.000000       2.000000  
+max         3.000000       7.000000  
+
+
+TABLENAME /jobs
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 418460 entries, 1 to 418460
+Data columns (total 3 columns):
+building_id          418460  non-null values
+home_based_status    418460  non-null values
+sector_id            418460  non-null values
+dtypes: int32(3)
+         building_id  home_based_status      sector_id
+count  418460.000000      418460.000000  418460.000000
+mean   168197.378559           0.043667     127.989292
+std     82449.282658           0.204354     207.669567
+min         2.000000           0.000000      11.000000
+25%    101080.000000           0.000000      45.000000
+50%    165570.000000           0.000000      56.000000
+75%    249540.000000           0.000000      81.000000
+max    331836.000000           1.000000     722.000000
+
+
+TABLENAME /parcels
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 622350 entries, 1 to 80959
+Data columns (total 14 columns):
+allow_comm           622350  non-null values
+allow_mf             622350  non-null values
+allow_sf             622350  non-null values
+county_id            622350  non-null values
+dasz_id              622350  non-null values
+land_use_type_id     622350  non-null values
+land_value           622350  non-null values
+max_du_acre          622350  non-null values
+max_far              622350  non-null values
+objectid             622350  non-null values
+parcel_acres         622350  non-null values
+pct_undevelopable    622350  non-null values
+tract_id             622350  non-null values
+zone_id              622350  non-null values
+dtypes: float32(5), int32(9)
+          allow_comm       allow_mf       allow_sf      county_id  \
+count  622350.000000  622350.000000  622350.000000  622350.000000   
+mean        0.549183       0.565333       0.827226       2.657484   
+std         0.497576       0.495714       0.378052       1.731717   
+min         0.000000       0.000000       0.000000       1.000000   
+25%         0.000000       0.000000       1.000000       1.000000   
+50%         1.000000       1.000000       1.000000       2.000000   
+75%         1.000000       1.000000       1.000000       5.000000   
+max         1.000000       1.000000       1.000000       5.000000   
+
+             dasz_id  land_use_type_id    land_value    max_du_acre  \
+count  622350.000000     622350.000000  6.223500e+05  622350.000000   
+mean     4783.924346          6.431648  3.441385e+04       3.354859   
+std      2398.198671          6.707047  6.675772e+05       3.415802   
+min      1011.000000          0.000000  0.000000e+00       0.000000   
+25%      3251.000000          1.000000  3.510000e+02       1.000000   
+50%      4442.000000          1.000000  1.360000e+04       1.000000   
+75%      6345.000000         12.000000  3.255200e+04       6.701540   
+max      9531.000000        154.000000  3.735362e+08      50.000000   
+
+             max_far       objectid  parcel_acres  pct_undevelopable  \
+count  622350.000000  622350.000000  6.223500e+05             622350   
+mean        0.435228   97461.510012  9.863307e+00                  0   
+std         1.198974   64371.902375  8.718267e+02                  0   
+min         0.000000       1.000000  2.229173e-15                  0   
+25%         0.000000   41539.000000  1.828157e-01                  0   
+50%         0.250000   92246.500000  3.368580e-01                  0   
+75%         0.250000  144109.000000  8.778367e-01                  0   
+max        10.000000  244235.000000  4.372237e+05                  0   
+
+            tract_id        zone_id  
+count  622350.000000  622350.000000  
+mean     3748.678226     347.737447  
+std      4678.242721     267.203795  
+min         1.000000       1.000000  
+25%        38.000000     165.000000  
+50%       107.000000     237.000000  
+75%      9703.000000     529.000000  
+max      9714.000000     900.000000  
+
+
+TABLENAME /target_vacancies
+<class 'pandas.core.frame.DataFrame'>
+MultiIndex: 363 entries, (2, 2010) to (1, 2042)
+Data columns (total 1 columns):
+target_vacancy_rate    363  non-null values
+dtypes: float32(1)
+       target_vacancy_rate
+count           363.000000
+mean              0.072818
+std               0.010826
+min               0.063000
+25%               0.063000
+50%               0.068000
+75%               0.074000
+max               0.095000
+
+
+TABLENAME /travel_data
+<class 'pandas.core.frame.DataFrame'>
+MultiIndex: 839056 entries, (14, 14) to (916, 916)
+Data columns (total 1 columns):
+travel_time    839056  non-null values
+dtypes: float32(1)
+         travel_time
+count  839056.000000
+mean       36.252222
+std        22.060922
+min         2.332600
+25%        18.794100
+50%        30.763650
+75%        50.616699
+max       173.064697
+
+
+TABLENAME /zones
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 916 entries, 1 to 916
+Data columns (total 6 columns):
+acres               916  non-null values
+county_id           916  non-null values
+dasz_id             916  non-null values
+remi_id             916  non-null values
+time_to_airport     916  non-null values
+time_to_downtown    916  non-null values
+dtypes: float32(3), int32(3)
+               acres   county_id      dasz_id     remi_id  time_to_airport  \
+count     916.000000  916.000000   916.000000  916.000000       916.000000   
+mean     7031.947598    1.591703  5678.896288    2.744541        30.888160   
+std     36451.282287    1.185199  2252.137575    1.831188        16.167197   
+min        12.017532    1.000000   998.000000    1.000000         5.524700   
+25%       159.864971    1.000000  4414.750000    1.000000        18.311475   
+50%       275.401474    1.000000  6121.500000    2.000000        24.798200   
+75%       974.876984    2.000000  7263.250000    4.000000        44.171400   
+max    572405.000000    5.000000  9531.000000    7.000000        96.640503   
+
+       time_to_downtown  
+count        916.000000  
+mean          30.292342  
+std           16.614337  
+min            6.349400  
+25%           17.983800  
+50%           24.169001  
+75%           42.094774  
+max          102.275398  

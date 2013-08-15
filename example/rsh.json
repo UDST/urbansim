@@ -1,0 +1,39 @@
+{
+  "table": "dset.buildings",
+  "merge": {
+    "table":"dset.fetch('zones')",
+    "left_on":"zone_id",
+    "right_index":true
+  },
+  "model": "hedonicmodel",
+  "filters":         ["_tbl_.building_type_id<3"],
+  "estimate_filters": ["_tbl_.residential_units>0",
+                      "_tbl_.improvement_value>40000"],
+  "segment": ["building_type_id"],
+  "dep_var": "unit_price_residential",
+  "dep_var_transform": "np.log",
+  "var_lib_file": "var_lib.json",
+  "ind_vars": [
+    "historic",
+    "new",
+    "year_built",
+    "ln_parcel_acres",
+    "ln_sqft_per_unit",
+    "ln_average_income",
+    "ln_population_in_range",
+    "ln_time_to_downtown"
+  ],
+  "submodel_vars": {"2": [
+    "historic",
+    "new",
+    "ln_average_income"
+  ]},
+  "add_constant": true,
+  "output_names": [
+    "mrcog-coeff-reshedonic-sales.csv",
+    "MRCOG RESIDENTIAL HEDONIC MODEL (SALES)",
+    "residential_sales_price_%s",
+    "residential_sales_price"
+  ],
+  "output_transform": "np.exp"
+}

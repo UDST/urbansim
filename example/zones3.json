@@ -1,0 +1,9 @@
+{
+  "table": "dset.zones",
+  "writetotmp": "zones",
+  "model": "minimodel",
+  "var_lib": {
+    "average_nonresprice": "dset.buildings.groupby('zone_id').nonresidential_price.mean().apply(np.log1p)"
+  },
+  "ind_vars": ["average_nonresprice"]
+}

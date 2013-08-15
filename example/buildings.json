@@ -1,0 +1,10 @@
+{
+  "table": "dset.buildings",
+  "writetotmp": "buildings",
+  "model": "minimodel",
+  "var_lib": {
+    "zone_id": "dset.parcels.ix[_tbl_.parcel_id].zone_id.values",
+    "parcel_acres": "dset.parcels.ix[_tbl_.parcel_id].parcel_acres.values"
+  },
+  "ind_vars": ["zone_id","parcel_acres"]
+}
