@@ -3,6 +3,8 @@ urbansim
 
 New lightweight version of UrbanSim, a tool for forecasting future growth in real estate markets
 
+![synthicity](http://www.synthicity.com/uploads/1/8/3/2/18327643/9164254_orig.png)
+
 Concept
 -------
 
