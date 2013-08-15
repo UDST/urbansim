@@ -18,7 +18,7 @@ http://www.continuum.io/downloads
 Get repository:
 
 ```
-git clone https://github.com/fscottfoti/urbansim.git
+>> git clone https://github.com/fscottfoti/urbansim.git
 ```
 
 Set environment variables:
