@@ -6,10 +6,10 @@ import numpy, string, time
 from django.utils import simplejson
 from django.http import HttpResponse
 from django.conf import settings
-from bayarea import dataset
+from synthicity.urbansim import dataset
 import random
 import sys, math
-from utils import misc
+from synthicity.utils import misc
     
 AVAILABLEYEARS = [2010]
 DEBUG = True

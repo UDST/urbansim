@@ -1,5 +1,5 @@
 import pandas as pd, numpy as np, statsmodels.api as sm
-from utils import misc
+from synthicity.utils import misc
 from modelspec import spec, fetch_table
 import time, copy
 

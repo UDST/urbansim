@@ -26,8 +26,8 @@
   ],
   "output_names": [
     "mrcog-coeff-nonreslocation-%s.csv",
-    "MRCOG RESIDENTIAL LOCATION CHOICE MODELS (%s)",
-    "res_location_%s",
+    "MRCOG NONRESIDENTIAL LOCATION CHOICE MODELS (%s)",
+    "nonres_location_%s",
     "jobs_building_ids"
   ]
 }

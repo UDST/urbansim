@@ -1,8 +1,6 @@
-import numpy as np
-import pandas as pd, sys, time
+import numpy as np, pandas as pd, sys, time
 import mnl, nl
 import random
-from urbansim.choices import lottery_choices
 import pmat
 
 GPU=0

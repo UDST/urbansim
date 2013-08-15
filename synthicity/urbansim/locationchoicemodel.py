@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np, statsmodels.api as sm
-from utils import misc
+from synthicity.utils import misc
 from modelspec import spec, fetch_table, calcvar, merge
-import locationchoice
+import interaction
 import os, time, copy
 
 SAMPLE_SIZE=100
@@ -38,7 +38,7 @@ def estimate(dset,config,year,show=True,variables=None):
     assert "dep_var" in config
     depvar = config["dep_var"]
     SAMPLE_SIZE = config["alt_sample_size"] if "alt_sample_size" in config else SAMPLE_SIZE 
-    sample, alternative_sample, est_params = locationchoice.mnl_interaction_dataset(
+    sample, alternative_sample, est_params = interaction.mnl_interaction_dataset(
                                         segment,alternatives,SAMPLE_SIZE,chosenalts=segment[depvar])
 
     print "Estimating parameters for segment = %s, size = %d" % (name, len(segment.index)) 
@@ -50,9 +50,9 @@ def estimate(dset,config,year,show=True,variables=None):
     fnames = config['ind_vars']
     fnames = config['ind_var_names'] if 'ind_var_names' in config else fnames
 
-    fit, results = locationchoice.estimate(data,est_params,SAMPLE_SIZE)
+    fit, results = interaction.estimate(data,est_params,SAMPLE_SIZE)
     
-    fnames = locationchoice.add_fnames(fnames,est_params)
+    fnames = interaction.add_fnames(fnames,est_params)
     if show: print misc.resultstotable(fnames,results)
     misc.resultstocsv(fit,fnames,results,tmp_outcsv,tblname=tmp_outtitle)
     dset.store_coeff(tmp_coeffname,zip(*results)[0],fnames)
@@ -127,12 +127,12 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
   
     SAMPLE_SIZE = alternatives.index.size # don't sample
     sample, alternative_sample, est_params = \
-             locationchoice.mnl_interaction_dataset(segment,alternatives,SAMPLE_SIZE,chosenalts=None)
+             interaction.mnl_interaction_dataset(segment,alternatives,SAMPLE_SIZE,chosenalts=None)
     data = spec(alternative_sample,config)
     data = data.as_matrix()
 
     coeff = dset.load_coeff(tmp_coeffname)
-    probs = locationchoice.mnl_simulate(data,coeff,numalts=SAMPLE_SIZE,returnprobs=1)
+    probs = interaction.mnl_simulate(data,coeff,numalts=SAMPLE_SIZE,returnprobs=1)
     pdf['segment%s'%name] = pd.Series(probs.flatten(),index=alternatives.index)
 
   print "Finished creating pdf in %f seconds" % (time.time()-t1)
@@ -192,7 +192,7 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
   if 'web_service' in config and config['web_service']: # results to web service
     parcel_predictions = pd.merge(dset.fetch('parcels')[['_node_id']],
                                             pdf*alternatives.index.size,left_on='_node_id',right_index=True)
-    from urbansimd import urbansimd
+    from synthicity.urbansimd import urbansimd
     PORT = 8759
     parcelcentroids = pd.read_csv(os.path.join(misc.data_dir(),'parcel_centroids.csv'),index_col='parcel_id')
     tabledict = {'location_results':parcel_predictions.astype('float')}

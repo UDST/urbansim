@@ -1,9 +1,7 @@
 import os, json, sys, time
-from mrcog import dataset
-from utils import misc
-from urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel
-from urbansim import locationchoice
-from multiprocessing import Pool
+from synthicity.utils import misc
+from synthicity.urbansim import minimodel,hedonicmodel,locationchoicemodel,transitionmodel
+import dataset
 
 args = sys.argv[1:]
 
@@ -32,6 +30,7 @@ if __name__ == '__main__':
     for arg in args: run_model(arg,show=False,estimate=0,year=2010+i)
     print "Time to simulate year %d = %.3f" % (i+1,time.time()-t2)
   print "Actual time to simulate per year = %.3f" % ((time.time()-t1)/float(numyears))
+  #from multiprocessing import Pool
   #pool = Pool(processes=len(args))
   #pool.map(run_model,args)
   dataset.save_coeffs(os.path.join(misc.runs_dir(),'run_drive_%d.h5'%num))

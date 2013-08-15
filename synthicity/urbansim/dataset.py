@@ -1,6 +1,6 @@
 import numpy as np, pandas as pd
 import time, os
-from utils import misc
+from synthicity.utils import misc
 import warnings
 
 warnings.filterwarnings('ignore',category=pd.io.pytables.PerformanceWarning)

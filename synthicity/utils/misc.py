@@ -1,5 +1,5 @@
-from utils import texttable as tt
-from urbansim import locationchoice 
+from synthicity.utils import texttable as tt
+from synthicity.urbansim import interaction
 import os, sys, getopt, csv, fcntl, string
 
 VARNAMESDICT = {
@@ -119,7 +119,7 @@ RUNCONFIG = {}
 def process_args():
     opts, args = getopt.getopt(sys.argv[1:], "glnd")
     for o, a in opts:
-      if o == "-g": locationchoice.enable_gpu()
+      if o == "-g": interaction.enable_gpu()
       if o == "-n": RUNCONFIG['update_networks'] = 1
       if o == "-d": RUNCONFIG['run_developer'] = 1
       if o == "-l": RUNCONFIG['lottery_choices'] = 1
