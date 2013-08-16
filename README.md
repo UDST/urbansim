@@ -21,9 +21,13 @@ Currently supported models are enough to create a basic 30 year simulation that 
 On the other hand, if you're a person who just wants to create the easiest and most straightforward location choice model around and map it, you've also come to the right place.
 
 [1] http://urbansim.org/
+
 [2] http://pydata.org
+
 [3] http://pandas.pydata.org
+
 [4] http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793
+
 [5] http://en.wikipedia.org/wiki/JSON
 
 Installation
