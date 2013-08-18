@@ -1,6 +1,22 @@
 from synthicity.utils import texttable as tt
 from synthicity.urbansim import interaction
-import os, sys, getopt, csv, fcntl, string
+import os, sys, getopt, csv, fcntl, string, time, json
+
+def run_model(fname,dset,show=1,estimate=1,year=2010):
+  from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel
+  if type(fname) == type(""): 
+    print "Running %s\n" % fname
+    config = json.loads(open(fname).read()) 
+  else: 
+    config = fname
+    fname = config["_id"]
+  assert "model" in config
+  model = eval(config["model"])
+  if estimate: model.estimate(dset,config,2010,show=show)
+  if config["model"] == "hedonicmodel" or not estimate: 
+    t1 = time.time()
+    model.simulate(dset,config,year,show=show)
+    print "SIMULATED %s model in %.3f seconds" % (fname,time.time()-t1)
 
 VARNAMESDICT = {
 'number_of_stories':'Stories',

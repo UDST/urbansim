@@ -158,7 +158,7 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
           indexes = np.random.choice(len(alternatives.index),len(segment.index),replace=False,p=p/p.sum())
         except:
           print "WARNING: not enough options to fit agents, will result in unplaced agents"
-          return
+          return mask,new_homes
         new_homes.ix[segment.index] = alternatives.index.values[indexes]
         
         if minsize is not None: alternatives["supply"].ix[alternatives.index.values[indexes]] -= minsize
