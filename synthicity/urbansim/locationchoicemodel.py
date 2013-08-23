@@ -133,11 +133,13 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
 
     coeff = dset.load_coeff(tmp_coeffname)
     probs = interaction.mnl_simulate(data,coeff,numalts=SAMPLE_SIZE,returnprobs=1)
-    pdf['segment%s'%name] = pd.Series(probs.flatten(),index=alternatives.index)
+    pdf['segment%s'%name] = pd.Series(probs.flatten(),index=alternatives.index) 
 
   print "Finished creating pdf in %f seconds" % (time.time()-t1)
   if len(pdf.columns): print pdf.describe()
   t1 = time.time()
+    
+  if 'save_pdf' in config: dset.save_tmptbl(config['save_pdf'],pdf)
 
   if 'supply_constraint' in config: # draw from actual units
     new_homes = pd.Series(np.ones(len(movers.index))*-1,index=movers.index)
@@ -189,13 +191,4 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
     table[dep_var].ix[new_homes.index] = new_homes.values.astype('int32')
     if output_varname: dset.store_attr(output_varname,year,copy.deepcopy(table[dep_var]))
 
-  if 'web_service' in config and config['web_service']: # results to web service
-    parcel_predictions = pd.merge(dset.fetch('parcels')[['_node_id']],
-                                            pdf*alternatives.index.size,left_on='_node_id',right_index=True)
-    from synthicity.urbansimd import urbansimd
-    PORT = 8759
-    parcelcentroids = pd.read_csv(os.path.join(misc.data_dir(),'parcel_centroids.csv'),index_col='parcel_id')
-    tabledict = {'location_results':parcel_predictions.astype('float')}
-    urbansimd.start_service(parcelcentroids,tabledict,PORT,srid=3857,sqlite=0)
-  
   print "Finished assigning agents in %f seconds" % (time.time()-t1)

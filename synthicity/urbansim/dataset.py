@@ -33,11 +33,13 @@ class Dataset(object):
     outstore = pd.HDFStore(filename)
     for key in self.attrs.keys():
       df = self.attrs[key]
+      df = misc.df64bitto32bit(df)
       print key+"\n", df.describe()
       outstore[key] = df
     
     for key in self.savetbls:
       df = self.fetch(key)
+      df = misc.df64bitto32bit(df)
       print key+"\n", df.describe()
       outstore[key] = df
 
@@ -77,8 +79,11 @@ class Dataset(object):
     return self.attrs[name][year]
 
   def store_attr(self,name,year,value):
+    value = misc.series64bitto32bit(value) 
     if name in self.attrs and year in self.attrs[name]: del self.attrs[name][year]
-    self.attrs[name] = pd.concat([self.attrs.get(name,pd.DataFrame()),pd.DataFrame({year:value})],axis=1)
+    df = self.attrs.get(name,pd.DataFrame(index=value.index))
+    df[year] = value
+    self.attrs[name] = df
 
   def load_coeff(self,name):
     return self.coeffs[(name,'coeffs')].dropna()

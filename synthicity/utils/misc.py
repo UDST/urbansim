@@ -1,6 +1,7 @@
 from synthicity.utils import texttable as tt
 from synthicity.urbansim import interaction
 import os, sys, getopt, csv, fcntl, string, time, json
+import pandas as pd, numpy as np
 
 def run_model(fname,dset,show=1,estimate=1,year=2010):
   from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel
@@ -171,3 +172,16 @@ naics_d = { \
 
 def naicsname(val):
     return naics_d[val]
+
+def df64bitto32bit(tbl):
+    newtbl = pd.DataFrame(index=tbl.index)
+    for colname in tbl.columns:
+        if tbl[colname].dtype == np.float64: newtbl[colname] = tbl[colname].astype('float32') 
+        elif tbl[colname].dtype == np.int64: newtbl[colname] = tbl[colname].astype('int32')
+        else: newtbl[colname] = tbl[colname]
+    return newtbl
+
+def series64bitto32bit(s):
+    if s.dtype == np.float64: return s.astype('float32') 
+    elif s.dtype == np.int64: return s.astype('int32')
+    return s

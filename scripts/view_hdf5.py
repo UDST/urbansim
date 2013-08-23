@@ -12,4 +12,5 @@ print store
 for key in store.keys():
     print "\n\nTABLENAME", key
     print store[key]
+    print store[key].dtypes
     print store[key].describe()
