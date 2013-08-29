@@ -1,10 +1,10 @@
 from synthicity.utils import texttable as tt
 from synthicity.urbansim import interaction
-import os, sys, getopt, csv, fcntl, string, time, json
+import os, sys, getopt, csv, string, time, json
 import pandas as pd, numpy as np
 
 def run_model(fname,dset,show=1,estimate=1,year=2010):
-  from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel
+  from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel, networks
   if type(fname) == type(""): 
     print "Running %s\n" % fname
     config = json.loads(open(fname).read()) 
@@ -172,6 +172,17 @@ naics_d = { \
 
 def naicsname(val):
     return naics_d[val]
+
+def writenumpy(series,name,outdir="."):
+    #print name,series.describe()
+    series = series.dropna()
+    series.sort()
+    fname = os.path.join(outdir,'tmp' if not name else name)
+    np.savez(fname,parcel_id=series.index.values.astype('int32'),values=series.values.astype('float32'))
+
+def writenumpy_df(df,outdir="."):
+    for column in df.columns:
+        writenumpy(df[column],column,outdir)
 
 def df64bitto32bit(tbl):
     newtbl = pd.DataFrame(index=tbl.index)
