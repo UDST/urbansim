@@ -10,7 +10,9 @@ def run_model(fname,dset,show=1,estimate=1,year=2010):
     config = json.loads(open(fname).read()) 
   else: 
     config = fname
-    fname = config["_id"]
+    if "_id" in config: fname = config["_id"]
+    elif "name" in config: fname = config["name"]
+    else: fname = "tmp_model"
   assert "model" in config
   model = eval(config["model"])
   if estimate: model.estimate(dset,config,2010,show=show)
