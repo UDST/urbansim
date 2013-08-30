@@ -79,7 +79,7 @@ class Dataset(object):
     return self.attrs[name][year]
 
   def store_attr(self,name,year,value):
-    value = misc.series64bitto32bit(value) 
+    value = misc.series64bitto32bit(value)
     if name in self.attrs and year in self.attrs[name]: del self.attrs[name][year]
     df = self.attrs.get(name,pd.DataFrame(index=value.index))
     df[year] = value
