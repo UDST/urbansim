@@ -68,7 +68,7 @@ def simulate(dset,config,year=None,show=True,variables=None):
     for row in cnt.iterrows():
       index,row = row
       subset = hhs
-      if type(index) == np.int64: index = [index]
+      if type(index) in [np.int32,np.int64]: index = [index]
       for col,name in zip(index,cols): subset = subset[subset[name] == col]
       num = row.values[0]
       if num == 0: continue
@@ -84,7 +84,7 @@ def simulate(dset,config,year=None,show=True,variables=None):
   newhh[config["geography_field"]] = -1
   newhh["_year_added_"] = np.array([curyear]*len(newhh.index))
 
-  if hhs.index.values.dtype != np.int: raise Exception("Only unique integer labels are allowed")
+  if hhs.index.values.dtype not in [np.int32,np.int64]: raise Exception("Only unique integer labels are allowed")
   newhh = newhh.set_index(np.arange(len(newhh.index))+np.amax(hhs.index.values)+1)
   hhs = pd.concat([hhs,newhh])
   dset.save_tmptbl(outtblname,hhs)
