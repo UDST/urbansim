@@ -1,7 +1,8 @@
 import numpy as np, pandas as pd, time, sys
 import cPickle, os
 from synthicity.utils import misc
-from pyaccess.pyaccess import PyAccess
+try: from pyaccess.pyaccess import PyAccess
+except: pass
 
 class Networks:
 
