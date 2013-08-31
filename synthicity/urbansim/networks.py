@@ -1,13 +1,12 @@
 import numpy as np, pandas as pd, time, sys
 import cPickle, os
 from synthicity.utils import misc
-try: from pyaccess.pyaccess import PyAccess
-except: pass
 
 class Networks:
 
   def __init__(self,filenames,factors,maxdistances,twoway):
     if not filenames: return
+    from pyaccess.pyaccess import PyAccess
     self.pya = PyAccess()
     self.pya.createGraphs(len(filenames))
     for num,filename,factor,maxdistance,twoway in zip(range(len(filenames)),filenames,factors,maxdistances,twoway):
