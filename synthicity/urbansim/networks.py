@@ -15,9 +15,11 @@ class Networks:
       self.nodeids = net['nodeids']
       self.pya.precomputeRange(maxdistance,num)
 
-  def accvar(self,df,distance,xname='x',yname='y',vname=None,agg=PyAccess.AGG_SUM,decay=PyAccess.DECAY_LINEAR):
+  def accvar(self,df,distance,xname='x',yname='y',vname=None,agg="AGG_SUM",decay="DECAY_LINEAR"):
     assert self.pya # need to generate pyaccess first
     pya = self.pya
+    if type(agg) == type(""): agg = getattr(pya,agg)
+    if type(decay) == type(""): decay = getattr(pya,decay)
     
     xys = np.array(df[[xname,yname]],dtype="float32")
     node_ids = pya.XYtoNode(xys,distance=distance)
