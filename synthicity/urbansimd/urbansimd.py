@@ -105,7 +105,6 @@ if __name__ == '__main__':
 
     from geopandas import *
     df = GeoDataFrame.from_file(args[0])
-    df['tmp'] = df['PARCEL_ACR'] 
     print df
     df.set_index(args[1],inplace=True)
     centroid = df.geometry.to_crs(epsg=3857).centroid
