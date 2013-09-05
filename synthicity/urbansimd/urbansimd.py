@@ -1,6 +1,6 @@
 from bottle import route, run, response, hook, request, post
 import pandas as pd, numpy as np, os
-import json, cPickle, sys, math
+import json, cPickle, sys, math, time
 from django.utils import simplejson
 from django.http import HttpResponse
 from django.conf import settings
@@ -104,9 +104,13 @@ if __name__ == '__main__':
     port = 8765
 
     from geopandas import *
+    print time.ctime()
     df = GeoDataFrame.from_file(args[0])
     print df
     df.set_index(args[1],inplace=True)
-    centroid = df.geometry.to_crs(epsg=3857).centroid
+    print time.ctime()
+    centroid = df.geometry.centroid.to_crs(epsg=3857)
+    print time.ctime()
     geomxys = pd.DataFrame({'x':centroid.apply(lambda x: x.x),'y':centroid.apply(lambda y: y.y)},index=centroid.index)
+    print geomxys
     start_service(geomxys,{'interactive':df},port)
