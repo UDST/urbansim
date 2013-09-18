@@ -37,6 +37,7 @@ def estimate(dset,config,year,show=True,variables=None):
 
     assert "dep_var" in config
     depvar = config["dep_var"]
+    global SAMPLE_SIZE
     SAMPLE_SIZE = config["alt_sample_size"] if "alt_sample_size" in config else SAMPLE_SIZE 
     sample, alternative_sample, est_params = interaction.mnl_interaction_dataset(
                                         segment,alternatives,SAMPLE_SIZE,chosenalts=segment[depvar])

@@ -3,7 +3,7 @@ from synthicity.urbansim import interaction
 import os, sys, getopt, csv, string, time, json
 import pandas as pd, numpy as np
 
-def run_model(fname,dset,show=1,estimate=1,year=2010):
+def run_model(fname,dset,show=1,estimate=1,year=2010,variables=None):
   from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel, networks
   if type(fname) == type(""): 
     print "Running %s\n" % fname
@@ -15,10 +15,10 @@ def run_model(fname,dset,show=1,estimate=1,year=2010):
     else: fname = "tmp_model"
   assert "model" in config
   model = eval(config["model"])
-  if estimate: model.estimate(dset,config,2010,show=show)
+  if estimate: model.estimate(dset,config,2010,show=show,variables=variables)
   if config["model"] == "hedonicmodel" or not estimate: 
     t1 = time.time()
-    model.simulate(dset,config,year,show=show)
+    model.simulate(dset,config,year,show=show,variables=variables)
     print "SIMULATED %s model in %.3f seconds" % (fname,time.time()-t1)
 
 VARNAMESDICT = {
