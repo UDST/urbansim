@@ -24,3 +24,12 @@ def np_coord_convert_all(a):
 
 	#bats['origpoint'] = bats['origpoint'].apply(lambda x: x.decode('hex')).apply(shapely.wkb.loads)
     #bats['destpoint'] = bats['destpoint'].apply(lambda x: x.decode('hex')).apply(shapely.wkb.loads)
+
+def convert_df(df,xname='x',yname='y',srcsrid=3740,tgtsrid=4326):
+    x = df[xname].values
+    y = df[yname].values
+    for i in range(len(df.index)):
+      x[i], y[i] = coord_convert(x[i],y[i],srcsrid=srcsrid,tgtsrid=tgtsrid)
+    df[xname] = x
+    df[yname] = y
+    return df

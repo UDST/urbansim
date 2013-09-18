@@ -21,7 +21,7 @@ class PMAT:
 
     def __init__(self,mat,typ='numpy'):
         self.typ = typ
-        if type(mat) != np.ndarray and type(mat) != np.float64:
+        if type(mat) != np.ndarray and type(mat) != np.matrix and type(mat) != np.float64:
             self.typ = 'cuda'
             self.mat = mat
         elif typ == 'numpy':
@@ -100,7 +100,8 @@ class PMAT:
 
     def sum(self,axis,shorten=0):
       if self.typ == 'numpy': 
-        return PMAT(np.sum(self.mat,axis=axis,dtype="float64"))
+        # this is weird, but a numpy sum return flat array sometimes and we want 2D matrices
+        return PMAT(np.array(np.matrix(self.mat).sum(axis=axis,dtype="float64")))
       elif self.typ == 'cuda': 
         return PMAT(self.mat.sum(axis=axis))
 

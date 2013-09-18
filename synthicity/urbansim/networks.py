@@ -1,18 +1,26 @@
 import numpy as np, pandas as pd, time, sys
 import cPickle, os
-from synthicity.utils import misc
+from synthicity.utils import misc, geomisc
 
 class Networks:
 
-  def __init__(self,filenames,factors,maxdistances,twoway):
+  def __init__(self,filenames,factors,maxdistances,twoway,impedances=None):
     if not filenames: return
     from pyaccess.pyaccess import PyAccess
     self.pya = PyAccess()
     self.pya.createGraphs(len(filenames))
-    for num,filename,factor,maxdistance,twoway in zip(range(len(filenames)),filenames,factors,maxdistances,twoway):
+    if impedances is None: impedances = [None]*len(filenames)
+    self.nodeids = []
+    self.external_nodeids = []
+    for num,filename,factor,maxdistance,twoway,impedance in \
+                   zip(range(len(filenames)),filenames,factors,maxdistances,twoway,impedances):
       net = cPickle.load(open(filename))
-      self.pya.createGraph(num,net['nodeids'],net['nodes'],net['edges'],net['edgeweights']*factor,twoway=twoway)
-      self.nodeids = net['nodeids']
+      if impedance is None: impedance = "net['edgeweights']"
+      impedance = eval(impedance)
+      self.pya.createGraph(num,net['nodeids'],net['nodes'],net['edges'],impedance*factor,twoway=twoway)
+      if len(filenames) == 1: self.nodeids = net['nodeids']
+      else: self.nodeids += zip([num]*len(net['nodeids']),range(len(net['nodeids']))) # these are the internal ids
+      self.external_nodeids.append(net['nodeids'])
       self.pya.precomputeRange(maxdistance,num)
 
   def accvar(self,df,distance,node_ids=None,xname='x',yname='y',vname=None,agg="AGG_SUM",decay="DECAY_LINEAR"):
@@ -23,15 +31,20 @@ class Networks:
     
     if node_ids is None:
       xys = np.array(df[[xname,yname]],dtype="float32")
-      node_ids = pya.XYtoNode(xys,distance=distance)
+      node_ids = []
+      for gno in range(pya.numgraphs):
+        node_ids.append(pya.XYtoNode(xys,distance=-1,gno=gno))
+    if type(node_ids) <> type([]): node_ids = [node_ids]
 
     pya.initializeAccVars(1)
     num = 0
     aggvar = df[vname].astype('float32') if vname is not None else np.ones(len(df.index),dtype='float32')
-    pya.initializeAccVar(num,[node_ids],aggvar,preaggregate=0)
-    nodeattr = pya.getAllAggregateAccessibilityVariables(distance,num,agg,decay)
-    return pd.Series(nodeattr,index=self.nodeids)
-  
+    pya.initializeAccVar(num,node_ids,aggvar,preaggregate=0)
+    res = []
+    for gno in range(pya.numgraphs):
+      res.append(pya.getAllAggregateAccessibilityVariables(distance,num,agg,decay,gno=gno))
+    return pd.Series(np.concatenate(res),index=pd.MultiIndex.from_tuples(self.nodeids))
+    
   def addnodeid(self,df,tosrid=0):
       try: xys = np.array(df[['x','y']],dtype="float32")
       except: xys = np.array(df[['X','Y']],dtype="float32")
@@ -57,14 +70,16 @@ def simulate(dset,config,year=None,show=True,variables=None):
     assert 'networks' in config
     netconfig = config['networks']
     assert 'filenames' in netconfig and 'factors' in netconfig and 'maxdistances' in netconfig and 'twoway' in netconfig
+    impedances = netconfig['impedances'] if 'impedances' in netconfig else None
     NETWORKS = Networks([os.path.join(misc.data_dir(),x) for x in netconfig['filenames']],
-                    factors=netconfig['factors'],maxdistances=netconfig['maxdistances'],twoway=netconfig['twoway'])
+                    factors=netconfig['factors'],maxdistances=netconfig['maxdistances'],twoway=netconfig['twoway'],
+                    impedances=impedances)
   
   t1 = time.time()
     
   if "ind_vars" not in config: raise Exception("No ind_vars specification")
   if "var_lib" not in config: raise Exception("All network variables are defined in local var_lib")
-  _tbl_ = pd.DataFrame(index=NETWORKS.nodeids)
+  _tbl_ = pd.DataFrame(index=pd.MultiIndex.from_tuples(NETWORKS.nodeids))
   for varname in config["ind_vars"]:
     expression = config["var_lib"][varname]
     _tbl_[varname] = eval(expression).astype('float')

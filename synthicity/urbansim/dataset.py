@@ -45,8 +45,9 @@ class Dataset(object):
 
     outstore.close()
 
-  def copy_coeffs(self,filename):
-    coeffstore = pd.HDFStore(filename)
+  def copy_coeffs(self,filename=None):
+    if filename: coeffstore = pd.HDFStore(filename)
+    else: coeffstore = self.store
     self.coeffs = coeffstore['coefficients'] 
     coeffstore.close()
 
@@ -88,6 +89,12 @@ class Dataset(object):
   def load_coeff(self,name):
     return self.coeffs[(name,'coeffs')].dropna()
   
+  def load_fnames(self,name):
+    return self.coeffs[(name,'fnames')].dropna()
+  
+  def load_coeff_series(self,name):
+    return pd.Series(self.load_coeff(name).values,index=self.load_fnames(name).values)
+
   def store_coeff(self,name,value,fnames=None):
     colname1 = (name,'coeffs')
     colname2 = (name,'fnames')
