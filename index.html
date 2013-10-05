@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Urbansim : New lightweight version of UrbanSim, a tool for forecasting future growth in real estate markets" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Urbansim</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/fscottfoti/urbansim">View on GitHub</a>
+
+          <h1 id="project_title">Urbansim</h1>
+          <h2 id="project_tagline">New lightweight version of UrbanSim, a tool for forecasting future growth in real estate markets</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/fscottfoti/urbansim/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/fscottfoti/urbansim/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="urbansim" class="anchor" href="#urbansim"><span class="octicon octicon-link"></span></a>urbansim</h1>
+
+<p>New lightweight version of UrbanSim, a tool for forecasting future growth in real estate markets</p>
+
+<p><img src="http://www.synthicity.com/uploads/1/8/3/2/18327643/9164254_orig.png" alt="synthicity"></p>
+
+<h2>
+<a name="concept" class="anchor" href="#concept"><span class="octicon octicon-link"></span></a>Concept</h2>
+
+<p>This new code base is an <em>experimental</em> branch of the longstanding UrbanSim project [1] aimed at <em>reducing the learning curve</em> of using the UrbanSim methodology.  Redesigned from the ground up, it is a tool to make creating that first urban model as trivial as any other Python package available today.</p>
+
+<p>This UrbanSim package uses no code from the svn repository currently hosted on urbansim.org, though it makes every effort to implement the exact same methodology.  We lean heavily on the PyData [2] community to make our work easier - <em>Pandas, HDF5 file storage, and statsmodels</em> are ubiquitous in this work.  These Python libraries essentially replace the UrbanSim Dataset class, tools to read and write from other storage, and some of the statistical estimation currently present in UrbanSim.  </p>
+
+<p>This makes our task easier as we can focus on urban modeling and leave the infrastructure to the wider Python community.  The Pandas [3] library is the vernacular of the new UrbanSim, which is an extremely well documented library that has thousands of questions asked and answered on the internets as well as a <em>printed book</em> [4].  As such, we won't discuss Pandas much here - it is assumed you can find that information elsewhere.</p>
+
+<p>Currently, this framework implements a set of JSON requests to describe urban models.  JSON [5] is a very basic lanaguage designed to communicate requests from client to server and back on the internets.  Although we don't currently implement a web service for estimating models, this is a clear pathway for the future.  Put simply, <em>JSON files are the API</em> by which a user can configure an urban model (though we certainly don't forbid getting your hands dirty and writing a model in Python).</p>
+
+<p>Currently supported models are enough to create a basic 30 year simulation that is the prototypical use case for UrbanSim.  These models are 1) <em>hedonic price models</em> 2) MNL and nested <em>location choice models</em> 3) transition models for increasing population, jobs, and development and 4) relocation rate models to specify the movement of population and jobs.</p>
+
+<p><strong>On the other hand, if you're a person who just wants to create the easiest and most straightforward location choice model around and map it, you've also come to the right place.</strong></p>
+
+<p>[1] <a href="http://urbansim.org/">http://urbansim.org/</a></p>
+
+<p>[2] <a href="http://pydata.org">http://pydata.org</a></p>
+
+<p>[3] <a href="http://pandas.pydata.org">http://pandas.pydata.org</a></p>
+
+<p>[4] <a href="http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793">http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793</a></p>
+
+<p>[5] <a href="http://en.wikipedia.org/wiki/JSON">http://en.wikipedia.org/wiki/JSON</a></p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Download and install Anaconda Python distribution:</p>
+
+<p><a href="http://www.continuum.io/downloads">http://www.continuum.io/downloads</a></p>
+
+<p>Get repository:</p>
+
+<pre><code>&gt;&gt; git clone https://github.com/fscottfoti/urbansim.git
+</code></pre>
+
+<p>Set environment variables:</p>
+
+<pre><code>&gt;&gt; cd urbansim
+&gt;&gt; export PYTHONPATH=$PWD
+&gt;&gt; export DATA_HOME=$PWD
+</code></pre>
+
+<p>Download data:</p>
+
+<pre><code>&gt;&gt; curl -k -o data/mrcog.zip https://dl.dropboxusercontent.com/u/2815546/mrcog.zip
+&gt;&gt; unzip -d data data/mrcog.zip
+</code></pre>
+
+<p>Run:</p>
+
+<pre><code>&gt;&gt; cd example
+&gt;&gt; ./run.sh
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Urbansim maintained by <a href="https://github.com/fscottfoti">fscottfoti</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
