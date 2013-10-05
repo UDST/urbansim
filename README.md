@@ -51,12 +51,13 @@ Set environment variables:
 >> export DATA_HOME=$PWD
 ```
 
-Download data:
+!!! Contact me to get sample dataset - example won't run without it. !!!
+#Download data:
 
-```
->> curl -k -o data/mrcog.zip https://dl.dropboxusercontent.com/u/2815546/mrcog.zip
->> unzip -d data data/mrcog.zip
-```
+#```
+#>> curl -k -o data/mrcog.zip https://dl.dropboxusercontent.com/u/2815546/mrcog.zip
+#>> unzip -d data data/mrcog.zip
+#```
 
 Run:
 
