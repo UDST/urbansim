@@ -4,7 +4,9 @@ from synthicity.utils import misc, geomisc
 
 class Networks:
 
-  def __init__(self,filenames,factors,maxdistances,twoway,impedances=None):
+  # flatten_nodeids is used when there is one graph to make a list of nodeids rather than 
+  # a list of lists - it doesn't work right now unfortunately
+  def __init__(self,filenames,factors,maxdistances,twoway,impedances=None,flatten_nodeids=False):
     if not filenames: return
     from pyaccess.pyaccess import PyAccess
     self.pya = PyAccess()
@@ -18,7 +20,7 @@ class Networks:
       if impedance is None: impedance = "net['edgeweights']"
       impedance = eval(impedance)
       self.pya.createGraph(num,net['nodeids'],net['nodes'],net['edges'],impedance*factor,twoway=twoway)
-      if len(filenames) == 1: self.nodeids = net['nodeids']
+      if len(filenames) == 1 and flatten_nodeids: self.nodeids = net['nodeids']
       else: self.nodeids += zip([num]*len(net['nodeids']),range(len(net['nodeids']))) # these are the internal ids
       self.external_nodeids.append(net['nodeids'])
       self.pya.precomputeRange(maxdistance,num)
