@@ -27,7 +27,7 @@ def get_standard_error(hessian):
 
 # data should be column matrix of dimensions NUMVARS x (NUMALTS*NUMOBVS)
 # beta is a row vector of dimensions 1 X NUMVARS
-def mnl_loglik(beta,data,chosen,numalts,stderr=0): 
+def mnl_loglik(beta,data,chosen,numalts,weights=None,lcgrad=False,stderr=0): 
 
     numvars = beta.size
     numobs = data.size()/numvars/numalts
@@ -36,18 +36,30 @@ def mnl_loglik(beta,data,chosen,numalts,stderr=0):
     beta = PMAT(beta,data.typ)
 
     probs = mnl_probs(data,beta,numalts)
-
-    gradmat = chosen.subtract(probs).reshape(1,probs.size())
+    
+    if lcgrad: 
+      assert weights
+      gradmat = weights.subtract(probs).reshape(1,probs.size())
+    else:
+      gradmat = chosen.subtract(probs).reshape(1,probs.size())
     gradmat = data.multiply_by_row(gradmat)
     # this line is a bit hackish - you can't do the whole sum at once on a gpu
     # need to shorten the length of the axis over which to sum
-    gradarr = gradmat.reshape(numvars*numalts,numobs).sum(axis=1).reshape(numvars,numalts).sum(axis=1)
+    gradarr = gradmat.reshape(numvars*numalts,numobs)
+    if weights is not None and not lcgrad: gradarr = gradarr.element_multiply(weights,inplace=True)
+    gradarr = gradarr.sum(axis=1).reshape(numvars,numalts).sum(axis=1)
+
     gradmat.reshape(numvars,numalts*numobs)
-    
-    if stderr: return get_standard_error(get_hessian(gradmat.get_mat()))
+    if stderr:
+      if not lcgrad: return get_standard_error(get_hessian(gradmat.get_mat()))
+      else: return np.zeros(beta.size())
 
     chosen.reshape(numalts,numobs)
-    loglik = (probs.log(inplace=True).element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
+    if weights is not None:
+      loglik = (probs.log(inplace=True).element_multiply(weights,inplace=True) \
+                                       .element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
+    else:
+      loglik = (probs.log(inplace=True).element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
 
     if loglik.typ == 'numpy':
         loglik, gradarr = loglik.get_mat(), gradarr.get_mat()
@@ -70,7 +82,7 @@ def mnl_simulate(data, coeff, numalts, GPU=0, returnprobs=0):
     
     if returnprobs: return np.transpose(probs.get_mat())
 
-    # conver to cpu from here on - gpu doesn't currently support these ops
+    # convert to cpu from here on - gpu doesn't currently support these ops
     if probs.typ == 'cuda': probs = PMAT(probs.get_mat()) 
 
     probs = probs.cumsum(axis=0)
@@ -79,22 +91,25 @@ def mnl_simulate(data, coeff, numalts, GPU=0, returnprobs=0):
 
     return choices.get_mat()
 
-def mnl_estimate(data,chosen,numalts,GPU=0,coeffrange=(-3,3)):
+def mnl_estimate(data,chosen,numalts,GPU=0,coeffrange=(-3,3),weights=None,lcgrad=False):
 
     atype = 'numpy' if not GPU else 'cuda'
+
+    numvars = data.shape[1]
+    numobs = data.shape[0]/numalts
+    
+    if chosen is None: chosen = np.ones((numobs,numalts)) # used for latent classes
 
     data = np.transpose(data)
     chosen = np.transpose(chosen)
 
-    numvars = data.shape[0]
-    numobs = data.shape[1]/numalts
-
     data, chosen = PMAT(data,atype), PMAT(chosen,atype)
+    if weights is not None: weights = PMAT(np.transpose(weights),atype)
 
     beta = np.zeros(numvars)
     bounds = np.array([coeffrange for i in range(numvars)])
     
-    args=(data,chosen,numalts)
+    args=(data,chosen,numalts,weights,lcgrad)
     bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik, 
                                     beta, 
                                     args=args,
@@ -105,7 +120,7 @@ def mnl_estimate(data,chosen,numalts,GPU=0,coeffrange=(-3,3)):
                                     )
 
     beta = bfgs_result[0]
-    stderr = mnl_loglik(beta,data,chosen,numalts,stderr=1) 
+    stderr = mnl_loglik(beta,data,chosen,numalts,weights,stderr=1,lcgrad=lcgrad) 
     tscore = beta / stderr
 
     l_0beta = np.zeros(numvars)
