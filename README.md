@@ -5,7 +5,7 @@ New lightweight version of UrbanSim, a tool for forecasting future growth in rea
 
 ![synthicity](http://www.synthicity.com/uploads/1/8/3/2/18327643/9164254_orig.png)
 
-Docmentation will be kept on the github wiki: https://github.com/fscottfoti/urbansim/wiki
+Docmentation will be kept on the github wiki: https://github.com/synthicity/urbansim/wiki
 
 Concept
 -------
