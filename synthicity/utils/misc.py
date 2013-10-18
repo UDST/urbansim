@@ -186,6 +186,9 @@ def writenumpy_df(df,outdir="."):
     for column in df.columns:
         writenumpy(df[column],column,outdir)
 
+def numpymat2df(mat):
+    return pd.DataFrame(dict(('x%d'%i,mat[:,i]) for i in range(mat.shape[1])))
+
 def df64bitto32bit(tbl):
     newtbl = pd.DataFrame(index=tbl.index)
     for colname in tbl.columns:
