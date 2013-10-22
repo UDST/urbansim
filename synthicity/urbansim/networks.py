@@ -35,7 +35,7 @@ class Networks:
       xys = np.array(df[[xname,yname]],dtype="float32")
       node_ids = []
       for gno in range(pya.numgraphs):
-        node_ids.append(pya.XYtoNode(xys,distance=-1,gno=gno))
+        node_ids.append(pya.XYtoNode(xys,distance=1000,gno=gno))
     if type(node_ids) <> type([]): node_ids = [node_ids]
 
     pya.initializeAccVars(1)
