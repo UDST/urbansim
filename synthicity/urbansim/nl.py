@@ -157,7 +157,7 @@ def nl_loglik(beta,data,chosen,numalts,nestinfo,availability,GPU=0,stderr=0):
     return -1*loglik
 
 # numalts is now all the alts for all nests
-def nl_estimate(data,chosen,numalts,nestinfo,availability,GPU=0,coeffrange=(-3.0,3.0)):
+def nl_estimate(data,chosen,numalts,nestinfo,availability,GPU=0,coeffrange=(-2.0,2.0)):
 
     atype = 'numpy' if not GPU else 'cuda'
 
@@ -174,7 +174,7 @@ def nl_estimate(data,chosen,numalts,nestinfo,availability,GPU=0,coeffrange=(-3.0
     beta = np.ones(nestinfo.numnests()+numvars)
     beta[:nestinfo.numnests()] = 4.0
     bounds = np.array([coeffrange for i in range(nestinfo.numnests()+numvars)])
-    bounds[:nestinfo.numnests()] = (1.0,6.0)
+    bounds[:nestinfo.numnests()] = (1.0,5.0)
     print "WARNING: setting bounds manually"
    
     t1 = time.time() 
@@ -207,7 +207,7 @@ def nl_estimate(data,chosen,numalts,nestinfo,availability,GPU=0,coeffrange=(-3.0
     print "Log-liklihood at convergence: %f" % l_1
     print "Log-liklihood ratio: %f" % ll_ratio
 
-    return zip(beta, stderr, tscore)
+    return (l_0,l_1,ll_ratio), zip(beta, stderr, tscore)
 
 def approximate_second_derivative(f, x, args):
     delta = 0.001*x

@@ -101,7 +101,9 @@ class PMAT:
     def sum(self,axis,shorten=0):
       if self.typ == 'numpy': 
         # this is weird, but a numpy sum return flat array sometimes and we want 2D matrices
-        return PMAT(np.sum(self.mat,axis=axis,dtype="float64"))
+        #return PMAT(np.sum(self.mat,axis=axis,dtype="float64"))
+        if axis == 0: return PMAT(np.reshape(np.sum(self.mat,axis=axis,dtype="float64"),(1,-1)))
+        if axis == 1: return PMAT(np.reshape(np.sum(self.mat,axis=axis,dtype="float64"),(-1,1)))
         #return PMAT(np.array(np.matrix(self.mat).sum(axis=axis,dtype="float64")))
       elif self.typ == 'cuda': 
         return PMAT(self.mat.sum(axis=axis))
