@@ -213,6 +213,18 @@ class PMAT:
           self.mat.add(mat.mat,target=target)
           return PMAT(target)
 
+    def clamptomin(self,val):
+      assert self.typ == "numpy"
+      self.mat[self.mat<val] = val
+
+    def inftoval(self,val):
+      assert self.typ == "numpy"
+      self.mat[np.isinf(self.mat)] = val
+
+    def nantoval(self,val):
+      assert self.typ == "numpy"
+      self.mat[np.isnan(self.mat)] = val
+
     def __str__(self):
       if self.typ == 'numpy': 
         return str(self.mat)

@@ -1,10 +1,11 @@
 from synthicity.urbansim import interaction, mnl
 import numpy as np, pandas as pd
+import time
 
 GPU = 0
 if GPU: interaction.enable_gpu()
 
-EMTOL = 1e-06
+EMTOL = 1e-02
 MAXITER = 10000
 
 def prep_cm_data(cmdata,numclasses):
@@ -24,6 +25,7 @@ def lcmnl_estimate(cmdata,numclasses,csdata,numalts,chosen,maxiter=MAXITER,emtol
   
   for i in range(maxiter):
     print "Running iteration %d" % (i+1)
+    print time.ctime()
 
     # EXPECTATION
     print "Running class membership model"
@@ -51,6 +53,7 @@ def lcmnl_estimate(cmdata,numclasses,csdata,numalts,chosen,maxiter=MAXITER,emtol
     loglik = np.sum(np.log(np.sum(h,axis=1)))
     print "current loglik", loglik, i+1
     print "current beta", beta
+    print "current cmbeta", cmbeta
     if abs(loglik-oldloglik) < emtol: break
     wts = h / np.reshape(np.sum(h,axis=1),(-1,1))
     for i in range(wts.shape[1]): print i, pd.Series(wts[:,i]).describe()
@@ -66,7 +69,7 @@ def lcmnl_estimate(cmdata,numclasses,csdata,numalts,chosen,maxiter=MAXITER,emtol
       print "done" ,beta[cno]
     
     print "Estimating class membership model"
-    fit, results = mnl.mnl_estimate(cmdata,None,numclasses,GPU=GPU,weights=wts,lcgrad=True,beta=cmbeta)
+    fit, results = mnl.mnl_estimate(cmdata,None,numclasses,GPU=GPU,weights=wts,lcgrad=True,beta=cmbeta,coeffrange=(-1000,1000))
     cmbeta = zip(*results)[0]
 
     print "beta", beta
