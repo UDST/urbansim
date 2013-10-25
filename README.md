@@ -1,9 +1,11 @@
 urbansim
 ========
 
-New lightweight version of UrbanSim, a tool for forecasting future growth in real estate markets
+New lightweight version of UrbanSim, a tool for modeling metropolitan real estate markets
 
 ![synthicity](http://www.synthicity.com/uploads/1/8/3/2/18327643/9164254_orig.png)
+
+Docmentation will be kept on the github wiki: https://github.com/synthicity/urbansim/wiki
 
 Concept
 -------
@@ -40,7 +42,7 @@ http://www.continuum.io/downloads
 Get repository:
 
 ```
->> git clone https://github.com/fscottfoti/urbansim.git
+>> git clone https://github.com/synthicity/urbansim.git
 ```
 
 Set environment variables:
@@ -51,12 +53,13 @@ Set environment variables:
 >> export DATA_HOME=$PWD
 ```
 
-Download data:
+!!! Contact me to get sample dataset - example won't run without it. !!!
+<!--Download data:
 
 ```
 >> curl -k -o data/mrcog.zip https://dl.dropboxusercontent.com/u/2815546/mrcog.zip
 >> unzip -d data data/mrcog.zip
-```
+```-->
 
 Run:
 
