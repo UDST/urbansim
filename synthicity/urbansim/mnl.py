@@ -9,17 +9,17 @@ import pmat
 # data should be column matrix of dimensions NUMVARS x (NUMALTS*NUMOBVS)
 # beta is a row vector of dimensions 1 X NUMVARS
 def mnl_probs(data,beta,numalts):
-
+    clamp = data.typ == 'numpy'
     utilities = beta.multiply(data)
     utilities.reshape(numalts,utilities.size()/numalts)
 
     exponentiated_utility = utilities.exp(inplace=True)
-    exponentiated_utility.inftoval(1e20)
-    exponentiated_utility.clamptomin(1e-300)
+    if clamp: exponentiated_utility.inftoval(1e20)
+    if clamp: exponentiated_utility.clamptomin(1e-300)
     sum_exponentiated_utility = exponentiated_utility.sum(axis=0)
     probs = exponentiated_utility.divide_by_row(sum_exponentiated_utility,inplace=True)
-    probs.nantoval(1e-300)
-    probs.clamptomin(1e-300)
+    if clamp: probs.nantoval(1e-300)
+    if clamp: probs.clamptomin(1e-300)
 
     return probs
     
@@ -33,7 +33,6 @@ def get_standard_error(hessian):
 # beta is a row vector of dimensions 1 X NUMVARS
 def mnl_loglik(beta,data,chosen,numalts,weights=None,lcgrad=False,stderr=0): 
 
-    #print beta
     numvars = beta.size
     numobs = data.size()/numvars/numalts
 
@@ -41,73 +40,40 @@ def mnl_loglik(beta,data,chosen,numalts,weights=None,lcgrad=False,stderr=0):
     beta = PMAT(beta,data.typ)
 
     probs = mnl_probs(data,beta,numalts)
-    #print probs
-    #print "probs", probs
     
-    if lcgrad: 
+    if lcgrad: #lcgrad is the special gradient for the latent class membership model 
       assert weights
-      #print probs.shape(), weights.shape()
-      #g = probs #.element_multiply(weights)
-      #print "g", g
-      #gradmat = weights.subtract(g).reshape(probs.size(),1)
-      #print gradmat
-      #print data
-      #print data.shape(), gradmat.shape()
-      #print data
-      #print probs
-      #print weights
-      gradarr = data.multiply(weights.subtract(probs).reshape(probs.size(),1)).reshape(numvars,1)
-      #print "gradarr",gradarr
-    else:
-      gradmat = chosen.subtract(probs) #.reshape(1,probs.size())
-      #print gradmat.shape()
-      #print weights.shape()
-      #print "weights", weights
-      #gradmat = gradmat.reshape(numvars*numalts,numobs)
-      if weights is not None: gradmat = gradmat.multiply_by_row(weights,inplace=True)
-      #print gradmat
-      gradmat = gradmat.reshape(gradmat.size(),1)
-      #print data.shape()
-      #print gradmat.shape()
+      gradmat = weights.subtract(probs).reshape(probs.size(),1)
       gradarr = data.multiply(gradmat)
-      # this line is a bit hackish - you can't do the whole sum at once on a gpu
-      # need to shorten the length of the axis over which to sum
-      #print gradarr
-      #gradarr = gradarr.sum(axis=1).reshape(numvars,numalts).sum(axis=1)
-
-      #if weights: 
-      #  gradarr = data.multiply(chosen.subtract(probs).element_multiply(weights).reshape(probs.size(),1)).reshape(numvars,1)
-      #else: 
-      #  gradarr = data.multiply(chosen.subtract(probs).reshape(probs.size(),1)).reshape(numvars,1)
-      #print "gradarr", gradarr
+    else:
+      if not weights: gradmat = chosen.subtract(probs).reshape(probs.size(),1)
+      else: 
+        gradmat = chosen.subtract(probs).multiply_by_row(weights).reshape(probs.size(),1)
+      gradarr = data.multiply(gradmat)
 
     if stderr:
-      if 0: #not lcgrad: 
-        gradmat.reshape(numvars,numalts*numobs)
-        return get_standard_error(get_hessian(gradmat.get_mat()))
-      else: return np.zeros(beta.size())
+      gradmat = data.multiply_by_row(gradmat.reshape(1,gradmat.size()))
+      gradmat.reshape(numvars,numalts*numobs)
+      return get_standard_error(get_hessian(gradmat.get_mat()))
 
     chosen.reshape(numalts,numobs)
     if weights is not None:
-      loglik = (probs.log(inplace=True).element_multiply(weights,inplace=True) \
-                                       .element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
+      if probs.shape() == weights.shape():
+        loglik = (probs.log(inplace=True).element_multiply(weights,inplace=True) \
+                                         .element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
+      else:
+        loglik = (probs.log(inplace=True).multiply_by_row(weights,inplace=True) \
+                                         .element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
     else:
       loglik = (probs.log(inplace=True).element_multiply(chosen,inplace=True)).sum(axis=1).sum(axis=0)
 
     if loglik.typ == 'numpy':
-        #print "here", gradarr.get_mat().flatten()
         loglik, gradarr = loglik.get_mat(), gradarr.get_mat().flatten()
     else:
         loglik = loglik.get_mat()[0,0]
         gradarr = np.reshape(gradarr.get_mat(),(1,gradarr.size()))[0]
 
-    #print loglik
     return -1*loglik, -1*gradarr
-
-def bfgs_loglik(x,*args):
-    return mnl_loglik(x,*args)[0]
-def bfgs_grad(x,*args):
-    return mnl_loglik(x,*args)[1]
 
 def mnl_simulate(data, coeff, numalts, GPU=0, returnprobs=0):
 
@@ -158,16 +124,7 @@ def mnl_estimate(data,chosen,numalts,GPU=0,coeffrange=(-3,3),weights=None,lcgrad
                                     approx_grad=False, 
                                     bounds=bounds
                                     )
-    '''
-    bfgs_result = scipy.optimize.fmin_bfgs(bfgs_loglik, 
-                                    beta, 
-                                    args=args,
-                                    fprime=bfgs_grad,
-                                    )
-    beta = bfgs_result
-    '''
     beta = bfgs_result[0]
-    #print "results",beta
     stderr = mnl_loglik(beta,data,chosen,numalts,weights,stderr=1,lcgrad=lcgrad) 
     tscore = beta / stderr
 
