@@ -1,6 +1,6 @@
 import numpy as np, pandas as pd, time, sys
 import cPickle, os
-from synthicity.utils import misc, geomisc
+from synthicity.utils import misc
 
 class Networks:
 
