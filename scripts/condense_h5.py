@@ -11,7 +11,7 @@ for tblname in instore.keys():
     tbl = instore[tblname]
     newtbl = pd.DataFrame(index=tbl.index)
     for colname in instore[tblname].columns:
-        if not os.popen('find | grep "\.py$" | grep -v scripts | xargs grep %s' % colname).read():
+        if not os.popen('find | grep "\.json$" | grep -v scripts | xargs grep %s' % colname).read():
             del tbl[colname]
         elif colname in ['geom','txt_geom','nodeid']:
             del tbl[colname]
