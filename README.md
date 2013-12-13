@@ -35,7 +35,7 @@ Currently supported models are enough to create a basic 30 year simulation that 
 Installation
 ---------------
 
-Download and install Anaconda Python distribution:
+Download and install Anaconda Python distribution (early reviews on the v1.8 Anaconda installer are that there's something wrong with Pandas - not sure what the specifiecs are yet, but we suggest v1.6 of the installer with Pandas v0.11 - upgrading will cause Pandas to crash on many operations!):
 
 http://www.continuum.io/downloads
 
