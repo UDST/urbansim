@@ -1,6 +1,6 @@
 import numpy as np, pandas as pd, time, sys
 import cPickle, os
-from synthicity.utils import misc, geomisc
+from synthicity.utils import misc
 
 class Networks:
 
@@ -37,7 +37,7 @@ class Networks:
       for gno in range(pya.numgraphs):
         node_ids.append(pya.XYtoNode(xys,distance=1000,gno=gno))
     if type(node_ids) <> type([]): node_ids = [node_ids]
-
+ 
     pya.initializeAccVars(1)
     num = 0
     aggvar = df[vname].astype('float32') if vname is not None else np.ones(len(df.index),dtype='float32')
