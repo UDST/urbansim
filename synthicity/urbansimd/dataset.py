@@ -14,6 +14,6 @@ class ParisWebDataset(dataset.Dataset):
      
       buildingsname = "_".join(name.split('_')[:-1]+['buildings'])
       df = pd.merge(df,self.fetch(buildingsname),left_on='building_id',right_index=True)
-      self.d[name] = df
-
+    
+    self.d[name] = df
     return df
