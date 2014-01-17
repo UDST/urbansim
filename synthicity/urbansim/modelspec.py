@@ -1,5 +1,6 @@
 import time, copy, json
 import pandas as pd, numpy as np, statsmodels.api as sm
+from patsy import dmatrices
 
 def fetch_table(dset,config,simulate=0):
 
@@ -58,6 +59,16 @@ def calcvar(table,config,dset,varname):
 def spec(segment,config,dset=None,submodel=None,newdf=True):
   t1 = time.time()
   if submodel: submodel = str(submodel)
+  
+  if "patsy" in config:
+    print config['patsy']
+    # use patsy to specify the data
+    y, X = dmatrices(config['patsy'], data=segment, return_type='dataframe')
+    if 'dep_var' in config or 'dep_var_transform' in config:
+      print "WARNING: using patsy, dep_var and dep_var_transform are ignored"
+    config['dep_var'] = y
+    if 'dep_var_transform' in config: del config['dep_var_transform']
+    return X
 
   if newdf: est_data = pd.DataFrame(index=segment.index)
   else: est_data = segment

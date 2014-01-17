@@ -6,7 +6,8 @@ class ParisWebDataset(dataset.Dataset):
 
   def __init__(self,filename):
     super(ParisWebDataset,self).__init__(filename)
-  
+
+  '''  
   def fetch(self,name,**kwargs):
     if name in self.d: return self.d[name]
     df = super(ParisWebDataset,self).fetch(name,**kwargs) 
@@ -17,3 +18,4 @@ class ParisWebDataset(dataset.Dataset):
     
     self.d[name] = df
     return df
+  '''

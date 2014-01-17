@@ -13,9 +13,9 @@ def jsonp(request, dictionary):
   return dictionary
 
 def encode_float32(obj):
-  if isinstance(obj, numpy.float32):
+  if isinstance(obj, numpy.float32) or isinstance(obj, numpy.float64):
     return float(obj)
-  if isinstance(obj, numpy.int32):
+  if isinstance(obj, numpy.int32) or isinstance(obj, numpy.int64):
     return int(obj)
   if isinstance(obj, numpy.bool_):
     return bool(obj)
@@ -32,8 +32,41 @@ def wrap_request(request,response,obj):
 @route('/datasets')
 def list_datasets():
   def resp():
-    return [x[1:] for x in DSET.store.keys()]
+    return DSET.list_tbls()
   return wrap_request(request,response,resp())
+
+@route('/datasets/<name>/columns')
+def columns_dataset(name):
+  def resp():
+    return DSET.fetch(name).columns.tolist()
+  return wrap_request(request,response,resp())
+
+@route('/dataset_read')
+def dataset_read():
+  def resp():
+    url = request.query.get('url',None)
+    storename = request.query.get('outname',None)
+    DSET.save_tmptbl(storename,pd.read_csv(url))
+    return DSET.list_tbls()
+  return wrap_request(request,response,resp())
+
+@route('/merge_datasets/<leftname>/<rightname>/<lefton>/<righton>/<how>/<outname>')
+def merge_datasets(leftname,rightname,lefton,righton,how,outname):
+  def resp(leftname,rightname,lefton,righton,how,outname):
+    left_index = right_index = False
+    if lefton == "index":
+      lefton = None
+      left_index = True
+    if righton == "index":
+      righton = None
+      right_index = True
+    left = DSET.fetch(leftname)
+    right = DSET.fetch(rightname)
+    df = pd.merge(left,right,left_on=lefton,right_on=righton,left_index=left_index,right_index=right_index,how=how)
+    DSET.save_tmptbl(outname,df)
+    return DSET.list_tbls()
+
+  return wrap_request(request,response,resp(leftname,rightname,lefton,righton,how,outname))
 
 @route('/datasets/<name>/info')
 def datasets_info(name):
@@ -50,18 +83,30 @@ def datasets_summary(name):
     d = dict([(k, {"summary": dict([(i,float(v.ix[i])) for i in v.index])}) for k, v in df.iterrows()])
     df = DSET.fetch(name)
     for col in df.columns: d.setdefault(col,{})["dtype"] = str(df.dtypes.ix[col])
-    print d
     return d
   return wrap_request(request,response,resp(name))
-  
-def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit):
+
+from synthicity.utils import misc
+@route('/execmodel')
+def datasets_summary():
+  def resp():
+    print "Request: %s\n" % request.query.json
+    req = simplejson.loads(request.query.json)
+    returnobj = misc.run_model(req,DSET,estimate=1,simulate=0)
+    print returnobj
+    return returnobj 
+  return wrap_request(request,response,resp())
+ 
+def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,page):
   if where: where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table,where)
   else: where = ""
   if sort and orderdesc: sort = ".sort('%s',ascending=False)" % sort
   if sort and not orderdesc: sort = ".sort('%s',ascending=True)" % sort
   if not sort and orderdesc: sort = ".sort_index(ascending=False)"
   if not sort and not orderdesc: sort = ".sort_index(ascending=True)"
-  if limit: limit = ".head(%s)" % limit
+  if limit and page: 
+    limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
+  elif limit: limit = ".head(%s)" % limit
   else: limit = ""
   s = "DSET.fetch('%s')%s" % (table,where)
   if groupby and metric: s = s +".groupby('%s').%s.reset_index()" % (groupby,metric)
@@ -83,12 +128,10 @@ def datasets_records(name):
       ascending = False
     groupby = request.query.get('groupby',None)
     metric = request.query.get('metric',None)
-    print groupby, metric
-    recs = pandas_statement(name,where,order_by,not ascending,groupby,metric,limit)
-    print recs
+    page = request.query.get('page',None)
+    recs = pandas_statement(name,where,order_by,not ascending,groupby,metric,limit,page)
     d = {"recs": [recs.ix[i].values.tolist() for i in recs.index]}
     d["labels"] = recs.columns.tolist()
-    print d
     return d
   return wrap_request(request,response,resp(name))
 

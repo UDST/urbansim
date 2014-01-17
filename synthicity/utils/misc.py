@@ -15,10 +15,14 @@ def run_model(fname,dset,show=1,estimate=1,simulate=0,year=2010,variables=None):
     else: fname = "tmp_model"
   assert "model" in config
   model = eval(config["model"])
-  if estimate: model.estimate(dset,config,2010,show=show,variables=variables)
+  if estimate:
+    est_results = model.estimate(dset,config,2010,show=show,variables=variables)
+    if not simulate: return est_results
+  print "simulate = ", simulate, fname
   if simulate: 
     t1 = time.time()
-    model.simulate(dset,config,year,show=show,variables=variables)
+    print "Simulating %s" % fname
+    return model.simulate(dset,config,year,show=show,variables=variables)
     print "SIMULATED %s model in %.3f seconds" % (fname,time.time()-t1)
 
 VARNAMESDICT = {

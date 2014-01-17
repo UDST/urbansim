@@ -5,6 +5,7 @@ import time, copy
 
 def estimate(dset,config,year=None,show=True,simulate=0,variables=None):
 
+  returnobj = {}
   t1 = time.time()
   
   buildings = fetch_table(dset,config,simulate)
@@ -30,11 +31,15 @@ def estimate(dset,config,year=None,show=True,simulate=0,variables=None):
     if not simulate:
 
       assert "dep_var" in config
-      depvar = segment[config["dep_var"]]
+      if type(config["dep_var"]) == type(u""):
+        depvar = segment[config["dep_var"]]
+      else: # dependent variable already got computed and substituted by patsy
+        depvar = config["dep_var"]
       if "dep_var_transform" in config: depvar = depvar.apply(eval(config['dep_var_transform']))
       
       if name: print "Estimating hedonic for %s with %d observations" % (name,len(segment.index))
       if show : print est_data.describe()
+      dset.save_tmptbl("EST_DATA",est_data)
 
       model = sm.OLS(depvar,est_data)
       results = model.fit()
@@ -45,6 +50,10 @@ def estimate(dset,config,year=None,show=True,simulate=0,variables=None):
       misc.resultstocsv((results.rsquared,results.rsquared_adj),est_data.columns,
                         zip(results.params,results.bse,results.tvalues),tmp_outcsv,hedonic=1,
                         tblname=output_title)
+      returnobj['rsquared'] = results.rsquared
+      returnobj['rsquared_adj'] = results.rsquared_adj
+      returnobj['columns'] =  est_data.columns.tolist()
+      returnobj['est_results'] =  zip(results.params,results.bse,results.tvalues)
 
       dset.store_coeff(tmp_coeffname,results.params.values,results.params.index)
 
@@ -62,9 +71,11 @@ def estimate(dset,config,year=None,show=True,simulate=0,variables=None):
   if simulate:
     simrents = pd.concat(simrents)
     dset.buildings[output_varname] = simrents.reindex(dset.buildings.index)
+    print "Printing ", output_varname
     dset.store_attr(output_varname,year,simrents)
 
   print "Finished executing in %f seconds" % (time.time()-t1)
+  return returnobj
 
 def simulate(dset,config,year,variables=None,show=False):
   return estimate(dset,config,year,show=show,simulate=1,variables=variables)
