@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.conf import settings
 import pandas as pd, numpy
 import dataset
+import variables
 import simplejson
 
 def jsonp(request, dictionary):
@@ -88,14 +89,15 @@ def datasets_summary(name):
 
 from synthicity.utils import misc
 @route('/execmodel')
-def datasets_summary():
-  def resp():
+def execmodel():
+  def resp(estimate,simulate):
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(request.query.json)
-    returnobj = misc.run_model(req,DSET,estimate=1,simulate=0)
-    print returnobj
+    returnobj = misc.run_model(req,DSET,estimate=estimate,simulate=simulate,variables=variables)
     return returnobj 
-  return wrap_request(request,response,resp())
+  estimate = int(request.query.get('estimate',1))
+  simulate = int(request.query.get('simulate',0))
+  return wrap_request(request,response,resp(estimate,simulate))
  
 def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,page):
   if where: where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table,where)
@@ -105,7 +107,8 @@ def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,page):
   if not sort and orderdesc: sort = ".sort_index(ascending=False)"
   if not sort and not orderdesc: sort = ".sort_index(ascending=True)"
   if limit and page: 
-    limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
+    #limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
+    limit = ".head(%s*%s).tail(%s)" % (limit,page,limit)
   elif limit: limit = ".head(%s)" % limit
   else: limit = ""
   s = "DSET.fetch('%s')%s" % (table,where)
@@ -178,5 +181,5 @@ def start_service(port=8765,host='localhost'):
 if __name__ == '__main__':  
     global DSET
     args = sys.argv[1:]
-    DSET = dataset.ParisWebDataset(args[0])
+    DSET = dataset.BayAreaDataset(args[0])
     start_service()

@@ -12,6 +12,8 @@ SAMPLE_SIZE=100
 
 def estimate(dset,config,year,show=True,variables=None):
 
+  returnobj = {}
+  
   choosers = fetch_table(dset,config)
   if 'est_sample_size' in config: 
     choosers = choosers.ix[np.random.choice(choosers.index, config['est_sample_size'],replace=False)]
@@ -46,8 +48,10 @@ def estimate(dset,config,year,show=True,variables=None):
 
     data = spec(alternative_sample,config,submodel=name)
     if show: print data.describe()
+
+    d = {}
+    d['columns'] =  data.columns.tolist()
     data = data.as_matrix()
-    
     fnames = config['ind_vars']
     fnames = config['ind_var_names'] if 'ind_var_names' in config else fnames
 
@@ -56,9 +60,17 @@ def estimate(dset,config,year,show=True,variables=None):
     fnames = interaction.add_fnames(fnames,est_params)
     if show: print misc.resultstotable(fnames,results)
     misc.resultstocsv(fit,fnames,results,tmp_outcsv,tblname=tmp_outtitle)
+    
+    d['null loglik'] = float(fit[0])
+    d['converged loglik'] = float(fit[1])
+    d['loglik ratio'] = float(fit[2])
+    d['est_results'] = [[float(x) for x in result] for result in results]
+    returnobj[name] = d
+    
     dset.store_coeff(tmp_coeffname,zip(*results)[0],fnames)
 
   print "Finished executing in %f seconds" % (time.time()-t1)
+  return returnobj
 
 ############
 # SIMULATION

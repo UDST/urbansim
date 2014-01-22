@@ -18,7 +18,6 @@ def run_model(fname,dset,show=1,estimate=1,simulate=0,year=2010,variables=None):
   if estimate:
     est_results = model.estimate(dset,config,2010,show=show,variables=variables)
     if not simulate: return est_results
-  print "simulate = ", simulate, fname
   if simulate: 
     t1 = time.time()
     print "Simulating %s" % fname

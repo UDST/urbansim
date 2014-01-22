@@ -50,10 +50,12 @@ def estimate(dset,config,year=None,show=True,simulate=0,variables=None):
       misc.resultstocsv((results.rsquared,results.rsquared_adj),est_data.columns,
                         zip(results.params,results.bse,results.tvalues),tmp_outcsv,hedonic=1,
                         tblname=output_title)
-      returnobj['rsquared'] = results.rsquared
-      returnobj['rsquared_adj'] = results.rsquared_adj
-      returnobj['columns'] =  est_data.columns.tolist()
-      returnobj['est_results'] =  zip(results.params,results.bse,results.tvalues)
+      d = {}
+      d['rsquared'] = results.rsquared
+      d['rsquared_adj'] = results.rsquared_adj
+      d['columns'] =  est_data.columns.tolist()
+      d['est_results'] =  zip(results.params,results.bse,results.tvalues)
+      returnobj[name] = d
 
       dset.store_coeff(tmp_coeffname,results.params.values,results.params.index)
 
@@ -71,7 +73,6 @@ def estimate(dset,config,year=None,show=True,simulate=0,variables=None):
   if simulate:
     simrents = pd.concat(simrents)
     dset.buildings[output_varname] = simrents.reindex(dset.buildings.index)
-    print "Printing ", output_varname
     dset.store_attr(output_varname,year,simrents)
 
   print "Finished executing in %f seconds" % (time.time()-t1)

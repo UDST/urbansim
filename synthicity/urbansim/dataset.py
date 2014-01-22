@@ -20,7 +20,6 @@ class Dataset(object):
     self.store.close()
 
   def list_tbls(self):
-    print self.store.keys()
     return list(set([x[1:] for x in self.store.keys()]+self.d.keys()))
 
   def save_toinputfile(self,name,df):

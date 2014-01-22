@@ -38,9 +38,19 @@ def merge(dset,table,config):
 def calcvar(table,config,dset,varname):
 
   t1 = time.time()
-  if "var_lib_file" in config:
-      var_lib = json.loads(open(config["var_lib_file"]).read())
-      if type(var_lib) <> type({}): raise Exception("Variable library must be of type dictionary") 
+  global VAR_LIB_CACHED
+  if "var_lib_file" in config and not VAR_LIB_CACHED:
+      if "var_lib_db" in config:
+        import couchdb
+        couch = couchdb.Server('http://urbansim.cloudant.com')
+        couch.resource.credentials = ('urbansim','Visua1ization')
+        db = couch[config['var_lib_db']]
+        var_lib = db[config["var_lib_file"]]
+        VAR_LIB_CACHED = True
+        print var_lib
+      else:
+        var_lib = json.loads(open(config["var_lib_file"]).read())
+      #if type(var_lib) <> type({}): raise Exception("Variable library must be of type dictionary") 
       config["var_lib"] = dict(var_lib.items()+config.get("var_lib",{}).items())
 
   if "var_lib" in config:
@@ -58,6 +68,8 @@ def calcvar(table,config,dset,varname):
 
 def spec(segment,config,dset=None,submodel=None,newdf=True):
   t1 = time.time()
+  global VAR_LIB_CACHED
+  VAR_LIB_CACHED = False
   if submodel: submodel = str(submodel)
   
   if "patsy" in config:
