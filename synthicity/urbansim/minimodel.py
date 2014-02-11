@@ -1,18 +1,23 @@
 import pandas as pd, numpy as np, statsmodels.api as sm
 from synthicity.utils import misc
-from modelspec import spec, fetch_table
+{% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
 import time, copy
 
-def estimate(dataset,config,year=None,show=True,variables=None):
-  simulate(dataset,config,year,show,variables) 
-
-def simulate(dataset,config,year=None,show=True,variables=None):
-  _tbl_ = fetch_table(dataset,config)
+def {{modelname}}_simulate(dset,year=None,show=True):
+  # TEMPLATE configure table
+  {{ TABLE("_tbl_")|indent(2) }}
+  # ENDTEMPLATE
 
   t1 = time.time()
     
-  _tbl_ = spec(_tbl_,config,dset=dataset,newdf=False)
-  if 'show' in config and config['show']: print _tbl_.describe()
-  if "writetotmp" in config: dataset.save_tmptbl(config["writetotmp"],_tbl_)
+  # TEMPLATE computing vars
+  {{ SPEC("_tbl_","_tbl_",newdf=False) | indent(2) }}
+  # ENDTEMPLATE
+  {% if show -%}
+  print _tbl_.describe()
+  {% endif -%}
+  {% if writetotmp -%}
+  dset.save_tmptbl("{{writetotmp}}",_tbl_)
+  {% endif %}
 
   print "Finished executing in %f seconds" % (time.time()-t1)

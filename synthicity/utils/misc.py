@@ -1,7 +1,25 @@
 from synthicity.utils import texttable as tt
-from synthicity.urbansim import interaction
+from synthicity.urbanchoice import interaction
 import os, sys, getopt, csv, string, time, json
 import pandas as pd, numpy as np
+from jinja2 import Environment, FileSystemLoader
+
+def gen_model(modeljsonbase,model,estimate):
+  def droptable(d):
+    del d['table']
+    return d
+  templatedirs = filter(os.path.isdir,[os.path.join(x,'synthicity','urbansim') for x in sys.path])
+  j2_env = Environment(loader=FileSystemLoader(templatedirs),trim_blocks=True)
+  j2_env.filters['droptable'] = droptable
+  config = json.loads(open(os.path.join(modeljsonbase,model)+'.json').read())
+  if config['model'] in ['minimodel'] and estimate: return # no estimation
+  if 'var_lib_file' in config:
+    var_lib = json.loads(open(os.path.join(modeljsonbase,config['var_lib_file'])).read()) 
+    config["var_lib"] = dict(var_lib.items()+config.get("var_lib",{}).items())
+  config['modelname'] = model
+  config['estimate'] = estimate
+  s = j2_env.get_template(config['model']+'.py').render(**config)
+  return s
 
 def run_model(fname,dset,show=1,estimate=1,simulate=0,year=2010,variables=None):
   from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel, networks

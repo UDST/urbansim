@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np, statsmodels.api as sm
 from synthicity.utils import misc
-from modelspec import spec, fetch_table, calcvar, merge
-import interaction
+from synthicity.urbanchoice import interaction
+{% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
 import os, time, copy
 
 SAMPLE_SIZE=100
@@ -10,51 +10,73 @@ SAMPLE_SIZE=100
 #  ESTIMATION
 ##############
 
-def estimate(dset,config,year,show=True,variables=None):
+{% if estimate %}
+def {{modelname}}_estimate(dset,year=None,show=True):
 
+  assert "{{model}}" == "locationchoicemodel" # should match!
   returnobj = {}
   
-  choosers = fetch_table(dset,config)
-  if 'est_sample_size' in config: 
-    choosers = choosers.ix[np.random.choice(choosers.index, config['est_sample_size'],replace=False)]
-  output_csv, output_title, coeff_name, output_varname = config["output_names"]
+  # TEMPLATE configure table
+  {{ TABLE("choosers")|indent(2) }}
+  # ENDTEMPLATE
+  
+  {% if est_sample_size %} 
+    choosers = choosers.ix[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
+  {% endif %}
+  
+  # TEMPLATE specifying output names
+  output_csv, output_title, coeff_name, output_varname = {{output_names}}
+  # ENDTEMPLATE
  
-  assert 'alternatives' in config
-  alternatives = eval(config['alternatives'])
-  alternatives = merge(dset,alternatives,config)
+  # TEMPLATE specifying alternatives
+  alternatives = {{alternatives}}
+  # ENDTEMPLATE
+  
+  {% if merge -%}
+  # TEMPLATE merge
+  {{- MERGE("alternatives",merge) | indent(2) }}
+  # ENDTEMPLATE
+  {% endif %}
 
   t1 = time.time()
 
+  {% if segment is not defined -%}
   segments = [(None,choosers)]
-  if 'segment' in config:
-    for varname in config['segment']:
-      if varname not in choosers.columns:
-        choosers[varname] = calcvar(choosers,config,dset,varname)
-    segments = choosers.groupby(config['segment'])
+  {% else %}
+  # TEMPLATE creating segments
+  segments = choosers.groupby({{segment}})
+  # ENDTEMPLATE
+  {% endif  %}
+  
   for name, segment in segments:
 
     name = str(name)
     if name is not None: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv%name, output_title%name, coeff_name%name
     else: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv, output_title, coeff_name
 
-    assert "dep_var" in config
-    depvar = config["dep_var"]
+    # TEMPLATE dependent variable
+    depvar = "{{dep_var}}"
+    # ENDTEMPLATE
     global SAMPLE_SIZE
-    SAMPLE_SIZE = config["alt_sample_size"] if "alt_sample_size" in config else SAMPLE_SIZE 
+    {% if alt_sample_size %}
+    SAMPLE_SIZE = {{alt_sample_size}}
+    {% endif %}
+    
     sample, alternative_sample, est_params = interaction.mnl_interaction_dataset(
                                         segment,alternatives,SAMPLE_SIZE,chosenalts=segment[depvar])
 
     print "Estimating parameters for segment = %s, size = %d" % (name, len(segment.index)) 
 
-    data = spec(alternative_sample,config,submodel=name)
+    # TEMPLATE computing vars
+    {{ SPEC("alternative_sample","data",submodel="name") | indent(4) }}
+    # ENDTEMPLATE
     if show: print data.describe()
 
     d = {}
     d['columns'] =  data.columns.tolist()
     data = data.as_matrix()
-    fnames = config['ind_vars']
-    fnames = config['ind_var_names'] if 'ind_var_names' in config else fnames
-
+    fnames = {{ind_vars}}
+    
     fit, results = interaction.estimate(data,est_params,SAMPLE_SIZE)
     
     fnames = interaction.add_fnames(fnames,est_params)
@@ -72,40 +94,47 @@ def estimate(dset,config,year,show=True,variables=None):
   print "Finished executing in %f seconds" % (time.time()-t1)
   return returnobj
 
+{% else %}
 ############
 # SIMULATION
 ############
 
-def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
+def {{modelname}}_simulate(dset,year=None,show=True):
 
   t1 = time.time()
-  choosers = fetch_table(dset,config,simulate=1)
+  # TEMPLATE configure table
+  {{ TABLE("choosers")|indent(2) }}
+  # ENDTEMPLATE
   
-  output_csv, output_title, coeff_name, output_varname = config["output_names"]
+  # TEMPLATE specifying output names
+  output_csv, output_title, coeff_name, output_varname = {{output_names}}
+  # ENDTEMPLATE
   
-  assert 'dep_var' in config
-  dep_var = config['dep_var']
- 
-  if 'relocation_rates' in config:
-    reloc_cfg = config['relocation_rates']
-    assert "rate_table" in reloc_cfg and "rate_field" in reloc_cfg
-    rate_table = eval(reloc_cfg['rate_table'])
-    rate_field = reloc_cfg['rate_field']
-    movers = dset.relocation_rates(choosers,rate_table,rate_field)
-    choosers[dep_var].ix[movers] = -1
-    # add current unplaced
-    movers = choosers[choosers[dep_var]==-1]
+  # TEMPLATE dependent variable
+  depvar = "{{dep_var}}"
+  # ENDTEMPLATE
 
-  else: movers = choosers # everyone moves
+  {% if relocation_rates %} 
+  reloc_cfg = {{relocation_rates}}
+  rate_table = {{rate_table}}
+  rate_field = "{{rate_field}}"
+  movers = dset.relocation_rates(choosers,rate_table,rate_field)
+  choosers[dep_var].ix[movers] = -1
+  # add current unplaced
+  movers = choosers[choosers[dep_var]==-1]
+  {% else -%}
+  movers = choosers # everyone moves
+  {% endif %}
 
   print "Total new agents and movers = %d" % len(movers.index)
 
-  assert 'alternatives' in config
-  alternatives = eval(config['alternatives'])
-
+  # TEMPLATE specifying alternatives
+  alternatives = {{alternatives}}
+  # ENDTEMPLATE
+  
   lotterychoices = False
-  if 'supply_constraint' in config:
-    empty_units = eval(config['supply_constraint'])
+  {% if supply_constraint %}
+    empty_units = {{supply_constraint}}
     if "demand_amount_scale" in config: empty_units /=  float(config["demand_amount_scale"])
     empty_units = empty_units[empty_units>0].order(ascending=False)
     if 'dontexpandunits' in config and config['dontexpandunits'] == True: 
@@ -115,20 +144,26 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
     else: 
       alternatives = alternatives.ix[np.repeat(empty_units.index,empty_units.values.astype('int'))]
     print "There are %s empty units in %s locations total in the region" % (empty_units.sum(),len(empty_units))
+  {% endif %}
 
-  alternatives = merge(dset,alternatives,config)
+  {% if merge -%}
+  # TEMPLATE merge
+  {{- MERGE("alternatives",merge) | indent(2) }}
+  # ENDTEMPLATE
+  {% endif %}
 
   print "Finished specifying model in %f seconds" % (time.time()-t1)
 
   t1 = time.time()
 
   pdf = pd.DataFrame(index=alternatives.index) 
+  {% if segment is not defined -%}
   segments = [(None,movers)]
-  if 'segment' in config:
-    for varname in config['segment']:
-      if varname not in movers.columns:
-        movers[varname] = calcvar(movers,config,dset,varname)
-    segments = movers.groupby(config['segment'])
+  {% else %}
+  # TEMPLATE creating segments
+  segments = movers.groupby({{segment}})
+  # ENDTEMPLATE
+  {% endif  %}
 
   for name, segment in segments:
 
@@ -141,7 +176,9 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
     SAMPLE_SIZE = alternatives.index.size # don't sample
     sample, alternative_sample, est_params = \
              interaction.mnl_interaction_dataset(segment,alternatives,SAMPLE_SIZE,chosenalts=None)
-    data = spec(alternative_sample,config)
+    # TEMPLATE computing vars
+    {{ SPEC("alternative_sample","data",submodel="name") | indent(4) }}
+    # ENDTEMPLATE
     data = data.as_matrix()
 
     coeff = dset.load_coeff(tmp_coeffname)
@@ -152,9 +189,12 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
   if len(pdf.columns): print pdf.describe()
   t1 = time.time()
     
-  if 'save_pdf' in config: dset.save_tmptbl(config['save_pdf'],pdf)
+  {% if save_pdf -%}
+  dset.save_tmptbl("{{save_pdf}}",pdf)
+  {% endif %}
 
-  if 'supply_constraint' in config: # draw from actual units
+  {% if supply_constraints %}
+     # draw from actual units
     new_homes = pd.Series(np.ones(len(movers.index))*-1,index=movers.index)
     mask = np.zeros(len(alternatives.index),dtype='bool')
     for name, segment in segments:
@@ -200,8 +240,11 @@ def simulate(dset,config,year,sample_rate=.05,variables=None,show=False):
     print "Assigned %d agents to %d locations with %d unplaced" % \
                       (new_homes.size,build_cnts.size,build_cnts.get(-1,0))
 
-    table = eval(config['table']) # need to go back to the whole dataset
+    table = {{table}} # need to go back to the whole dataset
     table[dep_var].ix[new_homes.index] = new_homes.values.astype('int32')
     if output_varname: dset.store_attr(output_varname,year,copy.deepcopy(table[dep_var]))
+  {% endif %}
 
   print "Finished assigning agents in %f seconds" % (time.time()-t1)
+
+{% endif %}
