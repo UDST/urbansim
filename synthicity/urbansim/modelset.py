@@ -9,7 +9,8 @@ import dataset
 dset = dataset.{{dataset}}(os.path.join(misc.data_dir(),'{{datastore}}'))
 
 {% for arg in modelstorun %}
+print "Running {{arg}}"
 import {{arg}}
 retval = {{arg}}.{{arg}}(dset)
-if retval: open(os.path.join("output","{{arg}}.json"),"w").write(simplejson.dumps(retval))
+if retval: open(os.path.join(misc.output_dir(),"{{arg}}.json"),"w").write(simplejson.dumps(retval))
 {% endfor %} 

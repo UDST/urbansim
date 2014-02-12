@@ -10,7 +10,7 @@ SAMPLE_SIZE=100
 #  ESTIMATION
 ##############
 
-{% if estimate %}
+{% if template_mode == "estimate" %}
 def {{modelname}}_estimate(dset,year=None,show=True):
 
   assert "{{model}}" == "locationchoicemodel" # should match!

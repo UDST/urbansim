@@ -3,7 +3,7 @@ from synthicity.utils import misc
 {% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
 import time, copy
 
-def {{modelname}}_{{"estimate" if estimate else "simulate"}}(dset,year=None,show=True):
+def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
 
   assert "{{model}}" == "hedonicmodel" # should match!
   returnobj = {}
@@ -26,12 +26,13 @@ def {{modelname}}_{{"estimate" if estimate else "simulate"}}(dset,year=None,show
   print "Finished specifying in %f seconds" % (time.time()-t1)
   t1 = time.time()
 
-  {% if not estimate -%}
+  {% if not template_mode == "estimate" -%}
   simrents = []
   {% endif -%}
   {% if segment is not defined -%}
   segments = [(None,buildings)]
   {% else %}
+
   # TEMPLATE creating segments
   segments = buildings.groupby({{segment}})
   # ENDTEMPLATE
@@ -45,7 +46,7 @@ def {{modelname}}_{{"estimate" if estimate else "simulate"}}(dset,year=None,show
 
     if name is not None: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv%name, output_title%name, coeff_name%name
     else: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv, output_title, coeff_name
-    {% if estimate %}
+    {% if template_mode == "estimate" %}
     
     # TEMPLATE dependent variable
     depvar = segment["{{dep_var}}"]
@@ -86,7 +87,7 @@ def {{modelname}}_{{"estimate" if estimate else "simulate"}}(dset,year=None,show
     simrents.append(rents[rents.columns[0]])
     {% endif %}
   
-  {% if not estimate -%}
+  {% if not template_mode == "estimate" -%}
   simrents = pd.concat(simrents)
   dset.buildings[output_varname] = simrents.reindex(dset.buildings.index)
   dset.store_attr(output_varname,year,simrents)

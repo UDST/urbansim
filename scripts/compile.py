@@ -2,22 +2,13 @@ import os, string, sys, json
 from synthicity.utils import misc
 
 args = sys.argv[1:]
-assert len(args) == 1
-config = json.loads(open(args[0]).read()) 
 
-if not os.path.exists(config["modelpybase"]): os.mkdir(config["modelpybase"])
+MODELPYBASE = "models"
+if not os.path.exists(MODELPYBASE): os.mkdir(MODELPYBASE)
  
-for arg in config['modelstorun']:
+for arg in args:
   print "Generating %s" % arg
-  model, param = string.split(arg,'_')
-  assert param in ["estimate","simulate"]
-  estimate = param == "estimate"
-  # generate
-  s = misc.gen_model(config['modeljsonbase'],model,estimate)
-  suffix = "estimate" if estimate else "simulate"
-  open(os.path.join(config['modelpybase'],model)+'_'+suffix+'.py','w').write(s)
- 
-basename = os.path.splitext(os.path.basename(args[0]))[0]
-print "Generating "+basename
-s = misc.gen_model(config['modeljsonbase'],basename,False)    
-open(os.path.join(config['modelpybase'],basename+'.py'),'w').write(s)
+  d = misc.gen_model(arg)
+  for mode, code in d.items():
+    basename = os.path.splitext(os.path.basename(arg))[0]
+    open(os.path.join(MODELPYBASE,basename)+'_'+mode+'.py','w').write(code)

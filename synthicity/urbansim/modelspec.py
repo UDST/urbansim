@@ -3,7 +3,7 @@ import pandas as pd, numpy as np, statsmodels.api as sm
 from patsy import dmatrices
 
 {% macro TABLE(tblname) %}
-{% if not estimate and table_sim %}
+{% if not template_mode == "estimate" and table_sim %}
 {{tblname}} = {{table_sim}}
 {% else %}
 {{tblname}} = {{table}}
@@ -13,12 +13,12 @@ from patsy import dmatrices
 {{tblname}} = {{tblname}}[{{filter|replace("_tbl_",tblname)}}]
 {% endfor %}
 {% endif %}
-{% if estimate and estimate_filters %}
+{% if template_mode == "estimate" and estimate_filters %}
 {% for filter in estimate_filters %}
 {{tblname}} = {{tblname}}[{{filter|replace("_tbl_",tblname)}}]
 {% endfor %}
 {% endif %}
-{% if not estimate and simulate_filters %}
+{% if not template_mode == "estimate" and simulate_filters %}
 {% for filter in simulate_filters %}
 {{tblname}} = {{tblname}}[{{filter|replace("_tbl_",tblname)}}]
 {% endfor %}

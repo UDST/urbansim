@@ -3,7 +3,9 @@ from synthicity.utils import misc
 {% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
 import time, copy
 
-def {{modelname}}_simulate(dset,year=None,show=True):
+def {{modelname}}_run(dset,year=None,show=True):
+  assert {{template_mode}} == "run"
+
   # TEMPLATE configure table
   {{ TABLE("_tbl_")|indent(2) }}
   # ENDTEMPLATE
