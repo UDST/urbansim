@@ -1,9 +1,0 @@
-{
-  "table": "dset.zones",
-  "writetotmp": "zones",
-  "model": "minimodel",
-  "var_lib": {
-    "average_price": "dset.buildings.groupby('zone_id').residential_sales_price.mean().apply(np.log1p)"
-  },
-  "ind_vars": ["average_price"]
-}

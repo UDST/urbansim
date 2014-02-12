@@ -25,9 +25,9 @@ from patsy import dmatrices
 {% endif %}
 {% endmacro %}
   
-{% macro MERGE(tablename,config) %} 
+{% macro MERGE(tablename,merged) %} 
 t_m = time.time()
-{{tablename}} = pd.merge({{tablename}},{{config.table}},**{{config|droptable}})
+{{tablename}} = pd.merge({{tablename}},{{merged.table}},**{{merged|droptable}})
 print "Finished with merge in %f" % (time.time()-t_m)
 {% endmacro %}
 
