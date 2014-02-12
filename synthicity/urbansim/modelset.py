@@ -1,4 +1,5 @@
 import os, sys
+import simplejson
 from synthicity.utils import misc
 
 {% if pathinsertcwd %}
@@ -9,5 +10,6 @@ dset = dataset.{{dataset}}(os.path.join(misc.data_dir(),'{{datastore}}'))
 
 {% for arg in modelstorun %}
 import {{arg}}
-{{arg}}.{{arg}}(dset)
+retval = {{arg}}.{{arg}}(dset)
+if retval: open(os.path.join("output","{{arg}}.json"),"w").write(simplejson.dumps(retval))
 {% endfor %} 

@@ -98,7 +98,7 @@ class Dataset(object):
   def load_coeff_series(self,name):
     return pd.Series(self.load_coeff(name).values,index=self.load_fnames(name).values)
 
-  def store_coeff(self,name,value,fnames=None):
+  def store_coeff(self,name,value,fnames=None,jsonformat=True):
     colname1 = (name,'coeffs')
     colname2 = (name,'fnames')
     if colname1 in self.coeffs: del self.coeffs[colname1]

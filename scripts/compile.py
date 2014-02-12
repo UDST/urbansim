@@ -17,7 +17,7 @@ for arg in config['modelstorun']:
   suffix = "estimate" if estimate else "simulate"
   open(os.path.join(config['modelpybase'],model)+'_'+suffix+'.py','w').write(s)
  
-print "Generating main"
 basename = os.path.splitext(os.path.basename(args[0]))[0]
+print "Generating "+basename
 s = misc.gen_model(config['modeljsonbase'],basename,False)    
-open(os.path.join(config['modelpybase'],"main")+'.py','w').write(s)
+open(os.path.join(config['modelpybase'],basename+'.py'),'w').write(s)
