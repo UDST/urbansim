@@ -24,8 +24,7 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   {% endif -%}
   {% if segment is not defined -%}
   segments = [(None,buildings)]
-  {% else %}
-
+  {% else -%}
   # TEMPLATE creating segments
   segments = buildings.groupby({{segment}})
   # ENDTEMPLATE
@@ -38,8 +37,9 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
     {{ SPEC("segment","est_data",submodel="name") | indent(4) }}
     # ENDTEMPLATE
 
-    {% if template_mode == "estimate" %}
-    
+    {%- if template_mode == "estimate" %}
+
+
     # TEMPLATE dependent variable
     depvar = segment["{{dep_var}}"]
     {% if dep_var_transform is defined -%}
@@ -66,7 +66,8 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
     returnobj[name] = d
 
     dset.store_coeff(outname,results.params.values,results.params.index)
-    {% else %} {# SIMULATE #} 
+    {% else -%} {# SIMULATE #} 
+    
     print "Generating rents on %d buildings" % (est_data.shape[0])
     vec = dset.load_coeff(outname)
     vec = np.reshape(vec,(vec.size,1))

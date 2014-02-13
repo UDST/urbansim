@@ -16,11 +16,11 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   {{ TABLE("choosers")|indent(2) }}
   # ENDTEMPLATE
   
-  {% if est_sample_size %} 
+  {% if est_sample_size -%} 
   # TEMPLATE randomly choose estimatiors
   choosers = choosers.ix[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
   # ENDTEMPLATE
-  {% endif %}
+  {% endif -%}
   
   # TEMPLATE specifying alternatives
   alternatives = {{alternatives}}
@@ -30,13 +30,13 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   # TEMPLATE merge
   {{- MERGE("alternatives",merge) | indent(2) }}
   # ENDTEMPLATE
-  {% endif %}
+  {% endif -%}
 
   t1 = time.time()
 
   {% if segment is not defined -%}
   segments = [(None,choosers)]
-  {% else %}
+  {% else -%}
   # TEMPLATE creating segments
   segments = choosers.groupby({{segment}})
   # ENDTEMPLATE
@@ -53,7 +53,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     global SAMPLE_SIZE
     {% if alt_sample_size %}
     SAMPLE_SIZE = {{alt_sample_size}}
-    {% endif %}
+    {% endif -%}
     
     sample, alternative_sample, est_params = interaction.mnl_interaction_dataset(
                                         segment,alternatives,SAMPLE_SIZE,chosenalts=segment[depvar])
@@ -66,10 +66,9 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     if show: print data.describe()
 
     d = {}
-    d['columns'] =  data.columns.tolist()
-    data = data.as_matrix()
-    fnames = {{ind_vars}}
-    
+    d['columns'] = fnames = data.columns.tolist()
+
+    data = data.as_matrix()    
     fit, results = interaction.estimate(data,est_params,SAMPLE_SIZE)
     
     fnames = interaction.add_fnames(fnames,est_params)
@@ -135,7 +134,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     else: 
       alternatives = alternatives.ix[np.repeat(empty_units.index,empty_units.values.astype('int'))]
     print "There are %s empty units in %s locations total in the region" % (empty_units.sum(),len(empty_units))
-  {% endif %}
+  {% endif -%}
 
   {% if merge -%}
   # TEMPLATE merge
@@ -179,13 +178,13 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   if len(pdf.columns) and show: print pdf.describe()
   returnobj[name] = misc.pandasdfsummarytojson(pdf.describe(),ndigits=10)
   pdf.describe().to_csv(os.path.join(misc.output_dir(),"{{modelname}}_simulate.csv"))
-  t1 = time.time()
     
   {% if save_pdf -%}
   dset.save_tmptbl("{{save_pdf}}",pdf)
   {% endif %}
 
-  {% if supply_constraints %}
+  {%- if supply_constraints -%}
+    t1 = time.time()
      # draw from actual units
     new_homes = pd.Series(np.ones(len(movers.index))*-1,index=movers.index)
     mask = np.zeros(len(alternatives.index),dtype='bool')
@@ -235,9 +234,9 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     table = {{table}} # need to go back to the whole dataset
     table[dep_var].ix[new_homes.index] = new_homes.values.astype('int32')
     dset.store_attr("{{output_varname}}",year,copy.deepcopy(table[dep_var]))
-  {% endif %}
+    print "Finished assigning agents in %f seconds" % (time.time()-t1)
+  {% endif -%}
 
-  print "Finished assigning agents in %f seconds" % (time.time()-t1)
   return returnobj
 
 {% endif %}
