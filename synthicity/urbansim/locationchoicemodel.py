@@ -74,7 +74,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     
     fnames = interaction.add_fnames(fnames,est_params)
     if show: print misc.resultstotable(fnames,results)
-    misc.resultstocsv(fit,fnames,results,outname+".csv",tblname=outname)
+    misc.resultstocsv(fit,fnames,results,outname+"_estimate.csv",tblname=outname)
     
     d['null loglik'] = float(fit[0])
     d['converged loglik'] = float(fit[1])
@@ -93,6 +93,8 @@ def {{modelname}}_estimate(dset,year=None,show=True):
 ############
 
 def {{modelname}}_simulate(dset,year=None,show=True):
+
+  returnobj = {}
 
   t1 = time.time()
   # TEMPLATE configure table
@@ -174,7 +176,9 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     pdf['segment%s'%name] = pd.Series(probs.flatten(),index=alternatives.index) 
 
   print "Finished creating pdf in %f seconds" % (time.time()-t1)
-  if len(pdf.columns): print pdf.describe()
+  if len(pdf.columns) and show: print pdf.describe()
+  returnobj[name] = misc.pandasdfsummarytojson(pdf.describe(),ndigits=10)
+  pdf.describe().to_csv(os.path.join(misc.output_dir(),"{{modelname}}_simulate.csv"))
   t1 = time.time()
     
   {% if save_pdf -%}
@@ -234,5 +238,6 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   {% endif %}
 
   print "Finished assigning agents in %f seconds" % (time.time()-t1)
+  return returnobj
 
 {% endif %}

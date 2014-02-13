@@ -61,12 +61,12 @@ def debug_dir(): return mkifnotexists("debug")
 
 def get_run_number():
     try:
-      f = open(os.path.join(os.environ['DATA_HOME'],'RUNNUM'),'r')
+      f = open(os.path.join(os.getenv('DATA_HOME',"."),'RUNNUM'),'r')
       num = int(f.read())
       f.close()
     except:
-      num = 0
-    f = open(os.path.join(os.environ['DATA_HOME'],'RUNNUM'),'w')
+      num = 1
+    f = open(os.path.join(os.getenv('DATA_HOME',"."),'RUNNUM'),'w')
     f.write(str(num+1))
     f.close()
     return num
@@ -204,3 +204,10 @@ def series64bitto32bit(s):
     if s.dtype == np.float64: return s.astype('float32') 
     elif s.dtype == np.int64: return s.astype('int32')
     return s
+
+def pandassummarytojson(v,ndigits=3): 
+  return dict([(i,round(float(v.ix[i]),ndigits)) for i in v.index])
+    
+def pandasdfsummarytojson(df,ndigits=3):
+  df = df.transpose()
+  return dict([(k, pandassummarytojson(v,ndigits)) for k, v in df.iterrows()])

@@ -2,7 +2,7 @@
 import pandas as pd, numpy as np, statsmodels.api as sm
 from synthicity.urbanchoice import *
 from synthicity.utils import misc
-import time, copy
+import time, copy, os, sys
 {% endmacro %}
 
 {% macro TABLE(tblname) %}
