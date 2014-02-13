@@ -1,6 +1,9 @@
-import time, copy, json
+{% macro IMPORTS() %}
 import pandas as pd, numpy as np, statsmodels.api as sm
-from patsy import dmatrices
+from synthicity.urbanchoice import *
+from synthicity.utils import misc
+import time, copy
+{% endmacro %}
 
 {% macro TABLE(tblname) %}
 {% if not template_mode == "estimate" and table_sim %}

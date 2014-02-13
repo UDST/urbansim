@@ -47,10 +47,17 @@ def gen_model(configname):
   return d
 
 
-def data_dir(): return os.path.join(os.environ['DATA_HOME'],'data')
-def models_dir(): return os.path.join(os.environ['DATA_HOME'],'models')
-def runs_dir(): return os.path.join(os.environ['DATA_HOME'],'runs')
-def output_dir(): return os.path.join(os.environ['DATA_HOME'],'output')
+def mkifnotexists(folder):
+  d = os.path.join(os.getenv('DATA_HOME',"."),folder)
+  if not os.path.exists(d): os.mkdir(d)
+  return d
+
+def data_dir(): return mkifnotexists("data")
+def models_dir(): return mkifnotexists("models")
+def runs_dir(): return mkifnotexists("runs")
+def coef_dir(): return mkifnotexists("coeffs")
+def output_dir(): return mkifnotexists("output")
+def debug_dir(): return mkifnotexists("debug")
 
 def get_run_number():
     try:
@@ -99,7 +106,7 @@ def resultstolatex(fit,fnames,results,filename,hedonic=0,tblname=None):
     TABLENUM += 1
     filename = filename + '.tex'
     results = maketable(fnames,results,latex=1)
-    f = open(os.path.join(output_dir(),filename),'w')
+    f = open(os.path.join(debug_dir(),filename),'w')
     tablerows = ''
     for row in results:
         tablerows += string.join(row,sep='&') + '\\\\\n'
@@ -122,8 +129,8 @@ def resultstocsv(fit,fnames,results,filename,hedonic=0,tolatex=1,tblname=None):
     if tolatex: resultstolatex(fit,fnames,results,filename,hedonic,tblname=tblname)
     results = maketable(fnames,results)
     f = open(os.path.join(output_dir(),filename),'w')
-    if hedonic: f.write('R-squared,%f\nAdj-R-squared,%f\n\n\n'%fit)
-    else: f.write('null loglik,%f\nconverged loglik,%f\nloglik ratio,%f\n\n\n'%fit)
+    #if hedonic: f.write('R-squared,%f\nAdj-R-squared,%f\n\n\n'%fit)
+    #else: f.write('null loglik,%f\nconverged loglik,%f\nloglik ratio,%f\n\n\n'%fit)
     csvf = csv.writer(f,lineterminator='\n')
     for row in results: csvf.writerow(row)
     f.close()

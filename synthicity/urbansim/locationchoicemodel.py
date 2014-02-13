@@ -1,9 +1,5 @@
-import pandas as pd, numpy as np, statsmodels.api as sm
-from synthicity.utils import misc
-from synthicity.urbanchoice import interaction
-{% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
-import os, time, copy
-
+{% from 'modelspec.py' import IMPORTS, MERGE, SPEC, TABLE with context %}
+{{ IMPORTS() }}
 SAMPLE_SIZE=100
 
 ##############
@@ -21,13 +17,11 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   # ENDTEMPLATE
   
   {% if est_sample_size %} 
-    choosers = choosers.ix[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
+  # TEMPLATE randomly choose estimatiors
+  choosers = choosers.ix[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
+  # ENDTEMPLATE
   {% endif %}
   
-  # TEMPLATE specifying output names
-  output_csv, output_title, coeff_name, output_varname = {{output_names}}
-  # ENDTEMPLATE
- 
   # TEMPLATE specifying alternatives
   alternatives = {{alternatives}}
   # ENDTEMPLATE
@@ -51,8 +45,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   for name, segment in segments:
 
     name = str(name)
-    if name is not None: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv%name, output_title%name, coeff_name%name
-    else: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv, output_title, coeff_name
+    outname = "{{modelname}}" if name is None else "{{modelname}}_"+name
 
     # TEMPLATE dependent variable
     depvar = "{{dep_var}}"
@@ -81,7 +74,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     
     fnames = interaction.add_fnames(fnames,est_params)
     if show: print misc.resultstotable(fnames,results)
-    misc.resultstocsv(fit,fnames,results,tmp_outcsv,tblname=tmp_outtitle)
+    misc.resultstocsv(fit,fnames,results,outname+".csv",tblname=outname)
     
     d['null loglik'] = float(fit[0])
     d['converged loglik'] = float(fit[1])
@@ -89,7 +82,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     d['est_results'] = [[float(x) for x in result] for result in results]
     returnobj[name] = d
     
-    dset.store_coeff(tmp_coeffname,zip(*results)[0],fnames)
+    dset.store_coeff(outname,zip(*results)[0],fnames)
 
   print "Finished executing in %f seconds" % (time.time()-t1)
   return returnobj
@@ -104,10 +97,6 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   t1 = time.time()
   # TEMPLATE configure table
   {{ TABLE("choosers")|indent(2) }}
-  # ENDTEMPLATE
-  
-  # TEMPLATE specifying output names
-  output_csv, output_title, coeff_name, output_varname = {{output_names}}
   # ENDTEMPLATE
   
   # TEMPLATE dependent variable
@@ -170,8 +159,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     segment = segment.head(1)
 
     name = str(name)
-    if name is not None: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv%name, output_title%name, coeff_name%name
-    else: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv, output_title, coeff_name
+    outname = "{{modelname}}" if name is None else "{{modelname}}_"+name
   
     SAMPLE_SIZE = alternatives.index.size # don't sample
     sample, alternative_sample, est_params = \
@@ -181,7 +169,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     # ENDTEMPLATE
     data = data.as_matrix()
 
-    coeff = dset.load_coeff(tmp_coeffname)
+    coeff = dset.load_coeff(outname)
     probs = interaction.mnl_simulate(data,coeff,numalts=SAMPLE_SIZE,returnprobs=1)
     pdf['segment%s'%name] = pd.Series(probs.flatten(),index=alternatives.index) 
 
@@ -242,7 +230,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
 
     table = {{table}} # need to go back to the whole dataset
     table[dep_var].ix[new_homes.index] = new_homes.values.astype('int32')
-    if output_varname: dset.store_attr(output_varname,year,copy.deepcopy(table[dep_var]))
+    dset.store_attr("{{output_varname}}",year,copy.deepcopy(table[dep_var]))
   {% endif %}
 
   print "Finished assigning agents in %f seconds" % (time.time()-t1)

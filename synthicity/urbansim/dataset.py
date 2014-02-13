@@ -1,5 +1,5 @@
 import numpy as np, pandas as pd
-import time, os
+import time, os, simplejson
 from synthicity.utils import misc
 import warnings
 
@@ -89,24 +89,37 @@ class Dataset(object):
     df[year] = value
     self.attrs[name] = df
 
-  def load_coeff(self,name):
-    return self.coeffs[(name,'coeffs')].dropna()
+  def load_coeff(self,name,jsonformat=True):
+    if jsonformat:
+      d = simplejson.loads(open(os.path.join(misc.coef_dir(),name+'.json')).read())
+      return np.array(d["coeffs"])
+    else:
+      return self.coeffs[(name,'coeffs')].dropna()
   
-  def load_fnames(self,name):
-    return self.coeffs[(name,'fnames')].dropna()
+  def load_fnames(self,name,jsonformat=True):
+    if jsonformat:
+      d = simplejson.loads(open(os.path.join(misc.coef_dir(),name+'.json')).read())
+      return d["fnames"]
+    else:
+      return self.coeffs[(name,'fnames')].dropna()
   
   def load_coeff_series(self,name):
     return pd.Series(self.load_coeff(name).values,index=self.load_fnames(name).values)
 
   def store_coeff(self,name,value,fnames=None,jsonformat=True):
-    colname1 = (name,'coeffs')
-    colname2 = (name,'fnames')
-    if colname1 in self.coeffs: del self.coeffs[colname1]
-    if colname2 in self.coeffs: del self.coeffs[colname2]
+    if jsonformat:
+      d = {"coeffs":[round(x,3) for x in list(value)]}
+      if fnames is not None: d["fnames"] = list(fnames)
+      open(os.path.join(misc.coef_dir(),name+'.json'),'w').write(simplejson.dumps(d,indent=4))
+    else:
+      colname1 = (name,'coeffs')
+      colname2 = (name,'fnames')
+      if colname1 in self.coeffs: del self.coeffs[colname1]
+      if colname2 in self.coeffs: del self.coeffs[colname2]
 
-    d = {colname1:value}
-    if fnames is not None: d[colname2] = fnames
-    self.coeffs = pd.concat([self.coeffs,pd.DataFrame(d)],axis=1)
+      d = {colname1:value}
+      if fnames is not None: d[colname2] = fnames
+      self.coeffs = pd.concat([self.coeffs,pd.DataFrame(d)],axis=1)
   
   # this is a shortcut function to join the table with dataset.fetch(tblname) 
   # using the foreign_key in order to add fieldname to the source table

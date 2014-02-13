@@ -12,5 +12,5 @@ dset = dataset.{{dataset}}(os.path.join(misc.data_dir(),'{{datastore}}'))
 print "Running {{arg}}"
 import {{arg}}
 retval = {{arg}}.{{arg}}(dset)
-if retval: open(os.path.join(misc.output_dir(),"{{arg}}.json"),"w").write(simplejson.dumps(retval))
+if retval: open(os.path.join(misc.output_dir(),"{{arg}}.json"),"w").write(simplejson.dumps(retval,sort_keys=True,indent=4))
 {% endfor %} 

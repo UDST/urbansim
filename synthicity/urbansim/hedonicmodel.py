@@ -1,8 +1,5 @@
-import pandas as pd, numpy as np, statsmodels.api as sm
-from synthicity.utils import misc
-{% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
-import time, copy
-
+{% from 'modelspec.py' import IMPORTS, MERGE, SPEC, TABLE with context %}
+{{ IMPORTS() }}
 def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
 
   assert "{{model}}" == "hedonicmodel" # should match!
@@ -18,10 +15,6 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   {{- MERGE("buildings",merge) | indent(2) }}
   # ENDTEMPLATE
   {% endif %}
-
-  # TEMPLATE specifying output names
-  output_csv, output_title, coeff_name, output_varname = {{output_names}}
-  # ENDTEMPLATE
 
   print "Finished specifying in %f seconds" % (time.time()-t1)
   t1 = time.time()
@@ -39,13 +32,12 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   {% endif  %}
   
   for name, segment in segments:
+    outname = "{{modelname}}" if name is None else "{{modelname}}_"+name
     
     # TEMPLATE computing vars
     {{ SPEC("segment","est_data",submodel="name") | indent(4) }}
     # ENDTEMPLATE
 
-    if name is not None: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv%name, output_title%name, coeff_name%name
-    else: tmp_outcsv, tmp_outtitle, tmp_coeffname = output_csv, output_title, coeff_name
     {% if template_mode == "estimate" %}
     
     # TEMPLATE dependent variable
@@ -63,11 +55,9 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
     results = model.fit()
     if show: print results.summary()
 
-    tmp_outcsv = output_csv if name is None else output_csv%name
-    tmp_outtitle = output_title if name is None else output_title%name
     misc.resultstocsv((results.rsquared,results.rsquared_adj),est_data.columns,
-                        zip(results.params,results.bse,results.tvalues),tmp_outcsv,hedonic=1,
-                        tblname=output_title)
+                        zip(results.params,results.bse,results.tvalues),outname+".csv",hedonic=1,
+                        tblname=outname)
     d = {}
     d['rsquared'] = results.rsquared
     d['rsquared_adj'] = results.rsquared_adj
@@ -75,10 +65,10 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
     d['est_results'] =  zip(results.params,results.bse,results.tvalues)
     returnobj[name] = d
 
-    dset.store_coeff(tmp_coeffname,results.params.values,results.params.index)
+    dset.store_coeff(outname,results.params.values,results.params.index)
     {% else %} {# SIMULATE #} 
     print "Generating rents on %d buildings" % (est_data.shape[0])
-    vec = dset.load_coeff(tmp_coeffname)
+    vec = dset.load_coeff(outname)
     vec = np.reshape(vec,(vec.size,1))
     rents = est_data.dot(vec).astype('f4')
     {% if output_transform -%}
@@ -89,8 +79,8 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   
   {% if not template_mode == "estimate" -%}
   simrents = pd.concat(simrents)
-  dset.buildings[output_varname] = simrents.reindex(dset.buildings.index)
-  dset.store_attr(output_varname,year,simrents)
+  dset.buildings["{{output_varname}}"] = simrents.reindex(dset.buildings.index)
+  dset.store_attr("{{output_varname}}",year,simrents)
 
   {% endif -%}
   

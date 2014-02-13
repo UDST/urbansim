@@ -1,6 +1,7 @@
 import pandas as pd, numpy as np, os, sys, string
 from utils import misc
 
+# this code is platform specific!
 args = sys.argv[1:]
 
 instore = pd.HDFStore(os.path.join(misc.data_dir(),args[0]))
