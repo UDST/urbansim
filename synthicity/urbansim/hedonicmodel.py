@@ -31,6 +31,7 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   {% endif  %}
   
   for name, segment in segments:
+    name = str(name)
     outname = "{{modelname}}" if name is None else "{{modelname}}_"+name
     
     # TEMPLATE computing vars

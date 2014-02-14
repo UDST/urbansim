@@ -10,7 +10,7 @@ warnings.filterwarnings('ignore',category=pd.io.pytables.PerformanceWarning)
 class Dataset(object):
 
   def __init__(self,filename):
-      self.store = pd.HDFStore(filename)
+      self.store = pd.HDFStore(filename,"r")
       self.d = {} # keep track of in memory pandas data frames so as not to load multiple times form disk
       self.coeffs = pd.DataFrame() # keep all coefficients in memory
       self.attrs = {} # keep all computed outputs in memory

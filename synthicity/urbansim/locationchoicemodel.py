@@ -1,4 +1,4 @@
-{% from 'modelspec.py' import IMPORTS, MERGE, SPEC, TABLE with context %}
+{% from 'modelspec.py' import IMPORTS, MERGE, SPEC, CALCVAR, TABLE with context %}
 {{ IMPORTS() }}
 SAMPLE_SIZE=100
 
@@ -38,6 +38,13 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   segments = [(None,choosers)]
   {% else -%}
   # TEMPLATE creating segments
+  {% for varname in segment -%}
+  {% if varname in var_lib -%}
+  
+  if "{{varname}}" not in choosers.columns: 
+    choosers["{{varname}}"] = {{CALCVAR("choosers",varname,var_lib)}}
+  {% endif -%}
+  {% endfor -%}
   segments = choosers.groupby({{segment}})
   # ENDTEMPLATE
   {% endif  %}
@@ -47,16 +54,12 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     name = str(name)
     outname = "{{modelname}}" if name is None else "{{modelname}}_"+name
 
-    # TEMPLATE dependent variable
-    depvar = "{{dep_var}}"
-    # ENDTEMPLATE
     global SAMPLE_SIZE
-    {% if alt_sample_size %}
+    {% if alt_sample_size -%}
     SAMPLE_SIZE = {{alt_sample_size}}
     {% endif -%}
-    
     sample, alternative_sample, est_params = interaction.mnl_interaction_dataset(
-                                        segment,alternatives,SAMPLE_SIZE,chosenalts=segment[depvar])
+                                        segment,alternatives,SAMPLE_SIZE,chosenalts=segment["{{dep_var}}"])
 
     print "Estimating parameters for segment = %s, size = %d" % (name, len(segment.index)) 
 
@@ -68,9 +71,11 @@ def {{modelname}}_estimate(dset,year=None,show=True):
     d = {}
     d['columns'] = fnames = data.columns.tolist()
 
-    data = data.as_matrix()    
+    data = data.as_matrix()
+    if np.amax(data) > 500.0:
+      print "WARNING: the max value in this estimation data is large, it's likely you need to log transform the input"
     fit, results = interaction.estimate(data,est_params,SAMPLE_SIZE)
-    
+ 
     fnames = interaction.add_fnames(fnames,est_params)
     if show: print misc.resultstotable(fnames,results)
     misc.resultstocsv(fit,fnames,results,outname+"_estimate.csv",tblname=outname)
@@ -104,14 +109,13 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   depvar = "{{dep_var}}"
   # ENDTEMPLATE
 
-  {% if relocation_rates %} 
-  reloc_cfg = {{relocation_rates}}
-  rate_table = {{rate_table}}
-  rate_field = "{{rate_field}}"
-  movers = dset.relocation_rates(choosers,rate_table,rate_field)
-  choosers[dep_var].ix[movers] = -1
+  {% if relocation_rates -%} 
+  # TEMPLATE computing relocations
+  movers = dset.relocation_rates(choosers,{{relocation_rates.rate_table}},"{{relocation_rates.rate_field}}")
+  choosers["{{dep_var}}"].ix[movers] = -1
   # add current unplaced
-  movers = choosers[choosers[dep_var]==-1]
+  movers = choosers[choosers["{{dep_var}}"]==-1]
+  # ENDTEMPLATE
   {% else -%}
   movers = choosers # everyone moves
   {% endif %}
@@ -123,17 +127,22 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   # ENDTEMPLATE
   
   lotterychoices = False
-  {% if supply_constraint %}
-    empty_units = {{supply_constraint}}
-    if "demand_amount_scale" in config: empty_units /=  float(config["demand_amount_scale"])
-    empty_units = empty_units[empty_units>0].order(ascending=False)
-    if 'dontexpandunits' in config and config['dontexpandunits'] == True: 
-      alternatives = alternatives.ix[empty_units.index]
-      alternatives["supply"] = empty_units
-      lotterychoices = True
-    else: 
-      alternatives = alternatives.ix[np.repeat(empty_units.index,empty_units.values.astype('int'))]
-    print "There are %s empty units in %s locations total in the region" % (empty_units.sum(),len(empty_units))
+  {% if supply_constraint -%}
+  # TEMPLATE computing supply constraint
+  empty_units = {{supply_constraint}}
+  {% if demand_amount_scale -%}
+  empty_units /=  float({{demand_amount_scale}})
+  {% endif -%}
+  empty_units = empty_units[empty_units>0].order(ascending=False)
+  {% if dontexpandunits -%} 
+  alternatives = alternatives.ix[empty_units.index]
+  alternatives["supply"] = empty_units
+  lotterychoices = True
+  {% else -%}  
+  alternatives = alternatives.ix[np.repeat(empty_units.index,empty_units.values.astype('int'))].reset_index()
+  {% endif -%}
+  print "There are %s empty units in %s locations total in the region" % (empty_units.sum(),len(empty_units))
+  # ENDTEMPLATE
   {% endif -%}
 
   {% if merge -%}
@@ -151,6 +160,13 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   segments = [(None,movers)]
   {% else %}
   # TEMPLATE creating segments
+  {% for varname in segment -%}
+  {% if varname in var_lib -%}
+  
+  if "{{varname}}" not in movers.columns: 
+    movers["{{varname}}"] = {{CALCVAR("movers",varname,var_lib)}}
+  {% endif -%}
+  {% endfor -%}
   segments = movers.groupby({{segment}})
   # ENDTEMPLATE
   {% endif  %}
@@ -183,58 +199,60 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   dset.save_tmptbl("{{save_pdf}}",pdf)
   {% endif %}
 
-  {%- if supply_constraints -%}
-    t1 = time.time()
-     # draw from actual units
-    new_homes = pd.Series(np.ones(len(movers.index))*-1,index=movers.index)
-    mask = np.zeros(len(alternatives.index),dtype='bool')
-    for name, segment in segments:
-      name = str(name)
-      print "Assigning units to %d agents of segment %s" % (len(segment.index),name)
-      p=pdf['segment%s'%name].values
+  {%- if supply_constraint -%}
+  t1 = time.time()
+  # draw from actual units
+  new_homes = pd.Series(np.ones(len(movers.index))*-1,index=movers.index)
+  mask = np.zeros(len(alternatives.index),dtype='bool')
+  for name, segment in segments:
+    name = str(name)
+    print "Assigning units to %d agents of segment %s" % (len(segment.index),name)
+    p=pdf['segment%s'%name].values
      
-      def choose(p,mask,alternatives,segment,new_homes,minsize=None):
-        p = copy.copy(p)
+    def choose(p,mask,alternatives,segment,new_homes,minsize=None):
+      p = copy.copy(p)
 
-        if minsize is not None: p[alternatives.supply<minsize] = 0
-        else: p[mask] = 0 # already chosen
-        print "Choosing from %d nonzero alts" % np.count_nonzero(p)
+      if minsize is not None: p[alternatives.supply<minsize] = 0
+      else: p[mask] = 0 # already chosen
+      print "Choosing from %d nonzero alts" % np.count_nonzero(p)
 
-        try: 
-          indexes = np.random.choice(len(alternatives.index),len(segment.index),replace=False,p=p/p.sum())
-        except:
-          print "WARNING: not enough options to fit agents, will result in unplaced agents"
-          return mask,new_homes
-        new_homes.ix[segment.index] = alternatives.index.values[indexes]
-        
-        if minsize is not None: alternatives["supply"].ix[alternatives.index.values[indexes]] -= minsize
-        else: mask[indexes] = 1
-        
+      try: 
+        indexes = np.random.choice(len(alternatives.index),len(segment.index),replace=False,p=p/p.sum())
+      except:
+        print "WARNING: not enough options to fit agents, will result in unplaced agents"
         return mask,new_homes
+      new_homes.ix[segment.index] = alternatives.index.values[indexes]
+        
+      if minsize is not None: alternatives["supply"].ix[alternatives.index.values[indexes]] -= minsize
+      else: mask[indexes] = 1
+        
+      return mask,new_homes
 
-      if lotterychoices and "demand_amount" not in config:
-        print "WARNING: you've specified a supply constraint but no demand_amount - all demands will be of value 1"
+    if lotterychoices and {{demand_amount == None}}:
+      print "WARNING: you've specified a supply constraint but no demand_amount - all demands will be of value 1"
 
-      if lotterychoices and "demand_amount" in config:
+    if lotterychoices and {{demand_amount != None}}:
           
-        tmp = segment[config["demand_amount"]]
-        if "demand_amount_scale" in config: tmp /= float(config["demand_amount_scale"])
+      tmp = segment["{{demand_amount}}"]
+      {% if demand_amount_scale -%}
+      tmp /= {{demand_amount_scale}}
+      {% endif %}
 
-        for name, subsegment in reversed(list(segment.groupby(tmp.astype('int')))):
+      for name, subsegment in reversed(list(segment.groupby(tmp.astype('int')))):
           
-          print "Running subsegment with size = %s, num agents = %d" % (name, len(subsegment.index))
-          mask,new_homes = choose(p,mask,alternatives,subsegment,new_homes,minsize=int(name))
+        print "Running subsegment with size = %s, num agents = %d" % (name, len(subsegment.index))
+        mask,new_homes = choose(p,mask,alternatives,subsegment,new_homes,minsize=int(name))
       
-      else:  mask,new_homes = choose(p,mask,alternatives,segment,new_homes)
+    else:  mask,new_homes = choose(p,mask,alternatives,segment,new_homes)
 
-    build_cnts = new_homes.value_counts()
-    print "Assigned %d agents to %d locations with %d unplaced" % \
+  build_cnts = new_homes.value_counts()
+  print "Assigned %d agents to %d locations with %d unplaced" % \
                       (new_homes.size,build_cnts.size,build_cnts.get(-1,0))
 
-    table = {{table}} # need to go back to the whole dataset
-    table[dep_var].ix[new_homes.index] = new_homes.values.astype('int32')
-    dset.store_attr("{{output_varname}}",year,copy.deepcopy(table[dep_var]))
-    print "Finished assigning agents in %f seconds" % (time.time()-t1)
+  table = {{table_sim if table_sim else table}} # need to go back to the whole dataset
+  table["{{dep_var}}"].ix[new_homes.index] = new_homes.values.astype('int32')
+  dset.store_attr("{{output_varname}}",year,copy.deepcopy(table["{{dep_var}}"]))
+  print "Finished assigning agents in %f seconds" % (time.time()-t1)
   {% endif -%}
 
   return returnobj

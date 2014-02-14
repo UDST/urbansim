@@ -4,7 +4,7 @@ from synthicity.utils import misc
 import time, copy
 
 def {{modelname}}_run(dset,year=None,show=True):
-  assert {{template_mode}} == "run"
+  assert "{{template_mode}}" == "run"
 
   # TEMPLATE configure table
   {{ TABLE("_tbl_")|indent(2) }}

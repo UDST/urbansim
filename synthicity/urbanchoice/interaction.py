@@ -49,7 +49,11 @@ def mnl_interaction_dataset(choosers,alternatives,SAMPLE_SIZE,chosenalts=None):
       assert numchoosers < 10 # we're about to do a huge join - do this with a discretized population
       sample = np.tile(alternatives.index.values,numchoosers)
 
-    alts_sample = alternatives.ix[sample]
+    if not alternatives.index.is_unique:
+      raise Exception("ERROR: alternatives index is not unique, sample will not work correctly")
+    print alternatives.average_price.describe()
+    alts_sample = alternatives.loc[sample]
+    print alts_sample.average_price.describe()
     
     try: alts_sample['join_index'] = np.repeat(choosers.index,SAMPLE_SIZE)
     except: raise Exception("ERROR: An exception here means agents and alternatives aren't merging correctly")
