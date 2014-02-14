@@ -3,6 +3,7 @@ import pandas as pd, numpy as np, statsmodels.api as sm
 from synthicity.urbanchoice import *
 from synthicity.utils import misc
 import time, copy, os, sys
+from patsy import dmatrix
 {% endmacro %}
 
 {% macro TABLE(tblname) %}
@@ -44,30 +45,30 @@ print "Finished with merge in %f" % (time.time()-t_m)
 
 {% macro SPEC(inname,outname,submodel=None,newdf=True) %} 
 {%- if patsy %}
-  print config['patsy']
-  # use patsy to specify the data
-  y, X = dmatrices(config['patsy'], data=inname, return_type='dataframe')
-  if 'dep_var' in config or 'dep_var_transform' in config:
-    print "WARNING: using patsy, dep_var and dep_var_transform are ignored"
-    config['dep_var'] = y
-    if 'dep_var_transform' in config: del config['dep_var_transform']
-    return X
-{% endif -%}
+print "WARNING: using patsy, ind_vars will be ignored"
+{{outname}} = dmatrix("{{patsy}}", data={{inname}}, return_type='dataframe')
+{% else -%}
 {% if newdf %}
 {{outname}} = pd.DataFrame(index={{inname}}.index)
 {% else -%}
 {{outname}} = {{inname}}
 {% endif %}
-{% if submodel_vars and submodel in submodel_vars %}
-    for varname in config["submodel_vars"][submodel]:
-      est_data[varname] = CALCVAR(inname,varname,var_lib)
-{% else %}
-{% for varname in ind_vars %}
-{{outname}}["{{varname}}"] = {{CALCVAR(inname,varname,var_lib)-}}
+if 0: pass
+{% if submodel_vars %}
+{% for k, v in submodel_vars.iteritems() %}
+elif {{submodel}} == "{{k}}":
+{% for varname in v %}
+  {{outname}}["{{varname}}"] = {{CALCVAR(inname,varname,var_lib)-}}
 {% endfor %}
-{% endif -%}
+{% endfor %}
+{% endif %}
+else:
+{% for varname in ind_vars %}
+  {{outname}}["{{varname}}"] = {{CALCVAR(inname,varname,var_lib)-}}
+{% endfor %}
 {% if add_constant %}
 {{outname}} = sm.add_constant({{outname}},prepend=False)
 {% endif %}
 {{outname}} = {{outname}}.fillna(0)
+{% endif -%}
 {% endmacro %}

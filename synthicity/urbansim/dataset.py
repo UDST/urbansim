@@ -1,5 +1,5 @@
 import numpy as np, pandas as pd
-import time, os, simplejson
+import time, os, copy, simplejson
 from synthicity.utils import misc
 import warnings
 
@@ -128,7 +128,7 @@ class Dataset(object):
     if foreign_key == None: # join on index
         return pd.merge(table,self.fetch(tblname)[[fieldname]],left_index=True,right_index=True)
     return pd.merge(table,self.fetch(tblname)[[fieldname]],left_on=foreign_key,right_index=True)
-  
+ 
   def compute_range(self,attr,dist,agg=np.sum):
     travel_data = self.fetch('travel_data').reset_index(level=1)
     travel_data = travel_data[travel_data.travel_time<dist]
@@ -167,3 +167,22 @@ class Dataset(object):
     print "%d agents are moving" % len(movers)
     if len(movers) == 0: raise Exception("Stopping execution - no movers, which is probably a bug")
     return movers
+    
+  def choose(self,p,mask,alternatives,segment,new_homes,minsize=None):
+    p = copy.copy(p)
+
+    if minsize is not None: p[alternatives.supply<minsize] = 0
+    else: p[mask] = 0 # already chosen
+    print "Choosing from %d nonzero alts" % np.count_nonzero(p)
+
+    try: 
+      indexes = np.random.choice(len(alternatives.index),len(segment.index),replace=False,p=p/p.sum())
+    except:
+      print "WARNING: not enough options to fit agents, will result in unplaced agents"
+      return mask,new_homes
+    new_homes.ix[segment.index] = alternatives.index.values[indexes]
+        
+    if minsize is not None: alternatives["supply"].ix[alternatives.index.values[indexes]] -= minsize
+    else: mask[indexes] = 1
+        
+    return mask,new_homes

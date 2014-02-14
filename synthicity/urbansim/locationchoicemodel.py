@@ -2,10 +2,6 @@
 {{ IMPORTS() }}
 SAMPLE_SIZE=100
 
-##############
-#  ESTIMATION
-##############
-
 {% if template_mode == "estimate" %}
 def {{modelname}}_estimate(dset,year=None,show=True):
 
@@ -92,14 +88,9 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   return returnobj
 
 {% else %}
-############
-# SIMULATION
-############
-
 def {{modelname}}_simulate(dset,year=None,show=True):
 
   returnobj = {}
-
   t1 = time.time()
   # TEMPLATE configure table
   {{ TABLE("choosers")|indent(2) }}
@@ -126,22 +117,20 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   alternatives = {{alternatives}}
   # ENDTEMPLATE
   
-  lotterychoices = False
   {% if supply_constraint -%}
   # TEMPLATE computing supply constraint
-  empty_units = {{supply_constraint}}
+  vacant_units = {{supply_constraint}}
   {% if demand_amount_scale -%}
-  empty_units /=  float({{demand_amount_scale}})
+  vacant_units /= float({{demand_amount_scale}})
   {% endif -%}
-  empty_units = empty_units[empty_units>0].order(ascending=False)
+  vacant_units = vacant_units[vacant_units>0].order(ascending=False)
   {% if dontexpandunits -%} 
-  alternatives = alternatives.ix[empty_units.index]
-  alternatives["supply"] = empty_units
-  lotterychoices = True
+  alternatives = alternatives.ix[vacant_units.index]
+  alternatives["supply"] = vacant_units
   {% else -%}  
-  alternatives = alternatives.ix[np.repeat(empty_units.index,empty_units.values.astype('int'))].reset_index()
+  alternatives = alternatives.ix[np.repeat(vacant_units.index,vacant_units.values.astype('int'))]
   {% endif -%}
-  print "There are %s empty units in %s locations total in the region" % (empty_units.sum(),len(empty_units))
+  print "There are %s empty units in %s locations total in the region" % (vacant_units.sum(),len(vacant_units))
   # ENDTEMPLATE
   {% endif -%}
 
@@ -158,7 +147,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   pdf = pd.DataFrame(index=alternatives.index) 
   {% if segment is not defined -%}
   segments = [(None,movers)]
-  {% else %}
+  {% else -%}
   # TEMPLATE creating segments
   {% for varname in segment -%}
   {% if varname in var_lib -%}
@@ -192,7 +181,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
 
   print "Finished creating pdf in %f seconds" % (time.time()-t1)
   if len(pdf.columns) and show: print pdf.describe()
-  returnobj[name] = misc.pandasdfsummarytojson(pdf.describe(),ndigits=10)
+  returnobj["{{modelname}}"] = misc.pandasdfsummarytojson(pdf.describe(),ndigits=10)
   pdf.describe().to_csv(os.path.join(misc.output_dir(),"{{modelname}}_simulate.csv"))
     
   {% if save_pdf -%}
@@ -209,41 +198,21 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     print "Assigning units to %d agents of segment %s" % (len(segment.index),name)
     p=pdf['segment%s'%name].values
      
-    def choose(p,mask,alternatives,segment,new_homes,minsize=None):
-      p = copy.copy(p)
-
-      if minsize is not None: p[alternatives.supply<minsize] = 0
-      else: p[mask] = 0 # already chosen
-      print "Choosing from %d nonzero alts" % np.count_nonzero(p)
-
-      try: 
-        indexes = np.random.choice(len(alternatives.index),len(segment.index),replace=False,p=p/p.sum())
-      except:
-        print "WARNING: not enough options to fit agents, will result in unplaced agents"
-        return mask,new_homes
-      new_homes.ix[segment.index] = alternatives.index.values[indexes]
-        
-      if minsize is not None: alternatives["supply"].ix[alternatives.index.values[indexes]] -= minsize
-      else: mask[indexes] = 1
-        
-      return mask,new_homes
-
-    if lotterychoices and {{demand_amount == None}}:
-      print "WARNING: you've specified a supply constraint but no demand_amount - all demands will be of value 1"
-
-    if lotterychoices and {{demand_amount != None}}:
-          
-      tmp = segment["{{demand_amount}}"]
-      {% if demand_amount_scale -%}
-      tmp /= {{demand_amount_scale}}
-      {% endif %}
-
-      for name, subsegment in reversed(list(segment.groupby(tmp.astype('int')))):
-          
-        print "Running subsegment with size = %s, num agents = %d" % (name, len(subsegment.index))
-        mask,new_homes = choose(p,mask,alternatives,subsegment,new_homes,minsize=int(name))
-      
-    else:  mask,new_homes = choose(p,mask,alternatives,segment,new_homes)
+    {% if dontexpandunits -%}
+    {% if demand_amount -%}
+    tmp = segment["{{demand_amount}}"]
+    {% if demand_amount_scale -%}
+    tmp /= {{demand_amount_scale}}
+    {% endif -%}
+    for name, subsegment in reversed(list(segment.groupby(tmp.astype('int')))):
+      print "Running subsegment with size = %s, num agents = %d" % (name, len(subsegment.index))
+      mask,new_homes = dset.choose(p,mask,alternatives,subsegment,new_homes,minsize=int(name))
+    {% else -%}
+    print "WARNING: you've specified a supply constraint but no demand_amount - all demands will be of value 1"
+    {% endif %}
+    {% else -%}
+    mask,new_homes = dset.choose(p,mask,alternatives,segment,new_homes)
+    {% endif %}
 
   build_cnts = new_homes.value_counts()
   print "Assigned %d agents to %d locations with %d unplaced" % \
