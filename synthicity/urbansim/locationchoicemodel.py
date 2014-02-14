@@ -73,7 +73,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
 
     data = data.as_matrix()
     if np.amax(data) > 500.0:
-      print "WARNING: the max value in this estimation data is large, it's likely you need to log transform the input"
+      raise Exception("WARNING: the max value in this estimation data is large, it's likely you need to log transform the input")
     fit, results = interaction.estimate(data,est_params,SAMPLE_SIZE)
  
     fnames = interaction.add_fnames(fnames,est_params)
