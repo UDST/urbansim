@@ -1,9 +1,10 @@
 from synthicity.utils import texttable as tt
 from synthicity.urbanchoice import interaction
-import os, copy, sys, getopt, csv, string, time, json
+import os, copy, sys, getopt, csv, string, time, simplejson as json
 import pandas as pd, numpy as np
 from jinja2 import Environment, FileSystemLoader
 from collections import defaultdict
+import urllib2, urlparse
 
 # these are the lists of modes available for each model
 MODES_D = defaultdict(lambda: ["estimate","simulate"], {
@@ -13,7 +14,7 @@ MODES_D = defaultdict(lambda: ["estimate","simulate"], {
 })
 
 # generate a model from a json file, will do so for all modes listed above
-def gen_model(configname):
+def gen_model(configname,mode=None):
   def droptable(d):
     d = copy.copy(d)
     del d['table']
@@ -24,28 +25,49 @@ def gen_model(configname):
   j2_env = Environment(loader=FileSystemLoader(templatedirs),trim_blocks=True)
   j2_env.filters['droptable'] = droptable
 
-  config = json.loads(open(configname).read())
+  if type(configname) == type(""): 
+    config = json.loads(open(configname).read())
+  else: # passed config in
+    config = configname
+    configname = "autorun"
+
   if 'model' not in config: 
     print "Not generating %s" % configname
     return {}
   model = config['model']
   d = {}
-  for mode in MODES_D[model]:
+  modes = [mode] if mode else MODES_D[model]
+  for mode in modes:
+    assert mode in MODES_D[model]
     
     basename = os.path.splitext(os.path.basename(configname))[0]
     dirname = os.path.dirname(configname)
     print "Running %s with mode %s" % (basename,mode)
 
     if 'var_lib_file' in config:
-      var_lib = json.loads(open(os.path.join(dirname,config['var_lib_file'])).read()) 
+      if 'var_lib_db' in config:
+        githubroot = "https://raw.github.com/fscottfoti/bayarea/master/configs/" # should not be hardcoded
+        var_lib = json.loads(urllib2.urlopen(urlparse.urljoin(githubroot,config['var_lib_file'])).read())
+      else:
+        var_lib = json.loads(open(os.path.join(dirname,config['var_lib_file'])).read()) 
       config["var_lib"] = dict(var_lib.items()+config.get("var_lib",{}).items())
     
     config['modelname'] = basename
     config['template_mode'] = mode
     d[mode] = j2_env.get_template(model+'.py').render(**config)
   
-  return d
+  return basename, d
 
+COMPILED_MODELS = {}
+def run_model(config,dset,mode="estimate"):
+  basename, model = gen_model(config,mode)
+  model = model[mode]
+  code = compile(model,'<string>','exec')
+  ns = {}
+  exec code in ns
+  print "here", basename, mode
+  out = ns['%s_%s'%(basename,mode)](dset)
+  return out
 
 def mkifnotexists(folder):
   d = os.path.join(os.getenv('DATA_HOME',"."),folder)

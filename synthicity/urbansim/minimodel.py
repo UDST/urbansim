@@ -23,3 +23,4 @@ def {{modelname}}_run(dset,year=None,show=True):
   {% endif %}
 
   print "Finished executing in %f seconds" % (time.time()-t1)
+  return misc.pandasdfsummarytojson(_tbl_.describe())

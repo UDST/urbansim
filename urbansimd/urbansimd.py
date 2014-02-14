@@ -4,9 +4,9 @@ from decimal import Decimal
 from django.http import HttpResponse
 from django.conf import settings
 import pandas as pd, numpy
-import dataset
-import variables
 import simplejson
+sys.path.insert(0,".")
+import dataset
 
 def jsonp(request, dictionary):
   if (request.query.callback):
@@ -93,7 +93,10 @@ def execmodel():
   def resp(estimate,simulate):
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(request.query.json)
-    returnobj = misc.run_model(req,DSET,estimate=estimate,simulate=simulate,variables=variables)
+    if estimate: mode = "estimate"
+    elif simulate: mode = "simulate"
+    else: mode = "run"
+    returnobj = misc.run_model(req,DSET,mode=mode)
     return returnobj 
   estimate = int(request.query.get('estimate',1))
   simulate = int(request.query.get('simulate',0))
