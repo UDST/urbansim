@@ -49,7 +49,7 @@ def gen_model(configname,mode=None):
         githubroot = "https://raw.github.com/fscottfoti/bayarea/master/configs/" # should not be hardcoded
         var_lib = json.loads(urllib2.urlopen(urlparse.urljoin(githubroot,config['var_lib_file'])).read())
       else:
-        var_lib = json.loads(open(os.path.join(dirname,config['var_lib_file'])).read()) 
+        var_lib = json.loads(open(os.path.join(configs_dir(),config['var_lib_file'])).read()) 
       config["var_lib"] = dict(var_lib.items()+config.get("var_lib",{}).items())
     
     config['modelname'] = basename
@@ -62,10 +62,11 @@ COMPILED_MODELS = {}
 def run_model(config,dset,mode="estimate"):
   basename, model = gen_model(config,mode)
   model = model[mode]
+  print model
   code = compile(model,'<string>','exec')
   ns = {}
   exec code in ns
-  print "here", basename, mode
+  print basename, mode
   out = ns['%s_%s'%(basename,mode)](dset)
   return out
 
@@ -76,6 +77,7 @@ def mkifnotexists(folder):
 
 def data_dir(): return mkifnotexists("data")
 def models_dir(): return mkifnotexists("models")
+def configs_dir(): return mkifnotexists("configs")
 def runs_dir(): return mkifnotexists("runs")
 def coef_dir(): return mkifnotexists("coeffs")
 def output_dir(): return mkifnotexists("output")

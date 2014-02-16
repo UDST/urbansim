@@ -1,5 +1,5 @@
 from bottle import Bottle, route, run, response, hook, request, post
-import string, json, cPickle, sys, math, time, decimal
+import string, json, cPickle, os, sys, math, time, decimal
 from decimal import Decimal
 from django.http import HttpResponse
 from django.conf import settings
@@ -29,6 +29,28 @@ def wrap_request(request,response,obj):
   print "Response: %s\n" % s
   return jsonp(request,s)
 
+@route('/configs')
+def list_configs():
+  def resp():
+    files = os.listdir(misc.configs_dir())
+    return files
+  return wrap_request(request,response,resp())
+
+@route('/config/<configname>')
+def read_config(configname,method="GET"):
+  def resp():
+    c = open(os.path.join(misc.configs_dir(),configname)).read()
+    return simplejson.loads(c)
+  return wrap_request(request,response,resp())
+
+@route('/model/<configname>')
+def write_config(configname,method="PUT"):
+  json = request.query.get('json',None)
+  def resp():
+    s = simplejson.dumps(json,index=4)
+    print s
+    return open(os.path.join(misc.configs_dir(),configname),"w").write(s)
+  return wrap_request(request,response,resp())
 
 @route('/datasets')
 def list_datasets():
@@ -86,6 +108,18 @@ def datasets_summary(name):
     for col in df.columns: d.setdefault(col,{})["dtype"] = str(df.dtypes.ix[col])
     return d
   return wrap_request(request,response,resp(name))
+
+from synthicity.utils import misc
+@route('/compilemodel')
+def execmodel():
+  def resp():
+    print request
+    print "Request: %s\n" % request.query.config
+    req = simplejson.loads(request.query.config)
+    returnobj = misc.gen_model(req)
+    print returnobj[1]
+    return returnobj[1] 
+  return wrap_request(request,response,resp())
 
 from synthicity.utils import misc
 @route('/execmodel')
