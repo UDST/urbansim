@@ -1,10 +1,12 @@
-import os, sys
+import os, sys, string
 import simplejson
 from synthicity.utils import misc
 import pandas as pd
 
 if pd.version.version == "0.12.0":
   raise Exception("ERROR: Seriously, don't blame me, but Pandas .12 is broken")
+
+if int(string.split(pd.version.version,'.')[1]) > 12: pd.options.mode.chained_assignment = None
 
 {% if saveoutput %}
 num = misc.get_run_number()

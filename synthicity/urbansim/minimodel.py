@@ -1,7 +1,5 @@
-import pandas as pd, numpy as np, statsmodels.api as sm
-from synthicity.utils import misc
 {% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
-import time, copy
+{{ IMPORTS() }}
 
 def {{modelname}}_run(dset,year=None,show=True):
   assert "{{template_mode}}" == "run"

@@ -60,6 +60,12 @@ class Dataset(object):
     outstore['coefficients'] = self.coeffs 
     outstore.close()
 
+  def fetch_csv(self,name,**kwargs):
+    if name in self.d: return self.d[name]
+    tbl = pd.read_csv(name,**kwargs) 
+    self.d[name] = tbl
+    return tbl
+
   def fetch(self,name,**kwargs):
     if name in self.d: return self.d[name]
    

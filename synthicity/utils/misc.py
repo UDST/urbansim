@@ -33,7 +33,7 @@ def gen_model(configname,mode=None):
 
   if 'model' not in config: 
     print "Not generating %s" % configname
-    return {}
+    return '', {}
   model = config['model']
   d = {}
   modes = [mode] if mode else MODES_D[model]
@@ -55,7 +55,7 @@ def gen_model(configname,mode=None):
     config['modelname'] = basename
     config['template_mode'] = mode
     d[mode] = j2_env.get_template(model+'.py').render(**config)
-  
+   
   return basename, d
 
 COMPILED_MODELS = {}

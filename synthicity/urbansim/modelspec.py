@@ -50,7 +50,7 @@ print "WARNING: using patsy, ind_vars will be ignored"
 {% else -%}
 {% if newdf %}
 {{outname}} = pd.DataFrame(index={{inname}}.index)
-{% else -%}
+{% elif outname != inname -%}
 {{outname}} = {{inname}}
 {% endif %}
 if 0: pass
