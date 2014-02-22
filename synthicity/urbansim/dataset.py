@@ -62,7 +62,7 @@ class Dataset(object):
 
   def fetch_csv(self,name,**kwargs):
     if name in self.d: return self.d[name]
-    tbl = pd.read_csv(name,**kwargs) 
+    tbl = pd.read_csv(os.path.join(misc.data_dir(),name),**kwargs) 
     self.d[name] = tbl
     return tbl
 
