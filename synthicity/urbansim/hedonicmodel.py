@@ -83,7 +83,8 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   
   {% if not template_mode == "estimate" -%}
   simrents = pd.concat(simrents)
-  dset.buildings["{{output_varname}}"] = simrents.reindex(dset.buildings.index)
+
+  {{output_table}}["{{output_varname}}"] = simrents.reindex(dset.buildings.index)
   dset.store_attr("{{output_varname}}",year,simrents)
 
   {% endif -%}

@@ -14,7 +14,7 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   
   {% if est_sample_size -%} 
   # TEMPLATE randomly choose estimatiors
-  choosers = choosers.ix[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
+  choosers = choosers.loc[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
   # ENDTEMPLATE
   {% endif -%}
   
@@ -103,7 +103,14 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   {% if relocation_rates -%} 
   # TEMPLATE computing relocations
   movers = dset.relocation_rates(choosers,{{relocation_rates.rate_table}},"{{relocation_rates.rate_field}}")
-  choosers["{{dep_var}}"].ix[movers] = -1
+  choosers["{{dep_var}}"].loc[movers] = -1
+  # add current unplaced
+  movers = choosers[choosers["{{dep_var}}"]==-1]
+  # ENDTEMPLATE
+  {% elif relocation_rate -%}
+  # TEMPLATE computing relocations
+  movers = choosers[np.random.sample(len(choosers.index)) < {{relocation_rate}}].index
+  choosers["{{dep_var}}"].loc[movers] = -1
   # add current unplaced
   movers = choosers[choosers["{{dep_var}}"]==-1]
   # ENDTEMPLATE
@@ -111,7 +118,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   movers = choosers # everyone moves
   {% endif %}
 
-  print "Total new agents and movers = %d" % len(movers.index)
+  print "Total new agents and movers = %d (out of %d choosers)" % (len(movers.index),len(choosers.index))
 
   # TEMPLATE specifying alternatives
   alternatives = {{alternatives}}
@@ -125,10 +132,10 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   {% endif -%}
   vacant_units = vacant_units[vacant_units>0].order(ascending=False)
   {% if dontexpandunits -%} 
-  alternatives = alternatives.ix[vacant_units.index]
+  alternatives = alternatives.loc[vacant_units.index]
   alternatives["supply"] = vacant_units
   {% else -%}  
-  alternatives = alternatives.ix[np.repeat(vacant_units.index,vacant_units.values.astype('int'))]
+  alternatives = alternatives.loc[np.repeat(vacant_units.index,vacant_units.values.astype('int'))].reset_index()
   {% endif -%}
   print "There are %s empty units in %s locations total in the region" % (vacant_units.sum(),len(vacant_units))
   # ENDTEMPLATE
@@ -214,12 +221,17 @@ def {{modelname}}_simulate(dset,year=None,show=True):
     mask,new_homes = dset.choose(p,mask,alternatives,segment,new_homes)
     {% endif %}
 
+  {% if not dontexpandunits -%}
+  new_homes = pd.Series(alternatives["{{dep_var}}"].loc[new_homes].values,index=new_homes.index) 
+  {% endif %}
+
   build_cnts = new_homes.value_counts()
   print "Assigned %d agents to %d locations with %d unplaced" % \
                       (new_homes.size,build_cnts.size,build_cnts.get(-1,0))
 
-  table = {{table_sim if table_sim else table}} # need to go back to the whole dataset
-  table["{{dep_var}}"].ix[new_homes.index] = new_homes.values.astype('int32')
+  # need to go back to the whole dataset
+  table = {{output_table if output_table else table_sim if table_sim else table}} 
+  table["{{dep_var}}"].loc[new_homes.index] = new_homes.values
   dset.store_attr("{{output_varname}}",year,copy.deepcopy(table["{{dep_var}}"]))
   print "Finished assigning agents in %f seconds" % (time.time()-t1)
   {% endif -%}

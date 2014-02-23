@@ -62,12 +62,11 @@ COMPILED_MODELS = {}
 def run_model(config,dset,mode="estimate"):
   basename, model = gen_model(config,mode)
   model = model[mode]
-  print model
   code = compile(model,'<string>','exec')
   ns = {}
   exec code in ns
   print basename, mode
-  out = ns['%s_%s'%(basename,mode)](dset)
+  out = ns['%s_%s'%(basename,mode)](dset,2010)
   return out
 
 def mkifnotexists(folder):
