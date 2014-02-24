@@ -43,7 +43,7 @@ def read_config(configname,method="GET"):
     return simplejson.loads(c)
   return wrap_request(request,response,resp())
 
-@route('/model/<configname>')
+@route('/config/<configname>')
 def write_config(configname,method="PUT"):
   json = request.query.get('json',None)
   def resp():
