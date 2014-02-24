@@ -9,12 +9,12 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   returnobj = {}
   
   # TEMPLATE configure table
-  {{ TABLE("choosers")|indent(2) }}
+  {{ TABLE(internalname)|indent(2) }}
   # ENDTEMPLATE
   
   {% if est_sample_size -%} 
   # TEMPLATE randomly choose estimatiors
-  choosers = choosers.loc[np.random.choice(choosers.index, {{est_sample_size}},replace=False)]
+  {{internalname}} = {{internalname}}.loc[np.random.choice({{internalname}}.index, {{est_sample_size}},replace=False)]
   # ENDTEMPLATE
   {% endif -%}
   
@@ -31,17 +31,17 @@ def {{modelname}}_estimate(dset,year=None,show=True):
   t1 = time.time()
 
   {% if segment is not defined -%}
-  segments = [(None,choosers)]
+  segments = [(None,{{internalname}})]
   {% else -%}
   # TEMPLATE creating segments
   {% for varname in segment -%}
   {% if varname in var_lib -%}
   
-  if "{{varname}}" not in choosers.columns: 
-    choosers["{{varname}}"] = {{CALCVAR("choosers",varname,var_lib)}}
+  if "{{varname}}" not in {{internalname}}.columns: 
+    {{internalname}}["{{varname}}"] = {{CALCVAR(internalname,varname,var_lib)}}
   {% endif -%}
   {% endfor -%}
-  segments = choosers.groupby({{segment}})
+  segments = {{internalname}}.groupby({{segment}})
   # ENDTEMPLATE
   {% endif  %}
   
@@ -93,7 +93,7 @@ def {{modelname}}_simulate(dset,year=None,show=True):
   returnobj = {}
   t1 = time.time()
   # TEMPLATE configure table
-  {{ TABLE("choosers")|indent(2) }}
+  {{ TABLE(internalname)|indent(2) }}
   # ENDTEMPLATE
   
   # TEMPLATE dependent variable
@@ -102,23 +102,24 @@ def {{modelname}}_simulate(dset,year=None,show=True):
 
   {% if relocation_rates -%} 
   # TEMPLATE computing relocations
-  movers = dset.relocation_rates(choosers,{{relocation_rates.rate_table}},"{{relocation_rates.rate_field}}")
-  choosers["{{dep_var}}"].loc[movers] = -1
+  movers = dset.relocation_rates({{internalname}},{{relocation_rates.rate_table}},"{{relocation_rates.rate_field}}")
+  {{internalname}}["{{dep_var}}"].loc[movers] = -1
   # add current unplaced
-  movers = choosers[choosers["{{dep_var}}"]==-1]
+  movers = {{internalname}}[{{internalname}}["{{dep_var}}"]==-1]
   # ENDTEMPLATE
   {% elif relocation_rate -%}
   # TEMPLATE computing relocations
-  movers = choosers[np.random.sample(len(choosers.index)) < {{relocation_rate}}].index
-  choosers["{{dep_var}}"].loc[movers] = -1
+  movers = {{internalname}}[np.random.sample(len({{internalname}}.index)) < {{relocation_rate}}].index
+  print "Count of movers = %d" % len(movers)
+  {{internalname}}["{{dep_var}}"].loc[movers] = -1
   # add current unplaced
-  movers = choosers[choosers["{{dep_var}}"]==-1]
+  movers = {{internalname}}[{{internalname}}["{{dep_var}}"]==-1]
   # ENDTEMPLATE
   {% else -%}
-  movers = choosers # everyone moves
+  movers = {{internalname}} # everyone moves
   {% endif %}
 
-  print "Total new agents and movers = %d (out of %d choosers)" % (len(movers.index),len(choosers.index))
+  print "Total new agents and movers = %d (out of %d %s)" % (len(movers.index),len({{internalname}}.index),"{{internalname}}")
 
   # TEMPLATE specifying alternatives
   alternatives = {{alternatives}}

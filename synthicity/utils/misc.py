@@ -10,6 +10,8 @@ import urllib2, urlparse
 MODES_D = defaultdict(lambda: ["estimate","simulate"], {
  "minimodel": ["run"],
  "modelset": ["run"],
+ "transitionmodel": ["run"],
+ "transitionmodel2": ["run"],
  "networks":  ["run"] 
 })
 

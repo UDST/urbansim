@@ -7,12 +7,12 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   t1 = time.time()
   
   # TEMPLATE configure table
-  {{ TABLE("buildings")|indent(2) }}
+  {{ TABLE(internalname)|indent(2) }}
   # ENDTEMPLATE
 
   {% if merge -%}
   # TEMPLATE merge
-  {{- MERGE("buildings",merge) | indent(2) }}
+  {{- MERGE(internalname,merge) | indent(2) }}
   # ENDTEMPLATE
   {% endif %}
 
@@ -23,10 +23,10 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   simrents = []
   {% endif -%}
   {% if segment is not defined -%}
-  segments = [(None,buildings)]
+  segments = [(None,{{internalname}})]
   {% else -%}
   # TEMPLATE creating segments
-  segments = buildings.groupby({{segment}})
+  segments = {{internalname}}.groupby({{segment}})
   # ENDTEMPLATE
   {% endif  %}
   
@@ -69,7 +69,7 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
     dset.store_coeff(outname,results.params.values,results.params.index)
     {% else -%} {# SIMULATE #} 
     
-    print "Generating rents on %d buildings" % (est_data.shape[0])
+    print "Generating rents on %d %s" % (est_data.shape[0],"{{internalname}}")
     vec = dset.load_coeff(outname)
     vec = np.reshape(vec,(vec.size,1))
     rents = est_data.dot(vec).astype('f4')
@@ -84,7 +84,7 @@ def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
   {% if not template_mode == "estimate" -%}
   simrents = pd.concat(simrents)
 
-  {{output_table}}["{{output_varname}}"] = simrents.reindex(dset.buildings.index)
+  {{output_table}}["{{output_varname}}"] = simrents.reindex({{output_table}}.index)
   dset.store_attr("{{output_varname}}",year,simrents)
 
   {% endif -%}
