@@ -5,7 +5,7 @@ pd.set_option('display.precision',3)
 # these are the parcel sizes we test, turns out nothing is dependent on size right now
 parcelsizes = np.array([10000.0])
 # these ar ethe fars we test
-fars = np.array([.25,.5,.75,1.0,1.5,2.0,3.0,4.0,5.0,7.0,9.0,11.0])
+fars = np.array([.25,.5,.75,1.0,1.5,1.8,2.0,3.0,4.0,5.0,7.0,9.0,11.0])
 
 # these are the uses we test and the mixes (forms) of those uses
 uses = ['retail','industrial','office','residential']
@@ -19,9 +19,10 @@ forms = {
     }
 
 PROFITFACTOR = 1.0 # ratio times break even rent
-EFFICIENCY = .8 # interior building efficient
+EFFICIENCY = .7 # interior building efficient
 PARCELUSE = .8 # efficiency of footprint on parcel
 INTERESTRATE = .05 # interest rate
+CAPRATE = INTERESTRATE # cp rate
 PERIODS = 20 # number of periods (years)
 
 parking_rates = arr([2.0,.6,1.0,1.0]) # per uses above and per thousands of sqft
@@ -147,7 +148,7 @@ class Developer:
  # rents is a matrix of rents of shape (numparcels x numuses)
  # land_costs is the current yearly rent on each parcel
  # parcel_size is the size of the parcel
- def lookup(self,form,rents,land_costs,parcel_sizes,max_fars):
+ def lookup(self,form,rents,land_costs,parcel_sizes,max_fars,max_heights):
 
   print form, time.ctime()
   rents = np.dot(rents,forms[form]) # get weighted rent for this form
@@ -155,28 +156,34 @@ class Developer:
   even_rents = self.min_even_rents_d[form]
   print "sqft cost\n", even_rents
 
+  # min between max_fars and max_heights
+  max_heights[np.isnan(max_heights)] = 9999.0
+  max_fars[np.isnan(max_fars)] = 0.0
+  max_heights = max_heights/HEIGHTPERSTORY*PARCELUSE
+  max_fars = np.minimum(max_heights,max_fars)
+
   # zero out fars not allowed by zoning
   fars = np.tile(even_rents.index.values,(len(parcel_sizes.index),1))
-  fars[fars > np.reshape(max_fars.values,(-1,1))] = np.nan
-  fars[np.isnan(max_fars.values),:] = np.nan
+  fars[fars > np.reshape(max_fars.values,(-1,1))+.01] = np.nan
 
   # parcel sizes * possible fars
   building_bulks = fars*np.reshape(parcel_sizes.values,(-1,1))
 
   # cost to build the new building
-  building_costs = building_bulks * np.reshape(even_rents.values,(1,-1)) / INTERESTRATE 
+  building_costs = building_bulks * np.reshape(even_rents.values,(1,-1)) / CAPRATE
 
   # add cost to buy the current building
-  building_costs = building_costs + np.reshape(land_costs.values,(-1,1)) / INTERESTRATE 
+  building_costs = building_costs + np.reshape(land_costs.values,(-1,1)) / CAPRATE 
 
   # rent to make for the new building
-  building_revenue = building_bulks * np.reshape(rents,(-1,1)) / INTERESTRATE 
+  building_revenue = building_bulks * np.reshape(rents,(-1,1)) / CAPRATE
 
   # profit for each form
   profit = building_revenue - building_costs 
 
   # index maximum total profit
-  maxprofitind = np.argmax(profit,axis=1) 
+  # i got really weird behavior out of numpy on this line - leave it even though it's ugly
+  maxprofitind = np.argmax(np.nan_to_num(profit.astype('float')),axis=1) 
   # value of the maximum total profit
   maxprofit = profit[np.arange(maxprofitind.size),maxprofitind] 
 
@@ -187,6 +194,22 @@ class Developer:
   maxprofit[maxprofit<0] = np.nan 
   # remove far of unprofitable building
   maxprofit_fars[pd.isnull(maxprofit)] = np.nan  
+
+  '''
+  # this code does detailed debugging for a specific parcel
+  label = 151358
+  i = parcel_sizes.index.get_loc(label)
+  print "size\n", parcel_sizes.loc[label]
+  print "max_far\n", max_fars[i]
+  print "bulks\n", building_bulks[i,:]
+  print "costs\n", building_costs[i,:]
+  print "revenue\n", building_revenue[i,:]
+  print "profit\n", profit[i,:]
+  print "land_costs\n", land_costs.loc[label]
+  print "maxprofitind", maxprofitind[i]
+  print "maxprofit", maxprofit.loc[label]
+  print "max_profit_fars", maxprofit_fars.loc[label]
+  '''
 
   print "maxprofit_fars\n", maxprofit_fars.value_counts()
 
