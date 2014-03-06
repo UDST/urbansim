@@ -29,6 +29,16 @@ def wrap_request(request,response,obj):
   print "Response: %s\n" % s
   return jsonp(request,s)
 
+@hook('after_request')
+def enable_cors():
+    """
+    You need to add some headers to each request.
+    Don't use the wildcard '*' for Access-Control-Allow-Origin in production.
+    """
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'PUT, GET, POST, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
 @route('/configs')
 def list_configs():
   def resp():
@@ -36,18 +46,22 @@ def list_configs():
     return files
   return wrap_request(request,response,resp())
 
-@route('/config/<configname>')
-def read_config(configname,method="GET"):
+@route('/config/<configname>', method="GET")
+def read_config(configname):
   def resp():
     c = open(os.path.join(misc.configs_dir(),configname)).read()
     return simplejson.loads(c)
   return wrap_request(request,response,resp())
 
-@route('/config/<configname>')
-def write_config(configname,method="PUT"):
-  json = request.query.get('json',None)
+@route('/config/<configname>', method="OPTIONS")
+def ans_opt(configname):
+    return {}
+
+@route('/config/<configname>', method="PUT")
+def write_config(configname):
+  json = request.json
   def resp():
-    s = simplejson.dumps(json,index=4)
+    s = simplejson.dumps(json,indent=4)
     print s
     return open(os.path.join(misc.configs_dir(),configname),"w").write(s)
   return wrap_request(request,response,resp())
@@ -118,7 +132,7 @@ def execmodel():
     req = simplejson.loads(request.query.config)
     returnobj = misc.gen_model(req)
     print returnobj[1]
-    return returnobj[1] 
+    return returnobj[1]
   return wrap_request(request,response,resp())
 
 from synthicity.utils import misc
@@ -131,7 +145,7 @@ def execmodel():
     elif simulate: mode = "simulate"
     else: mode = "run"
     returnobj = misc.run_model(req,DSET,mode=mode)
-    return returnobj 
+    return returnobj
   estimate = int(request.query.get('estimate',1))
   simulate = int(request.query.get('simulate',0))
   return wrap_request(request,response,resp(estimate,simulate))
@@ -143,7 +157,7 @@ def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,page):
   if sort and not orderdesc: sort = ".sort('%s',ascending=True)" % sort
   if not sort and orderdesc: sort = ".sort_index(ascending=False)"
   if not sort and not orderdesc: sort = ".sort_index(ascending=True)"
-  if limit and page: 
+  if limit and page:
     #limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
     limit = ".head(%s*%s).tail(%s)" % (limit,page,limit)
   elif limit: limit = ".head(%s)" % limit
@@ -189,7 +203,7 @@ def query():
   limit = req['limit']
   where = req['filter']
   orderdesc = req['orderdesc']
-  jointoparcels = req['jointoparcels'] 
+  jointoparcels = req['jointoparcels']
 
   if where: where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table,where)
   else: where = ""
@@ -215,7 +229,7 @@ def start_service(port=8765,host='localhost'):
     except: pass
     run(host=host, port=port, debug=True, server='tornado')
 
-if __name__ == '__main__':  
+if __name__ == '__main__':
     global DSET
     args = sys.argv[1:]
     DSET = dataset.BayAreaDataset(args[0])
