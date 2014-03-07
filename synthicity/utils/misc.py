@@ -1,65 +1,97 @@
 from synthicity.utils import texttable as tt
-from synthicity.urbansim import interaction
-import os, sys, getopt, csv, string, time, json
+from synthicity.urbanchoice import interaction
+import os, copy, sys, getopt, csv, string, time, simplejson as json
 import pandas as pd, numpy as np
+from jinja2 import Environment, FileSystemLoader
+from collections import defaultdict
+import urllib2, urlparse
 
-def run_model(fname,dset,show=1,estimate=1,simulate=0,year=2010,variables=None):
-  from synthicity.urbansim import hedonicmodel, locationchoicemodel, minimodel, transitionmodel, networks
-  if type(fname) == type(""): 
-    print "Running %s\n" % fname
-    config = json.loads(open(fname).read()) 
-  else: 
-    config = fname
-    if "_id" in config: fname = config["_id"]
-    elif "name" in config: fname = config["name"]
-    else: fname = "tmp_model"
-  assert "model" in config
-  model = eval(config["model"])
-  if estimate: model.estimate(dset,config,2010,show=show,variables=variables)
-  if simulate: 
-    t1 = time.time()
-    model.simulate(dset,config,year,show=show,variables=variables)
-    print "SIMULATED %s model in %.3f seconds" % (fname,time.time()-t1)
+# these are the lists of modes available for each model
+MODES_D = defaultdict(lambda: ["estimate","simulate"], {
+ "minimodel": ["run"],
+ "modelset": ["run"],
+ "transitionmodel": ["run"],
+ "transitionmodel2": ["run"],
+ "networks":  ["run"] 
+})
 
-VARNAMESDICT = {
-'number_of_stories':'Stories',
-'rentable_building_area':'Area',
-'nets_all_regional1_30':'Median accessibility',
-'nets_all_regional2_30':'Travel time unreliability',
-'const':'Constant',
-'totsum':'Area',
-'weightedrent':'Rent',
-'retpct':'Percent retail',
-'indpct':'Percent industrial',
-'SQft':'Area',
-'Lot size':'Lot size',
-'historic':'Historic',
-'new':'New',
-'AvgOfSquareFeet':'Area',
-'demo_average_income_average_local':'Average income',
-'const':'Constant',
-'rent':'Monthly rent',
-'residential_units':'Number of units',
-'hoodrenters':'Area renters',
-'noderenters':'Node renters',
-'sales_price':'Sales price',
-'sales_price x income':'Sales price $\\times$ income',
-'demo_averageincome_local':'Average income',
-'income x income':'Interacted income',
-}
+# generate a model from a json file, will do so for all modes listed above
+def gen_model(configname,mode=None):
+  def droptable(d):
+    d = copy.copy(d)
+    del d['table']
+    return d
+  # look for templates in PYTHONPATH
+  templatedirs = filter(os.path.isdir,[os.path.join(x,'synthicity','urbansim') for x in sys.path])
+  
+  j2_env = Environment(loader=FileSystemLoader(templatedirs),trim_blocks=True)
+  j2_env.filters['droptable'] = droptable
 
-def data_dir(): return os.path.join(os.environ['DATA_HOME'],'data')
-def runs_dir(): return os.path.join(os.environ['DATA_HOME'],'runs')
-def output_dir(): return os.path.join(os.environ['DATA_HOME'],'output')
+  if type(configname) == type(""): 
+    config = json.loads(open(configname).read())
+  else: # passed config in
+    config = configname
+    configname = "autorun"
+
+  if 'model' not in config: 
+    print "Not generating %s" % configname
+    return '', {}
+  model = config['model']
+  d = {}
+  modes = [mode] if mode else MODES_D[model]
+  for mode in modes:
+    assert mode in MODES_D[model]
+    
+    basename = os.path.splitext(os.path.basename(configname))[0]
+    dirname = os.path.dirname(configname)
+    print "Running %s with mode %s" % (basename,mode)
+
+    if 'var_lib_file' in config:
+      if 'var_lib_db' in config:
+        githubroot = "https://raw.github.com/fscottfoti/bayarea/master/configs/" # should not be hardcoded
+        var_lib = json.loads(urllib2.urlopen(urlparse.urljoin(githubroot,config['var_lib_file'])).read())
+      else:
+        var_lib = json.loads(open(os.path.join(configs_dir(),config['var_lib_file'])).read()) 
+      config["var_lib"] = dict(var_lib.items()+config.get("var_lib",{}).items())
+    
+    config['modelname'] = basename
+    config['template_mode'] = mode
+    d[mode] = j2_env.get_template(model+'.py').render(**config)
+   
+  return basename, d
+
+COMPILED_MODELS = {}
+def run_model(config,dset,mode="estimate"):
+  basename, model = gen_model(config,mode)
+  model = model[mode]
+  code = compile(model,'<string>','exec')
+  ns = {}
+  exec code in ns
+  print basename, mode
+  out = ns['%s_%s'%(basename,mode)](dset,2010)
+  return out
+
+def mkifnotexists(folder):
+  d = os.path.join(os.getenv('DATA_HOME',"."),folder)
+  if not os.path.exists(d): os.mkdir(d)
+  return d
+
+def data_dir(): return mkifnotexists("data")
+def models_dir(): return mkifnotexists("models")
+def configs_dir(): return mkifnotexists("configs")
+def runs_dir(): return mkifnotexists("runs")
+def coef_dir(): return mkifnotexists("coeffs")
+def output_dir(): return mkifnotexists("output")
+def debug_dir(): return mkifnotexists("debug")
 
 def get_run_number():
     try:
-      f = open(os.path.join(os.environ['DATA_HOME'],'RUNNUM'),'r')
+      f = open(os.path.join(os.getenv('DATA_HOME',"."),'RUNNUM'),'r')
       num = int(f.read())
       f.close()
     except:
-      num = 0
-    f = open(os.path.join(os.environ['DATA_HOME'],'RUNNUM'),'w')
+      num = 1
+    f = open(os.path.join(os.getenv('DATA_HOME',"."),'RUNNUM'),'w')
     f.write(str(num+1))
     f.close()
     return num
@@ -73,6 +105,7 @@ def signif(val):
     elif val > 1.28: return '.'
     return ''
 
+# create a table, either latex of csv or text
 def maketable(fnames,results,latex=0):
     results = [[string.replace(x,'_',' ')]+['%.2f'%float(z) for z in list(y)]+
                               [signif(y[-1])] for x, y in zip(fnames,results)]
@@ -92,14 +125,13 @@ LATEX_TEMPLATE = """
 \end{center}
 \end{table}
 """
-
 TABLENUM = 0
 def resultstolatex(fit,fnames,results,filename,hedonic=0,tblname=None):
     global TABLENUM
     TABLENUM += 1
     filename = filename + '.tex'
     results = maketable(fnames,results,latex=1)
-    f = open(os.path.join(output_dir(),filename),'w')
+    f = open(os.path.join(debug_dir(),filename),'w')
     tablerows = ''
     for row in results:
         tablerows += string.join(row,sep='&') + '\\\\\n'
@@ -114,17 +146,21 @@ def resultstolatex(fit,fnames,results,filename,hedonic=0,tblname=None):
     f.write(LATEX_TEMPLATE%data)
     f.close()
 
+# override this to modify variable names for publication
+VARNAMESDICT = {}
+
 def resultstocsv(fit,fnames,results,filename,hedonic=0,tolatex=1,tblname=None):
     fnames = [VARNAMESDICT.get(x,x) for x in fnames]
     if tolatex: resultstolatex(fit,fnames,results,filename,hedonic,tblname=tblname)
     results = maketable(fnames,results)
     f = open(os.path.join(output_dir(),filename),'w')
-    if hedonic: f.write('R-squared,%f\nAdj-R-squared,%f\n\n\n'%fit)
-    else: f.write('null loglik,%f\nconverged loglik,%f\nloglik ratio,%f\n\n\n'%fit)
+    #if hedonic: f.write('R-squared,%f\nAdj-R-squared,%f\n\n\n'%fit)
+    #else: f.write('null loglik,%f\nconverged loglik,%f\nloglik ratio,%f\n\n\n'%fit)
     csvf = csv.writer(f,lineterminator='\n')
     for row in results: csvf.writerow(row)
     f.close()
 
+# this is an ascii table for the terminal
 def resultstotable(fnames,results):
     results = maketable(fnames,results)
 
@@ -133,16 +169,6 @@ def resultstotable(fnames,results):
     tab.set_cols_align(['r','r','r','r','l'])
 
     return tab.draw()
-
-RUNCONFIG = {}
-def process_args():
-    opts, args = getopt.getopt(sys.argv[1:], "glnd")
-    for o, a in opts:
-      if o == "-g": interaction.enable_gpu()
-      if o == "-n": RUNCONFIG['update_networks'] = 1
-      if o == "-d": RUNCONFIG['run_developer'] = 1
-      if o == "-l": RUNCONFIG['lottery_choices'] = 1
-    return args
 
 naics_d = { \
   11: 'Agriculture', 
@@ -189,6 +215,7 @@ def writenumpy_df(df,outdir="."):
 def numpymat2df(mat):
     return pd.DataFrame(dict(('x%d'%i,mat[:,i]) for i in range(mat.shape[1])))
 
+# just used to reduce size
 def df64bitto32bit(tbl):
     newtbl = pd.DataFrame(index=tbl.index)
     for colname in tbl.columns:
@@ -197,7 +224,15 @@ def df64bitto32bit(tbl):
         else: newtbl[colname] = tbl[colname]
     return newtbl
 
+# also to reduce size
 def series64bitto32bit(s):
     if s.dtype == np.float64: return s.astype('float32') 
     elif s.dtype == np.int64: return s.astype('int32')
     return s
+
+def pandassummarytojson(v,ndigits=3): 
+  return dict([(i,round(float(v.ix[i]),ndigits)) for i in v.index])
+    
+def pandasdfsummarytojson(df,ndigits=3):
+  df = df.transpose()
+  return dict([(k, pandassummarytojson(v,ndigits)) for k, v in df.iterrows()])

@@ -1,9 +1,0 @@
-{
-  "table": "dset.jobs",
-  "writetotmp": "jobs",
-  "model": "transitionmodel",
-  "first_year": 2010,
-  "control_totals": "dset.annual_employment_control_totals",
-  "geography_field": "building_id",
-  "amount_field": "number_of_jobs"
-}

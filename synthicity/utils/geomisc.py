@@ -2,6 +2,8 @@ from django.contrib.gis.gdal import SpatialReference, CoordTransform
 from django.contrib.gis.geos import Point
 import numpy as np
 from multiprocessing import Pool
+import random
+import shapely
 
 def coord_convert(x,y,srcsrid=4326,tgtsrid=3740):
     gcoord = SpatialReference(srcsrid)
@@ -33,3 +35,32 @@ def convert_df(df,xname='x',yname='y',srcsrid=3740,tgtsrid=4326):
     df[xname] = x
     df[yname] = y
     return df
+
+INVALID_X = -9999
+INVALID_Y = -9999
+def get_random_point_in_polygon(poly):
+  (minx, miny, maxx, maxy) = poly.bounds
+  p = shapely.geometry.Point(INVALID_X, INVALID_Y)
+  while not poly.contains(p):
+    p_x = random.uniform(minx, maxx)
+    p_y = random.uniform(miny, maxy)
+    p = shapely.geometry.Point(p_x, p_y)
+  return p
+
+import scipy.spatial as ss
+
+class NN:
+  def __init__(self,x,y):
+    self.kd = ss.cKDTree(np.array(zip(x,y)))
+  
+  def query(self,x,y):
+    return self.kd.query(zip(x,y))
+
+def spatial_join_nearest(df1,x1,y1,df2,x2,y2):
+  df1 = df1.dropna(subset=[x1,y1])
+  df2 = df2.dropna(subset=[x2,y2])
+  nn = NN(df1[x1],df1[y1])
+  ret = nn.query(df2[x2],df2[y2])
+  indexes = ret[1]
+  print "Maximum distance = %.3f" % np.amax(ret[0])
+  return df1.index.values[indexes], ret[0]

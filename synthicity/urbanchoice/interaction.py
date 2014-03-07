@@ -37,6 +37,14 @@ def mnl_simulate(data,coeff,numalts,gpu=GPU,returnprobs=0):
     return mnl.mnl_simulate(data,coeff,numalts,gpu,returnprobs)
 
 def mnl_interaction_dataset(choosers,alternatives,SAMPLE_SIZE,chosenalts=None):
+     
+    if chosenalts is not None: 
+      isin = chosenalts.isin(alternatives.index)
+      removing = isin.value_counts()[False]
+      if removing:
+        print "Removing %d choice situations because chosen alt doesn't exist" % removing
+        choosers = choosers[isin]
+        chosenalts = chosenalts[isin]
 
     numchoosers = choosers.shape[0]
     numalts = alternatives.shape[0]
@@ -49,8 +57,13 @@ def mnl_interaction_dataset(choosers,alternatives,SAMPLE_SIZE,chosenalts=None):
       assert numchoosers < 10 # we're about to do a huge join - do this with a discretized population
       sample = np.tile(alternatives.index.values,numchoosers)
 
-    alts_sample = alternatives.ix[sample]
+    if not choosers.index.is_unique:
+      raise Exception("ERROR: choosers index is not unique, sample will not work correctly")
+    if not alternatives.index.is_unique:
+      raise Exception("ERROR: alternatives index is not unique, sample will not work correctly")
     
+    alts_sample = alternatives.loc[sample]
+    assert len(alts_sample.index) == SAMPLE_SIZE * len(choosers.index)
     try: alts_sample['join_index'] = np.repeat(choosers.index,SAMPLE_SIZE)
     except: raise Exception("ERROR: An exception here means agents and alternatives aren't merging correctly")
 
