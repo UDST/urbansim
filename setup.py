@@ -1,21 +1,19 @@
-# -*- coding: utf-8 -*-
+from ez_setup import use_setuptools
+use_setuptools()
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='urbansim',
-    version='0.1.0',
-    description='Updated version of UrbanSim based on Pandas',
-    author='Fletcher Foti',
+    version='0.2dev',
+    description='Tool for modeling metropolitan real estate markets',
+    author='Synthicity',
     author_email='ffoti@berkeley.edu',
     license='AGPL',
-    url='https://github.com/fscottfoti/urbansim',
+    url='https://github.com/synthicity/urbansim',
     classifiers=['Development Status :: 4 - Beta',
                  'Programming Language :: Python :: 2.7',
-                 'License :: OSI Approved :: AGPL License'],
+                 'License :: OSI Approved :: GNU Affero General Public License v3'],
     packages=['synthicity'],
     package_data={'': ['*.py',
                        'urbansim/*.py',
