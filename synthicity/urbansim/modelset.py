@@ -19,6 +19,8 @@ import dataset
 dset = dataset.{{dataset}}(os.path.join(misc.data_dir(),'{{datastore}}'))
 
 for year in range({{numyearstorun if numyearstorun else 1}}): 
+  print "Running year %d" % (year+1)
+
   {% for arg in modelstorun -%}
   print "Running {{arg}}"
   import {{arg}}

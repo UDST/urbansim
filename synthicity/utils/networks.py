@@ -48,6 +48,7 @@ class Networks:
     return pd.Series(np.concatenate(res),index=pd.MultiIndex.from_tuples(self.nodeids))
     
   def addnodeid(self,df,tosrid=0):
+      
       try: xys = np.array(df[['x','y']],dtype="float32")
       except: xys = np.array(df[['X','Y']],dtype="float32")
         

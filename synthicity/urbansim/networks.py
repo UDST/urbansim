@@ -15,6 +15,10 @@ def {{modelname}}_run(dset,year=None,show=True):
     {% endif %}
 
   t1 = time.time()
+
+  {% for update_tbl in update_xys -%}
+  {{update_tbl}} = dset.add_xy({{update_tbl}})
+  {% endfor %}
  
   NETWORKS = networks.NETWORKS # make available for the variables 
   _tbl_ = pd.DataFrame(index=pd.MultiIndex.from_tuples(networks.NETWORKS.nodeids,names=['_graph_id','_node_id']))

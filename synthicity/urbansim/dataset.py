@@ -92,7 +92,8 @@ class Dataset(object):
     value = misc.series64bitto32bit(value)
     if name in self.attrs and year in self.attrs[name]: del self.attrs[name][year]
     df = self.attrs.get(name,pd.DataFrame(index=value.index))
-    df[year] = value
+    value = pd.DataFrame({year:value},index=value.index)
+    df = pd.concat([df,value],axis=1)
     self.attrs[name] = df
 
   def load_coeff(self,name,jsonformat=True):
@@ -132,8 +133,12 @@ class Dataset(object):
   def join_for_field(self,table,tblname,foreign_key,fieldname):
     if type(table) == type(''): table = self.fetch(table)
     if foreign_key == None: # join on index
-        return pd.merge(table,self.fetch(tblname)[[fieldname]],left_index=True,right_index=True)
-    return pd.merge(table,self.fetch(tblname)[[fieldname]],left_on=foreign_key,right_index=True)
+      #return pd.merge(table,self.fetch(tblname)[[fieldname]],left_index=True,right_index=True)
+      table[fieldname] = self.fetch(tblname)[fieldname].loc[table.index].values
+    else:
+      #return pd.merge(table,self.fetch(tblname)[[fieldname]],left_on=foreign_key,right_index=True)
+      table[fieldname] = self.fetch(tblname)[fieldname].loc[table[foreign_key]].values
+    return table
  
   def compute_range(self,attr,dist,agg=np.sum):
     travel_data = self.fetch('travel_data').reset_index(level=1)
@@ -173,6 +178,16 @@ class Dataset(object):
     print "%d agents are moving" % len(movers)
     if len(movers) == 0: raise Exception("Stopping execution - no movers, which is probably a bug")
     return movers
+  
+  def add_xy(self,df):
+    
+    assert 'building_id' in df
+    
+    for col in ['_node_id','x','y']:
+      if col in df.columns: del df[col]
+      df = self.join_for_field(df,'buildings','building_id',col)
+    
+    return df
     
   def choose(self,p,mask,alternatives,segment,new_homes,minsize=None):
     p = copy.copy(p)
