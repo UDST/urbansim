@@ -17,6 +17,7 @@ setup(
                   'GNU Affero General Public License v3')],
     packages=['synthicity'],
     package_data={'': ['*.py',
+                       'urbanchoice/*.py',
                        'urbansim/*.py',
                        'urbansimd/*.py',
                        'utils/*.py']},
