@@ -60,7 +60,7 @@ class Networks:
                 node_ids.append(pya.XYtoNode(xys, distance=1000, gno=gno))
         if isinstance(node_ids, str):
             node_ids = [df[node_ids].values]
-        elif not isinstance(node_ids, []):
+        elif not isinstance(node_ids, list):
             node_ids = [node_ids]
         pya.initializeAccVars(1)
         num = 0
