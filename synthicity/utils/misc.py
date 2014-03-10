@@ -79,6 +79,7 @@ def mkifnotexists(folder):
 def data_dir(): return mkifnotexists("data")
 def models_dir(): return mkifnotexists("models")
 def configs_dir(): return mkifnotexists("configs")
+def charts_dir(): return mkifnotexists("charts")
 def runs_dir(): return mkifnotexists("runs")
 def coef_dir(): return mkifnotexists("coeffs")
 def output_dir(): return mkifnotexists("output")

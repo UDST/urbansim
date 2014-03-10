@@ -66,6 +66,33 @@ def write_config(configname):
     return open(os.path.join(misc.configs_dir(),configname),"w").write(s)
   return wrap_request(request,response,resp())
 
+@route('/charts')
+def list_charts():
+  def resp():
+    files = os.listdir(misc.charts_dir())
+    return files
+  return wrap_request(request,response,resp())
+    
+@route('/chart/<chartname>', method="GET")
+def read_config(chartname):
+  def resp():
+    c = open(os.path.join(misc.charts_dir(),chartname)).read()
+    return simplejson.loads(c)
+  return wrap_request(request,response,resp())
+
+@route('/chart/<chartname>', method="OPTIONS")
+def ans_opt(chartname):
+    return {}
+
+@route('/chart/<chartname>', method="PUT")
+def write_config(chartname):
+  json = request.json
+  def resp():
+    s = simplejson.dumps(json,indent=4)
+    print s
+    return open(os.path.join(misc.charts_dir(),chartname),"w").write(s)
+  return wrap_request(request,response,resp())
+
 @route('/datasets')
 def list_datasets():
   def resp():
