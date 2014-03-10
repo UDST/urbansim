@@ -1,11 +1,12 @@
+import json
+
 import pandas as pd
-import sys
 
 args = sys.argv[1:]
 
 assert len(args) == 1
 
-store = pd.HDFStore(args[0],"r")
+store = pd.HDFStore(args[0], "r")
 
 print store
 
