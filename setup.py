@@ -26,9 +26,9 @@ setup(
                       'numpy>=1.8.0',
                       'pandas>=0.13.1',
                       'patsy>=0.2.1',
-                      'pytables>=3.1.0',
                       'scipy>=0.13.3',
                       'shapely>=1.3.0',
                       'simplejson>=3.3.3',
-                      'statsmodels>=0.5.0']
+                      'statsmodels>=0.5.0',
+                      'tables>=3.1.0']
 )
