@@ -7,6 +7,8 @@ import pandas as pd, numpy
 import simplejson
 sys.path.insert(0,".")
 import dataset
+import nvd3
+
 
 def jsonp(request, dictionary):
   if (request.query.callback):
@@ -180,8 +182,8 @@ def execmodel():
 def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,page):
   if where: where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table,where)
   else: where = ""
-  if sort and orderdesc: sort = ".sort('%s',ascending=False)" % sort
-  if sort and not orderdesc: sort = ".sort('%s',ascending=True)" % sort
+  if sort and orderdesc: sort = "" #".sort('%s',ascending=False)" % sort
+  if sort and not orderdesc: sort = "" #".sort('%s',ascending=True)" % sort
   if not sort and orderdesc: sort = ".sort_index(ascending=False)"
   if not sort and not orderdesc: sort = ".sort_index(ascending=True)"
   if limit and page:
@@ -216,13 +218,13 @@ def datasets_records(name):
     return d
   return wrap_request(request,response,resp(name))
 
-@route('/query', method=['OPTIONS','GET','POST'])
+@route('/makechart', method=['OPTIONS','GET','POST'])
 def query():
   req = request.query.json
   if (request.query.callback): response.content_type = "application/javascript"
   print "Request: %s\n" % request.query.json
   req = simplejson.loads(req)
-
+    
   table = req['table']
   metric = req['metric']
   groupby = req['groupby']
@@ -231,22 +233,35 @@ def query():
   where = req['filter']
   orderdesc = req['orderdesc']
   jointoparcels = req['jointoparcels']
-
-  if where: where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table,where)
-  else: where = ""
-  if sort and orderdesc: sort = ".order(ascending=False)"
-  if sort and not orderdesc: sort = ".order(ascending=True)"
-  if not sort and orderdesc: sort = ".sort_index(ascending=False)"
-  if not sort and not orderdesc: sort = ".sort_index(ascending=True)"
-  if limit: limit = ".head(%s)" % limit
-  else: limit = ""
-  s = "DSET.fetch('%s')%s" % (table,where)
-  s = s +".groupby('%s').%s%s%s" % (groupby,metric,sort,limit)
-
+  
+  #recs = pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,"") #page argument not defined and jointoparcels not used
+  
+  
+  if where:
+      where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table, where)
+  else:
+      where = ""
+  if sort and orderdesc:
+      sort = ".order(ascending=False)"
+  if sort and not orderdesc:
+      sort = ".order(ascending=True)"
+  if not sort and orderdesc:
+      sort = ".sort_index(ascending=False)"
+  if not sort and not orderdesc:
+      sort = ".sort_index(ascending=True)"
+  if limit:
+      limit = ".head(%s)" % limit
+  else:
+      limit = ""
+  s = "DSET.fetch('%s')%s" % (table, where)
+  s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
+  
   print "Executing %s\n" % s
   recs = eval(s)
+  
   recs = [[int(x),float(recs.ix[x])] for x in recs.index]
-  s = simplejson.dumps({'records': recs},use_decimal=True)
+  s = simplejson.dumps([{'key':'usedforwhat', 'values': recs}], use_decimal=True)
+  
   print "Response: %s\n" % s
   return jsonp(request,s)
 
