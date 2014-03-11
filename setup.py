@@ -1,7 +1,7 @@
 from ez_setup import use_setuptools
 use_setuptools()
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='urbansim',
@@ -15,12 +15,8 @@ setup(
                  'Programming Language :: Python :: 2.7',
                  ('License :: OSI Approved :: '
                   'GNU Affero General Public License v3')],
-    packages=['synthicity'],
-    package_data={'': ['*.py',
-                       'urbanchoice/*.py',
-                       'urbansim/*.py',
-                       'urbansimd/*.py',
-                       'utils/*.py']},
+    packages=find_packages(exclude=['urbansimd']),
+    package_data={'synthicity.urbansim': ['templates/*.template']},
     install_requires=['Django>=1.6.2',
                       'jinja2>=2.7.2',
                       'numpy>=1.8.0',
