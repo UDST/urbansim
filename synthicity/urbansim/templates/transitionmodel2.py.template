@@ -1,34 +1,37 @@
 {% from 'modelspec.py' import IMPORTS, MERGE, SPEC, TABLE with context %}
 {{ IMPORTS() }}
 def {{modelname}}_{{template_mode}}(dset,year=None,show=True):
-  assert "{{model}}" == "transitionmodel2" # should match!
-  returnobj = {}
-  t1 = time.time()
-  
-  # keep original indexes
-  if "{{output_varname}}" not in {{table}}.columns: {{table}} = {{table}}.reset_index() 
+    assert "{{model}}" == "transitionmodel2"  # should match!
+    returnobj = {}
+    t1 = time.time()
 
-  # TEMPLATE configure table
-  {{ TABLE(internalname)|indent(2) }}
-  # ENDTEMPLATE
+    # keep original indexes
+    if "{{output_varname}}" not in {{table}}.columns:
+        {{table}} = {{table}}.reset_index()
 
-  # TEMPLATE growth rate
-  {% if growth_rate -%}
-  newdf = {{internalname}}[np.random.sample(len({{internalname}}.index)) < {{growth_rate}}]
-  {% endif -%}
-  # ENDTEMPLATE
+    # TEMPLATE configure table
+    {{ TABLE(internalname) | indent }}
+    # ENDTEMPLATE
 
-  # TEMPLATE fields to zero out
-  {% for name in zero_out_names -%}
-  newdf["{{name}}"] = -1
-  {% endfor -%}
-  # ENDTEMPLATE
+    # TEMPLATE growth rate
+    {% if growth_rate -%}
+    newdf = {{internalname}}[np.random.sample(len({{internalname}}.index)) < {{growth_rate}}]
+    {% endif -%}
+    # ENDTEMPLATE
 
-  print "Adding %d rows" % len(newdf.index)
-  if show: print newdf.describe()
+    # TEMPLATE fields to zero out
+    {% for name in zero_out_names -%}
+    newdf["{{name}}"] = -1
+    {% endfor -%}
+    # ENDTEMPLATE
 
-  # concat and make index unique again
-  {{table}} = pd.concat([{{table}},newdf],axis=0).reset_index(drop=True)
-  if show: print {{table}}.describe()
+    print("Adding %d rows" % len(newdf.index))
+    if show:
+        print(newdf.describe())
 
-  dset.store_attr("{{output_varname}}",year,copy.deepcopy({{table}}.{{output_varname}}))
+    # concat and make index unique again
+    {{table}} = pd.concat([{{table}}, newdf], axis=0).reset_index(drop=True)
+    if show:
+        print {{table}}.describe()
+
+    dset.store_attr("{{output_varname}}", year, copy.deepcopy({{table}}.{{output_varname}}))
