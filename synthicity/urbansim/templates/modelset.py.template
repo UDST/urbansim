@@ -27,12 +27,12 @@ import dataset
 dset = dataset.{{dataset}}(os.path.join(misc.data_dir(), '{{datastore}}'))
 
 for year in range({{numyearstorun if numyearstorun else 1}}):
-    print("Running year %d" % (year+1))
+    print("Running year %d" % (year + 1))
 
     {% for arg in modelstorun -%}
     print("Running {{arg}}")
     import {{arg}}
-    retval = {{arg}}.{{arg}}(dset, year={{startyear if startyear else 2010}}+year)
+    retval = {{arg}}.{{arg}}(dset, year={{startyear if startyear else 2010}} + year)
     if retval:
         open(os.path.join(misc.output_dir(), "{{arg}}.json"), "w").write(simplejson.dumps(retval, sort_keys=True, indent=4))
     {% endfor %}

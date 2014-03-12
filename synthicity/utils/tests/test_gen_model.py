@@ -104,3 +104,26 @@ def test_mini_model():
     }
 
     check_run(*gen_model(config))
+
+
+def test_modelset():
+    config = {
+        'dataset': 'BayAreaDataset',
+        'datastore': 'bayarea.h5',
+        'model': 'modelset',
+        'modelstorun': [
+            'networks_run',
+            'rrh_estimate',
+            'rrh_simulate',
+            'hlcmr_estimate'
+        ],
+        'pathinsertcwd': True
+    }
+
+    basename, d = gen_model(config)
+
+    assert basename == 'autorun'
+    assert 'run' in d
+
+    # make sure no errors happen when compiling the code
+    compile(d['run'], '<string>', mode='exec')
