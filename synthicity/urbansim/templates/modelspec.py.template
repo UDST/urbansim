@@ -63,18 +63,22 @@ print("WARNING: using patsy, ind_vars will be ignored")
 {{outname}} = {{inname}}
 {% endif %}
 
+# start off this sequence of elif statements with a no-op
+if False:
+    pass
 {% if submodel_vars %}
 {% for k, v in submodel_vars.iteritems() %}
 elif {{submodel}} == "{{k}}":
 {% for varname in v %}
-  {{outname}}["{{varname}}"] = {{CALCVAR(inname, varname, var_lib) -}}
+    {{outname}}["{{varname}}"] = {{CALCVAR(inname, varname, var_lib) -}}
 {% endfor %}
 {% endfor %}
-{% endif %}
+{% else %}
 else:
 {% for varname in ind_vars %}
-  {{outname}}["{{varname}}"] = {{CALCVAR(inname, varname, var_lib) -}}
+    {{outname}}["{{varname}}"] = {{CALCVAR(inname, varname, var_lib) -}}
 {% endfor %}
+{% endif %}
 {% if add_constant %}
 {{outname}} = sm.add_constant({{outname}}, prepend=False)
 {% endif %}
