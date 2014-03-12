@@ -7,6 +7,37 @@ Python model files.
 from ..misc import gen_model
 
 
+def check_estimate_simulate(basename, d):
+    """
+    Check results for an estimate/simulate model.
+
+    """
+    assert basename == 'autorun'
+    assert 'estimate' in d
+    assert 'simulate' in d
+
+    assert 'def autorun_estimate' in d['estimate']
+    assert 'def autorun_simulate' in d['simulate']
+
+    # make sure no errors happen when compiling the code
+    compile(d['estimate'], '<string>', mode='exec')
+    compile(d['simulate'], '<string>', mode='exec')
+
+
+def check_run(basename, d):
+    """
+    Check results for a 'run' model.
+
+    """
+    assert basename == 'autorun'
+    assert 'run' in d
+
+    assert 'def autorun_run' in d['run']
+
+    # make sure no errors happen when compiling the code
+    compile(d['run'], '<string>', mode='exec')
+
+
 def test_hedonic_model():
     config = {
         'add_constant': True,
@@ -28,18 +59,7 @@ def test_hedonic_model():
         'table_sim': 'dset.building_filter(residential=0)',
     }
 
-    basename, d = gen_model(config)
-
-    assert basename == 'autorun'
-    assert 'estimate' in d
-    assert 'simulate' in d
-
-    assert 'def autorun_estimate' in d['estimate']
-    assert 'def autorun_simulate' in d['simulate']
-
-    # make sure no errors happen when compiling the code
-    compile(d['estimate'], '<string>', mode='exec')
-    compile(d['simulate'], '<string>', mode='exec')
+    check_estimate_simulate(*gen_model(config))
 
 
 def test_location_choice_model():
@@ -68,18 +88,7 @@ def test_location_choice_model():
         'table_sim': 'dset.nets[dset.nets.lastmove > 2007]',
     }
 
-    basename, d = gen_model(config)
-
-    assert basename == 'autorun'
-    assert 'estimate' in d
-    assert 'simulate' in d
-
-    assert 'def autorun_estimate' in d['estimate']
-    assert 'def autorun_simulate' in d['simulate']
-
-    # make sure no errors happen when compiling the code
-    compile(d['estimate'], '<string>', mode='exec')
-    compile(d['simulate'], '<string>', mode='exec')
+    check_estimate_simulate(*gen_model(config))
 
 
 def test_mini_model():
@@ -94,11 +103,4 @@ def test_mini_model():
         'table_sim': 'dest.test_table[dest.test_table > 9000]'
     }
 
-    basename, d = gen_model(config)
-
-    assert basename == 'autorun'
-    assert 'run' in d
-
-    assert 'def autorun_run' in d['run']
-
-    compile(d['run'], '<string>', mode='exec')
+    check_run(*gen_model(config))
