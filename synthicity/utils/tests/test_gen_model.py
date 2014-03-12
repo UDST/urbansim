@@ -169,3 +169,16 @@ def test_networks():
     }
 
     check_run(*gen_model(config))
+
+
+def test_transition_model():
+    config = {
+        'growth_rate': 0.05,
+        'internalname': 'households',
+        'model': 'transitionmodel2',
+        'output_varname': 'household_id',
+        'table': 'dset.households',
+        'zero_out_names': ['building_id']
+    }
+
+    check_run(*gen_model(config))
