@@ -235,8 +235,7 @@ def query():
   jointoparcels = req['jointoparcels']
   
   #recs = pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,"") #page argument not defined and jointoparcels not used
-  
-  
+
   if where:
       where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table, where)
   else:
@@ -259,7 +258,15 @@ def query():
   print "Executing %s\n" % s
   recs = eval(s)
   
-  recs = [[int(x),float(recs.ix[x])] for x in recs.index]
+  if 'key_dictionary' in req:
+    key_dictionary = req['key_dictionary']
+    dictionary_file = open("configs/" + key_dictionary).read()      #not sure configs is the proper place to save dicts
+    dictionary = json.loads(dictionary_file)                        #the dictionary is in unicode, change that
+    print dictionary
+    recs = [[dictionary[str(int(x))],float(recs.ix[x])] for x in recs.index]
+  else:
+    recs = [[int(x),float(recs.ix[x])] for x in recs.index]
+  
   s = simplejson.dumps([{'key':'usedforwhat', 'values': recs}], use_decimal=True)
   
   print "Response: %s\n" % s
