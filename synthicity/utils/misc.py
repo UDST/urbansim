@@ -57,7 +57,8 @@ def gen_model(config, mode=None):
     """
     if isinstance(config, str):
         configname = config
-        config = json.load(configname)
+        with open(configname) as f:
+            config = json.load(f)
     elif isinstance(config, dict):
         configname = "autorun"
     else:
@@ -87,8 +88,10 @@ def gen_model(config, mode=None):
                         urlparse.urljoin(
                             githubroot, config['var_lib_file'])).read())
             else:
-                var_lib = json.load(
-                    os.path.join(configs_dir(), config['var_lib_file']))
+                with open(
+                    os.path.join(configs_dir(), config['var_lib_file'])
+                ) as f:
+                    var_lib = json.load(f)
 
             config['var_lib'] = config.get('var_lib', {})
             config['var_lib'].update(var_lib)
