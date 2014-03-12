@@ -1,4 +1,4 @@
-{% from 'modelspec.py' import IMPORTS, MERGE, SPEC, CALCVAR, TABLE with context %}
+{% from 'modelspec.py.template' import IMPORTS, MERGE, SPEC, CALCVAR, TABLE with context %}
 {{ IMPORTS() }}
 SAMPLE_SIZE=100
 
@@ -8,12 +8,13 @@ def {{modelname}}_estimate(dset, year=None, show=True):
     returnobj = {}
 
     # TEMPLATE configure table
-    {{ TABLE(internalname) | indent }}
+    {{ TABLE(internalname) | indent(4) }}
     # ENDTEMPLATE
 
     {% if est_sample_size -%}
     # TEMPLATE randomly choose estimatiors
-    {{internalname}} = {{internalname}}.loc[np.random.choice({{internalname}}.index, {{est_sample_size}}, replace=False)]
+    {{internalname}} = {{internalname}}.loc[np.random.choice(
+        {{internalname}}.index, {{est_sample_size}}, replace=False)]
     # ENDTEMPLATE
     {% endif -%}
 
@@ -23,7 +24,7 @@ def {{modelname}}_estimate(dset, year=None, show=True):
 
     {% if merge -%}
     # TEMPLATE merge
-    {{- MERGE("alternatives",merge) | indent }}
+    {{- MERGE("alternatives",merge) | indent(4) }}
     # ENDTEMPLATE
     {% endif -%}
 
@@ -58,8 +59,9 @@ def {{modelname}}_estimate(dset, year=None, show=True):
         print("Estimating parameters for segment = %s, size = %d" % (name, len(segment.index)))
 
         # TEMPLATE computing vars
-        {{ SPEC("alternative_sample", "data", submodel="name") | indent }}
+        {{ SPEC("alternative_sample", "data", submodel="name") | indent(8) }}
         # ENDTEMPLATE
+
         if show:
             print(data.describe())
 
@@ -92,7 +94,7 @@ def {{modelname}}_simulate(dset, year=None, show=True):
     returnobj = {}
     t1 = time.time()
     # TEMPLATE configure table
-    {{ TABLE(internalname) | indent }}
+    {{ TABLE(internalname) | indent(4) }}
     # ENDTEMPLATE
 
     # TEMPLATE dependent variable
@@ -145,7 +147,7 @@ def {{modelname}}_simulate(dset, year=None, show=True):
 
     {% if merge -%}
     # TEMPLATE merge
-    {{- MERGE("alternatives",merge) | indent }}
+    {{- MERGE("alternatives",merge) | indent(4) }}
     # ENDTEMPLATE
     {% endif %}
 
@@ -179,7 +181,7 @@ def {{modelname}}_simulate(dset, year=None, show=True):
         sample, alternative_sample, est_params = \
             interaction.mnl_interaction_dataset(segment, alternatives, SAMPLE_SIZE, chosenalts=None)
         # TEMPLATE computing vars
-        {{ SPEC("alternative_sample", "data", submodel="name") | indent }}
+        {{ SPEC("alternative_sample", "data", submodel="name") | indent(8) }}
         # ENDTEMPLATE
         data = data.as_matrix()
 
