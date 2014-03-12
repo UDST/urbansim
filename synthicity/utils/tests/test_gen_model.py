@@ -127,3 +127,45 @@ def test_modelset():
 
     # make sure no errors happen when compiling the code
     compile(d['run'], '<string>', mode='exec')
+
+
+def test_networks():
+    config = {
+        'ind_vars': [
+            'sum_residential_units',
+            'ave_unit_sqft',
+            'ave_lot_sqft',
+            'ave_income',
+            'population',
+            'poor',
+            'hhsize',
+            'jobs',
+            'sfdu',
+            'renters'
+        ],
+        'model': 'networks',
+        'networks': {
+            'factors': [1.0],
+            'filenames': ['osm_bayarea.jar'],
+            'maxdistances': [2000],
+            'twoway': [1]
+        },
+        'show': True,
+        'update_xys': ['dset.households'],
+        'var_lib': {
+            'ave_income': 'ave_income_var',
+            'ave_lot_sqft': 'ave_lot_sqft_var',
+            'ave_unit_sqft': 'ave_unit_sqft_var',
+            'hhsize': 'hhsize_var',
+            'jobs': 'jobs_var',
+            'poor': 'poor_var',
+            'population': 'population_var',
+            'renters': 'renters_var',
+            'sfdu': 'sfdu_var',
+            'sum_residential_units': 'sum_residential_units_var'
+        },
+        'writetocsv': 'nodes.csv',
+        'writetotmp': 'nodes'
+    }
+
+    check_run(*gen_model(config))
