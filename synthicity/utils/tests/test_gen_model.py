@@ -7,7 +7,7 @@ Python model files.
 from ..misc import gen_model
 
 
-def test_hedonicmodel():
+def test_hedonic_model():
     config = {
         'add_constant': True,
         'dep_var': 'averageweightedrent',
@@ -65,7 +65,7 @@ def test_location_choice_model():
         'sample_size': 100,
         'segment': ['naics11cat'],
         'table': 'dset.nets',
-        'table_sim': 'dset.nets[dset.nets.lastmove>2007]',
+        'table_sim': 'dset.nets[dset.nets.lastmove > 2007]',
     }
 
     basename, d = gen_model(config)
@@ -80,3 +80,25 @@ def test_location_choice_model():
     # make sure no errors happen when compiling the code
     compile(d['estimate'], '<string>', mode='exec')
     compile(d['simulate'], '<string>', mode='exec')
+
+
+def test_mini_model():
+    config = {
+        'add_constant': True,
+        'ind_vars': ['var1', 'var2', 'var3'],
+        'internalname': 'test',
+        'model': 'minimodel',
+        'output_table': 'dset.test_output',
+        'output_varname': 'test_output_var',
+        'table': 'dest.test_table',
+        'table_sim': 'dest.test_table[dest.test_table > 9000]'
+    }
+
+    basename, d = gen_model(config)
+
+    assert basename == 'autorun'
+    assert 'run' in d
+
+    assert 'def autorun_run' in d['run']
+
+    compile(d['run'], '<string>', mode='exec')

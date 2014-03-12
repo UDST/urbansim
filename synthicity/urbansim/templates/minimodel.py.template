@@ -1,17 +1,17 @@
-{% from 'modelspec.py' import MERGE, SPEC, TABLE with context %}
+{% from 'modelspec.py.template' import IMPORTS, SPEC, TABLE with context %}
 {{ IMPORTS() }}
 
 def {{modelname}}_run(dset, year=None, show=True):
     assert "{{template_mode}}" == "run"
 
     # TEMPLATE configure table
-    {{ TABLE("_tbl_") | indent }}
+    {{ TABLE("_tbl_") | indent(4)}}
     # ENDTEMPLATE
 
     t1 = time.time()
 
     # TEMPLATE computing vars
-    {{ SPEC("_tbl_", "_tbl_", newdf=False) | indent }}
+    {{ SPEC("_tbl_", "_tbl_", newdf=False) | indent(4) }}
     # ENDTEMPLATE
     {% if show -%}
     print(_tbl_.describe())
