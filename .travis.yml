@@ -1,0 +1,19 @@
+language: python
+python:
+    - "2.7"
+install:
+    # install conda
+    - sudo pip install conda
+    - sudo conda init
+    # install dependencies
+    - >
+      conda create -p $HOME/py --yes pip jinja2 numpy pandas patsy scipy
+      statsmodels pytables pytest "python=$TRAVIS_PYTHON_VERSION"
+    - export PATH=$HOME/py/bin:$PATH
+    - pip install Django shapely simplejson
+    # install test depencies
+    - pip install pytest-cov coveralls
+    # install urbansim
+    - pip install .
+script:
+    - py.test --cov urbansim --cov-report term-missing
