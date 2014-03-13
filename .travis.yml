@@ -17,3 +17,5 @@ install:
     - pip install .
 script:
     - py.test --cov urbansim --cov-report term-missing
+after_success:
+    - coveralls
