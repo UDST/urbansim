@@ -11,7 +11,7 @@ def {{modelname}}_{{template_mode}}(dset, year=None, show=True):
 
     {% if merge -%}
     # TEMPLATE merge
-    {{- MERGE(internalname, merge) | indent(4) }}
+    {{ MERGE(internalname, merge) | indent(4) }}
     # ENDTEMPLATE
     {% endif %}
 
