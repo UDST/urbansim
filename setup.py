@@ -32,7 +32,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'usimcompile = synthicity.urbansim.compilecli:main'
+            'urbansim_compile = synthicity.urbansim.compilecli:main'
         ]
     }
 )
