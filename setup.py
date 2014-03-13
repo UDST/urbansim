@@ -1,7 +1,7 @@
 from ez_setup import use_setuptools
 use_setuptools()
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='urbansim',
@@ -11,24 +11,28 @@ setup(
     author_email='ffoti@berkeley.edu',
     license='AGPL',
     url='https://github.com/synthicity/urbansim',
-    classifiers=['Development Status :: 4 - Beta',
-                 'Programming Language :: Python :: 2.7',
-                 ('License :: OSI Approved :: '
-                  'GNU Affero General Public License v3')],
-    packages=['synthicity'],
-    package_data={'': ['*.py',
-                       'urbanchoice/*.py',
-                       'urbansim/*.py',
-                       'urbansimd/*.py',
-                       'utils/*.py']},
-    install_requires=['Django>=1.6.2',
-                      'jinja2>=2.7.2',
-                      'numpy>=1.8.0',
-                      'pandas>=0.13.1',
-                      'patsy>=0.2.1',
-                      'scipy>=0.13.3',
-                      'shapely>=1.3.0',
-                      'simplejson>=3.3.3',
-                      'statsmodels>=0.5.0',
-                      'tables>=3.1.0']
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Programming Language :: Python :: 2.7',
+        'License :: OSI Approved :: GNU Affero General Public License v3'
+    ],
+    packages=find_packages(exclude=['urbansimd', '*.tests']),
+    package_data={'synthicity.urbansim': ['templates/*.template']},
+    install_requires=[
+        'Django>=1.6.2',
+        'jinja2>=2.7.2',
+        'numpy>=1.8.0',
+        'pandas>=0.13.1',
+        'patsy>=0.2.1',
+        'scipy>=0.13.3',
+        'shapely>=1.3.0',
+        'simplejson>=3.3.3',
+        'statsmodels>=0.5.0',
+        'tables>=3.1.0'
+    ],
+    entry_points={
+        'console_scripts': [
+            'urbansim_compile = synthicity.urbansim.compilecli:main'
+        ]
+    }
 )

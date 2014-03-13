@@ -1,4 +1,5 @@
-import copy
+from __future__ import print_function
+
 import csv
 import getopt
 import os
@@ -12,7 +13,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 import simplejson as json
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 
 from synthicity.utils import texttable as tt
 from synthicity.urbanchoice import interaction
@@ -26,32 +27,47 @@ MODES_D = defaultdict(lambda: ["estimate", "simulate"], {
     "networks": ["run"]
 })
 
+
+def droptable(d):
+    d = d.copy()
+    del d['table']
+    return d
+
+J2_ENV = Environment(
+    loader=PackageLoader('synthicity.urbansim'), trim_blocks=True)
+J2_ENV.filters['droptable'] = droptable
+
+
 # generate a model from a json file, will do so for all modes listed above
+def gen_model(config, mode=None):
+    """
+    Generate a Python model based on a configuration stored in a JSON file.
 
+    Parameters
+    ----------
+    config : str or dict
+        Name of a JSON file on disk or a dictionary of config parameters.
+    mode : str, optional
 
-def gen_model(configname, mode=None):
-    def droptable(d):
-        d = copy.copy(d)
-        del d['table']
-        return d
-    # look for templates in PYTHONPATH
-    templatedirs = filter(
-        os.path.isdir,
-        [os.path.join(x, 'synthicity', 'urbansim') for x in sys.path])
+    Returns
+    -------
+    basename : str
+    d : dict
 
-    j2_env = Environment(
-        loader=FileSystemLoader(templatedirs), trim_blocks=True)
-    j2_env.filters['droptable'] = droptable
-
-    if isinstance(configname, str):
-        config = json.loads(open(configname).read())
-    else:  # passed config in
-        config = configname
+    """
+    if isinstance(config, str):
+        configname = config
+        with open(configname) as f:
+            config = json.load(f)
+    elif isinstance(config, dict):
         configname = "autorun"
+    else:
+        raise TypeError('config should be str or dict.')
 
     if 'model' not in config:
-        print "Not generating %s" % configname
+        print('Not generating {}'.format(configname))
         return '', {}
+
     model = config['model']
     d = {}
     modes = [mode] if mode else MODES_D[model]
@@ -60,7 +76,7 @@ def gen_model(configname, mode=None):
 
         basename = os.path.splitext(os.path.basename(configname))[0]
         dirname = os.path.dirname(configname)
-        print "Running %s with mode %s" % (basename, mode)
+        print('Running {} with mode {}'.format(basename, mode))
 
         if 'var_lib_file' in config:
             if 'var_lib_db' in config:
@@ -72,15 +88,17 @@ def gen_model(configname, mode=None):
                         urlparse.urljoin(
                             githubroot, config['var_lib_file'])).read())
             else:
-                var_lib = json.loads(
-                    open(os.path.join(
-                        configs_dir(), config['var_lib_file'])).read())
-            config["var_lib"] = dict(
-                var_lib.items() + config.get("var_lib", {}).items())
+                with open(
+                    os.path.join(configs_dir(), config['var_lib_file'])
+                ) as f:
+                    var_lib = json.load(f)
+
+            config['var_lib'] = config.get('var_lib', {})
+            config['var_lib'].update(var_lib)
 
         config['modelname'] = basename
         config['template_mode'] = mode
-        d[mode] = j2_env.get_template(model + '.py').render(**config)
+        d[mode] = J2_ENV.get_template(model + '.py.template').render(**config)
 
     return basename, d
 
@@ -93,7 +111,7 @@ def run_model(config, dset, mode="estimate"):
     code = compile(model, '<string>', 'exec')
     ns = {}
     exec code in ns
-    print basename, mode
+    print(basename, mode)
     out = ns['%s_%s' % (basename, mode)](dset, 2010)
     return out
 
