@@ -11,8 +11,8 @@ import pandas as pd
 import statsmodels.api as sm
 from patsy import dmatrix
 
-from synthicity.urbanchoice import *
-from synthicity.utils import misc
+from urbansim.urbanchoice import *
+from urbansim.utils import misc
 {% endmacro %}
 
 {% macro TABLE(tblname) %}

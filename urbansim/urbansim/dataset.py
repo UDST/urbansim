@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import simplejson
 
-from synthicity.utils import misc
+from urbansim.utils import misc
 
 warnings.filterwarnings('ignore', category=pd.io.pytables.PerformanceWarning)
 

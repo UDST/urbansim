@@ -17,6 +17,7 @@ from django.conf import settings
 
 sys.path.insert(0, ".")
 import dataset
+from urbansim.utils import misc
 
 
 def jsonp(request, dictionary):
@@ -157,8 +158,6 @@ def datasets_summary(name):
         return d
     return wrap_request(request, response, resp(name))
 
-from synthicity.utils import misc
-
 
 @route('/compilemodel')
 def execmodel():
@@ -170,8 +169,6 @@ def execmodel():
         print returnobj[1]
         return returnobj[1]
     return wrap_request(request, response, resp())
-
-from synthicity.utils import misc
 
 
 @route('/execmodel')

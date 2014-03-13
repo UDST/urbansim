@@ -3,8 +3,8 @@ import time
 import numpy as np
 import pandas as pd
 
-from synthicity.urbansim import interaction, mnl
-from synthicity.utils import misc
+from urbansim.urbansim import interaction, mnl
+from urbansim.utils import misc
 
 GPU = 0
 EMTOL = 1e-06
