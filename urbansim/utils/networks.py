@@ -6,7 +6,7 @@ import time
 import numpy as np
 import pandas as pd
 
-from synthicity.utils import misc
+from urbansim.utils import misc
 
 NETWORKS = None
 
@@ -82,7 +82,7 @@ class Networks:
             xys = np.array(df[['X', 'Y']], dtype="float32")
 
         if tosrid:  # convert coordinate system
-            from synthicity.utils import geomisc
+            from urbansim.utils import geomisc
             print "Converting srids (potentially takes a long time)"
             xys = geomisc.np_coord_convert_all(xys)
             print "Finished conversion"

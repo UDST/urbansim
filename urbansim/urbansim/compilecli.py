@@ -3,7 +3,7 @@ from __future__ import print_function
 import argparse
 import os.path
 
-from synthicity.utils import misc
+from urbansim.utils import misc
 
 
 def model_save(config):

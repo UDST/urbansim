@@ -4,7 +4,7 @@ import sys
 
 import simplejson
 
-from synthicity.utils import misc
+from urbansim.utils import misc
 sys.path.insert(0, ".")
 import dataset
 

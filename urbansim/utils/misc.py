@@ -15,8 +15,8 @@ import pandas as pd
 import simplejson as json
 from jinja2 import Environment, PackageLoader
 
-from synthicity.utils import texttable as tt
-from synthicity.urbanchoice import interaction
+from urbansim.utils import texttable as tt
+from urbansim.urbanchoice import interaction
 
 # these are the lists of modes available for each model
 MODES_D = defaultdict(lambda: ["estimate", "simulate"], {
@@ -34,7 +34,7 @@ def droptable(d):
     return d
 
 J2_ENV = Environment(
-    loader=PackageLoader('synthicity.urbansim'), trim_blocks=True)
+    loader=PackageLoader('urbansim.urbansim'), trim_blocks=True)
 J2_ENV.filters['droptable'] = droptable
 
 

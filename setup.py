@@ -17,7 +17,7 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
     packages=find_packages(exclude=['urbansimd', '*.tests']),
-    package_data={'synthicity.urbansim': ['templates/*.template']},
+    package_data={'urbansim.urbansim': ['templates/*.template']},
     install_requires=[
         'Django>=1.6.2',
         'jinja2>=2.7.2',
@@ -32,7 +32,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'urbansim_compile = synthicity.urbansim.compilecli:main'
+            'urbansim_compile = urbansim.urbansim.compilecli:main'
         ]
     }
 )
