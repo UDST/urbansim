@@ -24,7 +24,7 @@ def {{modelname}}_estimate(dset, year=None, show=True):
 
     {% if merge -%}
     # TEMPLATE merge
-    {{- MERGE("alternatives",merge) | indent(4) }}
+    {{ MERGE("alternatives",merge) | indent(4) }}
     # ENDTEMPLATE
     {% endif -%}
 
@@ -147,7 +147,7 @@ def {{modelname}}_simulate(dset, year=None, show=True):
 
     {% if merge -%}
     # TEMPLATE merge
-    {{- MERGE("alternatives",merge) | indent(4) }}
+    {{ MERGE("alternatives",merge) | indent(4) }}
     # ENDTEMPLATE
     {% endif %}
 
@@ -238,7 +238,7 @@ def {{modelname}}_simulate(dset, year=None, show=True):
     table = {{output_table if output_table else table_sim if table_sim else table}}
     table["{{dep_var}}"].loc[new_homes.index] = new_homes.values
     dset.store_attr("{{output_varname}}", year, copy.deepcopy(table["{{dep_var}}"]))
-    print "Finished assigning agents in %f seconds" % (time.time() - t1)
+    print ("Finished assigning agents in %f seconds" % (time.time() - t1))
     {% endif -%}
 
     return returnobj
