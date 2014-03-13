@@ -66,8 +66,10 @@ def test_location_choice_model():
     config = {
         'alternatives': (
             'dset.nodes.join('
-            'dset.variables.compute_nonres_building_proportions(dset, year))'),
+            'dset.variables.compute_nonres_building_proportions(dset, year))'
+        ),
         'dep_var': '_node_id',
+        'filters': ['households.tenure == 1'],
         'est_sample_size': 10000,
         'ind_vars': [
             'total sqft',
@@ -78,12 +80,28 @@ def test_location_choice_model():
             'reliability'
         ],
         'internalname': 'jobs',
+        'merge': {
+            'table': 'dset.nodes',
+            'left_on': '_node_id',
+            'right_index': True
+        },
         'model': 'locationchoicemodel',
         'modeldependencies': 'nrh.json',
         'output_table': 'dset.nets',
         'output_varname': 'firms_building_ids',
+        'patsy': (
+            'np.log1p(unit_sqft) + sum_residential_units + '
+            'ave_unit_sqft + ave_lot_sqft + ave_income + poor + sfdu + '
+            'renters + np.log1p(res_rent) - 1'
+        ),
+        'relocation_rate': 0.04,
         'sample_size': 100,
         'segment': ['naics11cat'],
+        'supply_constraint': (
+            'dset.building_filter(residential=1).'
+            "residential_units.sub(dset.households.groupby('building_id')."
+            'size(), fill_value=0)'
+        ),
         'table': 'dset.nets',
         'table_sim': 'dset.nets[dset.nets.lastmove > 2007]',
     }
