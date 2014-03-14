@@ -1,0 +1,4 @@
+[run]
+omit =
+    urbansim/utils/texttable.py
+    urbansim/**/tests/*
