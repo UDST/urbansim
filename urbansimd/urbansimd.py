@@ -7,7 +7,6 @@ import pandas as pd, numpy
 import simplejson
 sys.path.insert(0,".")
 import dataset
-import nvd3
 
 
 def jsonp(request, dictionary):
@@ -257,15 +256,18 @@ def query():
   
   print "Executing %s\n" % s
   recs = eval(s)
+  print "Ahi viene"
+  print recs.index
+  print "Ahi termino"
   
   if 'key_dictionary' in req:
     key_dictionary = req['key_dictionary']
-    dictionary_file = open("configs/" + key_dictionary).read()      #not sure configs is the proper place to save dicts
-    dictionary = json.loads(dictionary_file)                        #the dictionary is in unicode, change that
+    dictionary_file = open("configs/" + key_dictionary).read()                  #not sure configs is the proper place to save dicts
+    dictionary = json.loads(dictionary_file)          
     print dictionary
-    recs = [[dictionary[str(int(x))],float(recs.ix[x])] for x in recs.index]
+    recs = [[dictionary[str(int(x))],float(recs.ix[x])/1000] for x in recs.index]    #the dictionary has keys from 0 to 15, ids come from 0 to 16
   else:
-    recs = [[int(x),float(recs.ix[x])] for x in recs.index]
+    recs = [[x,float(recs.ix[x])/1000] for x in recs.index]
   
   s = simplejson.dumps([{'key':'usedforwhat', 'values': recs}], use_decimal=True)
   
