@@ -1,119 +1,13 @@
 from __future__ import print_function
 
 import csv
-import getopt
 import os
 import string
-import sys
-import time
-import urllib2
-import urlparse
-from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-import simplejson as json
-from jinja2 import Environment, PackageLoader
 
 from urbansim.utils import texttable as tt
-from urbansim.urbanchoice import interaction
-
-# these are the lists of modes available for each model
-MODES_D = defaultdict(lambda: ["estimate", "simulate"], {
-    "minimodel": ["run"],
-    "modelset": ["run"],
-    "transitionmodel": ["run"],
-    "transitionmodel2": ["run"],
-    "networks": ["run"]
-})
-
-
-def droptable(d):
-    d = d.copy()
-    del d['table']
-    return d
-
-J2_ENV = Environment(
-    loader=PackageLoader('urbansim.urbansim'), trim_blocks=True)
-J2_ENV.filters['droptable'] = droptable
-
-
-# generate a model from a json file, will do so for all modes listed above
-def gen_model(config, mode=None):
-    """
-    Generate a Python model based on a configuration stored in a JSON file.
-
-    Parameters
-    ----------
-    config : str or dict
-        Name of a JSON file on disk or a dictionary of config parameters.
-    mode : str, optional
-
-    Returns
-    -------
-    basename : str
-    d : dict
-
-    """
-    if isinstance(config, str):
-        configname = config
-        with open(configname) as f:
-            config = json.load(f)
-    elif isinstance(config, dict):
-        configname = "autorun"
-    else:
-        raise TypeError('config should be str or dict.')
-
-    if 'model' not in config:
-        print('Not generating {}'.format(configname))
-        return '', {}
-
-    model = config['model']
-    d = {}
-    modes = [mode] if mode else MODES_D[model]
-    for mode in modes:
-        assert mode in MODES_D[model]
-
-        basename = os.path.splitext(os.path.basename(configname))[0]
-        dirname = os.path.dirname(configname)
-        print('Running {} with mode {}'.format(basename, mode))
-
-        if 'var_lib_file' in config:
-            if 'var_lib_db' in config:
-                # should not be hardcoded
-                githubroot = ('https://raw.github.com/fscottfoti'
-                              '/bayarea/master/configs/')
-                var_lib = json.loads(
-                    urllib2.urlopen(
-                        urlparse.urljoin(
-                            githubroot, config['var_lib_file'])).read())
-            else:
-                with open(
-                    os.path.join(configs_dir(), config['var_lib_file'])
-                ) as f:
-                    var_lib = json.load(f)
-
-            config['var_lib'] = config.get('var_lib', {})
-            config['var_lib'].update(var_lib)
-
-        config['modelname'] = basename
-        config['template_mode'] = mode
-        d[mode] = J2_ENV.get_template(model + '.py.template').render(**config)
-
-    return basename, d
-
-COMPILED_MODELS = {}
-
-
-def run_model(config, dset, mode="estimate"):
-    basename, model = gen_model(config, mode)
-    model = model[mode]
-    code = compile(model, '<string>', 'exec')
-    ns = {}
-    exec code in ns
-    print(basename, mode)
-    out = ns['%s_%s' % (basename, mode)](dset, 2010)
-    return out
 
 
 def mkifnotexists(folder):

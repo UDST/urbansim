@@ -4,7 +4,7 @@ Python model files.
 
 """
 
-from ..misc import gen_model
+from ..modelcompile import gen_model
 
 
 def check_estimate_simulate(basename, d):

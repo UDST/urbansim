@@ -8,7 +8,7 @@ import pandas as pd
 
 from urbansim.urbansimd import urbansimd
 from urbansim.utils import misc
-from urbansim.utils.misc import run_model
+from urbansim.urbansim.modelcompile import run_model
 
 pd.set_option('precision', 3)
 pd.set_option('display.width', 160)
