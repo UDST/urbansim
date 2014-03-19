@@ -4,7 +4,7 @@ import sys
 
 import simplejson
 
-from urbansim.utils import misc
+from urbansim.urbansim import modelcompile
 sys.path.insert(0, ".")
 import dataset
 
@@ -19,5 +19,5 @@ for arg in args:
         model, mode = item[0], "run"
     else:
         model, mode = item
-    d = misc.run_model(model, dset, mode)
+    d = modelcompile.run_model(model, dset, mode)
     # print d

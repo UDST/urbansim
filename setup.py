@@ -24,6 +24,7 @@ setup(
         'numpy>=1.8.0',
         'pandas>=0.13.1',
         'patsy>=0.2.1',
+        'pyyaml>=3.10',
         'scipy>=0.13.3',
         'shapely>=1.3.0',
         'simplejson>=3.3.3',

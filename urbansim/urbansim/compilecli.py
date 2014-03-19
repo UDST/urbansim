@@ -3,13 +3,18 @@ from __future__ import print_function
 import argparse
 import os.path
 
+from urbansim.urbansim import modelcompile
 from urbansim.utils import misc
 
 
 def model_save(config):
     print('Generating model for config {}.'.format(config))
 
-    basename, d = misc.gen_model(config)
+    basename = None
+    if isinstance(config, str):
+        config, basename = modelcompile.load_config(config)
+
+    basename, d = modelcompile.gen_model(config, configname=basename)
 
     for mode, code in d.items():
         outname = os.path.join(

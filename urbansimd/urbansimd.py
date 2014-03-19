@@ -17,6 +17,7 @@ from django.conf import settings
 
 sys.path.insert(0, ".")
 import dataset
+from urbansim.urbansim import modelcompile
 from urbansim.utils import misc
 
 
@@ -165,7 +166,7 @@ def execmodel():
         print request
         print "Request: %s\n" % request.query.config
         req = simplejson.loads(request.query.config)
-        returnobj = misc.gen_model(req)
+        returnobj = modelcompile.gen_model(req)
         print returnobj[1]
         return returnobj[1]
     return wrap_request(request, response, resp())
@@ -182,7 +183,7 @@ def execmodel():
             mode = "simulate"
         else:
             mode = "run"
-        returnobj = misc.run_model(req, DSET, mode=mode)
+        returnobj = modelcompile.run_model(req, DSET, mode=mode)
         return returnobj
     estimate = int(request.query.get('estimate', 1))
     simulate = int(request.query.get('simulate', 0))

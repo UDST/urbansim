@@ -8,7 +8,8 @@ install:
     # install dependencies
     - >
       conda create -p $HOME/py --yes pip jinja2 numpy pandas patsy scipy
-      statsmodels pytables pytest "python=$TRAVIS_PYTHON_VERSION"
+      statsmodels pytables pytest pyyaml
+      "python=$TRAVIS_PYTHON_VERSION"
     - export PATH=$HOME/py/bin:$PATH
     - pip install Django shapely simplejson
     # install test depencies
