@@ -79,7 +79,8 @@ def start_service(username, password, port=8765, host='paris.urbansim.org'):
         pass
     global conn
     conn = psycopg2.connect(
-        "dbname=bayarea user=%s password=%s port=5432 host=paris.urbansim.org" % (username, password))
+        "dbname=bayarea user=%s password=%s port=5432 host=paris.urbansim.org" %
+        (username, password))
     run(host=host, port=port, debug=True, server='tornado')
 
 if __name__ == '__main__':

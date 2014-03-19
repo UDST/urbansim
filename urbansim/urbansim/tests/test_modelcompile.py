@@ -46,4 +46,3 @@ def test_load_config_yaml():
     config, basename = modelcompile.load_config(test_file)
     assert config == TEST_CONFIG
     assert basename == 'test_config.yaml'
-
