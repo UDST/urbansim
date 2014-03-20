@@ -13,10 +13,11 @@ install:
     - export PATH=$HOME/py/bin:$PATH
     - pip install Django shapely simplejson
     # install test depencies
-    - pip install pytest-cov coveralls
+    - pip install pytest-cov coveralls pep8
     # install urbansim
     - pip install .
 script:
+    - pep8 urbansim scripts urbansimd
     - py.test --cov urbansim --cov-report term-missing
 after_success:
     - coveralls

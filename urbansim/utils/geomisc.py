@@ -32,9 +32,6 @@ def np_coord_convert_all(a):
     a = np.array(pool.map(np_coord_convert, a), dtype="float32")
     return a
 
-        #bats['origpoint'] = bats['origpoint'].apply(lambda x: x.decode('hex')).apply(shapely.wkb.loads)
-    #bats['destpoint'] = bats['destpoint'].apply(lambda x: x.decode('hex')).apply(shapely.wkb.loads)
-
 
 def convert_df(df, xname='x', yname='y', srcsrid=3740, tgtsrid=4326):
     x = df[xname].values
