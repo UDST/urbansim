@@ -181,12 +181,12 @@ def execmodel():
 def pandas_statement(table,where,sort,orderdesc,groupby,metric,limit,page):
   if where: where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (table,where)
   else: where = ""
-  if sort and orderdesc: sort = "" #".sort('%s',ascending=False)" % sort
-  if sort and not orderdesc: sort = "" #".sort('%s',ascending=True)" % sort
+  if sort and orderdesc: sort = ".sort('%s',ascending=False)" % sort
+  if sort and not orderdesc: sort = ".sort('%s',ascending=True)" % sort
   if not sort and orderdesc: sort = ".sort_index(ascending=False)"
   if not sort and not orderdesc: sort = ".sort_index(ascending=True)"
   if limit and page:
-    #limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
+    limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
     limit = ".head(%s*%s).tail(%s)" % (limit,page,limit)
   elif limit: limit = ".head(%s)" % limit
   else: limit = ""
@@ -256,9 +256,6 @@ def query():
   
   print "Executing %s\n" % s
   recs = eval(s)
-  print "Ahi viene"
-  print recs.index
-  print "Ahi termino"
   
   if 'key_dictionary' in req:
     key_dictionary = req['key_dictionary']
