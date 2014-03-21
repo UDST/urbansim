@@ -43,8 +43,12 @@ def enable_cors():
 @route('/configs')
 def list_configs():
   def resp():
-    files = os.listdir(misc.configs_dir())
-    return files
+    files = [f for f in os.listdir(misc.configs_dir()) if f[-5:] == '.json']
+    def is_not_modelset(f):
+      c = open(os.path.join(misc.configs_dir(),f)).read()
+      c = json.loads(c)
+      return 'model' in c and c['model'] != 'modelset'
+    return filter(is_not_modelset, files)
   return wrap_request(request,response,resp())
 
 @route('/config/<configname>', method="GET")
