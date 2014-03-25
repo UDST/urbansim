@@ -33,7 +33,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'urbansim_compile = urbansim.urbansim.compilecli:main'
+            'urbansim_compile = urbansim.urbansim.compilecli:main',
+            'urbansim_serve = urbansim.server.servecli:main'
         ]
     }
 )
