@@ -199,33 +199,29 @@ def datasets_summary(name):
 
 
 @route('/compilemodel')
-def execmodel():
-    def resp():
-        print request
-        print "Request: %s\n" % request.query.config
-        req = simplejson.loads(request.query.config)
-        returnobj = modelcompile.gen_model(req)
+def compilemodel():
+    def resp(req, modelname, mode):
+        print "Request: %s\n" % req
+        req = simplejson.loads(req)
+        returnobj = modelcompile.gen_model(req, modelname, mode)
         print returnobj[1]
         return returnobj[1]
-    return wrap_request(request, response, resp())
+    modelname = request.query.get('modelname', 'autorun')
+    mode = request.query.get('mode', 'estimate')
+    req = request.query.get('json', '')
+    return wrap_request(request, response, resp(req, modelname, mode))
 
 
 @route('/execmodel')
 def execmodel():
-    def resp(estimate, simulate):
+    def resp(modelname, mode):
         print "Request: %s\n" % request.query.json
         req = simplejson.loads(request.query.json)
-        if estimate:
-            mode = "estimate"
-        elif simulate:
-            mode = "simulate"
-        else:
-            mode = "run"
-        returnobj = modelcompile.run_model(req, DSET, mode=mode)
+        returnobj = modelcompile.run_model(req, DSET, configname=modelname, mode=mode)
         return returnobj
-    estimate = int(request.query.get('estimate', 1))
-    simulate = int(request.query.get('simulate', 0))
-    return wrap_request(request, response, resp(estimate, simulate))
+    modelname = request.query.get('modelname', 'autorun')
+    mode = request.query.get('mode', 'estimate')
+    return wrap_request(request, response, resp(modelname, mode))
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
