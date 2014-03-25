@@ -59,7 +59,7 @@ print("Finished with merge in %f" % (time.time() - t_m))
 {%- if patsy %}
 print("WARNING: using patsy, ind_vars will be ignored")
 {% if patsy is string %}
-patsy = "{{patsy}}"
+patsy = "{{patsy | trim}}"
 {% else %}
 patsy = string.join({{patsy}}," + ")
 {% endif %}
