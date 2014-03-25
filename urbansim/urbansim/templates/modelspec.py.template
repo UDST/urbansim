@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import copy
 import os
+import string
 import sys
 import time
 
@@ -57,7 +58,12 @@ print("Finished with merge in %f" % (time.time() - t_m))
 {% macro SPEC(inname, outname, submodel=None, newdf=True) %}
 {%- if patsy %}
 print("WARNING: using patsy, ind_vars will be ignored")
-{{outname}} = dmatrix("{{patsy}}", data={{inname}}, return_type='dataframe')
+{% if patsy is string %}
+patsy = "{{patsy}}"
+{% else %}
+patsy = string.join({{patsy}}," + ")
+{% endif %}
+{{outname}} = dmatrix(patsy, data={{inname}}, return_type='dataframe')
 {% else -%}
 {% if newdf %}
 {{outname}} = pd.DataFrame(index={{inname}}.index)
