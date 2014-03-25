@@ -126,8 +126,8 @@ def gen_model(config, configname=None, mode=None):
 COMPILED_MODELS = {}
 
 
-def run_model(config, dset, mode="estimate"):
-    basename, model = gen_model(config, mode)
+def run_model(config, dset, configname=None, mode="estimate"):
+    basename, model = gen_model(config, configname, mode)
     model = model[mode]
     code = compile(model, '<string>', 'exec')
     ns = {}
