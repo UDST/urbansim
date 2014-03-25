@@ -29,6 +29,10 @@ def configs_dir():
     return mkifnotexists("configs")
 
 
+def charts_dir():
+    return mkifnotexists("charts")
+
+
 def runs_dir():
     return mkifnotexists("runs")
 
