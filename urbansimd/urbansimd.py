@@ -284,7 +284,7 @@ def query():
         response.content_type = "application/javascript"
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(req)
-    
+
     table = req['table']
     metric = req['metric']
     groupby = req['groupby']
@@ -293,7 +293,7 @@ def query():
     where = req['filter']
     orderdesc = req['orderdesc']
     jointoparcels = req['jointoparcels']
-  
+
     if where:
         where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
             table, where)
@@ -313,7 +313,7 @@ def query():
         limit = ""
     s = "DSET.fetch('%s')%s" % (table, where)
     s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
-    
+
     print "Executing %s\n" % s
     recs = eval(s)
     
