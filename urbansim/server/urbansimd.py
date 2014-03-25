@@ -12,11 +12,7 @@ import numpy
 import pandas as pd
 import simplejson
 from bottle import Bottle, route, run, response, hook, request, post
-from django.http import HttpResponse
-from django.conf import settings
 
-sys.path.insert(0, ".")
-import dataset
 from urbansim.urbansim import modelcompile
 from urbansim.utils import misc
 
@@ -333,16 +329,11 @@ def query():
     return jsonp(request, s)
 
 
-def start_service(port=8765, host='localhost'):
+def start_service(dset, port=8765, host='localhost'):
+    global DSET
+    DSET = dset
 
-    try:
-        settings.configure()
-    except:
-        pass
     run(host=host, port=port, debug=True, server='tornado')
 
 if __name__ == '__main__':
-    global DSET
-    args = sys.argv[1:]
-    DSET = dataset.BayAreaDataset(args[0])
     start_service()

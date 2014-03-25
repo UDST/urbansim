@@ -16,7 +16,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
-    packages=find_packages(exclude=['urbansimd', '*.tests']),
+    packages=find_packages(exclude=['*.tests']),
     package_data={'urbansim.urbansim': ['templates/*.template']},
     install_requires=[
         'Django>=1.6.2',
@@ -33,7 +33,8 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'urbansim_compile = urbansim.urbansim.compilecli:main'
+            'urbansim_compile = urbansim.urbansim.compilecli:main',
+            'urbansim_serve = urbansim.server.servecli:main'
         ]
     }
 )
