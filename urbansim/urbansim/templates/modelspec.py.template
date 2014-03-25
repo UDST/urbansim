@@ -57,7 +57,10 @@ print("Finished with merge in %f" % (time.time() - t_m))
 {% macro SPEC(inname, outname, submodel=None, newdf=True) %}
 {%- if patsy %}
 print("WARNING: using patsy, ind_vars will be ignored")
-{{outname}} = dmatrix("{{patsy}}", data={{inname}}, return_type='dataframe')
+{{outname}} = dmatrix(
+    "{{patsy | trim}}",
+    data={{inname}},
+    return_type='dataframe')
 {% else -%}
 {% if newdf %}
 {{outname}} = pd.DataFrame(index={{inname}}.index)
