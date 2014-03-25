@@ -17,7 +17,7 @@ install:
     # install urbansim
     - pip install .
 script:
-    - pep8 urbansim scripts urbansimd
+    - pep8 urbansim scripts
     - py.test --cov urbansim --cov-report term-missing
 after_success:
     - coveralls
