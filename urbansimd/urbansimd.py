@@ -61,10 +61,14 @@ def enable_cors():
 
 @route('/configs')
 def list_configs():
-    def resp():
-        files = os.listdir(misc.configs_dir())
-        return files
-    return wrap_request(request, response, resp())
+  def resp():
+    files = [f for f in os.listdir(misc.configs_dir()) if f[-5:] == '.json']
+    def not_modelset(f):
+      c = open(os.path.join(misc.configs_dir(),f)).read()
+      c = json.loads(c)
+      return 'model' in c and c['model'] != 'modelset'
+    return filter(not_modelset, files)
+  return wrap_request(request,response,resp())
 
 
 @route('/config/<configname>', method="GET")
@@ -89,6 +93,37 @@ def write_config(configname):
         print s
         return open(os.path.join(misc.configs_dir(), configname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+@route('/charts')
+def list_charts():
+  def resp():
+    files = os.listdir(misc.charts_dir())
+    return files
+  return wrap_request(request,response,resp())
+    
+
+@route('/chart/<chartname>', method="GET")
+def read_config(chartname):
+  def resp():
+    c = open(os.path.join(misc.charts_dir(),chartname)).read()
+    return simplejson.loads(c)
+  return wrap_request(request,response,resp())
+
+
+@route('/chart/<chartname>', method="OPTIONS")
+def ans_opt(chartname):
+    return {}
+
+
+@route('/chart/<chartname>', method="PUT")
+def write_config(chartname):
+  json = request.json
+  def resp():
+    s = simplejson.dumps(json,indent=4)
+    print s
+    return open(os.path.join(misc.charts_dir(),chartname),"w").write(s)
+  return wrap_request(request,response,resp())
 
 
 @route('/datasets')
@@ -242,14 +277,14 @@ def datasets_records(name):
     return wrap_request(request, response, resp(name))
 
 
-@route('/query', method=['OPTIONS', 'GET', 'POST'])
+@route('/makechart', method=['OPTIONS','GET','POST'])
 def query():
     req = request.query.json
     if (request.query.callback):
         response.content_type = "application/javascript"
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(req)
-
+    
     table = req['table']
     metric = req['metric']
     groupby = req['groupby']
@@ -258,7 +293,7 @@ def query():
     where = req['filter']
     orderdesc = req['orderdesc']
     jointoparcels = req['jointoparcels']
-
+  
     if where:
         where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
             table, where)
@@ -278,13 +313,24 @@ def query():
         limit = ""
     s = "DSET.fetch('%s')%s" % (table, where)
     s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
-
+    
     print "Executing %s\n" % s
     recs = eval(s)
-    recs = [[int(x), float(recs.ix[x])] for x in recs.index]
-    s = simplejson.dumps({'records': recs}, use_decimal=True)
+    
+    if 'key_dictionary' in req:
+        key_dictionary = req['key_dictionary']
+        #not sure /configs is the proper place to save dicts
+        dictionary_file = open("configs/" + key_dictionary).read()
+        dictionary = json.loads(dictionary_file)
+        #attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
+        recs = [[dictionary[str(int(x))],float(recs.ix[x])/1000] 
+            for x in recs.index]
+    else:
+        recs = [[x,float(recs.ix[x])/1000] for x in recs.index]
+    
+    s = simplejson.dumps([{'key':'', 'values': recs}], use_decimal=True)    
     print "Response: %s\n" % s
-    return jsonp(request, s)
+    return jsonp(request,s)
 
 
 def start_service(port=8765, host='localhost'):
