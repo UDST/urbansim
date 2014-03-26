@@ -19,6 +19,8 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     package_data={'urbansim.urbansim': ['templates/*.template']},
     install_requires=[
+        'bottle>=0.12.5',
+        'cliff>=1.5.2',
         'Django>=1.6.2',
         'jinja2>=2.7.2',
         'numpy>=1.8.0',
@@ -33,8 +35,11 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'urbansim_compile = urbansim.urbansim.compilecli:main',
-            'urbansim_serve = urbansim.server.servecli:main'
+            'urbansim = urbansim.cli:main'
+        ],
+        'urbansim.commands': [
+            'compile = urbansim.urbansim.compilecli:Compile',
+            'serve = urbansim.server.servecli:Serve'
         ]
     }
 )

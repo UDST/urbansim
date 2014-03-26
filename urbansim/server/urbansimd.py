@@ -236,7 +236,7 @@ def pandas_statement(table, where, sort, orderdesc, groupby, metric,
     if not sort and not orderdesc:
         sort = ".sort_index(ascending=True)"
     if limit and page:
-        #limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
+        # limit = ".iloc[%s*(%s-1):%s*%s]" % (limit,page,limit,page)
         limit = ".head(%s*%s).tail(%s)" % (limit, page, limit)
     elif limit:
         limit = ".head(%s)" % limit
@@ -315,10 +315,10 @@ def query():
 
     if 'key_dictionary' in req:
         key_dictionary = req['key_dictionary']
-        #not sure /configs is the proper place to save dicts
+        # not sure /configs is the proper place to save dicts
         dictionary_file = open("configs/" + key_dictionary).read()
         dictionary = json.loads(dictionary_file)
-        #attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
+        # attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
         recs = [[dictionary[str(int(x))], float(recs.ix[x]) / 1000]
                 for x in recs.index]
     else:
