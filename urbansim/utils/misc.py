@@ -139,9 +139,6 @@ def resultstocsv(fit, fnames, results, filename, hedonic=False, tolatex=True,
             fit, fnames, results, filename, hedonic, tblname=tblname)
     results = maketable(fnames, results)
     f = open(os.path.join(output_dir(), filename), 'w')
-    #if hedonic: f.write('R-squared,%f\nAdj-R-squared,%f\n\n\n'%fit)
-    # else: f.write('null loglik,%f\nconverged loglik,%f\nloglik
-    # ratio,%f\n\n\n'%fit)
     csvf = csv.writer(f, lineterminator='\n')
     for row in results:
         csvf.writerow(row)
