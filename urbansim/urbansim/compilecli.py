@@ -3,6 +3,8 @@ from __future__ import print_function
 import argparse
 import os.path
 
+from cliff.command import Command
+
 from urbansim.urbansim import modelcompile
 from urbansim.utils import misc
 
@@ -26,17 +28,19 @@ def model_save(config):
             f.write(code)
 
 
-def parse_args(args=None):
-    parser = argparse.ArgumentParser(
-        description=('Compile a set of Python files that run models '
-                     'specified in JSON configuration files.'))
-    parser.add_argument(
-        'configs', nargs='+', help='JSON model configuration files.')
-    return parser.parse_args(args)
+class Compile(Command):
+    def get_description(self):
+        return ('Compile a set of Python files that run models '
+                'specified in configuration files.')
 
+    def get_parser(self, prog_name):
+        parser = argparse.ArgumentParser(
+            description=self.get_description(),
+            prog=prog_name)
+        parser.add_argument(
+            'configs', nargs='+', help='Model configuration files.')
+        return parser
 
-def main(args=None):
-    args = parse_args(args)
-
-    for c in args.configs:
-        model_save(c)
+    def take_action(self, args):
+        for c in args.configs:
+            model_save(c)
