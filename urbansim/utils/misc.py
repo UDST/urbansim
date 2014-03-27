@@ -33,6 +33,10 @@ def charts_dir():
     return mkifnotexists("charts")
 
 
+def maps_dir():
+    return mkifnotexists("maps")
+
+
 def runs_dir():
     return mkifnotexists("runs")
 

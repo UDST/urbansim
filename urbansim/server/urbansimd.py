@@ -125,6 +125,38 @@ def write_config(chartname):
     return wrap_request(request, response, resp())
 
 
+@route('/maps')
+def list_maps():
+    def resp():
+        files = os.listdir(misc.maps_dir())
+        return files
+    return wrap_request(request, response, resp())
+
+
+@route('/map/<mapname>', method="GET")
+def read_config(mapname):
+    def resp():
+        c = open(os.path.join(misc.maps_dir(), mapname)).read()
+        return simplejson.loads(c)
+    return wrap_request(request, response, resp())
+
+
+@route('/map/<mapname>', method="OPTIONS")
+def ans_opt(mapname):
+    return {}
+
+
+@route('/map/<mapname>', method="PUT")
+def write_config(mapname):
+    json = request.json
+
+    def resp():
+        s = simplejson.dumps(json, indent=4)
+        print s
+        return open(os.path.join(misc.map_dir(), mapname), "w").write(s)
+    return wrap_request(request, response, resp())
+
+
 @route('/datasets')
 def list_datasets():
     def resp():
