@@ -313,14 +313,14 @@ def query():
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(req)
 
-    table = req.get('table','')
-    metric = req.get('metric','')
-    groupby = req.get('groupby','')
-    sort = req.get('sort','')
-    limit = req.get('limit','')
-    where = req.get('filter','')
-    orderdesc = req.get('orderdesc','')
-    jointoparcels = req.get('jointoparcels','')
+    table = req.get('table', '')
+    metric = req.get('metric', '')
+    groupby = req.get('groupby', '')
+    sort = req.get('sort', '')
+    limit = req.get('limit', '')
+    where = req.get('filter', '')
+    orderdesc = req.get('orderdesc', '')
+    jointobuildings = req.get('jointobuildings', False)
 
     if where:
         where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
@@ -339,7 +339,9 @@ def query():
         limit = ".head(%s)" % limit
     else:
         limit = ""
-    s = "DSET.fetch('%s')%s" % (table, where)
+
+    s = "DSET.fetch('%s',addzoneid=%s)%s" % (table, str(jointobuildings), where)
+
     s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
 
     print "Executing %s\n" % s
