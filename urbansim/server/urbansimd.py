@@ -313,14 +313,14 @@ def query():
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(req)
 
-    table = req['table']
-    metric = req['metric']
-    groupby = req['groupby']
-    sort = req['sort']
-    limit = req['limit']
-    where = req['filter']
-    orderdesc = req['orderdesc']
-    jointoparcels = req['jointoparcels']
+    table = req.get('table','')
+    metric = req.get('metric','')
+    groupby = req.get('groupby','')
+    sort = req.get('sort','')
+    limit = req.get('limit','')
+    where = req.get('filter','')
+    orderdesc = req.get('orderdesc','')
+    jointoparcels = req.get('jointoparcels','')
 
     if where:
         where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
