@@ -153,7 +153,7 @@ def write_config(mapname):
     def resp():
         s = simplejson.dumps(json, indent=4)
         print s
-        return open(os.path.join(misc.map_dir(), mapname), "w").write(s)
+        return open(os.path.join(misc.maps_dir(), mapname), "w").write(s)
     return wrap_request(request, response, resp())
 
 
