@@ -298,7 +298,7 @@ def return_data(item):
 @route('/datasets')
 def list_datasets():
     def resp():
-        return dset.list_tbls()
+        return DSET.list_tbls()
     return wrap_request(request, response, resp())
 
 
@@ -312,25 +312,25 @@ def columns_dataset(name):
 @route('/dataset_read')
 def dataset_read():
     def resp():
-        url = request.query.get('url', none)
-        storename = request.query.get('outname', none)
-        dset.save_tmptbl(storename, pd.read_csv(url))
-        return dset.list_tbls()
+        url = request.query.get('url', None)
+        storename = request.query.get('outname', None)
+        DSET.save_tmptbl(storename, pd.read_csv(url))
+        return DSET.list_tbls()
     return wrap_request(request, response, resp())
 
 
 @route('/merge_datasets/<leftname>/<rightname>/<lefton>/<righton>/<how>/<outname>')
 def merge_datasets(leftname, rightname, lefton, righton, how, outname):
     def resp(leftname, rightname, lefton, righton, how, outname):
-        left_index = right_index = false
+        left_index = right_index = False
         if lefton == "index":
-            lefton = none
-            left_index = true
+            lefton = None
+            left_index = True
         if righton == "index":
-            righton = none
-            right_index = true
-        left = dset.fetch(leftname)
-        right = dset.fetch(rightname)
+            righton = None
+            right_index = True
+        left = DSET.fetch(leftname)
+        right = DSET.fetch(rightname)
         df = pd.merge(left, right, left_on=lefton, right_on=righton,
                       left_index=left_index, right_index=right_index, how=how)
         DSET.save_tmptbl(outname, df)
