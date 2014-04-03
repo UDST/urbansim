@@ -286,7 +286,7 @@ def return_data(item):
                 </nvd3-multi-bar-chart>
                         """ % (config['desc'], item, item[:-5],
                                config['groupby'], config['metric'])
-                        #ids wouldnt work without [:-5]
+            # ids wouldnt work without [:-5]
             s = simplejson.dumps(
                 {'template': template, 'data': [{'key': '', 'values': recs}]},
                 use_decimal=True
