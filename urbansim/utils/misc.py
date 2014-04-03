@@ -41,6 +41,10 @@ def runs_dir():
     return mkifnotexists("runs")
 
 
+def reports_dir():
+    return mkifnotexists("reports")
+
+
 def coef_dir():
     return mkifnotexists("coeffs")
 
