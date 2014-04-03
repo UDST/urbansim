@@ -125,6 +125,68 @@ def write_config(chartname):
     return wrap_request(request, response, resp())
 
 
+@route('/chartdata', method=['OPTIONS', 'GET', 'POST'])
+def query():
+    req = request.query.json
+    if (request.query.callback):
+        response.content_type = "application/javascript"
+    print "Request: %s\n" % request.query.json
+    req = simplejson.loads(req)
+    recs = get_chart_data(req)
+    s = simplejson.dumps([{'key': '', 'values': recs}], use_decimal=True)
+    print "Response: %s\n" % s
+    return jsonp(request, s)
+
+
+def get_chart_data(req):
+    table = req.get('table', '')
+    metric = req.get('metric', '')
+    groupby = req.get('groupby', '')
+    sort = req.get('sort', '')
+    limit = req.get('limit', '')
+    where = req.get('filter', '')
+    orderdesc = req.get('orderdesc', '')
+    jointobuildings = req.get('jointobuildings', False)
+
+    if where:
+        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
+            table, where)
+    else:
+        where = ""
+    if sort and orderdesc:
+        sort = ".order(ascending=False)"
+    if sort and not orderdesc:
+        sort = ".order(ascending=True)"
+    if not sort and orderdesc:
+        sort = ".sort_index(ascending=False)"
+    if not sort and not orderdesc:
+        sort = ".sort_index(ascending=True)"
+    if limit:
+        limit = ".head(%s)" % limit
+    else:
+        limit = ""
+
+    s = "DSET.fetch('%s',addzoneid=%s)%s" % (table, str(jointobuildings), where)
+
+    s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
+
+    print "Executing %s\n" % s
+    recs = eval(s)
+
+    if 'key_dictionary' in req:
+        key_dictionary = req['key_dictionary']
+        # not sure /configs is the proper place to save dicts
+        dictionary_file = open("configs/" + key_dictionary).read()
+        dictionary = json.loads(dictionary_file)
+        # attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
+        recs = [[dictionary[str(int(x))], float(recs.ix[x]) / 1000]
+                for x in recs.index]
+    else:
+        recs = [[x, float(recs.ix[x]) / 1000] for x in recs.index]
+
+    return recs
+
+
 @route('/maps')
 def list_maps():
     def resp():
@@ -155,6 +217,82 @@ def write_config(mapname):
         print s
         return open(os.path.join(misc.maps_dir(), mapname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+@route('/reports')
+def list_reports():
+    def resp():
+        files = os.listdir(misc.reports_dir())
+        return files
+    return wrap_request(request, response, resp())
+
+
+@route('/report/<reportname>', method="GET")
+def read_config(reportname):
+    def resp():
+        c = open(os.path.join(misc.reports_dir(), reportname)).read()
+        return simplejson.loads(c)
+    return wrap_request(request, response, resp())
+
+
+@route('/report/<reportname>', method="OPTIONS")
+def ans_opt(reportname):
+    return {}
+
+
+@route('/report/<reportname>', method="PUT")
+def write_config(reportname):
+    json = request.json
+
+    def resp():
+        s = simplejson.dumps(json, indent=4)
+        print s
+        return open(os.path.join(misc.reports_dir(), reportname), "w").write(s)
+    return wrap_request(request, response, resp())
+
+
+@route('/report_data/<item>', method="GET")
+def return_data(item):
+    def isChart(i):
+        return True
+
+    if isChart(item):
+        config = open(os.path.join(misc.charts_dir(), item)).read()
+        config = json.loads(config)
+
+        def chart_type(c):
+            return "bar-chart"
+
+        if chart_type(item) == "bar-chart":
+            recs = get_chart_data(config)
+            template = """
+                <h2>%s</h2>
+                <nvd3-multi-bar-chart
+                        data="report_data['%s'].data"
+                        id="%s"
+                        height="300"
+                        margin="{top: 10, right: 10, bottom: 10 , left: 80}"
+                        interactive="true"
+                        tooltips="true"
+                        showxaxis="true"
+                        xaxislabel="%s"
+                        yaxislabel="%s in thousands"
+                        showyaxis="true"
+                        xaxisrotatelabels="0"
+                        width="600"
+                        nodata="an error occurred in the chart"
+                        >
+                    <svg></svg>
+                </nvd3-multi-bar-chart>
+                        """ % (config['desc'], item, item[:-5],
+                               config['groupby'], config['metric'])
+            # ids wouldnt work without [:-5]
+            s = simplejson.dumps(
+                {'template': template, 'data': [{'key': '', 'values': recs}]},
+                use_decimal=True
+                )
+            print "response: %s\n" % s
+            return jsonp(request, s)
 
 
 @route('/datasets')
@@ -303,64 +441,6 @@ def datasets_records(name):
         d["labels"] = recs.columns.tolist()
         return d
     return wrap_request(request, response, resp(name))
-
-
-@route('/makechart', method=['OPTIONS', 'GET', 'POST'])
-def query():
-    req = request.query.json
-    if (request.query.callback):
-        response.content_type = "application/javascript"
-    print "Request: %s\n" % request.query.json
-    req = simplejson.loads(req)
-
-    table = req.get('table', '')
-    metric = req.get('metric', '')
-    groupby = req.get('groupby', '')
-    sort = req.get('sort', '')
-    limit = req.get('limit', '')
-    where = req.get('filter', '')
-    orderdesc = req.get('orderdesc', '')
-    jointobuildings = req.get('jointobuildings', False)
-
-    if where:
-        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
-            table, where)
-    else:
-        where = ""
-    if sort and orderdesc:
-        sort = ".order(ascending=False)"
-    if sort and not orderdesc:
-        sort = ".order(ascending=True)"
-    if not sort and orderdesc:
-        sort = ".sort_index(ascending=False)"
-    if not sort and not orderdesc:
-        sort = ".sort_index(ascending=True)"
-    if limit:
-        limit = ".head(%s)" % limit
-    else:
-        limit = ""
-
-    s = "DSET.fetch('%s',addzoneid=%s)%s" % (table, str(jointobuildings), where)
-
-    s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
-
-    print "Executing %s\n" % s
-    recs = eval(s)
-
-    if 'key_dictionary' in req:
-        key_dictionary = req['key_dictionary']
-        # not sure /configs is the proper place to save dicts
-        dictionary_file = open("configs/" + key_dictionary).read()
-        dictionary = json.loads(dictionary_file)
-        # attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
-        recs = [[dictionary[str(int(x))], float(recs.ix[x]) / 1000]
-                for x in recs.index]
-    else:
-        recs = [[x, float(recs.ix[x]) / 1000] for x in recs.index]
-
-    s = simplejson.dumps([{'key': '', 'values': recs}], use_decimal=True)
-    print "Response: %s\n" % s
-    return jsonp(request, s)
 
 
 def start_service(dset, port=8765, host='localhost'):
