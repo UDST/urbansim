@@ -305,7 +305,7 @@ def list_datasets():
 @route('/datasets/<name>/columns')
 def columns_dataset(name):
     def resp():
-        return dset.fetch(name).columns.tolist()
+        return DSET.fetch(name).columns.tolist()
     return wrap_request(request, response, resp())
 
 
