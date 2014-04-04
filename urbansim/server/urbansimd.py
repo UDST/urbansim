@@ -271,7 +271,7 @@ def return_data(item):
                         data="report_data['%s'].data"
                         id="%s"
                         height="300"
-                        margin="{top: 10, right: 10, bottom: 10 , left: 80}"
+                        margin="{top: 10, right: 10, bottom: 50 , left: 80}"
                         interactive="true"
                         tooltips="true"
                         showxaxis="true"
