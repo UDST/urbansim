@@ -253,8 +253,11 @@ def write_config(reportname):
 
 @route('/report_data/<item>', method="GET")
 def return_data(item):
+    recs = None
+    config = None
+    template = None
     def isChart(i):
-        return True
+        return False
 
     if isChart(item):
         config = open(os.path.join(misc.charts_dir(), item)).read()
@@ -287,13 +290,23 @@ def return_data(item):
                         """ % (config['desc'], item, item[:-5],
                                config['groupby'], config['metric'])
             # ids wouldnt work without [:-5]
-            s = simplejson.dumps(
-                {'template': template, 'data': [{'key': '', 'values': recs}]},
-                use_decimal=True
-                )
-            print "response: %s\n" % s
-            return jsonp(request, s)
+    else:   # map
+        config = open(os.path.join(misc.maps_dir(), item)).read()
+        config = json.loads(config)
+        recs = get_chart_data(config)
+        template = """
+            <div id="%s" mapdirective style="height: 500px; width: 100%%;"></div>
+                   """ % (item)
 
+                    
+
+    s = simplejson.dumps(
+            {'template': template, 'data': [{'key': '', 'values': recs}], 'config': config},
+        use_decimal=True
+        )
+    print "response: %s\n" % s
+    return jsonp(request, s)
+    
 
 @route('/datasets')
 def list_datasets():
