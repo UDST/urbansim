@@ -256,8 +256,9 @@ def return_data(item):
     recs = None
     config = None
     template = None
+
     def isChart(i):
-        return False
+        return "chart" in i
 
     if isChart(item):
         config = open(os.path.join(misc.charts_dir(), item)).read()
@@ -269,11 +270,11 @@ def return_data(item):
         if chart_type(item) == "bar-chart":
             recs = get_chart_data(config)
             template = """
-                <h2>%s</h2>
+                <h2 style="text-align: center;">%s</h2>
                 <nvd3-multi-bar-chart
                         data="report_data['%s'].data"
                         id="%s"
-                        height="300"
+                        height="500"
                         margin="{top: 10, right: 10, bottom: 50 , left: 80}"
                         interactive="true"
                         tooltips="true"
@@ -282,31 +283,31 @@ def return_data(item):
                         yaxislabel="%s in thousands"
                         showyaxis="true"
                         xaxisrotatelabels="0"
-                        width="600"
                         nodata="an error occurred in the chart"
                         >
                     <svg></svg>
                 </nvd3-multi-bar-chart>
                         """ % (config['desc'], item, item[:-5],
                                config['groupby'], config['metric'])
-            # ids wouldnt work without [:-5]
+            # ids wouldn't not work without the [:-5]
     else:   # map
         config = open(os.path.join(misc.maps_dir(), item)).read()
         config = json.loads(config)
         recs = get_chart_data(config)
         template = """
-            <div id="%s" mapdirective style="height: 500px; width: 100%%;"></div>
-                   """ % (item)
-
-                    
+            <h2 style="text-align: center;">%s</h2>
+            <div id="%s" mapdirective style="height: 500px; width: 100%%;">
+            </div>
+                   """ % (config['desc'], item)
 
     s = simplejson.dumps(
-            {'template': template, 'data': [{'key': '', 'values': recs}], 'config': config},
+        {'template': template, 'data': [{'key': '', 'values': recs}],
+            'config': config},
         use_decimal=True
         )
     print "response: %s\n" % s
     return jsonp(request, s)
-    
+
 
 @route('/datasets')
 def list_datasets():
