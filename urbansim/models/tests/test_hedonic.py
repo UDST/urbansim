@@ -40,4 +40,12 @@ def test_apply_filter_query_or(test_df):
     pdt.assert_frame_equal(filtered, expected)
 
 
+def test_apply_filter_query_no_filter(test_df):
+    filters = []
+    filtered = hedonic.apply_filter_query(test_df, filters)
+    expected = test_df
+    pdt.assert_frame_equal(filtered, expected)
 
+
+# def test_fit_model(test_df):
+#     filters = []
