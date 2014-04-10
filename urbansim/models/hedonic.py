@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
+from .. exceptions import ModelEvaluationError
+
 
 def apply_filter_query(df, filters=None):
     """
@@ -81,6 +83,13 @@ def predict(df, filters, model_fit, ytransform=None):
     """
     df = apply_filter_query(df, filters)
     sim_data = model_fit.predict(df)
+
+    if len(sim_data) != len(df):
+        raise ModelEvaluationError(
+            'Predicted data does not have the same length as input. '
+            'This suggests there are null values in one or more of '
+            'the input columns.')
+
     if ytransform:
         sim_data = ytransform(sim_data)
     return pd.Series(sim_data, index=df.index)
@@ -159,5 +168,7 @@ class HedonicModel(object):
             after applying filters.
 
         """
+        if not self.model_fit:
+            raise RuntimeError('Model has not been fit.')
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)

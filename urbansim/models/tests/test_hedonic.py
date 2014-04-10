@@ -5,6 +5,7 @@ from pandas.util import testing as pdt
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 
 from .. import hedonic
+from ...exceptions import ModelEvaluationError
 
 
 @pytest.fixture
@@ -77,6 +78,18 @@ def test_predict_ytransform(test_df):
     pdt.assert_series_equal(predicted, expected)
 
 
+def test_predict_with_nans():
+    df = pd.DataFrame(
+        {'col1': range(5),
+         'col2': [5, 6, pd.np.nan, 8, 9]},
+        index=['a', 'b', 'c', 'd', 'e'])
+    fit = hedonic.fit_model(df.loc[['a', 'b', 'e']], None, 'col1 ~ col2')
+
+    with pytest.raises(ModelEvaluationError):
+        hedonic.predict(
+            df.loc[['c', 'd']], None, fit)
+
+
 def test_HedonicModel(test_df):
     fit_filters = ['col1 in [0, 2, 4]']
     predict_filters = ['col1 in [1, 3]']
@@ -92,6 +105,10 @@ def test_HedonicModel(test_df):
     assert model.ytransform == ytransform
     assert model.name == name
     assert model.model_fit is None
+
+    # verify there's an error if there isn't a model fit yet
+    with pytest.raises(RuntimeError):
+        model.predict(test_df)
 
     fit = model.fit_model(test_df)
     assert isinstance(fit, RegressionResultsWrapper)
