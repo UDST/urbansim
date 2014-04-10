@@ -2,6 +2,8 @@ import pandas as pd
 import pytest
 from pandas.util import testing as pdt
 
+from statsmodels.regression.linear_model import RegressionResultsWrapper
+
 from .. import hedonic
 
 
@@ -47,5 +49,29 @@ def test_apply_filter_query_no_filter(test_df):
     pdt.assert_frame_equal(filtered, expected)
 
 
-# def test_fit_model(test_df):
-#     filters = []
+def test_fit_model(test_df):
+    filters = []
+    model_exp = 'col1 ~ col2'
+    fit = hedonic.fit_model(test_df, filters, model_exp)
+    assert isinstance(fit, RegressionResultsWrapper)
+
+
+def test_predict(test_df):
+    filters = ['col1 in [0, 2, 4]']
+    model_exp = 'col1 ~ col2'
+    fit = hedonic.fit_model(test_df, filters, model_exp)
+    predicted = hedonic.predict(
+        test_df.query('col1 in [1, 3]'), None, fit)
+    expected = pd.Series([1., 3.], index=['b', 'd'])
+    pdt.assert_series_equal(predicted, expected)
+
+
+def test_predict_ytransform(test_df):
+    yt = lambda x: x / 2.
+    filters = ['col1 in [0, 2, 4]']
+    model_exp = 'col1 ~ col2'
+    fit = hedonic.fit_model(test_df, filters, model_exp)
+    predicted = hedonic.predict(
+        test_df.query('col1 in [1, 3]'), None, fit, ytransform=yt)
+    expected = pd.Series([0.5, 1.5], index=['b', 'd'])
+    pdt.assert_series_equal(predicted, expected)
