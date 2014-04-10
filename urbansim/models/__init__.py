@@ -1,1 +1,1 @@
-from .hedonic import HedonicModel
+from .hedonic import HedonicModel, HedonicModelGroup
