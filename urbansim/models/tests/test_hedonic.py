@@ -75,3 +75,28 @@ def test_predict_ytransform(test_df):
         test_df.query('col1 in [1, 3]'), None, fit, ytransform=yt)
     expected = pd.Series([0.5, 1.5], index=['b', 'd'])
     pdt.assert_series_equal(predicted, expected)
+
+
+def test_HedonicModel(test_df):
+    fit_filters = ['col1 in [0, 2, 4]']
+    predict_filters = ['col1 in [1, 3]']
+    model_exp = 'col1 ~ col2'
+    ytransform = lambda x: x / 2.
+    name = 'test hedonic'
+
+    model = hedonic.HedonicModel(
+        fit_filters, predict_filters, model_exp, ytransform, name)
+    assert model.fit_filters == fit_filters
+    assert model.predict_filters == predict_filters
+    assert model.model_expression == model_exp
+    assert model.ytransform == ytransform
+    assert model.name == name
+    assert model.model_fit is None
+
+    fit = model.fit_model(test_df)
+    assert isinstance(fit, RegressionResultsWrapper)
+    assert isinstance(model.model_fit, RegressionResultsWrapper)
+
+    predicted = model.predict(test_df)
+    expected = pd.Series([0.5, 1.5], index=['b', 'd'])
+    pdt.assert_series_equal(predicted, expected)
