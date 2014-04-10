@@ -16,6 +16,12 @@ def test_df():
         index=['a', 'b', 'c', 'd', 'e'])
 
 
+@pytest.fixture
+def groupby_df(test_df):
+    test_df['group'] = ['x', 'y', 'x', 'x', 'y']
+    return test_df
+
+
 def test_apply_filter_query(test_df):
     filters = ['col1 < 3', 'col2 > 6']
     filtered = hedonic.apply_filter_query(test_df, filters)
@@ -117,3 +123,26 @@ def test_HedonicModel(test_df):
     predicted = model.predict(test_df)
     expected = pd.Series([0.5, 1.5], index=['b', 'd'])
     pdt.assert_series_equal(predicted, expected)
+
+
+def test_HedonicModelGroup(groupby_df):
+    model_exp = 'col1 ~ col2'
+
+    hmg = hedonic.HedonicModelGroup('group')
+
+    xmodel = hedonic.HedonicModel(None, None, model_exp, name='x')
+    hmg.add_model(xmodel)
+    assert isinstance(hmg.models['x'], hedonic.HedonicModel)
+
+    hmg.add_model_from_params('y', None, None, model_exp)
+    assert isinstance(hmg.models['y'], hedonic.HedonicModel)
+    assert hmg.models['y'].name == 'y'
+
+    fits = hmg.fit_models(groupby_df)
+    assert isinstance(fits['x'], RegressionResultsWrapper)
+    assert isinstance(fits['y'], RegressionResultsWrapper)
+
+    predicted = hmg.predict(groupby_df)
+    assert isinstance(predicted, pd.Series)
+    pdt.assert_series_equal(
+        predicted.sort_index(), groupby_df.col1, check_dtype=False)

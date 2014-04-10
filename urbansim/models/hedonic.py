@@ -116,7 +116,7 @@ class HedonicModel(object):
         the results reflect actual price.
 
         By default no transformation is applied.
-    name : str, optional
+    name : optional
         Optional descriptive name for this model that may be used
         in output.
 
@@ -172,3 +172,127 @@ class HedonicModel(object):
             raise RuntimeError('Model has not been fit.')
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)
+
+
+class HedonicModelGroup(object):
+    """
+    Manages a group of hedonic models that refer to different segments
+    within a single table.
+
+    Model names must match the segment names after doing a Pandas groupby.
+
+    Parameters
+    ----------
+    segmentation_col : str
+        Name of the column on which to segment.
+
+    """
+    def __init__(self, segmentation_col):
+        self.segmentation_col = segmentation_col
+        self.models = {}
+
+    def add_model(self, model):
+        """
+        Add a `HedonicModel` instance.
+
+        Parameters
+        ----------
+        model : `HedonicModel`
+            Should have a ``.name`` attribute matching one of
+            the groupby segments.
+
+        """
+        self.models[model.name] = model
+
+    def add_model_from_params(self, name, fit_filters, predict_filters,
+                              model_expression, ytransform=None):
+        """
+        Add a model by passing arguments through to `HedonicModel`.
+
+        Parameters
+        ----------
+        name : any
+            Must match a groupby segment name.
+        fit_filters : list of str
+            Filters applied before fitting the model.
+        predict_filters : list of str
+            Filters applied before calculating new data points.
+        model_expression : str
+            A patsy model expression that can be used with statsmodels.
+            Should contain both the left- and right-hand sides.
+        ytransform : callable, optional
+            A function to call on the array of predicted output.
+            For example, if the model relation is predicting the log
+            of price, you might pass ``ytransform=np.exp`` so that
+            the results reflect actual price.
+
+            By default no transformation is applied.
+
+        """
+        model = HedonicModel(
+            fit_filters, predict_filters, model_expression, ytransform, name)
+        self.models[name] = model
+
+    def _iter_groups(self, data):
+        """
+        Iterate over the groups in `data` after grouping by
+        `segmentation_col`. Skips any groups for which there
+        is no model stored.
+
+        Yields tuples of (name, df) where name is the group key
+        and df is the group DataFrame.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Must have a column with the same name as `segmentation_col`.
+
+        """
+        groups = data.groupby(self.segmentation_col)
+
+        for name, df in groups:
+            if name not in self.models:
+                # TODO: add logging of skipped groups
+                continue
+            else:
+                yield name, df
+
+    def fit_models(self, data):
+        """
+        Fit each of the models in the group.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Must have a column with the same name as `segmentation_col`.
+
+        Returns
+        -------
+        fits : dict of statsmodels.regression.linear_model.OLSResults
+            Keys are the segment names.
+
+        """
+        return {name: self.models[name].fit_model(df)
+                for name, df in self._iter_groups(data)}
+
+    def predict(self, data):
+        """
+        Predict new data for each group in the segmentation.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to use for prediction. Must have a column with the
+            same name as `segmentation_col`.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters and minus any groups that do not have
+            models.
+
+        """
+        results = [self.models[name].predict(df)
+                   for name, df in self._iter_groups(data)]
+        return pd.concat(results)
