@@ -57,6 +57,8 @@ def mnl_simulate(data, coeff, numalts, gpu=GPU, returnprobs=0):
 
 def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
                             chosenalts=None):
+    # filter choosers and their current choices if they point to
+    # something that isn't in the alternatives table
     if chosenalts is not None:
         isin = chosenalts.isin(alternatives.index)
         removing = isin.value_counts()[False]
@@ -73,7 +75,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
 
     if SAMPLE_SIZE < numalts:
         sample = np.random.choice(
-            alternatives.index.values, SAMPLE_SIZE * choosers.shape[0])
+            alternatives.index.values, SAMPLE_SIZE * numchoosers)
         if chosenalts is not None:
             # replace with chosen alternative
             sample[::SAMPLE_SIZE] = chosenalts
@@ -97,6 +99,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     try:
         alts_sample['join_index'] = np.repeat(choosers.index, SAMPLE_SIZE)
     except:
+        # TODO: log the error here and re-raise the original exception
         raise Exception(
             "ERROR: An exception here means agents and "
             "alternatives aren't merging correctly")
@@ -108,7 +111,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     chosen = np.zeros((numchoosers, SAMPLE_SIZE))
     chosen[:, 0] = 1
 
-    return sample, alts_sample, ('mnl', chosen)
+    return sample, alts_sample, chosen
 
 
 def mnl_choice_from_sample(sample, choices, SAMPLE_SIZE):
