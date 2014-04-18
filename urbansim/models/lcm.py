@@ -61,7 +61,8 @@ class LocationChoiceModel(object):
         """
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
-        model_design = dmatrix(self.model_expression, data=merged)
+        model_design = dmatrix(
+            self.model_expression, data=merged, return_type='dataframe')
         fit, results = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
         self.fit_results = results
