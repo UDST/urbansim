@@ -1,6 +1,7 @@
 import numpy as np
 from patsy import dmatrix
 
+from . import util
 from ..urbanchoice import interaction, mnl
 
 
@@ -11,10 +12,11 @@ class LocationChoiceModel(object):
 
     Parameters
     ----------
-    fit_filters : list of str
-        Filters applied before fitting the model.
-    predict_filters : list of str
-        Filters applied before calculating new data points.
+    alts_fit_filters : list of str
+        Filters applied to the alternatives table before fitting the model.
+    alts_predict_filters : list of str
+        Filters applied to the alternatives table before calculating
+        new data points.
     model_expression : str
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
@@ -24,10 +26,10 @@ class LocationChoiceModel(object):
         in output.
 
     """
-    def __init__(self, fit_filters, predict_filters, model_expression,
-                 sample_size, name=None):
-        self.fit_filters = fit_filters
-        self.predict_filters = predict_filters
+    def __init__(self, alts_fit_filters, alts_predict_filters,
+                 model_expression, sample_size, name=None):
+        self.alts_fit_filters = alts_fit_filters
+        self.alts_predict_filters = alts_predict_filters
         # LCMs never have a constant
         self.model_expression = model_expression + ' - 1'
         self.sample_size = sample_size
@@ -59,6 +61,7 @@ class LocationChoiceModel(object):
             Log-liklihood ratio
 
         """
+        alternatives = util.apply_filter_query(self.alts_fit_filters)
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(

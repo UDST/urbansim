@@ -2,32 +2,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
+from . import util
 from .. exceptions import ModelEvaluationError
-
-
-def apply_filter_query(df, filters=None):
-    """
-    Use the DataFrame.query method to filter a table down to the
-    desired rows.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-    filters : list of str, optional
-        List of filters to apply. Will be joined together with
-        ' and ' and passed to DataFrame.query.
-        If not supplied no filtering will be done.
-
-    Returns
-    -------
-    filtered_df : pandas.DataFrame
-
-    """
-    if filters:
-        query = ' and '.join(filters)
-        return df.query(query)
-    else:
-        return df
 
 
 def fit_model(df, filters, model_expression):
@@ -50,7 +26,7 @@ def fit_model(df, filters, model_expression):
     fit : statsmodels.regression.linear_model.OLSResults
 
     """
-    df = apply_filter_query(df, filters)
+    df = util.apply_filter_query(df, filters)
     model = smf.ols(formula=model_expression, data=df)
     return model.fit()
 
@@ -81,7 +57,7 @@ def predict(df, filters, model_fit, ytransform=None):
         after applying filters.
 
     """
-    df = apply_filter_query(df, filters)
+    df = util.apply_filter_query(df, filters)
     sim_data = model_fit.predict(df)
 
     if len(sim_data) != len(df):
