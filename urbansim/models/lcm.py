@@ -1,5 +1,8 @@
+from __future__ import print_function
+
 import numpy as np
 from patsy import dmatrix
+from prettytable import PrettyTable
 
 from . import util
 from ..urbanchoice import interaction, mnl
@@ -35,6 +38,10 @@ class LocationChoiceModel(object):
         self.sample_size = sample_size
         self.name = name or 'LocationChoiceModel'
 
+        self._log_lks = None
+        self._model_columns = None
+        self.fit_results = None
+
     def fit(self, choosers, alternatives, current_choice):
         """
         Fit and save model parameters based on given data.
@@ -61,12 +68,36 @@ class LocationChoiceModel(object):
             Log-liklihood ratio
 
         """
-        alternatives = util.apply_filter_query(self.alts_fit_filters)
+        alternatives = util.apply_filter_query(
+            alternatives, self.alts_fit_filters)
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
             self.model_expression, data=merged, return_type='dataframe')
+        self._model_columns = model_design.columns
         fit, results = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
+        self._log_lks = fit
         self.fit_results = results
         return fit
+
+    def report_fit(self):
+        """
+        Print a report of the fit results.
+
+        """
+        if not self.fit_results:
+            print('Model not yet fit.')
+            return
+
+        print('Null Log-liklihood: {}'.format(self._log_lks[0]))
+        print('Log-liklihood at convergence: {}'.format(self._log_lks[1]))
+        print('Log-liklihood Ratio: {}\n'.format(self._log_lks[2]))
+
+        tbl = PrettyTable(
+            ['Component', 'Coefficient', 'Std. Error', 'T-Score'])
+        tbl.align['Component'] = 'l'
+        for c, x in zip(self._model_columns, self.fit_results):
+            tbl.add_row((c,) + x)
+
+        print(tbl)
