@@ -70,6 +70,3 @@ class LocationChoiceModel(object):
             model_design.as_matrix(), chosen, self.sample_size)
         self.fit_results = results
         return fit
-
-    def predict(self, data):
-        pass
