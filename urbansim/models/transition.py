@@ -43,6 +43,7 @@ def remove_rows(data, nrows):
     ----------
     data : DataFrame
     nrows : float
+        Number of rows to remove.
 
     Returns
     -------
@@ -50,6 +51,7 @@ def remove_rows(data, nrows):
         Table with random rows removed.
 
     """
+    nrows = abs(nrows)  # in case a negative number came in
     if nrows == 0:
         return data
     elif nrows >= len(data):
@@ -84,6 +86,38 @@ def fill_nan_ids(data):
     return data
 
 
+def _add_or_remove_rows(data, nrows, populate_ids=True):
+    """
+    Add or remove rows to/from a table. Rows are added
+    for positive `nrows` and removed for negative `nrows`.
+
+    Parameters
+    ----------
+    data : DataFrame
+    nrows : float
+        Number of rows to add or remove.
+    populate_ids : bool, optional
+        Whether to populate the index field of added rows.
+
+    Returns
+    -------
+    updated : pandas.DataFrame
+        Table with random rows removed.
+
+    """
+    if nrows > 0:
+        updated = add_rows(data, nrows)
+        if populate_ids:
+            updated = fill_nan_ids(updated)
+        return updated
+
+    elif nrows < 0:
+        return remove_rows(data, nrows)
+
+    else:
+        return data
+
+
 class GRTransitionModel(object):
     """
     Model transitions via a simple growth rate.
@@ -107,7 +141,7 @@ class GRTransitionModel(object):
         self.growth_rate = growth_rate
         self.populate_ids = populate_ids
 
-    def transition(self, data):
+    def transition(self, data, year=None):
         """
         Add or remove rows to/from a table according to the prescribed
         growth rate for this model.
@@ -116,6 +150,9 @@ class GRTransitionModel(object):
         ----------
         data : pandas.DataFrame
             Rows will be removed from or added to this table.
+        year : None, optional
+            Here for compatibility with other transition models,
+            but ignored.
 
         Returns
         -------
@@ -123,16 +160,50 @@ class GRTransitionModel(object):
             Table with rows removed or added.
 
         """
-        nrows = abs(int(round(len(data) * self.growth_rate)))
+        nrows = int(round(len(data) * self.growth_rate))
+        return _add_or_remove_rows(data, nrows, self.populate_ids)
 
-        if self.growth_rate > 0:
-            updated = add_rows(data, nrows)
-            if self.populate_ids:
-                updated = fill_nan_ids(updated)
-            return updated
 
-        elif self.growth_rate < 0:
-            return remove_rows(data, nrows)
+class TabularTransitionModel(object):
+    """
+    A transition model based on yearly population targets.
 
-        else:
-            return data
+    Parameters
+    ----------
+    targets : pandas.Series
+        Pandas series containing the population targets
+        indexed by year.
+    populate_ids : bool, optional
+        Whether to populate the index field of added rows.
+        By default they will be populated with new IDs, but you will
+        probably want to turn that off if this model is for a segment
+        of a larger table so that appropriate IDs can be added after
+        all the segments have had rows added.
+
+    """
+    def __init__(self, targets, populate_ids=True):
+        self.targets = targets
+        self.populate_ids = populate_ids
+
+    def transition(self, data, year):
+        """
+        Add or remove rows from a table based on population targets.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Rows will be removed from or added to this table.
+        year : int
+            Year number matching the index of `targets`.
+
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows removed or added.
+
+        """
+        if year not in self.targets.index:
+            raise ValueError('No targets for given year: {}'.format(year))
+
+        nrows = self.targets[year] - len(data)
+        return _add_or_remove_rows(data, nrows, self.populate_ids)
