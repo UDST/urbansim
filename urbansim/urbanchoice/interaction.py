@@ -55,6 +55,8 @@ def mnl_simulate(data, coeff, numalts, gpu=GPU, returnprobs=0):
     return mnl.mnl_simulate(data, coeff, numalts, gpu, returnprobs)
 
 
+# TODO: split this out into separate functions for estimation
+# and simulation.
 def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
                             chosenalts=None):
     # filter choosers and their current choices if they point to
@@ -73,11 +75,16 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     numchoosers = choosers.shape[0]
     numalts = alternatives.shape[0]
 
+    # TODO: this is currently broken in a situation where
+    # SAMPLE_SIZE >= numalts. That may not happen often in
+    # practical situations but it should be supported
+    # because a) why not? and b) testing.
     if SAMPLE_SIZE < numalts:
         sample = np.random.choice(
             alternatives.index.values, SAMPLE_SIZE * numchoosers)
         if chosenalts is not None:
-            # replace with chosen alternative
+            # replace the first row for each chooser with
+            # the currently chosen alternative.
             sample[::SAMPLE_SIZE] = chosenalts
     else:
         assert chosenalts is None  # if not sampling, must be simulating
