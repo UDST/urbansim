@@ -1,0 +1,98 @@
+import numbers
+
+import numpy as np
+import pandas as pd
+
+from . import util
+
+PROB_COL = 'probability_of_relocating'
+
+
+def _filterize(name, value):
+    """
+    Turn a `name` and `value` into a string expression compatible
+    the ``DataFrame.query`` method.
+
+    Parameters
+    ----------
+    name : str
+        Should be the name of a column in the table to which the
+        filter will be applied.
+
+        A suffix of '_max' will result in a "less than" filter,
+        a suffix of '_min' will result in a "greater than or equal to" filter,
+        and no recognized suffix will result in an "equal to" filter.
+    value : any
+        Value side of filter for comparison to column values.
+
+    Returns
+    -------
+    filter_exp : str
+
+    """
+    if name.endswith('_min'):
+        name = name[:-4]
+        comp = '>='
+    elif name.endswith('_max'):
+        name = name[:-4]
+        comp = '<'
+    else:
+        comp = '=='
+
+    return '{} {} {!r}'.format(name, comp, value)
+
+
+def find_movers(choosers, rates):
+    """
+    Returns an array of the indexes of the `choosers` that are slated
+    to move.
+
+    Parameters
+    ----------
+    choosers : pandas.DataFrame
+        Table of agents from which to find movers.
+    rates : pandas.DataFrame
+        Table of relocation rates. Index is unused. Must have a
+        'probability_of_relocating' column with fraction relocation
+        rates.
+
+        Other columns describe filters on the `choosers`
+        table so that different segments can have different relocation
+        rates. Columns that ends with '_max' will be used to create
+        a "less than" filters, columns that end with '_min' will be
+        used to create "greater than or equal to" filters.
+        A column with no suffix will be used to make an 'equal to' filter.
+
+        An example `rates` structure:
+
+        age_of_head_max  age_of_head_min
+                    nan               65
+                     65               40
+
+        In this example the `choosers` table would need to have an
+        'age_of_head' column on which to filter.
+
+        nan should be used to flag filters that do not apply
+        in a given row.
+
+    Returns
+    -------
+    movers : pandas.Index
+        Suitable for indexing `choosers` by index.
+
+    """
+    relocation_rates = pd.Series(
+        np.zeros(len(choosers)), index=choosers.index)
+
+    for _, row in rates.iterrows():
+        filters = [_filterize(name, val)
+                   for name, val in row.iteritems()
+                   if (name != PROB_COL and
+                       (not isinstance(val, numbers.Number) or
+                        not np.isnan(val)))]
+        indexes = util.apply_filter_query(choosers, filters).index
+        relocation_rates.loc[indexes] = row[PROB_COL]
+
+    movers = relocation_rates.index[
+        relocation_rates > np.random.random(len(choosers))]
+    return movers
