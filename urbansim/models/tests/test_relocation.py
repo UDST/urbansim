@@ -11,7 +11,8 @@ def choosers():
     return pd.DataFrame(
         {'var1': range(5),
          'var2': range(5, 10),
-         'var3': ['q', 'w', 'e', 'r', 't']},
+         'var3': ['q', 'w', 'e', 'r', 't'],
+         'building_id': range(100, 105)},
         index=['a', 'b', 'c', 'd', 'e'])
 
 
@@ -40,7 +41,14 @@ def test_find_movers(choosers, rates):
     npt.assert_array_equal(movers, ['a', 'c', 'e'])
 
 
-def test_relocation_model(choosers, rates):
+def test_relocation_model_find(choosers, rates):
     rm = relo.RelocationModel(rates)
     movers = rm.find_movers(choosers)
     npt.assert_array_equal(movers, ['a', 'c', 'e'])
+
+
+def test_relocation_model_mark(choosers, rates):
+    rm = relo.RelocationModel(rates)
+    choosers = rm.move_and_mark(choosers)
+    npt.assert_array_equal(
+        choosers.building_id, [np.nan, 101, np.nan, 103, np.nan])
