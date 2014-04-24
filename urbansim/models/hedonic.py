@@ -226,12 +226,8 @@ class HedonicModelGroup(object):
         """
         groups = data.groupby(self.segmentation_col)
 
-        for name, df in groups:
-            if name not in self.models:
-                # TODO: add logging of skipped groups
-                continue
-            else:
-                yield name, df
+        for name in self.models:
+            yield name, groups.get_group(name)
 
     def fit_models(self, data):
         """
