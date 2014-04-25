@@ -1,2 +1,2 @@
-from .hedonic import HedonicModel, HedonicModelGroup
+from .regression import RegressionModel, RegressionModelGroup
 from .lcm import LocationChoiceModel

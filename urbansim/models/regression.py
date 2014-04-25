@@ -71,7 +71,7 @@ def predict(df, filters, model_fit, ytransform=None):
     return pd.Series(sim_data, index=df.index)
 
 
-class HedonicModel(object):
+class RegressionModel(object):
     """
     A hedonic (regression) model with the ability to store an
     estimated model and predict new data based on the model.
@@ -103,7 +103,7 @@ class HedonicModel(object):
         self.predict_filters = predict_filters
         self.model_expression = model_expression
         self.ytransform = ytransform
-        self.name = name or 'HedonicModel'
+        self.name = name or 'RegressionModel'
         self.model_fit = None
 
     def fit_model(self, data):
@@ -150,9 +150,9 @@ class HedonicModel(object):
             data, self.predict_filters, self.model_fit, self.ytransform)
 
 
-class HedonicModelGroup(object):
+class RegressionModelGroup(object):
     """
-    Manages a group of hedonic models that refer to different segments
+    Manages a group of regression models that refer to different segments
     within a single table.
 
     Model names must match the segment names after doing a Pandas groupby.
@@ -169,11 +169,11 @@ class HedonicModelGroup(object):
 
     def add_model(self, model):
         """
-        Add a `HedonicModel` instance.
+        Add a `RegressionModel` instance.
 
         Parameters
         ----------
-        model : `HedonicModel`
+        model : `RegressionModel`
             Should have a ``.name`` attribute matching one of
             the groupby segments.
 
@@ -183,7 +183,7 @@ class HedonicModelGroup(object):
     def add_model_from_params(self, name, fit_filters, predict_filters,
                               model_expression, ytransform=None):
         """
-        Add a model by passing arguments through to `HedonicModel`.
+        Add a model by passing arguments through to `RegressionModel`.
 
         Parameters
         ----------
@@ -205,7 +205,7 @@ class HedonicModelGroup(object):
             By default no transformation is applied.
 
         """
-        model = HedonicModel(
+        model = RegressionModel(
             fit_filters, predict_filters, model_expression, ytransform, name)
         self.models[name] = model
 

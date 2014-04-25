@@ -4,7 +4,7 @@ from pandas.util import testing as pdt
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 
-from .. import hedonic
+from .. import regression
 from ...exceptions import ModelEvaluationError
 
 
@@ -25,15 +25,15 @@ def groupby_df(test_df):
 def test_fit_model(test_df):
     filters = []
     model_exp = 'col1 ~ col2'
-    fit = hedonic.fit_model(test_df, filters, model_exp)
+    fit = regression.fit_model(test_df, filters, model_exp)
     assert isinstance(fit, RegressionResultsWrapper)
 
 
 def test_predict(test_df):
     filters = ['col1 in [0, 2, 4]']
     model_exp = 'col1 ~ col2'
-    fit = hedonic.fit_model(test_df, filters, model_exp)
-    predicted = hedonic.predict(
+    fit = regression.fit_model(test_df, filters, model_exp)
+    predicted = regression.predict(
         test_df.query('col1 in [1, 3]'), None, fit)
     expected = pd.Series([1., 3.], index=['b', 'd'])
     pdt.assert_series_equal(predicted, expected)
@@ -43,8 +43,8 @@ def test_predict_ytransform(test_df):
     yt = lambda x: x / 2.
     filters = ['col1 in [0, 2, 4]']
     model_exp = 'col1 ~ col2'
-    fit = hedonic.fit_model(test_df, filters, model_exp)
-    predicted = hedonic.predict(
+    fit = regression.fit_model(test_df, filters, model_exp)
+    predicted = regression.predict(
         test_df.query('col1 in [1, 3]'), None, fit, ytransform=yt)
     expected = pd.Series([0.5, 1.5], index=['b', 'd'])
     pdt.assert_series_equal(predicted, expected)
@@ -55,21 +55,21 @@ def test_predict_with_nans():
         {'col1': range(5),
          'col2': [5, 6, pd.np.nan, 8, 9]},
         index=['a', 'b', 'c', 'd', 'e'])
-    fit = hedonic.fit_model(df.loc[['a', 'b', 'e']], None, 'col1 ~ col2')
+    fit = regression.fit_model(df.loc[['a', 'b', 'e']], None, 'col1 ~ col2')
 
     with pytest.raises(ModelEvaluationError):
-        hedonic.predict(
+        regression.predict(
             df.loc[['c', 'd']], None, fit)
 
 
-def test_HedonicModel(test_df):
+def test_RegressionModel(test_df):
     fit_filters = ['col1 in [0, 2, 4]']
     predict_filters = ['col1 in [1, 3]']
     model_exp = 'col1 ~ col2'
     ytransform = lambda x: x / 2.
     name = 'test hedonic'
 
-    model = hedonic.HedonicModel(
+    model = regression.RegressionModel(
         fit_filters, predict_filters, model_exp, ytransform, name)
     assert model.fit_filters == fit_filters
     assert model.predict_filters == predict_filters
@@ -91,17 +91,17 @@ def test_HedonicModel(test_df):
     pdt.assert_series_equal(predicted, expected)
 
 
-def test_HedonicModelGroup(groupby_df):
+def test_RegressionModelGroup(groupby_df):
     model_exp = 'col1 ~ col2'
 
-    hmg = hedonic.HedonicModelGroup('group')
+    hmg = regression.RegressionModelGroup('group')
 
-    xmodel = hedonic.HedonicModel(None, None, model_exp, name='x')
+    xmodel = regression.RegressionModel(None, None, model_exp, name='x')
     hmg.add_model(xmodel)
-    assert isinstance(hmg.models['x'], hedonic.HedonicModel)
+    assert isinstance(hmg.models['x'], regression.RegressionModel)
 
     hmg.add_model_from_params('y', None, None, model_exp)
-    assert isinstance(hmg.models['y'], hedonic.HedonicModel)
+    assert isinstance(hmg.models['y'], regression.RegressionModel)
     assert hmg.models['y'].name == 'y'
 
     fits = hmg.fit_models(groupby_df)
