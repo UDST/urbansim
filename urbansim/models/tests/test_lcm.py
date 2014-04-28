@@ -1,7 +1,8 @@
+import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from .. import LocationChoiceModel
+from .. import lcm
 
 
 @pytest.fixture
@@ -19,13 +20,46 @@ def alternatives():
         index=range(10))
 
 
+def test_unit_choice_uniform(choosers, alternatives):
+    probabilities = [1] * len(alternatives)
+    choices = lcm.unit_choice(
+        choosers.index, alternatives.index, probabilities)
+    npt.assert_array_equal(choices.index, choosers.index)
+    assert choices.isin(alternatives.index).all()
+
+
+def test_unit_choice_some_zero(choosers, alternatives):
+    probabilities = [0, 1, 0, 1, 1, 0, 1, 0, 0, 1]
+    choices = lcm.unit_choice(
+        choosers.index, alternatives.index, probabilities)
+    npt.assert_array_equal(choices.index, choosers.index)
+    npt.assert_array_equal(sorted(choices.values), [1, 3, 4, 6, 9])
+
+
+def test_unit_choice_not_enough(choosers, alternatives):
+    probabilities = [0, 0, 0, 0, 0, 1, 0, 1, 0, 0]
+    choices = lcm.unit_choice(
+        choosers.index, alternatives.index, probabilities)
+    npt.assert_array_equal(choices.index, choosers.index)
+    assert choices.isnull().sum() == 3
+    npt.assert_array_equal(sorted(choices[~choices.isnull()]), [5, 7])
+
+
+def test_unit_choice_none_available(choosers, alternatives):
+    probabilities = [0] * len(alternatives)
+    choices = lcm.unit_choice(
+        choosers.index, alternatives.index, probabilities)
+    npt.assert_array_equal(choices.index, choosers.index)
+    assert choices.isnull().all()
+
+
 def test_lcm(choosers, alternatives):
-    lcm = LocationChoiceModel(
+    model = lcm.LocationChoiceModel(
         ['var3 != 15'], ['var2 != 14'], 'var2 + var1:var3', 5,
         name='Test LCM')
-    loglik = lcm.fit(choosers, alternatives, choosers.thing_id)
+    loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
-    assert len(lcm.fit_results) == 2
+    assert len(model.fit_results) == 2
