@@ -63,3 +63,8 @@ def test_lcm(choosers, alternatives):
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
     assert len(model.fit_results) == 2
+
+    choices = model.predict(choosers, alternatives)
+
+    npt.assert_array_equal(choices.index, choosers.index)
+    assert choices.isin(alternatives.index).all()

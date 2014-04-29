@@ -17,11 +17,11 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
 
     Parameters
     ----------
-    chooser_ids : array_like
+    chooser_ids : 1d array_like
         Array of IDs of the agents that are making choices.
-    alternative_ids : array_like
+    alternative_ids : 1d array_like
         Array of IDs of alternatives among which agents are making choices.
-    probabilities : array_like
+    probabilities : 1d array_like
         The probability that an agent will choose an alternative.
         Must be the same shape as `alternative_ids`. Unavailable
         alternatives should have a probability of 0.
@@ -132,19 +132,44 @@ class LocationChoiceModel(object):
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
             self.model_expression, data=merged, return_type='dataframe')
-        self._model_columns = model_design.columns
+        self._model_columns = model_design.columns  # used for report
         fit, results = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
         self._log_lks = fit
         self.fit_results = results
         return fit
 
+    @property
+    def fitted(self):
+        """
+        True if model is ready for prediction.
+
+        """
+        return bool(self.fit_results)
+
+    def assert_fitted(self):
+        """
+        Raises `RuntimeError` if the model is not ready for prediction.
+
+        """
+        if not self.fitted:
+            raise RuntimeError('Model has not been fit.')
+
+    @property
+    def coefficients(self):
+        """
+        Model coefficients as a list.
+
+        """
+        self.assert_fitted()
+        return [x[0] for x in self.fit_results]
+
     def report_fit(self):
         """
         Print a report of the fit results.
 
         """
-        if not self.fit_results:
+        if not self.fitted:
             print('Model not yet fit.')
             return
 
@@ -159,3 +184,42 @@ class LocationChoiceModel(object):
             tbl.add_row((c,) + x)
 
         print(tbl)
+
+    def predict(self, choosers, alternatives):
+        """
+        Choose from among alternatives for a group of agents.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in this table is used for determining
+            agent probabilities of choosing alternatives.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        choices : pandas.Series
+            Mapping of chooser ID to alternative ID. Some choosers
+            will map to a nan value when there are not enough alternatives
+            for all the choosers.
+
+        """
+        self.assert_fitted()
+
+        alternatives = util.apply_filter_query(
+            alternatives, self.alts_predict_filters)
+        # TODO: only using 1st item in choosers for determining probabilities.
+        # Need to expand options around this.
+        _, merged, chosen = interaction.mnl_interaction_dataset(
+            choosers.head(1), alternatives, self.sample_size)
+        model_design = dmatrix(
+            self.model_expression, data=merged, return_type='dataframe')
+        probabilities = mnl.mnl_simulate(
+            model_design.as_matrix(), self.coefficients,
+            numalts=self.sample_size, returnprobs=True)
+        # probabilities are returned from mnl_simulate as a 2d array
+        # and need to be flatted for use in unit_choice.
+        return unit_choice(
+            choosers.index, merged.index, probabilities.flatten())
