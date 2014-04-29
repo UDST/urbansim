@@ -66,10 +66,11 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
     return choices
 
 
-class LocationChoiceModel(object):
+class MNLLocationChoiceModel(object):
     """
     A location choice model with the ability to store an estimated
     model and predict new data based on the model.
+    Based on multinomial logit.
 
     Parameters
     ----------
@@ -94,7 +95,7 @@ class LocationChoiceModel(object):
         # LCMs never have a constant
         self.model_expression = model_expression + ' - 1'
         self.sample_size = sample_size
-        self.name = name or 'LocationChoiceModel'
+        self.name = name or 'MNLLocationChoiceModel'
 
         self._log_lks = None
         self._model_columns = None

@@ -1,2 +1,2 @@
 from .regression import RegressionModel, RegressionModelGroup
-from .lcm import LocationChoiceModel
+from .lcm import MNLLocationChoiceModel

@@ -53,8 +53,8 @@ def test_unit_choice_none_available(choosers, alternatives):
     assert choices.isnull().all()
 
 
-def test_lcm(choosers, alternatives):
-    model = lcm.LocationChoiceModel(
+def test_mnl_lcm(choosers, alternatives):
+    model = lcm.MNLLocationChoiceModel(
         ['var3 != 15'], ['var2 != 14'], 'var2 + var1:var3', 5,
         name='Test LCM')
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
