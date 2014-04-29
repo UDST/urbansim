@@ -3,7 +3,7 @@ import pandas as pd
 import statsmodels.formula.api as smf
 
 from . import util
-from .. exceptions import ModelEvaluationError
+from ..exceptions import ModelEvaluationError
 
 
 def fit_model(df, filters, model_expression):
@@ -106,7 +106,7 @@ class RegressionModel(object):
         self.name = name or 'RegressionModel'
         self.model_fit = None
 
-    def fit_model(self, data):
+    def fit(self, data):
         """
         Fit the model to data and store/return the results.
 
@@ -127,6 +127,22 @@ class RegressionModel(object):
         self.model_fit = fit
         return fit
 
+    @property
+    def fitted(self):
+        """
+        True if the model is ready for prediction.
+
+        """
+        return bool(self.model_fit)
+
+    def assert_fitted(self):
+        """
+        Raises a RuntimeError if the model is not ready for prediction.
+
+        """
+        if not self.fitted:
+            raise RuntimeError('Model has not been fit.')
+
     def predict(self, data):
         """
         Predict a new data set based on an estimated model.
@@ -144,8 +160,7 @@ class RegressionModel(object):
             after applying filters.
 
         """
-        if not self.model_fit:
-            raise RuntimeError('Model has not been fit.')
+        self.assert_fitted()
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)
 
@@ -229,7 +244,7 @@ class RegressionModelGroup(object):
         for name in self.models:
             yield name, groups.get_group(name)
 
-    def fit_models(self, data):
+    def fit(self, data):
         """
         Fit each of the models in the group.
 
@@ -244,7 +259,7 @@ class RegressionModelGroup(object):
             Keys are the segment names.
 
         """
-        return {name: self.models[name].fit_model(df)
+        return {name: self.models[name].fit(df)
                 for name, df in self._iter_groups(data)}
 
     def predict(self, data):

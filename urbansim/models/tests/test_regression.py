@@ -82,7 +82,7 @@ def test_RegressionModel(test_df):
     with pytest.raises(RuntimeError):
         model.predict(test_df)
 
-    fit = model.fit_model(test_df)
+    fit = model.fit(test_df)
     assert isinstance(fit, RegressionResultsWrapper)
     assert isinstance(model.model_fit, RegressionResultsWrapper)
 
@@ -104,7 +104,7 @@ def test_RegressionModelGroup(groupby_df):
     assert isinstance(hmg.models['y'], regression.RegressionModel)
     assert hmg.models['y'].name == 'y'
 
-    fits = hmg.fit_models(groupby_df)
+    fits = hmg.fit(groupby_df)
     assert isinstance(fits['x'], RegressionResultsWrapper)
     assert isinstance(fits['y'], RegressionResultsWrapper)
 
