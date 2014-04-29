@@ -97,8 +97,7 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, numalts, GPU=0, returnprobs=0):
-
+def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
     atype = 'numpy' if not GPU else 'cuda'
 
     data = np.transpose(data)
