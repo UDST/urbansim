@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
+from patsy import dmatrix
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -69,6 +71,74 @@ def predict(df, filters, model_fit, ytransform=None):
     if ytransform:
         sim_data = ytransform(sim_data)
     return pd.Series(sim_data, index=df.index)
+
+
+def _rhs(model_expression):
+    """
+    Get only the right-hand side of a patsy model expression.
+
+    Parameters
+    ----------
+    model_expression : str
+
+    Returns
+    -------
+    rhs : str
+
+    """
+    if '~' not in model_expression:
+        return model_expression
+    else:
+        return model_expression.split('~')[1].strip()
+
+
+class _FakeRegressionResults(object):
+    """
+    This can be used in place of a statsmodels RegressionResults
+    for limited purposes when it comes to model prediction.
+
+    Intended for use when loading a model from a JSON representation;
+    we can do model evaluation using the stored coefficients, but can't
+    recreate the original statsmodels fit result.
+
+    Parameters
+    ----------
+    model_expression : str
+        A patsy model expression that can be used with statsmodels.
+        Should contain both the left- and right-hand sides.
+    coefficients : pandas.Series
+        Coefficients (params) from fitting `model_expression` to data.
+
+    """
+    def __init__(self, model_expression, coefficients):
+        self.model_expression = model_expression
+        self.coefficients = np.asanyarray(coefficients)
+
+    @property
+    def _rhs(self):
+        """
+        Get only the right-hand side of `model_expression`.
+
+        """
+        return _rhs(self.model_expression)
+
+    def predict(self, data):
+        """
+        Predict new values by running data through the fit model.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Table with columns corresponding to the RHS of `model_expression`.
+
+        Returns
+        -------
+        predicted : ndarray
+            Array of predicted values.
+
+        """
+        model_design = dmatrix(self._rhs, data=data, return_type='dataframe')
+        return model_design.dot(self.coefficients).values
 
 
 class RegressionModel(object):

@@ -1,5 +1,7 @@
+import numpy.testing as npt
 import pandas as pd
 import pytest
+import statsmodels.formula.api as smf
 from pandas.util import testing as pdt
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
@@ -60,6 +62,25 @@ def test_predict_with_nans():
     with pytest.raises(ModelEvaluationError):
         regression.predict(
             df.loc[['c', 'd']], None, fit)
+
+
+def test_rhs():
+    assert regression._rhs('col1 + col2') == 'col1 + col2'
+    assert regression._rhs('col3 ~ col1 + col2') == 'col1 + col2'
+
+
+def test_FakeRegressionResults(test_df):
+    model_exp = 'col1 ~ col2'
+    model = smf.ols(formula=model_exp, data=test_df)
+    fit = model.fit()
+
+    wrapper = regression._FakeRegressionResults(
+        model_exp, fit.params)
+
+    test_predict = pd.DataFrame({'col2': [0.5, 10, 25.6]})
+
+    npt.assert_array_equal(
+        wrapper.predict(test_predict), fit.predict(test_predict))
 
 
 def test_RegressionModel(test_df):
