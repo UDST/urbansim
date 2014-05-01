@@ -83,18 +83,23 @@ class MNLLocationChoiceModel(object):
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
+    choice_column : optional
+        Name of the column in the `alternatives` table that choosers
+        should choose. e.g. the 'building_id' column. If not provided
+        the alternatives index is used.
     name : optional
         Optional descriptive name for this model that may be used
         in output.
 
     """
     def __init__(self, alts_fit_filters, alts_predict_filters,
-                 model_expression, sample_size, name=None):
+                 model_expression, sample_size, choice_column=None, name=None):
         self.alts_fit_filters = alts_fit_filters
         self.alts_predict_filters = alts_predict_filters
         # LCMs never have a constant
         self.model_expression = model_expression + ' - 1'
         self.sample_size = sample_size
+        self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
 
         self._log_lks = None
@@ -211,16 +216,23 @@ class MNLLocationChoiceModel(object):
 
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
+
         # TODO: only using 1st item in choosers for determining probabilities.
         # Need to expand options around this.
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers.head(1), alternatives, self.sample_size)
         model_design = dmatrix(
             self.model_expression, data=merged, return_type='dataframe')
-        probabilities = mnl.mnl_simulate(
-            model_design.as_matrix(), self.coefficients,
-            numalts=self.sample_size, returnprobs=True)
+
         # probabilities are returned from mnl_simulate as a 2d array
         # and need to be flatted for use in unit_choice.
+        probabilities = mnl.mnl_simulate(
+            model_design.as_matrix(), self.coefficients,
+            numalts=self.sample_size, returnprobs=True).flatten()
+
+        # figure out exactly which things from which choices are drawn
+        alt_choices = (
+            merged[self.choice_column] if self.choice_column else merged.index)
+
         return unit_choice(
-            choosers.index, merged.index, probabilities.flatten())
+            choosers.index, alt_choices, probabilities)
