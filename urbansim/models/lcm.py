@@ -220,7 +220,7 @@ class MNLLocationChoiceModel(object):
         # TODO: only using 1st item in choosers for determining probabilities.
         # Need to expand options around this.
         _, merged, chosen = interaction.mnl_interaction_dataset(
-            choosers.head(1), alternatives, self.sample_size)
+            choosers.head(1), alternatives, len(alternatives))
         model_design = dmatrix(
             self.model_expression, data=merged, return_type='dataframe')
 
@@ -228,7 +228,7 @@ class MNLLocationChoiceModel(object):
         # and need to be flatted for use in unit_choice.
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(), self.coefficients,
-            numalts=self.sample_size, returnprobs=True).flatten()
+            numalts=len(alternatives), returnprobs=True).flatten()
 
         # figure out exactly which things from which choices are drawn
         alt_choices = (
