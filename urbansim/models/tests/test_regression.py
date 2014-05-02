@@ -1,6 +1,12 @@
+import os
+import tempfile
+from StringIO import StringIO
+
+import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+import simplejson as json
 import statsmodels.formula.api as smf
 from pandas.util import testing as pdt
 
@@ -133,3 +139,76 @@ def test_RegressionModelGroup(groupby_df):
     assert isinstance(predicted, pd.Series)
     pdt.assert_series_equal(
         predicted.sort_index(), groupby_df.col1, check_dtype=False)
+
+
+class TestRegressionModelJSONNotFit(object):
+    @classmethod
+    def setup_class(cls):
+        fit_filters = ['col1 in [0, 2, 4]']
+        predict_filters = ['col1 in [1, 3]']
+        model_exp = 'col1 ~ col2'
+        ytransform = np.log1p
+        name = 'test hedonic'
+
+        cls.model = regression.RegressionModel(
+            fit_filters, predict_filters, model_exp, ytransform, name)
+
+        cls.expected_json = {
+            'model_type': 'regression',
+            'name': name,
+            'fit_filters': fit_filters,
+            'predict_filters': predict_filters,
+            'model_expression': model_exp,
+            'ytransform': regression.YTRANSFORM_MAPPING[ytransform],
+            'coefficients': None,
+            'fitted': False
+        }
+
+    def test_string(self):
+        test_json = self.model.to_json()
+        assert json.loads(test_json) == self.expected_json
+
+        model = regression.RegressionModel.from_json(json_str=test_json)
+        assert isinstance(model, regression.RegressionModel)
+
+    def test_buffer(self):
+        test_buffer = StringIO()
+        self.model.to_json(str_or_buffer=test_buffer)
+        assert json.loads(test_buffer.getvalue()) == self.expected_json
+
+        test_buffer.seek(0)
+        model = regression.RegressionModel.from_json(str_or_buffer=test_buffer)
+        assert isinstance(model, regression.RegressionModel)
+
+        test_buffer.close()
+
+    def test_file(self):
+        test_file = tempfile.NamedTemporaryFile(suffix='.json').name
+        self.model.to_json(str_or_buffer=test_file)
+
+        with open(test_file) as f:
+            assert json.load(f) == self.expected_json
+
+        model = regression.RegressionModel.from_json(str_or_buffer=test_file)
+        assert isinstance(model, regression.RegressionModel)
+
+        os.remove(test_file)
+
+
+class TestRegressionModelJSONFit(TestRegressionModelJSONNotFit):
+    @classmethod
+    def setup_class(cls):
+        super(cls, TestRegressionModelJSONFit).setup_class()
+
+        cls.model.fit(test_df())
+
+        cls.expected_json['fitted'] = True
+        cls.expected_json['coefficients'] = {
+            'Intercept': -5, 'col2': 1.0000000000000002}
+
+    def test_fitted_load(self, test_df):
+        model = regression.RegressionModel.from_json(
+            json_str=self.model.to_json())
+        assert isinstance(model.model_fit, regression._FakeRegressionResults)
+        npt.assert_array_equal(
+            self.model.predict(test_df), model.predict(test_df))

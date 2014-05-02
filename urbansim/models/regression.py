@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import simplejson as json
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from patsy import dmatrix
@@ -141,6 +142,19 @@ class _FakeRegressionResults(object):
         return model_design.dot(self.coefficients).values
 
 
+YTRANSFORM_MAPPING = {
+    None: None,
+    np.exp: 'np.exp',
+    'np.exp': np.exp,
+    np.log: 'np.log',
+    'np.log': np.log,
+    np.log1p: 'np.log1p',
+    'np.log1p': np.log1p,
+    np.expm1: 'np.expm1',
+    'np.expm1': np.expm1
+}
+
+
 class RegressionModel(object):
     """
     A hedonic (regression) model with the ability to store an
@@ -175,6 +189,45 @@ class RegressionModel(object):
         self.ytransform = ytransform
         self.name = name or 'RegressionModel'
         self.model_fit = None
+
+    @classmethod
+    def from_json(cls, json_str=None, str_or_buffer=None):
+        """
+        Create a RegressionModel instance from a saved JSON configuration.
+        Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        json_str : str, optional
+            A JSON string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load JSON.
+
+        Returns
+        -------
+        RegressionModel
+
+        """
+        if json_str:
+            j = json.loads(json_str)
+        elif isinstance(str_or_buffer, str):
+            with open(str_or_buffer) as f:
+                j = json.load(f)
+        else:
+            j = json.load(str_or_buffer)
+
+        model = cls(
+            j['fit_filters'],
+            j['predict_filters'],
+            j['model_expression'],
+            YTRANSFORM_MAPPING[j['ytransform']],
+            j['name'])
+
+        if j['fitted']:
+            model.model_fit = _FakeRegressionResults(
+                j['model_expression'], pd.Series(j['coefficients']))
+
+        return model
 
     def fit(self, data):
         """
@@ -233,6 +286,46 @@ class RegressionModel(object):
         self.assert_fitted()
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)
+
+    def to_json(self, str_or_buffer=None):
+        """
+        Save a model respresentation to JSON.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a JSON string is returned. If a string is
+            given here the JSON will be written to that file.
+            If an object with a ``.write`` method is given the
+            JSON will be written to that object.
+
+        Returns
+        -------
+        j : str
+            JSON is string if `str_or_buffer` is not given.
+
+        """
+        indent = 2
+
+        j = {
+            'model_type': 'regression',
+            'name': self.name,
+            'fit_filters': self.fit_filters,
+            'predict_filters': self.predict_filters,
+            'model_expression': self.model_expression,
+            'ytransform': YTRANSFORM_MAPPING[self.ytransform],
+            'coefficients': (None if not self.fitted
+                             else self.model_fit.params.to_dict()),
+            'fitted': self.fitted
+        }
+
+        if not str_or_buffer:
+            return json.dumps(j, indent=indent)
+        elif isinstance(str_or_buffer, str):
+            with open(str_or_buffer, 'w') as f:
+                json.dump(j, f, indent=indent)
+        else:
+            json.dump(j, str_or_buffer, indent=indent)
 
 
 class RegressionModelGroup(object):
