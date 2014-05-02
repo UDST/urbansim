@@ -141,19 +141,31 @@ def test_RegressionModelGroup(groupby_df):
         predicted.sort_index(), groupby_df.col1, check_dtype=False)
 
 
+def assert_json_specs_equal(j1, j2):
+    j1_coeff = j1.pop('coefficients')
+    j2_coeff = j2.pop('coefficients')
+
+    assert j1 == j2
+
+    if j1_coeff and j2_coeff:
+        pdt.assert_series_equal(
+            pd.Series(j1_coeff), pd.Series(j2_coeff), check_dtype=False)
+    else:
+        assert j1_coeff is j2_coeff
+
+
 class TestRegressionModelJSONNotFit(object):
-    @classmethod
-    def setup_class(cls):
+    def setup_method(self, method):
         fit_filters = ['col1 in [0, 2, 4]']
         predict_filters = ['col1 in [1, 3]']
         model_exp = 'col1 ~ col2'
         ytransform = np.log1p
         name = 'test hedonic'
 
-        cls.model = regression.RegressionModel(
+        self.model = regression.RegressionModel(
             fit_filters, predict_filters, model_exp, ytransform, name)
 
-        cls.expected_json = {
+        self.expected_json = {
             'model_type': 'regression',
             'name': name,
             'fit_filters': fit_filters,
@@ -166,7 +178,7 @@ class TestRegressionModelJSONNotFit(object):
 
     def test_string(self):
         test_json = self.model.to_json()
-        assert json.loads(test_json) == self.expected_json
+        assert_json_specs_equal(json.loads(test_json), self.expected_json)
 
         model = regression.RegressionModel.from_json(json_str=test_json)
         assert isinstance(model, regression.RegressionModel)
@@ -174,7 +186,8 @@ class TestRegressionModelJSONNotFit(object):
     def test_buffer(self):
         test_buffer = StringIO()
         self.model.to_json(str_or_buffer=test_buffer)
-        assert json.loads(test_buffer.getvalue()) == self.expected_json
+        assert_json_specs_equal(
+            json.loads(test_buffer.getvalue()), self.expected_json)
 
         test_buffer.seek(0)
         model = regression.RegressionModel.from_json(str_or_buffer=test_buffer)
@@ -187,7 +200,7 @@ class TestRegressionModelJSONNotFit(object):
         self.model.to_json(str_or_buffer=test_file)
 
         with open(test_file) as f:
-            assert json.load(f) == self.expected_json
+            assert_json_specs_equal(json.load(f), self.expected_json)
 
         model = regression.RegressionModel.from_json(str_or_buffer=test_file)
         assert isinstance(model, regression.RegressionModel)
@@ -196,15 +209,14 @@ class TestRegressionModelJSONNotFit(object):
 
 
 class TestRegressionModelJSONFit(TestRegressionModelJSONNotFit):
-    @classmethod
-    def setup_class(cls):
-        super(cls, TestRegressionModelJSONFit).setup_class()
+    def setup_method(self, method):
+        super(TestRegressionModelJSONFit, self).setup_method(method)
 
-        cls.model.fit(test_df())
+        self.model.fit(test_df())
 
-        cls.expected_json['fitted'] = True
-        cls.expected_json['coefficients'] = {
-            'Intercept': -5, 'col2': 1.0000000000000002}
+        self.expected_json['fitted'] = True
+        self.expected_json['coefficients'] = {
+            'Intercept': -5, 'col2': 1}
 
     def test_fitted_load(self, test_df):
         model = regression.RegressionModel.from_json(
