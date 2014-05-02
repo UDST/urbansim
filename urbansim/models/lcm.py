@@ -74,20 +74,28 @@ class MNLLocationChoiceModel(object):
 
     Parameters
     ----------
-    choosers_fit_filters : list of str
-        Filters applied to choosers table before fitting the model.
-    choosers_predict_filters : list of str
-        Filters applied to the choosers table before calculating
-        new data points.
-    alts_fit_filters : list of str
-        Filters applied to the alternatives table before fitting the model.
-    alts_predict_filters : list of str
-        Filters applied to the alternatives table before calculating
-        new data points.
     model_expression : str
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
+    location_id_col : str, optional
+        Name of a column in the choosers table that corresponds to the
+        index of the location being chosen. If given, this is used to
+        make sure that during prediction only choosers that have nan
+        in this column choose new alternatives.
+    choosers_fit_filters : list of str, optional
+        Filters applied to choosers table before fitting the model.
+    choosers_predict_filters : list of str, optional
+        Filters applied to the choosers table before calculating
+        new data points.
+    alts_fit_filters : list of str, optional
+        Filters applied to the alternatives table before fitting the model.
+    alts_predict_filters : list of str, optional
+        Filters applied to the alternatives table before calculating
+        new data points.
+    interaction_predict_filters : list of str, optional
+        Filters applied to the merged choosers/alternatives table
+        before predicting agent choices.
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -97,16 +105,20 @@ class MNLLocationChoiceModel(object):
         in output.
 
     """
-    def __init__(self, choosers_fit_filters, choosers_predict_filters,
-                 alts_fit_filters, alts_predict_filters, model_expression,
-                 sample_size, choice_column=None, name=None):
+    def __init__(self, model_expression, sample_size, location_id_col=None,
+                 choosers_fit_filters=None, choosers_predict_filters=None,
+                 alts_fit_filters=None, alts_predict_filters=None,
+                 interaction_predict_filters=None,
+                 choice_column=None, name=None):
+        # LCMs never have a constant
+        self.model_expression = model_expression + ' - 1'
+        self.sample_size = sample_size
+        self.location_id_col = location_id_col
         self.choosers_fit_filters = choosers_fit_filters
         self.choosers_predict_filters = choosers_predict_filters
         self.alts_fit_filters = alts_fit_filters
         self.alts_predict_filters = alts_predict_filters
-        # LCMs never have a constant
-        self.model_expression = model_expression + ' - 1'
-        self.sample_size = sample_size
+        self.interaction_predict_filters = interaction_predict_filters
         self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
 
@@ -141,6 +153,7 @@ class MNLLocationChoiceModel(object):
 
         """
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+        current_choice = current_choice.loc[choosers.index]
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
         _, merged, chosen = interaction.mnl_interaction_dataset(
@@ -223,6 +236,8 @@ class MNLLocationChoiceModel(object):
         """
         self.assert_fitted()
 
+        if self.location_id_col:
+            choosers = choosers[choosers[self.location_id_col].isnull()]
         choosers = util.apply_filter_query(
             choosers, self.choosers_predict_filters)
         alternatives = util.apply_filter_query(
@@ -230,8 +245,10 @@ class MNLLocationChoiceModel(object):
 
         # TODO: only using 1st item in choosers for determining probabilities.
         # Need to expand options around this.
-        _, merged, chosen = interaction.mnl_interaction_dataset(
+        _, merged, _ = interaction.mnl_interaction_dataset(
             choosers.head(1), alternatives, len(alternatives))
+        merged = util.apply_filter_query(
+            merged, self.interaction_predict_filters)
         model_design = dmatrix(
             self.model_expression, data=merged, return_type='dataframe')
 
@@ -239,7 +256,7 @@ class MNLLocationChoiceModel(object):
         # and need to be flatted for use in unit_choice.
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(), self.coefficients,
-            numalts=len(alternatives), returnprobs=True).flatten()
+            numalts=len(merged), returnprobs=True).flatten()
 
         # figure out exactly which things from which choices are drawn
         alt_choices = (

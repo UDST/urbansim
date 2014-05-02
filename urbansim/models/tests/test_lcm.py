@@ -1,6 +1,8 @@
+import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+from pandas.util import testing as pdt
 
 from .. import lcm
 
@@ -54,9 +56,22 @@ def test_unit_choice_none_available(choosers, alternatives):
 
 
 def test_mnl_lcm(choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 5
+    location_id_col = 'thing_id'
+    choosers_fit_filters = ['var1 != 5']
+    choosers_predict_filters = ['var1 != 7']
+    alts_fit_filters = ['var3 != 15']
+    alts_predict_filters = ['var2 != 14']
+    interaction_predict_filters = None
+    choice_column = None
+    name = 'Test LCM'
+
     model = lcm.MNLLocationChoiceModel(
-        ['var1 != 0'], ['var1 != 2'], ['var3 != 15'], ['var2 != 14'],
-        'var2 + var1:var3', 5, name='Test LCM')
+        model_exp, sample_size, location_id_col,
+        choosers_fit_filters, choosers_predict_filters,
+        alts_fit_filters, alts_predict_filters,
+        interaction_predict_filters, choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness
@@ -64,16 +79,32 @@ def test_mnl_lcm(choosers, alternatives):
     assert len(loglik) == 3
     assert len(model.fit_results) == 2
 
+    choosers.thing_id = np.nan
+    choosers.thing_id.iloc[0] = 'a'
+
     choices = model.predict(choosers, alternatives)
 
-    npt.assert_array_equal(choices.index, choosers.index)
+    pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
     assert choices.isin(alternatives.index).all()
 
 
 def test_mnl_lcm_repeated_alts(choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 5
+    location_id_col = None
+    choosers_fit_filters = ['var1 != 5']
+    choosers_predict_filters = ['var1 != 7']
+    alts_fit_filters = ['var3 != 15']
+    alts_predict_filters = ['var2 != 14']
+    interaction_predict_filters = ['var1 * var2 > 50']
+    choice_column = 'thing_id'
+    name = 'Test LCM'
+
     model = lcm.MNLLocationChoiceModel(
-        ['var1 != 0'], ['var1 != 2'], ['var3 != 15'], ['var2 != 14'],
-        'var2 + var1:var3', 5, choice_column='thing_id', name='Test LCM')
+        model_exp, sample_size, location_id_col,
+        choosers_fit_filters, choosers_predict_filters,
+        alts_fit_filters, alts_predict_filters,
+        interaction_predict_filters, choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness
@@ -86,5 +117,5 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
 
     choices = model.predict(choosers, repeated_alts)
 
-    npt.assert_array_equal(choices.index, choosers.index)
+    pdt.assert_index_equal(choices.index, pd.Index([0, 1, 3, 4]))
     assert choices.isin(alternatives.index).all()
