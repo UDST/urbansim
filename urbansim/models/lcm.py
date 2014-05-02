@@ -74,6 +74,11 @@ class MNLLocationChoiceModel(object):
 
     Parameters
     ----------
+    choosers_fit_filters : list of str
+        Filters applied to choosers table before fitting the model.
+    choosers_predict_filters : list of str
+        Filters applied to the choosers table before calculating
+        new data points.
     alts_fit_filters : list of str
         Filters applied to the alternatives table before fitting the model.
     alts_predict_filters : list of str
@@ -92,8 +97,11 @@ class MNLLocationChoiceModel(object):
         in output.
 
     """
-    def __init__(self, alts_fit_filters, alts_predict_filters,
-                 model_expression, sample_size, choice_column=None, name=None):
+    def __init__(self, choosers_fit_filters, choosers_predict_filters,
+                 alts_fit_filters, alts_predict_filters, model_expression,
+                 sample_size, choice_column=None, name=None):
+        self.choosers_fit_filters = choosers_fit_filters
+        self.choosers_predict_filters = choosers_predict_filters
         self.alts_fit_filters = alts_fit_filters
         self.alts_predict_filters = alts_predict_filters
         # LCMs never have a constant
@@ -132,6 +140,7 @@ class MNLLocationChoiceModel(object):
             Log-liklihood ratio
 
         """
+        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
         _, merged, chosen = interaction.mnl_interaction_dataset(
@@ -214,6 +223,8 @@ class MNLLocationChoiceModel(object):
         """
         self.assert_fitted()
 
+        choosers = util.apply_filter_query(
+            choosers, self.choosers_predict_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
 

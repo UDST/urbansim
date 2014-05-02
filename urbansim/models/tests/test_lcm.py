@@ -55,8 +55,8 @@ def test_unit_choice_none_available(choosers, alternatives):
 
 def test_mnl_lcm(choosers, alternatives):
     model = lcm.MNLLocationChoiceModel(
-        ['var3 != 15'], ['var2 != 14'], 'var2 + var1:var3', 5,
-        name='Test LCM')
+        ['var1 != 0'], ['var1 != 2'], ['var3 != 15'], ['var2 != 14'],
+        'var2 + var1:var3', 5, name='Test LCM')
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness
@@ -72,8 +72,8 @@ def test_mnl_lcm(choosers, alternatives):
 
 def test_mnl_lcm_repeated_alts(choosers, alternatives):
     model = lcm.MNLLocationChoiceModel(
-        ['var3 != 15'], ['var2 != 14'], 'var2 + var1:var3', 5,
-        choice_column='thing_id', name='Test LCM')
+        ['var1 != 0'], ['var1 != 2'], ['var3 != 15'], ['var2 != 14'],
+        'var2 + var1:var3', 5, choice_column='thing_id', name='Test LCM')
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness
