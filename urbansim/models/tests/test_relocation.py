@@ -27,15 +27,6 @@ def rates():
          'probability_of_relocating': [1, 1, 1]})
 
 
-@pytest.mark.parametrize('name, val, filter_exp', [
-    ('x', 1, 'x == 1'),
-    ('x', 'a', "x == 'a'"),
-    ('y_min', 2, 'y >= 2'),
-    ('z_max', 3, 'z < 3')])
-def test_filterize(name, val, filter_exp):
-    assert relo._filterize(name, val) == filter_exp
-
-
 def test_find_movers(choosers, rates):
     movers = relo.find_movers(choosers, rates)
     npt.assert_array_equal(movers, ['a', 'c', 'e'])

@@ -1,45 +1,9 @@
-import numbers
-
 import numpy as np
 import pandas as pd
 
 from . import util
 
 PROB_COL = 'probability_of_relocating'
-
-
-def _filterize(name, value):
-    """
-    Turn a `name` and `value` into a string expression compatible
-    the ``DataFrame.query`` method.
-
-    Parameters
-    ----------
-    name : str
-        Should be the name of a column in the table to which the
-        filter will be applied.
-
-        A suffix of '_max' will result in a "less than" filter,
-        a suffix of '_min' will result in a "greater than or equal to" filter,
-        and no recognized suffix will result in an "equal to" filter.
-    value : any
-        Value side of filter for comparison to column values.
-
-    Returns
-    -------
-    filter_exp : str
-
-    """
-    if name.endswith('_min'):
-        name = name[:-4]
-        comp = '>='
-    elif name.endswith('_max'):
-        name = name[:-4]
-        comp = '<'
-    else:
-        comp = '=='
-
-    return '{} {} {!r}'.format(name, comp, value)
 
 
 def find_movers(choosers, rates):
@@ -85,12 +49,7 @@ def find_movers(choosers, rates):
         np.zeros(len(choosers)), index=choosers.index)
 
     for _, row in rates.iterrows():
-        filters = [_filterize(name, val)
-                   for name, val in row.iteritems()
-                   if (name != PROB_COL and
-                       (not isinstance(val, numbers.Number) or
-                        not np.isnan(val)))]
-        indexes = util.apply_filter_query(choosers, filters).index
+        indexes = util.filter_table(choosers, row, ignore={PROB_COL}).index
         relocation_rates.loc[indexes] = row[PROB_COL]
 
     movers = relocation_rates.index[
