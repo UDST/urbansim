@@ -3,6 +3,8 @@ from __future__ import division
 import numpy as np
 import pandas as pd
 
+from . import util
+
 
 def add_rows(data, nrows):
     """
@@ -86,7 +88,7 @@ def fill_nan_ids(data):
     return data
 
 
-def _add_or_remove_rows(data, nrows, populate_ids=True):
+def _add_or_remove_rows(data, nrows):
     """
     Add or remove rows to/from a table. Rows are added
     for positive `nrows` and removed for negative `nrows`.
@@ -96,8 +98,6 @@ def _add_or_remove_rows(data, nrows, populate_ids=True):
     data : DataFrame
     nrows : float
         Number of rows to add or remove.
-    populate_ids : bool, optional
-        Whether to populate the index field of added rows.
 
     Returns
     -------
@@ -106,10 +106,7 @@ def _add_or_remove_rows(data, nrows, populate_ids=True):
 
     """
     if nrows > 0:
-        updated = add_rows(data, nrows)
-        if populate_ids:
-            updated = fill_nan_ids(updated)
-        return updated
+        return add_rows(data, nrows)
 
     elif nrows < 0:
         return remove_rows(data, nrows)
@@ -161,7 +158,12 @@ class GRTransitionModel(object):
 
         """
         nrows = int(round(len(data) * self.growth_rate))
-        return _add_or_remove_rows(data, nrows, self.populate_ids)
+        updated = _add_or_remove_rows(data, nrows)
+
+        if self.populate_ids:
+            updated = fill_nan_ids(updated)
+
+        return updated
 
 
 class TabularTransitionModel(object):
@@ -170,9 +172,11 @@ class TabularTransitionModel(object):
 
     Parameters
     ----------
-    targets : pandas.Series
-        Pandas series containing the population targets
-        indexed by year.
+    targets : pandas.DataFrame
+        Table containing the population target indexed by year
+        with optional filter constraints.
+    totals_column : str
+        The name of the control totals column in `targets`.
     populate_ids : bool, optional
         Whether to populate the index field of added rows.
         By default they will be populated with new IDs, but you will
@@ -181,8 +185,9 @@ class TabularTransitionModel(object):
         all the segments have had rows added.
 
     """
-    def __init__(self, targets, populate_ids=True):
+    def __init__(self, targets, totals_column, populate_ids=True):
         self.targets = targets
+        self.totals_column = totals_column
         self.populate_ids = populate_ids
 
     def transition(self, data, year):
@@ -205,5 +210,19 @@ class TabularTransitionModel(object):
         if year not in self.targets.index:
             raise ValueError('No targets for given year: {}'.format(year))
 
-        nrows = self.targets[year] - len(data)
-        return _add_or_remove_rows(data, nrows, self.populate_ids)
+        totals = self.targets.loc[[year]]  # want this to be a DataFrame
+
+        segments = []
+
+        for _, row in totals.iterrows():
+            subset = util.filter_table(data, row, ignore={self.totals_column})
+            nrows = row[self.totals_column] - len(subset)
+            updated = _add_or_remove_rows(subset, nrows)
+            segments.append(updated)
+
+        updated = pd.concat(segments)
+
+        if self.populate_ids:
+            updated = fill_nan_ids(updated)
+
+        return updated

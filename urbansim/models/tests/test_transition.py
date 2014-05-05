@@ -22,8 +22,22 @@ def year():
 
 
 @pytest.fixture
-def grow_targets(year):
-    return pd.Series([7], index=[year])
+def totals_col():
+    return 'total'
+
+
+@pytest.fixture
+def grow_targets(year, totals_col):
+    return pd.DataFrame({totals_col: [7]}, index=[year])
+
+
+@pytest.fixture
+def grow_targets_filters(year, totals_col):
+    return pd.DataFrame({'x_min': [0, 2, np.nan],
+                         'y_max': [7, 9, np.nan],
+                         'x': [np.nan, np.nan, 4],
+                         totals_col: [1, 4, 10]},
+                        index=[year, year, year])
 
 
 def assert_for_add_no_fill(new):
@@ -81,17 +95,9 @@ def test_fill_nan_ids(basic_df):
     npt.assert_array_equal(new.index.values, range(100, 100 + 7))
 
 
-def test_add_or_remove_rows_add_fill(basic_df):
+def test_add_or_remove_rows_add(basic_df):
     nrows = 2
-    populate = True
-    new = transition._add_or_remove_rows(basic_df, nrows, populate)
-    assert_for_add_and_fill(new)
-
-
-def test_add_or_remove_rows_add_nofill(basic_df):
-    nrows = 2
-    populate = False
-    new = transition._add_or_remove_rows(basic_df, nrows, populate)
+    new = transition._add_or_remove_rows(basic_df, nrows)
     assert_for_add_no_fill(new)
 
 
@@ -124,29 +130,43 @@ def test_grtransition_remove(basic_df):
     assert_for_remove(new)
 
 
-def test_tabular_transition_add_fill(basic_df, grow_targets, year):
+def test_tabular_transition_add_fill(basic_df, grow_targets, totals_col, year):
     populate = True
-    tran = transition.TabularTransitionModel(grow_targets, populate)
+    tran = transition.TabularTransitionModel(
+        grow_targets, totals_col, populate)
     new = tran.transition(basic_df, year=year)
     assert_for_add_and_fill(new)
 
 
-def test_tabular_transition_add_nofill(basic_df, grow_targets, year):
+def test_tabular_transition_add_nofill(
+        basic_df, grow_targets, totals_col, year):
     populate = False
-    tran = transition.TabularTransitionModel(grow_targets, populate)
+    tran = transition.TabularTransitionModel(
+        grow_targets, totals_col, populate)
     new = tran.transition(basic_df, year=year)
     assert_for_add_no_fill(new)
 
 
-def test_tabular_transition_remove(basic_df, year):
-    grow_targets = pd.Series([3], index=[year])
-    tran = transition.TabularTransitionModel(grow_targets)
+def test_tabular_transition_remove(basic_df, totals_col, year):
+    grow_targets = pd.DataFrame({totals_col: [3]}, index=[year])
+    tran = transition.TabularTransitionModel(grow_targets, totals_col)
     new = tran.transition(basic_df, year=year)
     assert_for_remove(new)
 
 
-def test_tabular_transition_raises_on_bad_year(basic_df, grow_targets, year):
-    tran = transition.TabularTransitionModel(grow_targets)
+def test_tabular_transition_raises_on_bad_year(
+        basic_df, grow_targets, totals_col, year):
+    tran = transition.TabularTransitionModel(grow_targets, totals_col)
 
     with pytest.raises(ValueError):
         tran.transition(basic_df, year=year + 100)
+
+
+def test_tabular_transition_add_filters(
+        basic_df, grow_targets_filters, totals_col, year):
+    populate = True
+    tran = transition.TabularTransitionModel(
+        grow_targets_filters, totals_col, populate)
+    new = tran.transition(basic_df, year=year)
+
+    assert len(new) == grow_targets_filters[totals_col].sum()
