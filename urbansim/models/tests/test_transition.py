@@ -40,42 +40,47 @@ def grow_targets_filters(year, totals_col):
                         index=[year, year, year])
 
 
-def assert_for_add_no_fill(new):
+def assert_for_add_no_fill(new, new_indexes):
     assert len(new) == 7
     assert np.isnan(new.index.values[-2:].astype(np.float)).all()
+    pdt.assert_index_equal(new_indexes, pd.Index([np.nan], dtype=np.object))
 
 
-def assert_for_add_and_fill(new):
+def assert_for_add_and_fill(new, new_indexes):
     assert len(new) == 7
     assert not np.isnan(new.index.values[-2:].astype(np.float)).any()
+    pdt.assert_index_equal(new_indexes, pd.Index([105, 106]))
 
 
-def assert_for_remove(new):
+def assert_for_remove(new, new_indexes):
     assert len(new) == 3
+    pdt.assert_index_equal(new_indexes, pd.Index([]))
 
 
 def test_add_rows(basic_df):
     nrows = 2
-    new = transition.add_rows(basic_df, nrows)
-    assert_for_add_no_fill(new)
+    new, new_indexes = transition.add_rows(basic_df, nrows)
+    assert_for_add_no_fill(new, new_indexes)
 
 
 def test_add_rows_zero(basic_df):
     nrows = 0
-    new = transition.add_rows(basic_df, nrows)
+    new, new_indexes = transition.add_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df)
+    pdt.assert_index_equal(new_indexes, pd.Index([]))
 
 
 def test_remove_rows(basic_df):
     nrows = 2
-    new = transition.remove_rows(basic_df, nrows)
-    assert_for_remove(new)
+    new, new_indexes = transition.remove_rows(basic_df, nrows)
+    assert_for_remove(new, new_indexes)
 
 
 def test_remove_rows_zero(basic_df):
     nrows = 0
-    new = transition.remove_rows(basic_df, nrows)
+    new, new_indexes = transition.remove_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df)
+    pdt.assert_index_equal(new_indexes, pd.Index([]))
 
 
 def test_remove_rows_raises(basic_df):
@@ -89,53 +94,63 @@ def test_remove_rows_raises(basic_df):
 
 def test_fill_nan_ids(basic_df):
     nrows = 2
-    new = transition.add_rows(basic_df, nrows)
-    new = transition.fill_nan_ids(new)
+    new, new_indexes = transition.add_rows(basic_df, nrows)
+    filled_index, new_indexes = transition.fill_nan_ids(new.index)
 
-    npt.assert_array_equal(new.index.values, range(100, 100 + 7))
+    npt.assert_array_equal(filled_index.values, range(100, 100 + 7))
+    npt.assert_array_equal(new_indexes.values, range(105, 105 + 2))
+
+
+def test_fill_nan_ids_remove(basic_df):
+    nrows = -2
+    new, new_indexes = transition.remove_rows(basic_df, nrows)
+    filled_index, new_indexes = transition.fill_nan_ids(new.index)
+
+    pdt.assert_index_equal(filled_index, new.index)
+    pdt.assert_index_equal(new_indexes, pd.Index([]))
 
 
 def test_add_or_remove_rows_add(basic_df):
     nrows = 2
-    new = transition._add_or_remove_rows(basic_df, nrows)
-    assert_for_add_no_fill(new)
+    new, new_indexes = transition._add_or_remove_rows(basic_df, nrows)
+    assert_for_add_no_fill(new, new_indexes)
 
 
 def test_add_or_remove_rows_remove(basic_df):
     nrows = -2
-    new = transition._add_or_remove_rows(basic_df, nrows)
-    assert_for_remove(new)
+    new, new_indexes = transition._add_or_remove_rows(basic_df, nrows)
+    assert_for_remove(new, new_indexes)
 
 
 def test_grtransition_add_fills(basic_df):
     growth_rate = 0.4
     populate = True
     grt = transition.GRTransitionModel(growth_rate, populate)
-    new = grt.transition(basic_df)
-    assert_for_add_and_fill(new)
+    new, new_indexes = grt.transition(basic_df)
+    assert_for_add_and_fill(new, new_indexes)
 
 
 def test_grtransition_add_nofill(basic_df):
     growth_rate = 0.4
     populate = False
     grt = transition.GRTransitionModel(growth_rate, populate)
-    new = grt.transition(basic_df)
-    assert_for_add_no_fill(new)
+    new, new_indexes = grt.transition(basic_df)
+    assert_for_add_no_fill(new, new_indexes)
 
 
 def test_grtransition_remove(basic_df):
     growth_rate = -0.4
     grt = transition.GRTransitionModel(growth_rate)
-    new = grt.transition(basic_df)
-    assert_for_remove(new)
+    new, new_indexes = grt.transition(basic_df)
+    assert_for_remove(new, new_indexes)
 
 
 def test_tabular_transition_add_fill(basic_df, grow_targets, totals_col, year):
     populate = True
     tran = transition.TabularTransitionModel(
         grow_targets, totals_col, populate)
-    new = tran.transition(basic_df, year=year)
-    assert_for_add_and_fill(new)
+    new, new_indexes = tran.transition(basic_df, year=year)
+    assert_for_add_and_fill(new, new_indexes)
 
 
 def test_tabular_transition_add_nofill(
@@ -143,15 +158,15 @@ def test_tabular_transition_add_nofill(
     populate = False
     tran = transition.TabularTransitionModel(
         grow_targets, totals_col, populate)
-    new = tran.transition(basic_df, year=year)
-    assert_for_add_no_fill(new)
+    new, new_indexes = tran.transition(basic_df, year=year)
+    assert_for_add_no_fill(new, new_indexes)
 
 
 def test_tabular_transition_remove(basic_df, totals_col, year):
     grow_targets = pd.DataFrame({totals_col: [3]}, index=[year])
     tran = transition.TabularTransitionModel(grow_targets, totals_col)
-    new = tran.transition(basic_df, year=year)
-    assert_for_remove(new)
+    new, new_indexes = tran.transition(basic_df, year=year)
+    assert_for_remove(new, new_indexes)
 
 
 def test_tabular_transition_raises_on_bad_year(
@@ -167,6 +182,6 @@ def test_tabular_transition_add_filters(
     populate = True
     tran = transition.TabularTransitionModel(
         grow_targets_filters, totals_col, populate)
-    new = tran.transition(basic_df, year=year)
+    new, new_indexes = tran.transition(basic_df, year=year)
 
     assert len(new) == grow_targets_filters[totals_col].sum()

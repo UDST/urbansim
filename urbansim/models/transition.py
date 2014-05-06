@@ -22,10 +22,12 @@ def add_rows(data, nrows):
     updated : pandas.DataFrame
         Table with rows added. New rows will have their index values
         set to NaN.
+    new_indexes : pandas.Index
+        Index with a single nan suitable for indexing the newly added rows.
 
     """
     if nrows == 0:
-        return data
+        return data, pd.Index([])
 
     i_to_copy = np.random.choice(data.index.values, nrows)
     new_rows = data.loc[i_to_copy].copy()
@@ -34,7 +36,7 @@ def add_rows(data, nrows):
     # seems to be to make the Index with dtype object
     new_rows.index = pd.Index([np.nan] * len(new_rows), dtype=np.object)
 
-    return pd.concat([data, new_rows])
+    return pd.concat([data, new_rows]), pd.Index([np.nan], dtype=np.object)
 
 
 def remove_rows(data, nrows):
@@ -55,37 +57,40 @@ def remove_rows(data, nrows):
     """
     nrows = abs(nrows)  # in case a negative number came in
     if nrows == 0:
-        return data
+        return data, pd.Index([])
     elif nrows >= len(data):
         raise ValueError('Operation would remove entire table.')
 
     i_to_keep = np.random.choice(
         data.index.values, len(data) - nrows, replace=False)
-    return data.loc[i_to_keep]
+    return data.loc[i_to_keep], pd.Index([])
 
 
-def fill_nan_ids(data):
+def fill_nan_ids(index):
     """
-    Fill NaN values in the index of a table. They will be filled
+    Fill NaN values in a pandas Index. They will be filled
     with integers larger than the largest existing ID.
 
     Parameters
     ----------
-    data : pandas.DataFrame
+    index : pandas.Index
 
     Returns
     -------
-    pandas.DataFrame
+    filled_index : pandas.Index
+        A new, complete index.
+    new_indexes : pandas.Index
+        An index containing only the new index values.
+        (For more easily tracking which ones are new.)
 
     """
-    index = pd.Series(data.index)
+    index = pd.Series(index)
     isnull = index.isnull()
     n_to_fill = isnull.sum()
     id_max = int(index.max())
     new_ids = range(id_max + 1, id_max + 1 + n_to_fill)
     index[isnull] = new_ids
-    data.index = pd.Int64Index(index)
-    return data
+    return pd.Int64Index(index), pd.Int64Index(new_ids)
 
 
 def _add_or_remove_rows(data, nrows):
@@ -103,6 +108,8 @@ def _add_or_remove_rows(data, nrows):
     -------
     updated : pandas.DataFrame
         Table with random rows removed.
+    new_indexes : pandas.Index
+        Indexes of rows that were added, if any.
 
     """
     if nrows > 0:
@@ -112,7 +119,7 @@ def _add_or_remove_rows(data, nrows):
         return remove_rows(data, nrows)
 
     else:
-        return data
+        return data, pd.Index([])
 
 
 class GRTransitionModel(object):
@@ -155,15 +162,17 @@ class GRTransitionModel(object):
         -------
         updated : pandas.DataFrame
             Table with rows removed or added.
+        new_indexes : pandas.Index
+            Index of new rows, if any.
 
         """
         nrows = int(round(len(data) * self.growth_rate))
-        updated = _add_or_remove_rows(data, nrows)
+        updated, new_indexes = _add_or_remove_rows(data, nrows)
 
         if self.populate_ids:
-            updated = fill_nan_ids(updated)
+            updated.index, new_indexes = fill_nan_ids(updated.index)
 
-        return updated
+        return updated, new_indexes
 
 
 class TabularTransitionModel(object):
@@ -213,16 +222,23 @@ class TabularTransitionModel(object):
         totals = self.targets.loc[[year]]  # want this to be a DataFrame
 
         segments = []
+        new_indexes = []
 
         for _, row in totals.iterrows():
             subset = util.filter_table(data, row, ignore={self.totals_column})
             nrows = row[self.totals_column] - len(subset)
-            updated = _add_or_remove_rows(subset, nrows)
+            updated, indexes = _add_or_remove_rows(subset, nrows)
             segments.append(updated)
+            new_indexes.append(indexes)
 
         updated = pd.concat(segments)
 
-        if self.populate_ids:
-            updated = fill_nan_ids(updated)
+        if sum(len(i) for i in new_indexes) > 0:
+            new_indexes = pd.Index([np.nan], dtype=np.object)
+        else:
+            new_indexes = pd.Index([])
 
-        return updated
+        if self.populate_ids:
+            updated.index, new_indexes = fill_nan_ids(updated.index)
+
+        return updated, new_indexes
