@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
-import simplejson as json
+import yaml
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from patsy import dmatrix
+from urbansim.utils import misc
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -191,30 +192,32 @@ class RegressionModel(object):
         self.model_fit = None
 
     @classmethod
-    def from_json(cls, json_str=None, str_or_buffer=None):
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
         """
-        Create a RegressionModel instance from a saved JSON configuration.
+        Create a RegressionModel instance from a saved YAML configuration.
         Arguments are mutally exclusive.
 
         Parameters
         ----------
-        json_str : str, optional
-            A JSON string from which to load model.
+        yaml_str : str, optional
+            A YAML string from which to load model.
         str_or_buffer : str or file like, optional
-            File name or buffer from which to load JSON.
+            File name or buffer from which to load YAML.
 
         Returns
         -------
         RegressionModel
 
         """
-        if json_str:
-            j = json.loads(json_str)
+        if yaml_str:
+            j = yaml.loads(yaml_str)
         elif isinstance(str_or_buffer, str):
             with open(str_or_buffer) as f:
-                j = json.load(f)
+                j = yaml.load(f)
         else:
-            j = json.load(str_or_buffer)
+            j = yaml.load(str_or_buffer)
+
+        misc.make_model_expression(j)
 
         model = cls(
             j['fit_filters'],
@@ -223,7 +226,7 @@ class RegressionModel(object):
             YTRANSFORM_MAPPING[j['ytransform']],
             j['name'])
 
-        if j['fitted']:
+        if 'fitted' in j and j['fitted']:
             model.model_fit = _FakeRegressionResults(
                 j['model_expression'], pd.Series(j['coefficients']))
 
@@ -287,22 +290,26 @@ class RegressionModel(object):
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)
 
-    def to_json(self, str_or_buffer=None):
+    def model_fit_dict(self):
+        return dict([(str(k), float(v))
+                     for k, v in self.model_fit.params.to_dict().items()])
+
+    def to_yaml(self, str_or_buffer=None):
         """
         Save a model respresentation to JSON.
 
         Parameters
         ----------
         str_or_buffer : str or file like, optional
-            By default a JSON string is returned. If a string is
-            given here the JSON will be written to that file.
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
             If an object with a ``.write`` method is given the
-            JSON will be written to that object.
+            YAML will be written to that object.
 
         Returns
         -------
         j : str
-            JSON is string if `str_or_buffer` is not given.
+            YAML is string if `str_or_buffer` is not given.
 
         """
         indent = 2
@@ -315,17 +322,19 @@ class RegressionModel(object):
             'model_expression': self.model_expression,
             'ytransform': YTRANSFORM_MAPPING[self.ytransform],
             'coefficients': (None if not self.fitted
-                             else self.model_fit.params.to_dict()),
+                             else self.model_fit_dict()),
             'fitted': self.fitted
         }
 
+        s = misc.ordered_yaml(j)
+
         if not str_or_buffer:
-            return json.dumps(j, indent=indent)
+            return s
         elif isinstance(str_or_buffer, str):
             with open(str_or_buffer, 'w') as f:
-                json.dump(j, f, indent=indent)
+                f.write(s)
         else:
-            json.dump(j, str_or_buffer, indent=indent)
+            str_or_buffer.write(s)
 
 
 class RegressionModelGroup(object):

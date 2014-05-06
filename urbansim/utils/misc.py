@@ -3,6 +3,7 @@ from __future__ import print_function
 import csv
 import os
 import string
+import yaml
 
 import numpy as np
 import pandas as pd
@@ -55,6 +56,61 @@ def output_dir():
 
 def debug_dir():
     return mkifnotexists("debug")
+
+
+def config(fname):
+    return os.path.join(configs_dir(), fname)
+
+
+def ordered_yaml(cfg):
+    order = ["name", "model_type", "fit_filters", "predict_filters",
+                     "patsy", "dep_var", "dep_var_transform", "model_expression",
+                     "ytransform"]
+
+    s = ""
+    for key in order:
+        if key not in cfg:
+            continue
+        s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
+        s += "\n"
+
+    for key in cfg:
+        if key in order:
+            continue
+        s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
+        s += "\n"
+
+    return s
+
+
+def make_model_expression(cfg):
+    """
+    Turn the parameters into the string expected by patsy.
+
+    Parameters
+    ----------
+    cfg : A dictionary of key-value pairs.  'patsy' defines
+        patsy variables, 'dep_var' is the dependent variable,
+        and 'dep_var_transform' is the transformation of the
+        dependent variable.
+
+    Returns
+    -------
+    Modifies the dictionary of params in place
+    """
+    if "patsy" not in cfg:
+        return
+    if "dep_var" not in cfg:
+        return
+    if "dep_var_transform" not in cfg:
+        return
+    patsy_exp = cfg['patsy']
+    if type(patsy_exp) == list:
+        patsy_exp = ' + '.join(cfg['patsy'])
+    # deal with missing dep_var_transform
+    patsy_exp = '%s(%s) ~ ' % (
+        cfg['dep_var_transform'], cfg['dep_var']) + patsy_exp
+    cfg['model_expression'] = patsy_exp
 
 
 def get_run_number():
