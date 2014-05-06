@@ -6,6 +6,14 @@ import pandas as pd
 from . import util
 
 
+def empty_index():
+    return pd.Index([])
+
+
+def nan_index():
+    return pd.Index([np.nan], dtype=object)
+
+
 def add_rows(data, nrows):
     """
     Add rows to data table according to a given nrows.
@@ -27,16 +35,16 @@ def add_rows(data, nrows):
 
     """
     if nrows == 0:
-        return data, pd.Index([])
+        return data, empty_index()
 
     i_to_copy = np.random.choice(data.index.values, nrows)
     new_rows = data.loc[i_to_copy].copy()
 
     # the only wat to get NaNs into an index along with integers
     # seems to be to make the Index with dtype object
-    new_rows.index = pd.Index([np.nan] * len(new_rows), dtype=np.object)
+    new_rows.index = nan_index().repeat(len(new_rows))
 
-    return pd.concat([data, new_rows]), pd.Index([np.nan], dtype=np.object)
+    return pd.concat([data, new_rows]), nan_index()
 
 
 def remove_rows(data, nrows):
@@ -57,13 +65,13 @@ def remove_rows(data, nrows):
     """
     nrows = abs(nrows)  # in case a negative number came in
     if nrows == 0:
-        return data, pd.Index([])
+        return data, empty_index()
     elif nrows >= len(data):
         raise ValueError('Operation would remove entire table.')
 
     i_to_keep = np.random.choice(
         data.index.values, len(data) - nrows, replace=False)
-    return data.loc[i_to_keep], pd.Index([])
+    return data.loc[i_to_keep], empty_index()
 
 
 def fill_nan_ids(index):
@@ -119,7 +127,7 @@ def _add_or_remove_rows(data, nrows):
         return remove_rows(data, nrows)
 
     else:
-        return data, pd.Index([])
+        return data, empty_index()
 
 
 class GRTransitionModel(object):
@@ -234,9 +242,9 @@ class TabularTransitionModel(object):
         updated = pd.concat(segments)
 
         if sum(len(i) for i in new_indexes) > 0:
-            new_indexes = pd.Index([np.nan], dtype=np.object)
+            new_indexes = nan_index()
         else:
-            new_indexes = pd.Index([])
+            new_indexes = empty_index()
 
         if self.populate_ids:
             updated.index, new_indexes = fill_nan_ids(updated.index)
