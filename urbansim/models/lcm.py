@@ -125,6 +125,46 @@ class MNLLocationChoiceModel(object):
         self._log_lks = None
         self._model_columns = None
         self.fit_results = None
+    
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a LocationChoiceModel instance from a saved YAML configuration.
+        Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        LocationChoiceModel
+
+        """
+        if yaml_str:
+            j = yaml.loads(yaml_str)
+        elif isinstance(str_or_buffer, str):
+            with open(str_or_buffer) as f:
+                j = yaml.load(f)
+        else:
+            j = yaml.load(str_or_buffer)
+
+        model = cls(
+            j['alts_fit_filters'],
+            j['alts_predict_filters'],
+            j['model_expression'],
+            j['sample_size'],
+            j['choice_column'],
+            j['name'])
+
+        if 'fitted' in j and j['fitted']:
+            model.model_fit = _FakeRegressionResults(
+                j['model_expression'], pd.Series(j['coefficients']))
+
+        return model
 
     def fit(self, choosers, alternatives, current_choice):
         """
