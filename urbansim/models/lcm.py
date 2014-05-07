@@ -2,6 +2,7 @@ from __future__ import print_function, division
 
 import numpy as np
 import pandas as pd
+import yaml
 from patsy import dmatrix
 from prettytable import PrettyTable
 
@@ -96,6 +97,8 @@ class MNLLocationChoiceModel(object):
     interaction_predict_filters : list of str, optional
         Filters applied to the merged choosers/alternatives table
         before predicting agent choices.
+    estimation_sample_size : int, optional, whether to sample choosers
+        during estimation (needs to be applied after choosers_fit_filters)
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -109,6 +112,7 @@ class MNLLocationChoiceModel(object):
                  choosers_fit_filters=None, choosers_predict_filters=None,
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
+                 estimation_sample_size=None,
                  choice_column=None, name=None):
         # LCMs never have a constant
         self.model_expression = model_expression + ' - 1'
@@ -119,13 +123,14 @@ class MNLLocationChoiceModel(object):
         self.alts_fit_filters = alts_fit_filters
         self.alts_predict_filters = alts_predict_filters
         self.interaction_predict_filters = interaction_predict_filters
+        self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
 
         self._log_lks = None
         self._model_columns = None
         self.fit_results = None
-    
+
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
         """
@@ -141,7 +146,7 @@ class MNLLocationChoiceModel(object):
 
         Returns
         -------
-        LocationChoiceModel
+        MNLLocationChoiceModel
 
         """
         if yaml_str:
@@ -153,12 +158,17 @@ class MNLLocationChoiceModel(object):
             j = yaml.load(str_or_buffer)
 
         model = cls(
-            j['alts_fit_filters'],
-            j['alts_predict_filters'],
             j['model_expression'],
             j['sample_size'],
-            j['choice_column'],
-            j['name'])
+            j.get('location_id_col', None),
+            j.get('choosers_fit_filters', None),
+            j.get('choosers_predict_filters', None),
+            j.get('alts_fit_filters', None),
+            j.get('alts_predict_filters', None),
+            j.get('interaction_predict_filters', None),
+            j.get('estimation_sample_size', None),
+            j.get('choice_column', None),
+            j.get('name', None))
 
         if 'fitted' in j and j['fitted']:
             model.model_fit = _FakeRegressionResults(
@@ -193,6 +203,9 @@ class MNLLocationChoiceModel(object):
 
         """
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+        if self.estimation_sample_size:
+            choosers = choosers.loc[np.random.choice(choosers.index,
+                                    self.estimation_sample_size, replace=False)]
         current_choice = current_choice.loc[choosers.index]
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
@@ -241,14 +254,15 @@ class MNLLocationChoiceModel(object):
             print('Model not yet fit.')
             return
 
-        print('Null Log-liklihood: {}'.format(self._log_lks[0]))
-        print('Log-liklihood at convergence: {}'.format(self._log_lks[1]))
-        print('Log-liklihood Ratio: {}\n'.format(self._log_lks[2]))
+        print('Null Log-liklihood: {0:.3f}'.format(float(self._log_lks[0])))
+        print('Log-liklihood at convergence: {0:.3f}'.format(float(self._log_lks[1])))
+        print('Log-liklihood Ratio: {0:.3f}\n'.format(float(self._log_lks[2])))
 
         tbl = PrettyTable(
             ['Component', 'Coefficient', 'Std. Error', 'T-Score'])
         tbl.align['Component'] = 'l'
-        for c, x in zip(self._model_columns, self.fit_results):
+        rounded = [tuple(["{0: .3f}".format(float(x)) for x in r]) for r in self.fit_results]
+        for c, x in zip(self._model_columns, rounded):
             tbl.add_row((c,) + x)
 
         print(tbl)
