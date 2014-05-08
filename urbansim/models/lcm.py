@@ -8,6 +8,7 @@ from prettytable import PrettyTable
 
 from . import util
 from ..urbanchoice import interaction, mnl
+from ..utils import misc
 
 
 def unit_choice(chooser_ids, alternative_ids, probabilities):
@@ -106,6 +107,10 @@ class MNLLocationChoiceModel(object):
     name : optional
         Optional descriptive name for this model that may be used
         in output.
+    simple_relocation_rate : optional
+        The simplest relocation model is to specify a percentage of
+        households to relocate - this takes the specified percentage
+        of choosers, drawn randomly.
 
     """
     def __init__(self, model_expression, sample_size, location_id_col=None,
@@ -113,9 +118,11 @@ class MNLLocationChoiceModel(object):
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
                  estimation_sample_size=None,
-                 choice_column=None, name=None):
+                 choice_column=None, name=None, simple_relocation_rate=None):
         # LCMs never have a constant
-        self.model_expression = model_expression + ' - 1'
+        self.model_expression = model_expression
+        if not self.model_expression.endswith(' - 1'):
+            self.model_expression += ' - 1'
         self.sample_size = sample_size
         self.location_id_col = location_id_col
         self.choosers_fit_filters = choosers_fit_filters
@@ -126,6 +133,7 @@ class MNLLocationChoiceModel(object):
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
+        self.simple_relocation_rate = simple_relocation_rate
 
         self._log_lks = None
         self._model_columns = None
@@ -160,19 +168,18 @@ class MNLLocationChoiceModel(object):
         model = cls(
             j['model_expression'],
             j['sample_size'],
-            j.get('location_id_col', None),
-            j.get('choosers_fit_filters', None),
-            j.get('choosers_predict_filters', None),
-            j.get('alts_fit_filters', None),
-            j.get('alts_predict_filters', None),
-            j.get('interaction_predict_filters', None),
-            j.get('estimation_sample_size', None),
-            j.get('choice_column', None),
-            j.get('name', None))
-
-        if 'fitted' in j and j['fitted']:
-            model.model_fit = _FakeRegressionResults(
-                j['model_expression'], pd.Series(j['coefficients']))
+            location_id_col=j.get('location_id_col', None),
+            choosers_fit_filters=j.get('choosers_fit_filters', None),
+            choosers_predict_filters=j.get('choosers_predict_filters', None),
+            alts_fit_filters=j.get('alts_fit_filters', None),
+            alts_predict_filters=j.get('alts_predict_filters', None),
+            interaction_predict_filters=j.get('interaction_predict_filters', None),
+            estimation_sample_size=j.get('estimation_sample_size', None),
+            choice_column=j.get('choice_column', None),
+            name=j.get('name', None),
+            simple_relocation_rate=j.get('simple_relocation_rate', None)
+        )
+        model.set_coefficients(j.get('coefficients', None))
 
         return model
 
@@ -245,6 +252,16 @@ class MNLLocationChoiceModel(object):
         self.assert_fitted()
         return [x[0] for x in self.fit_results]
 
+    def set_coefficients(self, coeffs):
+        """
+        Set coefficients from list.
+
+        Parameters
+        ----------
+        coeffs : The list of coefficients to set.
+        """
+        self.fit_results = [[x] for x in coeffs]
+
     def report_fit(self):
         """
         Print a report of the fit results.
@@ -290,6 +307,15 @@ class MNLLocationChoiceModel(object):
         """
         self.assert_fitted()
 
+        if self.simple_relocation_rate:
+            chooser_ids = np.random.choice(
+                choosers.index, size=self.simple_relocation_rate *
+                len(choosers.index), replace=False)
+            if self.location_id_col:
+                # need to merge with anythig else that was already nan
+                choosers[self.location_id_col].loc[chooser_ids] = np.nan
+            else:
+                choosers = choosers.loc[chooser_ids]
         if self.location_id_col:
             choosers = choosers[choosers[self.location_id_col].isnull()]
         choosers = util.apply_filter_query(
@@ -318,3 +344,59 @@ class MNLLocationChoiceModel(object):
 
         return unit_choice(
             choosers.index, alt_choices, probabilities)
+
+    def model_fit_dict(self):
+        return dict([(str(k), float(v))
+                     for k, v in zip(self._model_columns, self.coefficients)])
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML is string if `str_or_buffer` is not given.
+
+        """
+        indent = 2
+
+        j = {
+            'model_type': 'locationchoice',
+            'model_expression': self.model_expression,
+            'sample_size': self.sample_size,
+            'fitted': self.fitted,
+            'name': self.name,
+            'coefficients': (None if not self.fitted
+                             else [float(x) for x in self.coefficients]),
+            'location_id_col': self.location_id_col,
+            'choosers_fit_filters': self.choosers_fit_filters,
+            'choosers_predict_filters': self.choosers_predict_filters,
+            'alts_fit_filters': self.alts_fit_filters,
+            'alts_predict_filters': self.alts_predict_filters,
+            'interaction_predict_filters': self.interaction_predict_filters,
+            'estimation_sample_size': self.estimation_sample_size,
+            'choice_column': self.choice_column,
+            'simple_relocation_rate': self.simple_relocation_rate
+        }
+        for k, v in j.items():
+            if v is None:
+                del j[k]
+
+        s = misc.ordered_yaml(j)
+
+        if not str_or_buffer:
+            return s
+        elif isinstance(str_or_buffer, str):
+            with open(str_or_buffer, 'w') as f:
+                f.write(s)
+        else:
+            str_or_buffer.write(s)

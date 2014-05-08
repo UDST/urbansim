@@ -99,7 +99,7 @@ class _FakeRegressionResults(object):
     This can be used in place of a statsmodels RegressionResults
     for limited purposes when it comes to model prediction.
 
-    Intended for use when loading a model from a JSON representation;
+    Intended for use when loading a model from a YAML representation;
     we can do model evaluation using the stored coefficients, but can't
     recreate the original statsmodels fit result.
 
@@ -296,7 +296,7 @@ class RegressionModel(object):
 
     def to_yaml(self, str_or_buffer=None):
         """
-        Save a model respresentation to JSON.
+        Save a model respresentation to YAML.
 
         Parameters
         ----------

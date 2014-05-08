@@ -64,6 +64,10 @@ def config(fname):
 
 def ordered_yaml(cfg):
     order = ["name", "model_type", "fit_filters", "predict_filters",
+                     "choosers_fit_filters", "choosers_predict_filters",
+                     "alts_fit_filters", "alts_predict_filters",
+                     "interaction_predict_filters",
+                     "choice_column", "sample_size", "estimation_sample_size",
                      "patsy", "dep_var", "dep_var_transform", "model_expression",
                      "ytransform"]
 
