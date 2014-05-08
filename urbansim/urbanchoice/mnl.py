@@ -161,8 +161,8 @@ def mnl_estimate(data, chosen, numalts, GPU=0, coeffrange=(-3, 3),
     l_1 = -1 * mnl_loglik(beta, *args)[0]
 
     ll_ratio = 1 - (l_1 / l_0)
-    #print "Null Log-liklihood: %f" % l_0
-    #print "Log-liklihood at convergence: %f" % l_1
-    #print "Log-liklihood ratio: %f" % ll_ratio
+    # print "Null Log-liklihood: %f" % l_0
+    # print "Log-liklihood at convergence: %f" % l_1
+    # print "Log-liklihood ratio: %f" % ll_ratio
 
     return (l_0, l_1, ll_ratio), zip(beta, stderr, tscore)

@@ -107,10 +107,6 @@ class MNLLocationChoiceModel(object):
     name : optional
         Optional descriptive name for this model that may be used
         in output.
-    simple_relocation_rate : optional
-        The simplest relocation model is to specify a percentage of
-        households to relocate - this takes the specified percentage
-        of choosers, drawn randomly.
 
     """
     def __init__(self, model_expression, sample_size, location_id_col=None,
@@ -118,7 +114,7 @@ class MNLLocationChoiceModel(object):
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
                  estimation_sample_size=None,
-                 choice_column=None, name=None, simple_relocation_rate=None):
+                 choice_column=None, name=None):
         # LCMs never have a constant
         self.model_expression = model_expression
         if not self.model_expression.endswith(' - 1'):
@@ -133,7 +129,6 @@ class MNLLocationChoiceModel(object):
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
-        self.simple_relocation_rate = simple_relocation_rate
 
         self._log_lks = None
         self._model_columns = None
@@ -176,8 +171,7 @@ class MNLLocationChoiceModel(object):
             interaction_predict_filters=j.get('interaction_predict_filters', None),
             estimation_sample_size=j.get('estimation_sample_size', None),
             choice_column=j.get('choice_column', None),
-            name=j.get('name', None),
-            simple_relocation_rate=j.get('simple_relocation_rate', None)
+            name=j.get('name', None)
         )
         model.set_coefficients(j.get('coefficients', None))
 
@@ -307,15 +301,6 @@ class MNLLocationChoiceModel(object):
         """
         self.assert_fitted()
 
-        if self.simple_relocation_rate:
-            chooser_ids = np.random.choice(
-                choosers.index, size=self.simple_relocation_rate *
-                len(choosers.index), replace=False)
-            if self.location_id_col:
-                # need to merge with anythig else that was already nan
-                choosers[self.location_id_col].loc[chooser_ids] = np.nan
-            else:
-                choosers = choosers.loc[chooser_ids]
         if self.location_id_col:
             choosers = choosers[choosers[self.location_id_col].isnull()]
         choosers = util.apply_filter_query(
@@ -384,8 +369,7 @@ class MNLLocationChoiceModel(object):
             'alts_predict_filters': self.alts_predict_filters,
             'interaction_predict_filters': self.interaction_predict_filters,
             'estimation_sample_size': self.estimation_sample_size,
-            'choice_column': self.choice_column,
-            'simple_relocation_rate': self.simple_relocation_rate
+            'choice_column': self.choice_column
         }
         for k, v in j.items():
             if v is None:

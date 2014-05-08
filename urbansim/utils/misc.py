@@ -68,6 +68,7 @@ def ordered_yaml(cfg):
                      "alts_fit_filters", "alts_predict_filters",
                      "interaction_predict_filters",
                      "choice_column", "sample_size", "estimation_sample_size",
+                     "simple_relocation_rate",
                      "patsy", "dep_var", "dep_var_transform", "model_expression",
                      "ytransform"]
 
