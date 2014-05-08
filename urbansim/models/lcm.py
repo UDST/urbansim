@@ -254,6 +254,8 @@ class MNLLocationChoiceModel(object):
         ----------
         coeffs : The list of coefficients to set.
         """
+        if coeffs is None:
+            return
         self.fit_results = [[x] for x in coeffs]
 
     def report_fit(self):
