@@ -2,14 +2,62 @@ import cPickle
 import os
 import sys
 import time
+import yaml
 
 import numpy as np
 import pandas as pd
 
-from urbansim.utils import misc
+from . import misc
+from ..models import util
 
 NETWORKS = None
 
+def from_yaml(dset, cfgname):
+    print "Computing accessibility variables"
+    cfg = yaml.load(open(misc.config(cfgname)))
+
+    nodes = pd.DataFrame(index=NETWORKS.external_nodeids)
+
+    for variable in cfg['variable_definitions']:
+
+        name = variable["name"]
+        print "Computing %s" % name
+
+        decay = {
+            "exponential": "DECAY_EXP",
+            "linear": "DECAY_LINEAR",
+            "flat": "DECAY_FLAT"
+        }.get(variable.get("decay", "linear"))
+
+        agg = {
+            "sum": "AGG_SUM",
+            "average": "AGG_AVE",
+            "stddev": "AGG_STDDEV"
+        }.get(variable.get("aggregation", "sum"))
+
+        vname = variable.get("varname", None)
+
+        radius = variable["radius"]
+
+        dfname = variable["dataframe"]
+        df = dset.fetch(dfname)
+
+        if "filters" in variable:
+            util.apply_filter_query(df, variable["filters"])
+
+        print "    dataframe = %s, varname=%s" % (dfname, vname)
+        print "    radius = %s, aggregation = %s, decay = %s" % (radius, agg, decay)
+
+        nodes[name] = NETWORKS.accvar(df,
+                                               radius,
+                                               agg=agg,
+                                               decay=decay,
+                                               vname=vname).astype('float').values
+
+        if "apply" in variable:
+            nodes[name] = nodes[name].apply(eval(variable["apply"]))
+
+    return nodes
 
 class Networks:
 
