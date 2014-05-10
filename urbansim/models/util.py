@@ -96,3 +96,19 @@ def filter_table(table, filter_series, ignore=None):
                        (isinstance(val, numbers.Number) and
                         np.isnan(val)))]
     return apply_filter_query(table, filters)
+
+
+def concat_indexes(indexes):
+    """
+    Concatenate a sequence of pandas Indexes.
+
+    Parameters
+    ----------
+    indexes : sequence of pandas.Index
+
+    Returns
+    -------
+    pandas.Index
+
+    """
+    return pd.Index(np.concatenate(indexes))

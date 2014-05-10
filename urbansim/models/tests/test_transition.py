@@ -27,6 +27,11 @@ def totals_col():
 
 
 @pytest.fixture
+def rates_col():
+    return 'growth_rate'
+
+
+@pytest.fixture
 def grow_targets(year, totals_col):
     return pd.DataFrame({totals_col: [7]}, index=[year])
 
@@ -40,47 +45,73 @@ def grow_targets_filters(year, totals_col):
                         index=[year, year, year])
 
 
-def assert_for_add_no_fill(new, new_indexes):
+@pytest.fixture
+def growth_rates(rates_col, totals_col, grow_targets):
+    del grow_targets[totals_col]
+    grow_targets[rates_col] = [0.4]
+    return grow_targets
+
+
+@pytest.fixture
+def growth_rates_filters(rates_col, totals_col, grow_targets_filters):
+    del grow_targets_filters[totals_col]
+    grow_targets_filters[rates_col] = [0.5, -0.5, 0]
+    return grow_targets_filters
+
+
+def assert_empty_index(index):
+    pdt.assert_index_equal(index, pd.Index([]))
+
+
+def assert_for_add(new, added):
     assert len(new) == 7
-    assert np.isnan(new.index.values[-2:].astype(np.float)).all()
-    pdt.assert_index_equal(new_indexes, pd.Index([np.nan], dtype=np.object))
+    pdt.assert_index_equal(added, pd.Index([105, 106]))
 
 
-def assert_for_add_and_fill(new, new_indexes):
-    assert len(new) == 7
-    assert not np.isnan(new.index.values[-2:].astype(np.float)).any()
-    pdt.assert_index_equal(new_indexes, pd.Index([105, 106]))
-
-
-def assert_for_remove(new, new_indexes):
+def assert_for_remove(new, added):
     assert len(new) == 3
-    pdt.assert_index_equal(new_indexes, pd.Index([]))
+    assert_empty_index(added)
 
 
 def test_add_rows(basic_df):
     nrows = 2
-    new, new_indexes = transition.add_rows(basic_df, nrows)
-    assert_for_add_no_fill(new, new_indexes)
+    new, added, copied = transition.add_rows(basic_df, nrows)
+    assert_for_add(new, added)
+    assert len(copied) == nrows
+    assert copied.isin(basic_df.index).all()
+
+
+def test_add_rows_starting_index(basic_df):
+    nrows = 2
+    starting_index = 1000
+    new, added, copied = transition.add_rows(basic_df, nrows, starting_index)
+    assert len(new) == len(basic_df) + nrows
+    pdt.assert_index_equal(added, pd.Index([1000, 1001]))
+    assert len(copied) == nrows
+    assert copied.isin(basic_df.index).all()
 
 
 def test_add_rows_zero(basic_df):
     nrows = 0
-    new, new_indexes = transition.add_rows(basic_df, nrows)
+    new, added, copied = transition.add_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df)
-    pdt.assert_index_equal(new_indexes, pd.Index([]))
+    assert_empty_index(added)
+    assert_empty_index(copied)
 
 
 def test_remove_rows(basic_df):
     nrows = 2
-    new, new_indexes = transition.remove_rows(basic_df, nrows)
-    assert_for_remove(new, new_indexes)
+    new, removed_indexes = transition.remove_rows(basic_df, nrows)
+    assert_for_remove(new, transition._empty_index())
+    assert len(removed_indexes) == nrows
+    assert removed_indexes.isin(basic_df.index).all()
 
 
 def test_remove_rows_zero(basic_df):
     nrows = 0
-    new, new_indexes = transition.remove_rows(basic_df, nrows)
+    new, removed = transition.remove_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df)
-    pdt.assert_index_equal(new_indexes, pd.Index([]))
+    assert_empty_index(removed)
 
 
 def test_remove_rows_raises(basic_df):
@@ -92,96 +123,178 @@ def test_remove_rows_raises(basic_df):
         transition.remove_rows(basic_df, nrows)
 
 
-def test_fill_nan_ids(basic_df):
-    nrows = 2
-    new, new_indexes = transition.add_rows(basic_df, nrows)
-    filled_index, new_indexes = transition.fill_nan_ids(new.index)
-
-    npt.assert_array_equal(filled_index.values, range(100, 100 + 7))
-    npt.assert_array_equal(new_indexes.values, range(105, 105 + 2))
-
-
-def test_fill_nan_ids_remove(basic_df):
-    nrows = -2
-    new, new_indexes = transition.remove_rows(basic_df, nrows)
-    filled_index, new_indexes = transition.fill_nan_ids(new.index)
-
-    pdt.assert_index_equal(filled_index, new.index)
-    pdt.assert_index_equal(new_indexes, pd.Index([]))
-
-
 def test_add_or_remove_rows_add(basic_df):
     nrows = 2
-    new, new_indexes = transition._add_or_remove_rows(basic_df, nrows)
-    assert_for_add_no_fill(new, new_indexes)
+    new, added, copied, removed = \
+        transition.add_or_remove_rows(basic_df, nrows)
+    assert_for_add(new, added)
+    assert len(copied) == abs(nrows)
+    assert copied.isin(basic_df.index).all()
+    assert_empty_index(removed)
 
 
 def test_add_or_remove_rows_remove(basic_df):
     nrows = -2
-    new, new_indexes = transition._add_or_remove_rows(basic_df, nrows)
-    assert_for_remove(new, new_indexes)
+    new, added, copied, removed = \
+        transition.add_or_remove_rows(basic_df, nrows)
+    assert_for_remove(new, added)
+    assert len(removed) == abs(nrows)
+    assert removed.isin(basic_df.index).all()
+    assert_empty_index(copied)
 
 
-def test_grtransition_add_fills(basic_df):
+def test_add_or_remove_rows_zero(basic_df):
+    nrows = 0
+    new, added, copied, removed = \
+        transition.add_or_remove_rows(basic_df, nrows)
+    pdt.assert_frame_equal(new, basic_df)
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    assert_empty_index(removed)
+
+
+def test_grtransition_add(basic_df):
     growth_rate = 0.4
-    populate = True
-    grt = transition.GRTransitionModel(growth_rate, populate)
-    new, new_indexes = grt.transition(basic_df)
-    assert_for_add_and_fill(new, new_indexes)
-
-
-def test_grtransition_add_nofill(basic_df):
-    growth_rate = 0.4
-    populate = False
-    grt = transition.GRTransitionModel(growth_rate, populate)
-    new, new_indexes = grt.transition(basic_df)
-    assert_for_add_no_fill(new, new_indexes)
+    year = 2112
+    grt = transition.GrowthRateTransition(growth_rate)
+    new, added, copied, removed = grt.transition(basic_df, year)
+    assert_for_add(new, added)
+    assert len(copied) == 2
+    assert copied.isin(basic_df.index).all()
+    assert_empty_index(removed)
 
 
 def test_grtransition_remove(basic_df):
     growth_rate = -0.4
-    grt = transition.GRTransitionModel(growth_rate)
-    new, new_indexes = grt.transition(basic_df)
-    assert_for_remove(new, new_indexes)
+    year = 2112
+    grt = transition.GrowthRateTransition(growth_rate)
+    new, added, copied, removed = grt.transition(basic_df, year)
+    assert_for_remove(new, added)
+    assert_empty_index(copied)
+    assert len(removed) == 2
+    assert removed.isin(basic_df.index).all()
 
 
-def test_tabular_transition_add_fill(basic_df, grow_targets, totals_col, year):
-    populate = True
-    tran = transition.TabularTransitionModel(
-        grow_targets, totals_col, populate)
-    new, new_indexes = tran.transition(basic_df, year=year)
-    assert_for_add_and_fill(new, new_indexes)
+def test_grtransition_zero(basic_df):
+    growth_rate = 0
+    year = 2112
+    grt = transition.GrowthRateTransition(growth_rate)
+    new, added, copied, removed = grt.transition(basic_df, year)
+    pdt.assert_frame_equal(new, basic_df)
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    assert_empty_index(removed)
 
 
-def test_tabular_transition_add_nofill(
-        basic_df, grow_targets, totals_col, year):
-    populate = False
-    tran = transition.TabularTransitionModel(
-        grow_targets, totals_col, populate)
-    new, new_indexes = tran.transition(basic_df, year=year)
-    assert_for_add_no_fill(new, new_indexes)
+def test_tgrtransition_add(basic_df, growth_rates, year, rates_col):
+    tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
+    new, added, copied, removed = tgrt.transition(basic_df, year)
+    assert len(new) == 7
+    bdf_imax = basic_df.index.values.max()
+    assert pd.Series([bdf_imax + 1, bdf_imax + 2]).isin(new.index).all()
+    assert len(copied) == 2
+    assert_empty_index(removed)
 
 
-def test_tabular_transition_remove(basic_df, totals_col, year):
-    grow_targets = pd.DataFrame({totals_col: [3]}, index=[year])
-    tran = transition.TabularTransitionModel(grow_targets, totals_col)
-    new, new_indexes = tran.transition(basic_df, year=year)
-    assert_for_remove(new, new_indexes)
+def test_tgrtransition_remove(basic_df, growth_rates, year, rates_col):
+    growth_rates[rates_col] = -0.4
+    tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
+    new, added, copied, removed = tgrt.transition(basic_df, year)
+    assert len(new) == 3
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    assert len(removed) == 2
+
+
+def test_tgrtransition_zero(basic_df, growth_rates, year, rates_col):
+    growth_rates[rates_col] = 0
+    tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
+    new, added, copied, removed = tgrt.transition(basic_df, year)
+    pdt.assert_frame_equal(new, basic_df)
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    assert_empty_index(removed)
+
+
+def test_tgrtransition_filters(
+        basic_df, growth_rates_filters, year, rates_col):
+    tgrt = transition.TabularGrowthRateTransition(
+        growth_rates_filters, rates_col)
+    new, added, copied, removed = tgrt.transition(basic_df, year)
+    assert len(new) == 5
+    assert basic_df.index.values.max() + 1 in new.index
+    assert len(copied) == 1
+    assert len(removed) == 1
+
+
+def test_tabular_transition_add(basic_df, grow_targets, totals_col, year):
+    tran = transition.TabularTotalsTransition(grow_targets, totals_col)
+    new, added, copied, removed = tran.transition(basic_df, year)
+    assert_for_add(new, added)
+    bdf_imax = basic_df.index.values.max()
+    assert pd.Series([bdf_imax + 1, bdf_imax + 2]).isin(new.index).all()
+    assert len(copied) == 2
+    assert_empty_index(removed)
+
+
+def test_tabular_transition_remove(basic_df, grow_targets, totals_col, year):
+    grow_targets[totals_col] = [3]
+    tran = transition.TabularTotalsTransition(grow_targets, totals_col)
+    new, added, copied, removed = tran.transition(basic_df, year)
+    assert_for_remove(new, added)
+    assert_empty_index(copied)
+    assert len(removed) == 2
 
 
 def test_tabular_transition_raises_on_bad_year(
         basic_df, grow_targets, totals_col, year):
-    tran = transition.TabularTransitionModel(grow_targets, totals_col)
+    tran = transition.TabularTotalsTransition(grow_targets, totals_col)
 
     with pytest.raises(ValueError):
-        tran.transition(basic_df, year=year + 100)
+        tran.transition(basic_df, year + 100)
 
 
 def test_tabular_transition_add_filters(
         basic_df, grow_targets_filters, totals_col, year):
-    populate = True
-    tran = transition.TabularTransitionModel(
-        grow_targets_filters, totals_col, populate)
-    new, new_indexes = tran.transition(basic_df, year=year)
+    tran = transition.TabularTotalsTransition(grow_targets_filters, totals_col)
+    new, added, copied, removed = tran.transition(basic_df, year)
 
     assert len(new) == grow_targets_filters[totals_col].sum()
+    assert basic_df.index.values.max() + 1 in new.index
+    assert len(copied) == 11
+    assert len(removed) == 1
+
+
+def test_update_linked_table(basic_df):
+    col_name = 'x'
+    added = pd.Index([5, 6, 7])
+    copied = pd.Index([1, 3, 1])
+    removed = pd.Index([0])
+
+    updated = transition._update_linked_table(
+        basic_df, col_name, added, copied, removed)
+
+    assert len(updated) == len(basic_df) + len(added) - len(removed)
+    npt.assert_array_equal(updated[col_name].values, [1, 2, 3, 4, 5, 7, 6])
+    pdt.assert_series_equal(
+        updated['y'],
+        pd.Series([6, 7, 8, 9, 6, 6, 8], index=updated.index))
+
+
+def test_transition_model(basic_df, grow_targets_filters, totals_col, year):
+    grow_targets_filters[totals_col] = [3, 1, 1]
+    tran = transition.TabularTotalsTransition(grow_targets_filters, totals_col)
+    model = transition.TransitionModel(tran)
+
+    linked_table = pd.DataFrame(
+        {'z': ['a', 'b', 'c', 'd', 'e'],
+         'thing_id': basic_df.index})
+
+    new, new_linked = model.transition(
+        basic_df, year, linked_tables={'linked': (linked_table, 'thing_id')})
+
+    assert len(new) == grow_targets_filters[totals_col].sum()
+    assert new.index.values.max() == basic_df.index.values.max() + 1
+    assert len(new_linked['linked']) == grow_targets_filters[totals_col].sum()
+    assert new.index.values.max() in new_linked['linked'].thing_id.values
+    assert new_linked['linked'].index.values.max() == 5
