@@ -292,6 +292,12 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
     Transition data via control totals in pandas DataFrame with
     optional segmentation.
 
+    Parameters
+    ----------
+    targets : pandas.DataFrame
+    totals_column : str
+        Name of the column in `targets` that contains the control totals.
+
     """
     def __init__(self, targets, totals_column):
         self.targets = targets
