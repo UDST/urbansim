@@ -116,9 +116,7 @@ class MNLLocationChoiceModel(object):
                  estimation_sample_size=None,
                  choice_column=None, name=None):
         # LCMs never have a constant
-        self.model_expression = model_expression
-        if not self.model_expression.endswith(' - 1'):
-            self.model_expression += ' - 1'
+        self.model_expression = model_expression + '- 1'
         self.sample_size = sample_size
         self.location_id_col = location_id_col
         self.choosers_fit_filters = choosers_fit_filters
@@ -168,7 +166,8 @@ class MNLLocationChoiceModel(object):
             choosers_predict_filters=j.get('choosers_predict_filters', None),
             alts_fit_filters=j.get('alts_fit_filters', None),
             alts_predict_filters=j.get('alts_predict_filters', None),
-            interaction_predict_filters=j.get('interaction_predict_filters', None),
+            interaction_predict_filters=j.get(
+                'interaction_predict_filters', None),
             estimation_sample_size=j.get('estimation_sample_size', None),
             choice_column=j.get('choice_column', None),
             name=j.get('name', None)
@@ -205,8 +204,8 @@ class MNLLocationChoiceModel(object):
         """
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
         if self.estimation_sample_size:
-            choosers = choosers.loc[np.random.choice(choosers.index,
-                                    self.estimation_sample_size, replace=False)]
+            choosers = choosers.loc[np.random.choice(
+                choosers.index, self.estimation_sample_size, replace=False)]
         current_choice = current_choice.loc[choosers.index]
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
@@ -268,13 +267,15 @@ class MNLLocationChoiceModel(object):
             return
 
         print('Null Log-liklihood: {0:.3f}'.format(float(self._log_lks[0])))
-        print('Log-liklihood at convergence: {0:.3f}'.format(float(self._log_lks[1])))
+        print('Log-liklihood at convergence: {0:.3f}'.format(
+            float(self._log_lks[1])))
         print('Log-liklihood Ratio: {0:.3f}\n'.format(float(self._log_lks[2])))
 
         tbl = PrettyTable(
             ['Component', 'Coefficient', 'Std. Error', 'T-Score'])
         tbl.align['Component'] = 'l'
-        rounded = [tuple(["{0: .3f}".format(float(x)) for x in r]) for r in self.fit_results]
+        rounded = [tuple(["{0: .3f}".format(
+            float(x)) for x in r]) for r in self.fit_results]
         for c, x in zip(self._model_columns, rounded):
             tbl.add_row((c,) + x)
 
@@ -336,6 +337,30 @@ class MNLLocationChoiceModel(object):
         return dict([(str(k), float(v))
                      for k, v in zip(self._model_columns, self.coefficients)])
 
+    def to_dict(self):
+        """
+        Return a dict respresentation of an MNLLocationChoiceModel
+        instance.
+
+        """
+        return {
+            'model_type': 'locationchoice',
+            'model_expression': self.model_expression,
+            'sample_size': self.sample_size,
+            'fitted': self.fitted,
+            'name': self.name,
+            'coefficients': (None if not self.fitted
+                             else [float(x) for x in self.coefficients]),
+            'location_id_col': self.location_id_col,
+            'choosers_fit_filters': self.choosers_fit_filters,
+            'choosers_predict_filters': self.choosers_predict_filters,
+            'alts_fit_filters': self.alts_fit_filters,
+            'alts_predict_filters': self.alts_predict_filters,
+            'interaction_predict_filters': self.interaction_predict_filters,
+            'estimation_sample_size': self.estimation_sample_size,
+            'choice_column': self.choice_column
+        }
+
     def to_yaml(self, str_or_buffer=None):
         """
         Save a model respresentation to YAML.
@@ -354,30 +379,7 @@ class MNLLocationChoiceModel(object):
             YAML is string if `str_or_buffer` is not given.
 
         """
-        indent = 2
-
-        j = {
-            'model_type': 'locationchoice',
-            'model_expression': self.model_expression,
-            'sample_size': self.sample_size,
-            'fitted': self.fitted,
-            'name': self.name,
-            'coefficients': (None if not self.fitted
-                             else [float(x) for x in self.coefficients]),
-            'location_id_col': self.location_id_col,
-            'choosers_fit_filters': self.choosers_fit_filters,
-            'choosers_predict_filters': self.choosers_predict_filters,
-            'alts_fit_filters': self.alts_fit_filters,
-            'alts_predict_filters': self.alts_predict_filters,
-            'interaction_predict_filters': self.interaction_predict_filters,
-            'estimation_sample_size': self.estimation_sample_size,
-            'choice_column': self.choice_column
-        }
-        for k, v in j.items():
-            if v is None:
-                del j[k]
-
-        s = misc.ordered_yaml(j)
+        s = misc.ordered_yaml(self.to_dict())
 
         if not str_or_buffer:
             return s
