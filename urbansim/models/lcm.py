@@ -8,7 +8,7 @@ from prettytable import PrettyTable
 
 from . import util
 from ..urbanchoice import interaction, mnl
-from ..utils import misc
+from ..utils import yamlio
 
 
 def unit_choice(chooser_ids, alternative_ids, probabilities):
@@ -379,7 +379,7 @@ class MNLLocationChoiceModel(object):
             YAML is string if `str_or_buffer` is not given.
 
         """
-        s = misc.ordered_yaml(self.to_dict())
+        s = yamlio.ordered_yaml(self.to_dict())
 
         if not str_or_buffer:
             return s

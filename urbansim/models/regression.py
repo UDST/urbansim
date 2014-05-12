@@ -4,10 +4,10 @@ import yaml
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from patsy import dmatrix
-from urbansim.utils import misc
 
 from . import util
 from ..exceptions import ModelEvaluationError
+from ..utils import yamlio
 
 
 def fit_model(df, filters, model_expression):
@@ -217,7 +217,7 @@ class RegressionModel(object):
         else:
             j = yaml.load(str_or_buffer)
 
-        misc.make_model_expression(j)
+        yamlio.make_model_expression(j)
 
         model = cls(
             j['fit_filters'],
@@ -329,7 +329,7 @@ class RegressionModel(object):
             YAML string if `str_or_buffer` is not given.
 
         """
-        s = misc.ordered_yaml(self.to_dict())
+        s = yamlio.ordered_yaml(self.to_dict())
 
         if not str_or_buffer:
             return s
