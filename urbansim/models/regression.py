@@ -210,7 +210,7 @@ class RegressionModel(object):
 
         """
         if yaml_str:
-            j = yaml.loads(yaml_str)
+            j = yaml.load(yaml_str)
         elif isinstance(str_or_buffer, str):
             with open(str_or_buffer) as f:
                 j = yaml.load(f)
@@ -294,6 +294,23 @@ class RegressionModel(object):
         return dict([(str(k), float(v))
                      for k, v in self.model_fit.params.to_dict().items()])
 
+    def to_dict(self):
+        """
+        Returns a dictionary representation of a RegressionModel instance.
+
+        """
+        return {
+            'model_type': 'regression',
+            'name': self.name,
+            'fit_filters': self.fit_filters,
+            'predict_filters': self.predict_filters,
+            'model_expression': self.model_expression,
+            'ytransform': YTRANSFORM_MAPPING[self.ytransform],
+            'coefficients': (None if not self.fitted
+                             else self.model_fit_dict()),
+            'fitted': self.fitted
+        }
+
     def to_yaml(self, str_or_buffer=None):
         """
         Save a model respresentation to YAML.
@@ -309,24 +326,10 @@ class RegressionModel(object):
         Returns
         -------
         j : str
-            YAML is string if `str_or_buffer` is not given.
+            YAML string if `str_or_buffer` is not given.
 
         """
-        indent = 2
-
-        j = {
-            'model_type': 'regression',
-            'name': self.name,
-            'fit_filters': self.fit_filters,
-            'predict_filters': self.predict_filters,
-            'model_expression': self.model_expression,
-            'ytransform': YTRANSFORM_MAPPING[self.ytransform],
-            'coefficients': (None if not self.fitted
-                             else self.model_fit_dict()),
-            'fitted': self.fitted
-        }
-
-        s = misc.ordered_yaml(j)
+        s = misc.ordered_yaml(self.to_dict())
 
         if not str_or_buffer:
             return s

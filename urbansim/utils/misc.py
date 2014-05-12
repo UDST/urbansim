@@ -63,27 +63,25 @@ def config(fname):
 
 
 def ordered_yaml(cfg):
-    order = ["name", "model_type", "fit_filters", "predict_filters",
-                     "choosers_fit_filters", "choosers_predict_filters",
-                     "alts_fit_filters", "alts_predict_filters",
-                     "interaction_predict_filters",
-                     "choice_column", "sample_size", "estimation_sample_size",
-                     "simple_relocation_rate",
-                     "patsy", "dep_var", "dep_var_transform", "model_expression",
-                     "ytransform"]
+    order = ['name', 'model_type', 'fit_filters', 'predict_filters',
+             'choosers_fit_filters', 'choosers_predict_filters',
+             'alts_fit_filters', 'alts_predict_filters',
+             'interaction_predict_filters',
+             'choice_column', 'sample_size', 'estimation_sample_size',
+             'simple_relocation_rate',
+             'patsy', 'dep_var', 'dep_var_transform', 'model_expression',
+             'ytransform']
 
-    s = ""
+    s = ''
     for key in order:
         if key not in cfg:
             continue
         s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
-        s += "\n"
 
     for key in cfg:
         if key in order:
             continue
         s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
-        s += "\n"
 
     return s
 

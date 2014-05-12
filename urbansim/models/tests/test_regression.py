@@ -6,8 +6,8 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
-import simplejson as json
 import statsmodels.formula.api as smf
+import yaml
 from pandas.util import testing as pdt
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
@@ -141,7 +141,7 @@ def test_RegressionModelGroup(groupby_df):
         predicted.sort_index(), groupby_df.col1, check_dtype=False)
 
 
-def assert_json_specs_equal(j1, j2):
+def assert_dict_specs_equal(j1, j2):
     j1_coeff = j1.pop('coefficients')
     j2_coeff = j2.pop('coefficients')
 
@@ -154,7 +154,7 @@ def assert_json_specs_equal(j1, j2):
         assert j1_coeff is j2_coeff
 
 
-class TestRegressionModelJSONNotFit(object):
+class TestRegressionModelYAMLNotFit(object):
     def setup_method(self, method):
         fit_filters = ['col1 in [0, 2, 4]']
         predict_filters = ['col1 in [1, 3]']
@@ -165,7 +165,7 @@ class TestRegressionModelJSONNotFit(object):
         self.model = regression.RegressionModel(
             fit_filters, predict_filters, model_exp, ytransform, name)
 
-        self.expected_json = {
+        self.expected_dict = {
             'model_type': 'regression',
             'name': name,
             'fit_filters': fit_filters,
@@ -177,50 +177,50 @@ class TestRegressionModelJSONNotFit(object):
         }
 
     def test_string(self):
-        test_json = self.model.to_json()
-        assert_json_specs_equal(json.loads(test_json), self.expected_json)
+        test_yaml = self.model.to_yaml()
+        assert_dict_specs_equal(yaml.load(test_yaml), self.expected_dict)
 
-        model = regression.RegressionModel.from_json(json_str=test_json)
+        model = regression.RegressionModel.from_yaml(yaml_str=test_yaml)
         assert isinstance(model, regression.RegressionModel)
 
     def test_buffer(self):
         test_buffer = StringIO()
-        self.model.to_json(str_or_buffer=test_buffer)
-        assert_json_specs_equal(
-            json.loads(test_buffer.getvalue()), self.expected_json)
+        self.model.to_yaml(str_or_buffer=test_buffer)
+        assert_dict_specs_equal(
+            yaml.load(test_buffer.getvalue()), self.expected_dict)
 
         test_buffer.seek(0)
-        model = regression.RegressionModel.from_json(str_or_buffer=test_buffer)
+        model = regression.RegressionModel.from_yaml(str_or_buffer=test_buffer)
         assert isinstance(model, regression.RegressionModel)
 
         test_buffer.close()
 
     def test_file(self):
-        test_file = tempfile.NamedTemporaryFile(suffix='.json').name
-        self.model.to_json(str_or_buffer=test_file)
+        test_file = tempfile.NamedTemporaryFile(suffix='.yaml').name
+        self.model.to_yaml(str_or_buffer=test_file)
 
         with open(test_file) as f:
-            assert_json_specs_equal(json.load(f), self.expected_json)
+            assert_dict_specs_equal(yaml.load(f), self.expected_dict)
 
-        model = regression.RegressionModel.from_json(str_or_buffer=test_file)
+        model = regression.RegressionModel.from_yaml(str_or_buffer=test_file)
         assert isinstance(model, regression.RegressionModel)
 
         os.remove(test_file)
 
 
-class TestRegressionModelJSONFit(TestRegressionModelJSONNotFit):
+class TestRegressionModelYAMLFit(TestRegressionModelYAMLNotFit):
     def setup_method(self, method):
-        super(TestRegressionModelJSONFit, self).setup_method(method)
+        super(TestRegressionModelYAMLFit, self).setup_method(method)
 
         self.model.fit(test_df())
 
-        self.expected_json['fitted'] = True
-        self.expected_json['coefficients'] = {
+        self.expected_dict['fitted'] = True
+        self.expected_dict['coefficients'] = {
             'Intercept': -5, 'col2': 1}
 
     def test_fitted_load(self, test_df):
-        model = regression.RegressionModel.from_json(
-            json_str=self.model.to_json())
+        model = regression.RegressionModel.from_yaml(
+            yaml_str=self.model.to_yaml())
         assert isinstance(model.model_fit, regression._FakeRegressionResults)
         npt.assert_array_equal(
             self.model.predict(test_df), model.predict(test_df))
