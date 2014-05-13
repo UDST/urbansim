@@ -8,8 +8,6 @@ import yaml
 import numpy as np
 import pandas as pd
 
-from urbansim.utils import texttable as tt
-
 
 def mkifnotexists(folder):
     d = os.path.join(os.getenv('DATA_HOME', "."), folder)
