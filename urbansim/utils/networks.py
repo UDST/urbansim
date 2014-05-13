@@ -102,7 +102,8 @@ class Networks:
             agg = getattr(pya, agg)
         if isinstance(decay, str):
             decay = getattr(pya, decay)
-        df = df.dropna(subset=[vname])
+        if vname:
+            df = df.dropna(subset=[vname])
         if node_ids is None:
             xys = np.array(df[[xname, yname]], dtype="float32")
             node_ids = []
