@@ -39,7 +39,6 @@ setup(
             'urbansim = urbansim.cli:main'
         ],
         'urbansim.commands': [
-            'compile = urbansim.urbansim.compilecli:Compile',
             'serve = urbansim.server.servecli:Serve'
         ]
     }
