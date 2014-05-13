@@ -44,14 +44,46 @@ def ordered_yaml(cfg):
     return s
 
 
+def convert_to_yaml(cfg, str_or_buffer):
+    """
+    Convert a dictionary to YAML and return the string or write it out
+    depending on the type of `str_or_buffer`.
+
+    Parameters
+    ----------
+    cfg : dict
+        Dictionary to convert.
+    str_or_buffer : None, str, or buffer
+        If None: the YAML string will be returned.
+        If string: YAML will be saved to a file.
+        If buffer: YAML will be written to buffer using the ``.write`` method.
+
+    Returns
+    -------
+    str or None
+        YAML string if `str_or_buffer` is None, otherwise None since YAML
+        is written out to a separate destination.
+
+    """
+    s = ordered_yaml(cfg)
+
+    if not str_or_buffer:
+        return s
+    elif isinstance(str_or_buffer, str):
+        with open(str_or_buffer, 'w') as f:
+            f.write(s)
+    else:
+        str_or_buffer.write(s)
+
+
 def make_model_expression(cfg):
     """
     Turn the parameters into the string expected by patsy.
 
     Parameters
     ----------
-    cfg : A dictionary of key-value pairs.  'patsy' defines
-        patsy variables, 'dep_var' is the dependent variable,
+    cfg : dict
+        'patsy' defines patsy variables, 'dep_var' is the dependent variable,
         and 'dep_var_transform' is the transformation of the
         dependent variable.
 

@@ -329,15 +329,7 @@ class RegressionModel(object):
             YAML string if `str_or_buffer` is not given.
 
         """
-        s = yamlio.ordered_yaml(self.to_dict())
-
-        if not str_or_buffer:
-            return s
-        elif isinstance(str_or_buffer, str):
-            with open(str_or_buffer, 'w') as f:
-                f.write(s)
-        else:
-            str_or_buffer.write(s)
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
 
 class RegressionModelGroup(object):
