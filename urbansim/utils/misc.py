@@ -1,15 +1,13 @@
 from __future__ import print_function
 
-import csv
 import os
-import string
 import yaml
 
 import numpy as np
 import pandas as pd
 
 
-def mkifnotexists(folder):
+def _mkifnotexists(folder):
     d = os.path.join(os.getenv('DATA_HOME', "."), folder)
     if not os.path.exists(d):
         os.mkdir(d)
@@ -17,50 +15,66 @@ def mkifnotexists(folder):
 
 
 def data_dir():
-    return mkifnotexists("data")
-
-
-def models_dir():
-    return mkifnotexists("models")
+    """
+    Return the directory for the input data.
+    """
+    return _mkifnotexists("data")
 
 
 def configs_dir():
-    return mkifnotexists("configs")
-
-
-def charts_dir():
-    return mkifnotexists("web/charts")
-
-
-def maps_dir():
-    return mkifnotexists("web/maps")
+    """
+    Return the directory for the model configuration files.
+    """
+    return _mkifnotexists("configs")
 
 
 def runs_dir():
-    return mkifnotexists("runs")
+    """
+    Return the directory for the run output.
+    """
+    return _mkifnotexists("runs")
+
+
+def charts_dir():
+    """
+    Return the directory for the chart configuration files (used by the
+    website).
+    """
+    return _mkifnotexists("web/charts")
+
+
+def maps_dir():
+    """
+    Return the directory for the map configuration files (used by the
+    website).
+    """
+    return _mkifnotexists("web/maps")
 
 
 def reports_dir():
-    return mkifnotexists("web/reports")
-
-
-def coef_dir():
-    return mkifnotexists("coeffs")
-
-
-def output_dir():
-    return mkifnotexists("output")
-
-
-def debug_dir():
-    return mkifnotexists("debug")
+    """
+    Return the directory for the report configuration files (used by the
+    website).
+    """
+    return _mkifnotexists("web/reports")
 
 
 def config(fname):
+    """
+    Return the config path for the file with the given filename.
+    """
     return os.path.join(configs_dir(), fname)
 
 
 def get_run_number():
+    """
+    Get a run number for this execution of the model system, for
+    identifying the output hdf5 files).
+
+    Returns
+    -------
+    The integer number for this run of the model system.
+    """
     try:
         f = open(os.path.join(os.getenv('DATA_HOME', "."), 'RUNNUM'), 'r')
         num = int(f.read())
@@ -73,8 +87,11 @@ def get_run_number():
     return num
 
 
-# conver significance to text representation like R does
 def signif(val):
+    """
+    Convert a statistical significance to its ascii representation - this
+    should be the same representation created in R.
+    """
     val = abs(val)
     if val > 3.1:
         return '***'
@@ -86,85 +103,6 @@ def signif(val):
         return '.'
     return ''
 
-
-# create a table, either latex of csv or text
-def maketable(fnames, results, latex=False):
-    results = [[string.replace(x, '_', ' ')] +
-               ['%.2f' % float(z) for z in list(y)] +
-               [signif(y[-1])] for x, y in zip(fnames, results)]
-    if latex:
-        return [['Variables', '$\\beta$', '$\\sigma$',
-                 '\multicolumn{1}{c}{T-score}', 'Significance']] + results
-    return [['Variables', 'Coefficient', 'Stderr', 'T-score',
-             'Significance']] + results
-
-LATEX_TEMPLATE = """
-\\begin{table}\label{%(tablelabel)s}
-\caption { %(tablename)s }
-\\begin{center}
-    \\begin{tabular}{lcc S[table-format=3.2] c}
-                %(tablerows)s
-                \hline
-                %(metainfo)s
-
-    \end{tabular}
-\end{center}
-\end{table}
-"""
-TABLENUM = 0
-
-
-def resultstolatex(fit, fnames, results, filename, hedonic=0, tblname=None):
-    global TABLENUM
-    TABLENUM += 1
-    filename = filename + '.tex'
-    results = maketable(fnames, results, latex=1)
-    f = open(os.path.join(debug_dir(), filename), 'w')
-    tablerows = ''
-    for row in results:
-        tablerows += string.join(row, sep='&') + '\\\\\n'
-        if row == results[0]:
-            tablerows += '\hline\n'
-    if hedonic:
-        fitnames = ['R$^2$', 'Adj-R$^2$']
-    else:
-        fitnames = ['Null loglik', 'Converged loglik', 'Loglik ratio']
-    metainfo = ''
-    for t in zip(fitnames, fit):
-        metainfo += '%s %.2f &&&&\\\\\n' % t
-
-    data = {'tablename': tblname, 'tablerows': tablerows,
-            'metainfo': metainfo, 'tablelabel': 'table%d' % TABLENUM}
-    f.write(LATEX_TEMPLATE % data)
-    f.close()
-
-# override this to modify variable names for publication
-VARNAMESDICT = {}
-
-
-def resultstocsv(fit, fnames, results, filename, hedonic=False, tolatex=True,
-                 tblname=None):
-    fnames = [VARNAMESDICT.get(x, x) for x in fnames]
-    if tolatex:
-        resultstolatex(
-            fit, fnames, results, filename, hedonic, tblname=tblname)
-    results = maketable(fnames, results)
-    f = open(os.path.join(output_dir(), filename), 'w')
-    csvf = csv.writer(f, lineterminator='\n')
-    for row in results:
-        csvf.writerow(row)
-    f.close()
-
-
-# this is an ascii table for the terminal
-def resultstotable(fnames, results):
-    results = maketable(fnames, results)
-
-    tab = tt.Texttable()
-    tab.add_rows(results)
-    tab.set_cols_align(['r', 'r', 'r', 'r', 'l'])
-
-    return tab.draw()
 
 naics_d = {
     11: 'Agriculture',
@@ -196,43 +134,64 @@ naics_d = {
 
 
 def naicsname(val):
+    """
+    This function maps NAICS (job codes) from number to name.
+    """
     return naics_d[val]
 
 
-def writenumpy(series, name, outdir="."):
-    # print name,series.describe()
-    series = series.dropna()
-    series.sort()
-    fname = os.path.join(outdir, 'tmp' if not name else name)
-    np.savez(fname, parcel_id=series.index.values.astype(
-        'int32'), values=series.values.astype('float32'))
-
-
-def writenumpy_df(df, outdir="."):
-    for column in df.columns:
-        writenumpy(df[column], column, outdir)
-
-
 def numpymat2df(mat):
+    """
+    Sometimes (though not very often) it is useful to convert a numpy matrix
+    which has no column names to a Pandas dataframe for use of the Pandas
+    functions.  This method converts a 2D numpy matrix to Pandas dataframe
+    with default column headers.
+
+    Parameters
+    ----------
+    mat : The numpy matrix
+
+    Returns
+    -------
+    A pandas dataframe with the same data as the input matrix but with columns
+    named x0,  x1, ... x[n-1] for the number of columns.
+    """
     return pd.DataFrame(
         dict(('x%d' % i, mat[:, i]) for i in range(mat.shape[1])))
 
 
-# just used to reduce size
 def df64bitto32bit(tbl):
+    """
+    Convert a Pandas dataframe from 64 bit types to 32 bit types to save
+    memory or disk space.
+
+    Parameters
+    ----------
+    tbl : The dataframe to convert
+
+    Returns
+    -------
+    The converted dataframe
+    """
     newtbl = pd.DataFrame(index=tbl.index)
     for colname in tbl.columns:
-        if tbl[colname].dtype == np.float64:
-            newtbl[colname] = tbl[colname].astype('float32')
-        elif tbl[colname].dtype == np.int64:
-            newtbl[colname] = tbl[colname].astype('int32')
-        else:
-            newtbl[colname] = tbl[colname]
+        newtbl[colname] = series64bitto32bit(tbl[colname])
     return newtbl
 
 
-# also to reduce size
 def series64bitto32bit(s):
+    """
+    Convert a Pandas series from 64 bit types to 32 bit types to save
+    memory or disk space.
+
+    Parameters
+    ----------
+    s : The series to convert
+
+    Returns
+    -------
+    The converted series
+    """
     if s.dtype == np.float64:
         return s.astype('float32')
     elif s.dtype == np.int64:
@@ -240,10 +199,24 @@ def series64bitto32bit(s):
     return s
 
 
-def pandassummarytojson(v, ndigits=3):
+def _pandassummarytojson(v, ndigits=3):
     return {i: round(float(v.ix[i]), ndigits) for i in v.index}
 
 
 def pandasdfsummarytojson(df, ndigits=3):
+    """
+    Convert the result of a
+
+    Parameters
+    ----------
+    df : The result of a Pandas describe operation.
+    ndigits : int, optional - The number of significant digits to round to.
+
+    Returns
+    -------
+    A json object which captures the describe.  Keys are field names and
+    values are dictionaries with all of the indexes returned by the Pandas
+    describe.
+    """
     df = df.transpose()
-    return {k: pandassummarytojson(v, ndigits) for k, v in df.iterrows()}
+    return {k: _pandassummarytojson(v, ndigits) for k, v in df.iterrows()}
