@@ -64,6 +64,7 @@ def test_mnl_lcm(choosers, alternatives):
     alts_fit_filters = ['var3 != 15']
     alts_predict_filters = ['var2 != 14']
     interaction_predict_filters = None
+    estimation_sample_size = None
     choice_column = None
     name = 'Test LCM'
 
@@ -71,7 +72,8 @@ def test_mnl_lcm(choosers, alternatives):
         model_exp, sample_size, location_id_col,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
-        interaction_predict_filters, choice_column, name)
+        interaction_predict_filters, estimation_sample_size,
+        choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness
@@ -97,6 +99,7 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
     alts_fit_filters = ['var3 != 15']
     alts_predict_filters = ['var2 != 14']
     interaction_predict_filters = ['var1 * var2 > 50']
+    estimation_sample_size = None
     choice_column = 'thing_id'
     name = 'Test LCM'
 
@@ -104,7 +107,8 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
         model_exp, sample_size, location_id_col,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
-        interaction_predict_filters, choice_column, name)
+        interaction_predict_filters, estimation_sample_size,
+        choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
 
     # hard to test things exactly because there's some randomness

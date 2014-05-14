@@ -227,11 +227,13 @@ class Dataset(object):
 
         assert 'building_id' in df
 
-        for col in ['_node_id', 'x', 'y']:
+        cols = ['x', 'y']
+        for col in cols:
             if col in df.columns:
                 del df[col]
-            df = self.join_for_field(df, 'buildings', 'building_id', col)
 
+        df = pd.merge(df, self.buildings[cols],
+                      left_on='building_id', right_index=True)
         return df
 
     def choose(self, p, mask, alternatives, segment, new_homes, minsize=None):

@@ -1,9 +1,13 @@
 import numpy as np
 import pandas as pd
+import yaml
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
+from patsy import dmatrix
 
 from . import util
 from ..exceptions import ModelEvaluationError
+from ..utils import yamlio
 
 
 def fit_model(df, filters, model_expression):
@@ -71,6 +75,87 @@ def predict(df, filters, model_fit, ytransform=None):
     return pd.Series(sim_data, index=df.index)
 
 
+def _rhs(model_expression):
+    """
+    Get only the right-hand side of a patsy model expression.
+
+    Parameters
+    ----------
+    model_expression : str
+
+    Returns
+    -------
+    rhs : str
+
+    """
+    if '~' not in model_expression:
+        return model_expression
+    else:
+        return model_expression.split('~')[1].strip()
+
+
+class _FakeRegressionResults(object):
+    """
+    This can be used in place of a statsmodels RegressionResults
+    for limited purposes when it comes to model prediction.
+
+    Intended for use when loading a model from a YAML representation;
+    we can do model evaluation using the stored coefficients, but can't
+    recreate the original statsmodels fit result.
+
+    Parameters
+    ----------
+    model_expression : str
+        A patsy model expression that can be used with statsmodels.
+        Should contain both the left- and right-hand sides.
+    coefficients : pandas.Series
+        Coefficients (params) from fitting `model_expression` to data.
+
+    """
+    def __init__(self, model_expression, coefficients):
+        self.model_expression = model_expression
+        self.coefficients = np.asanyarray(coefficients)
+
+    @property
+    def _rhs(self):
+        """
+        Get only the right-hand side of `model_expression`.
+
+        """
+        return _rhs(self.model_expression)
+
+    def predict(self, data):
+        """
+        Predict new values by running data through the fit model.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Table with columns corresponding to the RHS of `model_expression`.
+
+        Returns
+        -------
+        predicted : ndarray
+            Array of predicted values.
+
+        """
+        model_design = dmatrix(self._rhs, data=data, return_type='dataframe')
+        return model_design.dot(self.coefficients).values
+
+
+YTRANSFORM_MAPPING = {
+    None: None,
+    np.exp: 'np.exp',
+    'np.exp': np.exp,
+    np.log: 'np.log',
+    'np.log': np.log,
+    np.log1p: 'np.log1p',
+    'np.log1p': np.log1p,
+    np.expm1: 'np.expm1',
+    'np.expm1': np.expm1
+}
+
+
 class RegressionModel(object):
     """
     A hedonic (regression) model with the ability to store an
@@ -82,7 +167,7 @@ class RegressionModel(object):
         Filters applied before fitting the model.
     predict_filters : list of str
         Filters applied before calculating new data points.
-    model_expression : str
+    model_expression : str or dict
         A patsy model expression that can be used with statsmodels.
         Should contain both the left- and right-hand sides.
     ytransform : callable, optional
@@ -106,6 +191,54 @@ class RegressionModel(object):
         self.name = name or 'RegressionModel'
         self.model_fit = None
 
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a RegressionModel instance from a saved YAML configuration.
+        Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        RegressionModel
+
+        """
+        if yaml_str:
+            j = yaml.load(yaml_str)
+        elif isinstance(str_or_buffer, str):
+            with open(str_or_buffer) as f:
+                j = yaml.load(f)
+        else:
+            j = yaml.load(str_or_buffer)
+
+        model = cls(
+            j['fit_filters'],
+            j['predict_filters'],
+            j['model_expression'],
+            YTRANSFORM_MAPPING[j['ytransform']],
+            j['name'])
+
+        if 'fitted' in j and j['fitted']:
+            model.model_fit = _FakeRegressionResults(
+                model.str_model_expression, pd.Series(j['coefficients']))
+
+        return model
+
+    @property
+    def str_model_expression(self):
+        """
+        Model expression as a string suitable for use with patsy/statsmodels.
+
+        """
+        return util.str_model_expression(
+            self.model_expression, add_constant=True)
+
     def fit(self, data):
         """
         Fit the model to data and store/return the results.
@@ -123,7 +256,7 @@ class RegressionModel(object):
             class instance for use during prediction.
 
         """
-        fit = fit_model(data, self.fit_filters, self.model_expression)
+        fit = fit_model(data, self.fit_filters, self.str_model_expression)
         self.model_fit = fit
         return fit
 
@@ -163,6 +296,47 @@ class RegressionModel(object):
         self.assert_fitted()
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)
+
+    def model_fit_dict(self):
+        return dict([(str(k), float(v))
+                     for k, v in self.model_fit.params.to_dict().items()])
+
+    def to_dict(self):
+        """
+        Returns a dictionary representation of a RegressionModel instance.
+
+        """
+        return {
+            'model_type': 'regression',
+            'name': self.name,
+            'fit_filters': self.fit_filters,
+            'predict_filters': self.predict_filters,
+            'model_expression': self.model_expression,
+            'ytransform': YTRANSFORM_MAPPING[self.ytransform],
+            'coefficients': (None if not self.fitted
+                             else self.model_fit_dict()),
+            'fitted': self.fitted
+        }
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML string if `str_or_buffer` is not given.
+
+        """
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
 
 class RegressionModelGroup(object):

@@ -82,3 +82,51 @@ def test_filter_table(choosers, rates):
     filtered = util.filter_table(
         choosers, rates.iloc[1], ignore={'probability_of_relocating'})
     pdt.assert_frame_equal(filtered, choosers.iloc[[2]])
+
+
+def test_has_constant_expr():
+    assert util.has_constant_expr('a + b') is False
+    assert util.has_constant_expr('a +   1 + b') is True
+    assert util.has_constant_expr('a - 1 + b') is True
+    assert util.has_constant_expr('-1 + a + b') is True
+    assert util.has_constant_expr('a + b +1') is True
+
+
+class Test_str_model_expression(object):
+    @classmethod
+    def setup_class(cls):
+        left_side = 'np.log1p(x)'
+        cls.rs_expected = 'np.log1p(y) + I((x + y) < z) + 1'
+        cls.full_expected = ' ~ '.join((left_side, cls.rs_expected))
+        cls.rs_expected_no_const = 'np.log1p(y) + I((x + y) < z) - 1'
+        cls.full_expected_no_const = ' ~ '.join(
+            (left_side, cls.rs_expected_no_const))
+
+    def test_string(self):
+        assert util.str_model_expression(self.full_expected) == \
+            self.full_expected
+
+    def test_string_ignores_add_constant(self):
+        assert util.str_model_expression(
+            self.full_expected_no_const, add_constant=True
+            ) == self.full_expected_no_const
+
+    def test_list(self):
+        expr_list = ['np.log1p(y)', 'I((x + y) < z)']
+        assert util.str_model_expression(expr_list) == self.rs_expected
+        assert util.str_model_expression(
+            expr_list, add_constant=False) == self.rs_expected_no_const
+
+    def test_dict_right_only(self):
+        expr_dict = {'right_side': ['np.log1p(y)', 'I((x + y) < z)']}
+        assert util.str_model_expression(expr_dict) == self.rs_expected
+        assert util.str_model_expression(
+            expr_dict, add_constant=False) == self.rs_expected_no_const
+
+    def test_dict_full(self):
+        expr_dict = {
+            'left_side': 'np.log1p(x)',
+            'right_side': ['np.log1p(y)', 'I((x + y) < z)']}
+        assert util.str_model_expression(expr_dict) == self.full_expected
+        assert util.str_model_expression(
+            expr_dict, add_constant=False) == self.full_expected_no_const

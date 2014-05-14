@@ -1,5 +1,13 @@
+import os
+import tempfile
+from StringIO import StringIO
+
+import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pytest
+import statsmodels.formula.api as smf
+import yaml
 from pandas.util import testing as pdt
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
@@ -62,6 +70,25 @@ def test_predict_with_nans():
             df.loc[['c', 'd']], None, fit)
 
 
+def test_rhs():
+    assert regression._rhs('col1 + col2') == 'col1 + col2'
+    assert regression._rhs('col3 ~ col1 + col2') == 'col1 + col2'
+
+
+def test_FakeRegressionResults(test_df):
+    model_exp = 'col1 ~ col2'
+    model = smf.ols(formula=model_exp, data=test_df)
+    fit = model.fit()
+
+    wrapper = regression._FakeRegressionResults(
+        model_exp, fit.params)
+
+    test_predict = pd.DataFrame({'col2': [0.5, 10, 25.6]})
+
+    npt.assert_array_equal(
+        wrapper.predict(test_predict), fit.predict(test_predict))
+
+
 def test_RegressionModel(test_df):
     fit_filters = ['col1 in [0, 2, 4]']
     predict_filters = ['col1 in [1, 3]']
@@ -112,3 +139,88 @@ def test_RegressionModelGroup(groupby_df):
     assert isinstance(predicted, pd.Series)
     pdt.assert_series_equal(
         predicted.sort_index(), groupby_df.col1, check_dtype=False)
+
+
+def assert_dict_specs_equal(j1, j2):
+    j1_coeff = j1.pop('coefficients')
+    j2_coeff = j2.pop('coefficients')
+
+    assert j1 == j2
+
+    if j1_coeff and j2_coeff:
+        pdt.assert_series_equal(
+            pd.Series(j1_coeff), pd.Series(j2_coeff), check_dtype=False)
+    else:
+        assert j1_coeff is j2_coeff
+
+
+class TestRegressionModelYAMLNotFit(object):
+    def setup_method(self, method):
+        fit_filters = ['col1 in [0, 2, 4]']
+        predict_filters = ['col1 in [1, 3]']
+        model_exp = 'col1 ~ col2'
+        ytransform = np.log1p
+        name = 'test hedonic'
+
+        self.model = regression.RegressionModel(
+            fit_filters, predict_filters, model_exp, ytransform, name)
+
+        self.expected_dict = {
+            'model_type': 'regression',
+            'name': name,
+            'fit_filters': fit_filters,
+            'predict_filters': predict_filters,
+            'model_expression': model_exp,
+            'ytransform': regression.YTRANSFORM_MAPPING[ytransform],
+            'coefficients': None,
+            'fitted': False
+        }
+
+    def test_string(self):
+        test_yaml = self.model.to_yaml()
+        assert_dict_specs_equal(yaml.load(test_yaml), self.expected_dict)
+
+        model = regression.RegressionModel.from_yaml(yaml_str=test_yaml)
+        assert isinstance(model, regression.RegressionModel)
+
+    def test_buffer(self):
+        test_buffer = StringIO()
+        self.model.to_yaml(str_or_buffer=test_buffer)
+        assert_dict_specs_equal(
+            yaml.load(test_buffer.getvalue()), self.expected_dict)
+
+        test_buffer.seek(0)
+        model = regression.RegressionModel.from_yaml(str_or_buffer=test_buffer)
+        assert isinstance(model, regression.RegressionModel)
+
+        test_buffer.close()
+
+    def test_file(self):
+        test_file = tempfile.NamedTemporaryFile(suffix='.yaml').name
+        self.model.to_yaml(str_or_buffer=test_file)
+
+        with open(test_file) as f:
+            assert_dict_specs_equal(yaml.load(f), self.expected_dict)
+
+        model = regression.RegressionModel.from_yaml(str_or_buffer=test_file)
+        assert isinstance(model, regression.RegressionModel)
+
+        os.remove(test_file)
+
+
+class TestRegressionModelYAMLFit(TestRegressionModelYAMLNotFit):
+    def setup_method(self, method):
+        super(TestRegressionModelYAMLFit, self).setup_method(method)
+
+        self.model.fit(test_df())
+
+        self.expected_dict['fitted'] = True
+        self.expected_dict['coefficients'] = {
+            'Intercept': -5, 'col2': 1}
+
+    def test_fitted_load(self, test_df):
+        model = regression.RegressionModel.from_yaml(
+            yaml_str=self.model.to_yaml())
+        assert isinstance(model.model_fit, regression._FakeRegressionResults)
+        npt.assert_array_equal(
+            self.model.predict(test_df), model.predict(test_df))
