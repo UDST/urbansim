@@ -290,7 +290,7 @@ def test_transition_model(basic_df, grow_targets_filters, totals_col, year):
         {'z': ['a', 'b', 'c', 'd', 'e'],
          'thing_id': basic_df.index})
 
-    new, new_linked = model.transition(
+    new, added, new_linked = model.transition(
         basic_df, year, linked_tables={'linked': (linked_table, 'thing_id')})
 
     assert len(new) == grow_targets_filters[totals_col].sum()
@@ -298,3 +298,6 @@ def test_transition_model(basic_df, grow_targets_filters, totals_col, year):
     assert len(new_linked['linked']) == grow_targets_filters[totals_col].sum()
     assert new.index.values.max() in new_linked['linked'].thing_id.values
     assert new_linked['linked'].index.values.max() == 5
+    assert added.isin(new.index).all()
+    assert not added.isin(basic_df.index).any()
+    npt.assert_array_equal(added.values, [basic_df.index.values.max() + 1])
