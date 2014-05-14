@@ -444,6 +444,8 @@ class TransitionModel(object):
         -------
         updated : pandas.DataFrame
             Table with rows removed or added.
+        added : pandas.Series
+            Indexes of new rows in `updated`.
         updated_links : dict of pandas.DataFrame
 
         """
@@ -456,4 +458,4 @@ class TransitionModel(object):
             updated_links[table_name] = \
                 _update_linked_table(table, col, added, copied, removed)
 
-        return updated, updated_links
+        return updated, added, updated_links
