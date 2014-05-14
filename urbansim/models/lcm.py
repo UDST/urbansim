@@ -2,11 +2,13 @@ from __future__ import print_function, division
 
 import numpy as np
 import pandas as pd
+import yaml
 from patsy import dmatrix
 from prettytable import PrettyTable
 
 from . import util
 from ..urbanchoice import interaction, mnl
+from ..utils import yamlio
 
 
 def unit_choice(chooser_ids, alternative_ids, probabilities):
@@ -74,7 +76,7 @@ class MNLLocationChoiceModel(object):
 
     Parameters
     ----------
-    model_expression : str
+    model_expression : str, iterable, or dict
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
@@ -96,6 +98,8 @@ class MNLLocationChoiceModel(object):
     interaction_predict_filters : list of str, optional
         Filters applied to the merged choosers/alternatives table
         before predicting agent choices.
+    estimation_sample_size : int, optional, whether to sample choosers
+        during estimation (needs to be applied after choosers_fit_filters)
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -109,9 +113,9 @@ class MNLLocationChoiceModel(object):
                  choosers_fit_filters=None, choosers_predict_filters=None,
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
+                 estimation_sample_size=None,
                  choice_column=None, name=None):
-        # LCMs never have a constant
-        self.model_expression = model_expression + ' - 1'
+        self.model_expression = model_expression
         self.sample_size = sample_size
         self.location_id_col = location_id_col
         self.choosers_fit_filters = choosers_fit_filters
@@ -119,12 +123,66 @@ class MNLLocationChoiceModel(object):
         self.alts_fit_filters = alts_fit_filters
         self.alts_predict_filters = alts_predict_filters
         self.interaction_predict_filters = interaction_predict_filters
+        self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
 
         self._log_lks = None
         self._model_columns = None
         self.fit_results = None
+
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a LocationChoiceModel instance from a saved YAML configuration.
+        Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        MNLLocationChoiceModel
+
+        """
+        if yaml_str:
+            j = yaml.loads(yaml_str)
+        elif isinstance(str_or_buffer, str):
+            with open(str_or_buffer) as f:
+                j = yaml.load(f)
+        else:
+            j = yaml.load(str_or_buffer)
+
+        model = cls(
+            j['model_expression'],
+            j['sample_size'],
+            location_id_col=j.get('location_id_col', None),
+            choosers_fit_filters=j.get('choosers_fit_filters', None),
+            choosers_predict_filters=j.get('choosers_predict_filters', None),
+            alts_fit_filters=j.get('alts_fit_filters', None),
+            alts_predict_filters=j.get('alts_predict_filters', None),
+            interaction_predict_filters=j.get(
+                'interaction_predict_filters', None),
+            estimation_sample_size=j.get('estimation_sample_size', None),
+            choice_column=j.get('choice_column', None),
+            name=j.get('name', None)
+        )
+        model.set_coefficients(j.get('coefficients', None))
+
+        return model
+
+    @property
+    def str_model_expression(self):
+        """
+        Model expression as a string suitable for use with patsy/statsmodels.
+
+        """
+        return util.str_model_expression(
+            self.model_expression, add_constant=False)
 
     def fit(self, choosers, alternatives, current_choice):
         """
@@ -153,13 +211,16 @@ class MNLLocationChoiceModel(object):
 
         """
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+        if self.estimation_sample_size:
+            choosers = choosers.loc[np.random.choice(
+                choosers.index, self.estimation_sample_size, replace=False)]
         current_choice = current_choice.loc[choosers.index]
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
-            self.model_expression, data=merged, return_type='dataframe')
+            self.str_model_expression, data=merged, return_type='dataframe')
         self._model_columns = model_design.columns  # used for report
         fit, results = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
@@ -192,6 +253,18 @@ class MNLLocationChoiceModel(object):
         self.assert_fitted()
         return [x[0] for x in self.fit_results]
 
+    def set_coefficients(self, coeffs):
+        """
+        Set coefficients from list.
+
+        Parameters
+        ----------
+        coeffs : The list of coefficients to set.
+        """
+        if coeffs is None:
+            return
+        self.fit_results = [[x] for x in coeffs]
+
     def report_fit(self):
         """
         Print a report of the fit results.
@@ -201,14 +274,17 @@ class MNLLocationChoiceModel(object):
             print('Model not yet fit.')
             return
 
-        print('Null Log-liklihood: {}'.format(self._log_lks[0]))
-        print('Log-liklihood at convergence: {}'.format(self._log_lks[1]))
-        print('Log-liklihood Ratio: {}\n'.format(self._log_lks[2]))
+        print('Null Log-liklihood: {0:.3f}'.format(float(self._log_lks[0])))
+        print('Log-liklihood at convergence: {0:.3f}'.format(
+            float(self._log_lks[1])))
+        print('Log-liklihood Ratio: {0:.3f}\n'.format(float(self._log_lks[2])))
 
         tbl = PrettyTable(
             ['Component', 'Coefficient', 'Std. Error', 'T-Score'])
         tbl.align['Component'] = 'l'
-        for c, x in zip(self._model_columns, self.fit_results):
+        rounded = [tuple(["{0: .3f}".format(
+            float(x)) for x in r]) for r in self.fit_results]
+        for c, x in zip(self._model_columns, rounded):
             tbl.add_row((c,) + x)
 
         print(tbl)
@@ -250,7 +326,7 @@ class MNLLocationChoiceModel(object):
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
         model_design = dmatrix(
-            self.model_expression, data=merged, return_type='dataframe')
+            self.str_model_expression, data=merged, return_type='dataframe')
 
         # probabilities are returned from mnl_simulate as a 2d array
         # and need to be flatted for use in unit_choice.
@@ -264,3 +340,51 @@ class MNLLocationChoiceModel(object):
 
         return unit_choice(
             choosers.index, alt_choices, probabilities)
+
+    def model_fit_dict(self):
+        return dict([(str(k), float(v))
+                     for k, v in zip(self._model_columns, self.coefficients)])
+
+    def to_dict(self):
+        """
+        Return a dict respresentation of an MNLLocationChoiceModel
+        instance.
+
+        """
+        return {
+            'model_type': 'locationchoice',
+            'model_expression': self.model_expression,
+            'sample_size': self.sample_size,
+            'fitted': self.fitted,
+            'name': self.name,
+            'coefficients': (None if not self.fitted
+                             else [float(x) for x in self.coefficients]),
+            'location_id_col': self.location_id_col,
+            'choosers_fit_filters': self.choosers_fit_filters,
+            'choosers_predict_filters': self.choosers_predict_filters,
+            'alts_fit_filters': self.alts_fit_filters,
+            'alts_predict_filters': self.alts_predict_filters,
+            'interaction_predict_filters': self.interaction_predict_filters,
+            'estimation_sample_size': self.estimation_sample_size,
+            'choice_column': self.choice_column
+        }
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML is string if `str_or_buffer` is not given.
+
+        """
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)

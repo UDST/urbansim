@@ -3,6 +3,7 @@ from __future__ import print_function
 import csv
 import os
 import string
+import yaml
 
 import numpy as np
 import pandas as pd
@@ -55,6 +56,10 @@ def output_dir():
 
 def debug_dir():
     return mkifnotexists("debug")
+
+
+def config(fname):
+    return os.path.join(configs_dir(), fname)
 
 
 def get_run_number():

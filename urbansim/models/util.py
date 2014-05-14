@@ -1,7 +1,9 @@
+import collections
 import numbers
 
 import numpy as np
 import pandas as pd
+import patsy
 
 
 def apply_filter_query(df, filters=None):
@@ -112,3 +114,85 @@ def concat_indexes(indexes):
 
     """
     return pd.Index(np.concatenate(indexes))
+
+
+def has_constant_expr(expr):
+    """
+    Report whether a model expression has constant specific term.
+    That is, a term explicitly specying whether the model should or
+    should not include a constant. (e.g. '+ 1' or '- 1'.)
+
+    Parameters
+    ----------
+    expr : str
+        Model expression to check.
+
+    Returns
+    -------
+    has_constant : bool
+
+    """
+    def has_constant(node):
+        if node.type == 'ONE':
+            return True
+
+        for n in node.args:
+            if has_constant(n):
+                return True
+
+        return False
+
+    return has_constant(patsy.parse_formula.parse_formula(expr))
+
+
+def str_model_expression(expr, add_constant=True):
+    """
+    We support specifying model expressions as strings, lists, or dicts;
+    but for use with patsy and statsmodels we need a string.
+    This function will take any of those as input and return a string.
+
+    Parameters
+    ----------
+    expr : str, iterable, or dict
+        A string will be returned unmodified except to add or remove
+        a constant.
+        An iterable sequence will be joined together with ' + '.
+        A dictionary should have ``right_side`` and, optionally,
+        ``left_side`` keys. The ``right_side`` can be a list or a string
+        and will be handled as above. If ``left_side`` is present it will
+        be joined with ``right_side`` with ' ~ '.
+    add_constant : bool, optional
+        Whether to add a ' + 1' (if True) or ' - 1' (if False) to the model.
+        If the expression already has a '+ 1' or '- 1' this option will be
+        ignored.
+
+    Returns
+    -------
+    model_expression : str
+        A string model expression suitable for use with statsmodels and patsy.
+
+    """
+    if not isinstance(expr, str):
+        if isinstance(expr, collections.Mapping):
+            left_side = expr.get('left_side')
+            right_side = str_model_expression(expr['right_side'], add_constant)
+        else:
+            # some kind of iterable like a list
+            left_side = None
+            right_side = ' + '.join(expr)
+
+        if left_side:
+            model_expression = ' ~ '.join((left_side, right_side))
+        else:
+            model_expression = right_side
+
+    else:
+        model_expression = expr
+
+    if not has_constant_expr(model_expression):
+        if add_constant:
+            model_expression += ' + 1'
+        else:
+            model_expression += ' - 1'
+
+    return model_expression
