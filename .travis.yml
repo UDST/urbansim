@@ -1,23 +1,20 @@
 language: python
 python:
-    - "2.7"
+- '2.7'
 install:
-    # install conda
-    - sudo pip install conda
-    - sudo conda init
-    # install dependencies
-    - >
-      conda create -p $HOME/py --yes pip jinja2 numpy pandas patsy scipy
-      statsmodels pytables pytest pyyaml
-      "python=$TRAVIS_PYTHON_VERSION"
-    - export PATH=$HOME/py/bin:$PATH
-    - pip install Django shapely simplejson
-    # install test depencies
-    - pip install pytest-cov coveralls pep8
-    # install urbansim
-    - pip install .
+- sudo pip install conda
+- sudo conda init
+- |
+  conda create -p $HOME/py --yes pip jinja2 numpy pandas patsy scipy statsmodels pytables pytest pyyaml "python=$TRAVIS_PYTHON_VERSION"
+- export PATH=$HOME/py/bin:$PATH
+- pip install Django shapely simplejson
+- pip install pytest-cov coveralls pep8
+- pip install .
 script:
-    - pep8 urbansim scripts
-    - py.test --cov urbansim --cov-report term-missing
+- pep8 urbansim scripts
+- py.test --cov urbansim --cov-report term-missing
 after_success:
-    - coveralls
+- coveralls
+notifications:
+  slack:
+    secure: XTKQdhpJNhVCaT7X+VHD+vST0W+pwIjp3hDe/E1eVCqvp7iE2sBCtlnxVioMjo8z3EPtQMHZcNlpm6LOoVQlHT7idg40CDJMpTMrQGLqpDRo1ixUygK1Qfs1ZHrzg2CL3IgUtQwEDK3jVGAe2qmn/3RS1sKiYPMRACkkNtWQfMk=

@@ -257,6 +257,6 @@ class Dataset(object):
             alternatives["supply"].ix[
                 alternatives.index.values[indexes]] -= minsize
         else:
-            mask[indexes] = 1
+            mask[indexes] = True
 
         return mask, new_homes
