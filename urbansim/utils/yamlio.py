@@ -2,6 +2,8 @@
 Utilities for doing IO to YAML files.
 
 """
+import itertools
+
 import yaml
 
 
@@ -74,3 +76,23 @@ def convert_to_yaml(cfg, str_or_buffer):
             f.write(s)
     else:
         str_or_buffer.write(s)
+
+
+def series_to_yaml_safe(series):
+    """
+    Convert a pandas Series to a dict that will survive YAML serialization
+    and re-conversion back to a Series.
+
+    Parameters
+    ----------
+    series : pandas.Series
+
+    Returns
+    -------
+    safe : dict
+
+    """
+    index = series.index.to_native_types()
+    values = series.values.tolist()
+
+    return {i: v for i, v in itertools.izip(index, values)}

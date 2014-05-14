@@ -2,7 +2,11 @@ import os
 import tempfile
 from StringIO import StringIO
 
+import numpy as np
+import pandas as pd
 import pytest
+import yaml
+from pandas.util import testing as pdt
 
 from .. import yamlio
 
@@ -58,3 +62,22 @@ def test_convert_to_yaml_buffer(test_cfg, expected_yaml):
     yamlio.convert_to_yaml(test_cfg, test_buffer)
 
     assert test_buffer.getvalue() == expected_yaml
+
+
+def test_series_to_yaml_safe_int_index():
+    s = pd.Series(np.arange(100, 103), index=np.arange(3))
+    d = yamlio.series_to_yaml_safe(s)
+
+    assert d == {0: 100, 1: 101, 2: 102}
+    y = yaml.dump(d, default_flow_style=False)
+    pdt.assert_series_equal(pd.Series(yaml.load(y)), s)
+
+
+def test_series_to_yaml_safe_str_index():
+    s = pd.Series(
+        np.array(['a', 'b', 'c']), index=np.array(['x', 'y', 'z']))
+    d = yamlio.series_to_yaml_safe(s)
+
+    assert d == {'x': 'a', 'y': 'b', 'z': 'c'}
+    y = yaml.dump(d, default_flow_style=False)
+    pdt.assert_series_equal(pd.Series(yaml.load(y)), s)
