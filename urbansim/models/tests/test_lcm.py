@@ -75,11 +75,13 @@ def test_mnl_lcm(choosers, alternatives):
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
+    model.report_fit()
 
     # hard to test things exactly because there's some randomness
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
-    assert len(model.fit_results) == 2
+    assert len(model.fit_parameters) == 2
+    assert len(model.fit_parameters.columns) == 3
 
     choosers.thing_id = np.nan
     choosers.thing_id.iloc[0] = 'a'
@@ -110,11 +112,13 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
+    model.report_fit()
 
     # hard to test things exactly because there's some randomness
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
-    assert len(model.fit_results) == 2
+    assert len(model.fit_parameters) == 2
+    assert len(model.fit_parameters.columns) == 3
 
     repeated_index = alternatives.index.repeat([1, 2, 3, 2, 4, 3, 2, 1, 5, 8])
     repeated_alts = alternatives.loc[repeated_index].reset_index()

@@ -127,9 +127,8 @@ class MNLLocationChoiceModel(object):
         self.choice_column = choice_column
         self.name = name or 'MNLLocationChoiceModel'
 
-        self._log_lks = None
-        self._model_columns = None
-        self.fit_results = None
+        self.log_likelihoods = None
+        self.fit_parameters = None
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -221,12 +220,10 @@ class MNLLocationChoiceModel(object):
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
-        self._model_columns = model_design.columns  # used for report
-        fit, results = mnl.mnl_estimate(
+        self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
-        self._log_lks = fit
-        self.fit_results = results
-        return fit
+        self.fit_parameters.index = model_design.columns
+        return self.log_likelihoods
 
     @property
     def fitted(self):
@@ -234,7 +231,7 @@ class MNLLocationChoiceModel(object):
         True if model is ready for prediction.
 
         """
-        return bool(self.fit_results)
+        return self.fit_parameters is not None
 
     def assert_fitted(self):
         """
@@ -243,27 +240,6 @@ class MNLLocationChoiceModel(object):
         """
         if not self.fitted:
             raise RuntimeError('Model has not been fit.')
-
-    @property
-    def coefficients(self):
-        """
-        Model coefficients as a list.
-
-        """
-        self.assert_fitted()
-        return [x[0] for x in self.fit_results]
-
-    def set_coefficients(self, coeffs):
-        """
-        Set coefficients from list.
-
-        Parameters
-        ----------
-        coeffs : The list of coefficients to set.
-        """
-        if coeffs is None:
-            return
-        self.fit_results = [[x] for x in coeffs]
 
     def report_fit(self):
         """
@@ -274,18 +250,23 @@ class MNLLocationChoiceModel(object):
             print('Model not yet fit.')
             return
 
-        print('Null Log-liklihood: {0:.3f}'.format(float(self._log_lks[0])))
+        print('Null Log-liklihood: {0:.3f}'.format(
+            self.log_likelihoods['null']))
         print('Log-liklihood at convergence: {0:.3f}'.format(
-            float(self._log_lks[1])))
-        print('Log-liklihood Ratio: {0:.3f}\n'.format(float(self._log_lks[2])))
+            self.log_likelihoods['convergence']))
+        print('Log-liklihood Ratio: {0:.3f}\n'.format(
+            self.log_likelihoods['ratio']))
 
         tbl = PrettyTable(
-            ['Component', 'Coefficient', 'Std. Error', 'T-Score'])
+            ['Component', ])
+        tbl = PrettyTable()
+
+        tbl.add_column('Component', self.fit_parameters.index.values)
+        for col in ('Coefficient', 'Std. Error', 'T-Score'):
+            tbl.add_column(col, self.fit_parameters[col].values)
+
         tbl.align['Component'] = 'l'
-        rounded = [tuple(["{0: .3f}".format(
-            float(x)) for x in r]) for r in self.fit_results]
-        for c, x in zip(self._model_columns, rounded):
-            tbl.add_row((c,) + x)
+        tbl.float_format = '.3'
 
         print(tbl)
 
@@ -331,7 +312,8 @@ class MNLLocationChoiceModel(object):
         # probabilities are returned from mnl_simulate as a 2d array
         # and need to be flatted for use in unit_choice.
         probabilities = mnl.mnl_simulate(
-            model_design.as_matrix(), self.coefficients,
+            model_design.as_matrix(),
+            self.fit_parameters['Coefficient'].values,
             numalts=len(merged), returnprobs=True).flatten()
 
         # figure out exactly which things from which choices are drawn
