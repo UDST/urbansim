@@ -12,6 +12,7 @@ from ..models import util
 
 NETWORKS = None
 
+
 def from_yaml(dset, cfgname):
     print "Computing accessibility variables"
     cfg = yaml.load(open(misc.config(cfgname)))
@@ -46,18 +47,18 @@ def from_yaml(dset, cfgname):
             util.apply_filter_query(df, variable["filters"])
 
         print "    dataframe = %s, varname=%s" % (dfname, vname)
-        print "    radius = %s, aggregation = %s, decay = %s" % (radius, agg, decay)
+        print "    radius = %s, aggregation = %s, decay = %s" % (
+            radius, agg, decay)
 
-        nodes[name] = NETWORKS.accvar(df,
-                                               radius,
-                                               agg=agg,
-                                               decay=decay,
-                                               vname=vname).astype('float').values
+        nodes[name] = NETWORKS.accvar(
+            df, radius, agg=agg, decay=decay, vname=vname
+            ).astype('float').values
 
         if "apply" in variable:
             nodes[name] = nodes[name].apply(eval(variable["apply"]))
 
     return nodes
+
 
 class Networks:
 
