@@ -167,7 +167,7 @@ class RegressionModel(object):
         Filters applied before fitting the model.
     predict_filters : list of str
         Filters applied before calculating new data points.
-    model_expression : str
+    model_expression : str or dict
         A patsy model expression that can be used with statsmodels.
         Should contain both the left- and right-hand sides.
     ytransform : callable, optional
@@ -217,8 +217,6 @@ class RegressionModel(object):
         else:
             j = yaml.load(str_or_buffer)
 
-        yamlio.make_model_expression(j)
-
         model = cls(
             j['fit_filters'],
             j['predict_filters'],
@@ -228,9 +226,18 @@ class RegressionModel(object):
 
         if 'fitted' in j and j['fitted']:
             model.model_fit = _FakeRegressionResults(
-                j['model_expression'], pd.Series(j['coefficients']))
+                model.str_model_expression, pd.Series(j['coefficients']))
 
         return model
+
+    @property
+    def str_model_expression(self):
+        """
+        Model expression as a string suitable for use with patsy/statsmodels.
+
+        """
+        return util.str_model_expression(
+            self.model_expression, add_constant=True)
 
     def fit(self, data):
         """
@@ -249,7 +256,7 @@ class RegressionModel(object):
             class instance for use during prediction.
 
         """
-        fit = fit_model(data, self.fit_filters, self.model_expression)
+        fit = fit_model(data, self.fit_filters, self.str_model_expression)
         self.model_fit = fit
         return fit
 

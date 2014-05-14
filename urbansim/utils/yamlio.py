@@ -74,33 +74,3 @@ def convert_to_yaml(cfg, str_or_buffer):
             f.write(s)
     else:
         str_or_buffer.write(s)
-
-
-def make_model_expression(cfg):
-    """
-    Turn the parameters into the string expected by patsy.
-
-    Parameters
-    ----------
-    cfg : dict
-        'patsy' defines patsy variables, 'dep_var' is the dependent variable,
-        and 'dep_var_transform' is the transformation of the
-        dependent variable.
-
-    Returns
-    -------
-    Modifies the dictionary of params in place
-    """
-    if "patsy" not in cfg:
-        return
-    if "dep_var" not in cfg:
-        return
-    if "dep_var_transform" not in cfg:
-        return
-    patsy_exp = cfg['patsy']
-    if type(patsy_exp) == list:
-        patsy_exp = ' + '.join(cfg['patsy'])
-    # deal with missing dep_var_transform
-    patsy_exp = '%s(%s) ~ ' % (
-        cfg['dep_var_transform'], cfg['dep_var']) + patsy_exp
-    cfg['model_expression'] = patsy_exp

@@ -76,7 +76,7 @@ class MNLLocationChoiceModel(object):
 
     Parameters
     ----------
-    model_expression : str
+    model_expression : str, iterable, or dict
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
@@ -115,8 +115,7 @@ class MNLLocationChoiceModel(object):
                  interaction_predict_filters=None,
                  estimation_sample_size=None,
                  choice_column=None, name=None):
-        # LCMs never have a constant
-        self.model_expression = model_expression + '- 1'
+        self.model_expression = model_expression
         self.sample_size = sample_size
         self.location_id_col = location_id_col
         self.choosers_fit_filters = choosers_fit_filters
@@ -176,6 +175,15 @@ class MNLLocationChoiceModel(object):
 
         return model
 
+    @property
+    def str_model_expression(self):
+        """
+        Model expression as a string suitable for use with patsy/statsmodels.
+
+        """
+        return util.str_model_expression(
+            self.model_expression, add_constant=False)
+
     def fit(self, choosers, alternatives, current_choice):
         """
         Fit and save model parameters based on given data.
@@ -212,7 +220,7 @@ class MNLLocationChoiceModel(object):
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
-            self.model_expression, data=merged, return_type='dataframe')
+            self.str_model_expression, data=merged, return_type='dataframe')
         self._model_columns = model_design.columns  # used for report
         fit, results = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
@@ -318,7 +326,7 @@ class MNLLocationChoiceModel(object):
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
         model_design = dmatrix(
-            self.model_expression, data=merged, return_type='dataframe')
+            self.str_model_expression, data=merged, return_type='dataframe')
 
         # probabilities are returned from mnl_simulate as a 2d array
         # and need to be flatted for use in unit_choice.
