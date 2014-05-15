@@ -64,6 +64,43 @@ def test_convert_to_yaml_buffer(test_cfg, expected_yaml):
     assert test_buffer.getvalue() == expected_yaml
 
 
+class Test_yaml_to_dict(object):
+    @classmethod
+    def setup_class(cls):
+        cls.yaml_str = """
+a:
+  x: 1
+  y: 2
+  z: 3
+b:
+  x: 3
+  y: 4
+  z: 5
+"""
+        cls.expect_dict = {
+            'a': {'x': 1, 'y': 2, 'z': 3},
+            'b': {'x': 3, 'y': 4, 'z': 5}}
+
+    def test_str(self):
+        assert yamlio.yaml_to_dict(yaml_str=self.yaml_str) == self.expect_dict
+
+    def test_file(self, test_file):
+        with open(test_file, 'w') as f:
+            f.write(self.yaml_str)
+
+        assert yamlio.yaml_to_dict(str_or_buffer=test_file) == self.expect_dict
+
+    def test_buffer(self):
+        buff = StringIO(self.yaml_str)
+        buff.seek(0)
+
+        assert yamlio.yaml_to_dict(str_or_buffer=buff) == self.expect_dict
+
+    def test_raises(self):
+        with pytest.raises(ValueError):
+            yamlio.yaml_to_dict()
+
+
 def test_series_to_yaml_safe_int_index():
     s = pd.Series(np.arange(100, 103), index=np.arange(3))
     d = yamlio.series_to_yaml_safe(s)
