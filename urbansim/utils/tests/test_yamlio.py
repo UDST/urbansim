@@ -23,8 +23,8 @@ def test_cfg():
 @pytest.fixture
 def expected_yaml():
     return (
-        'name: test{linesep}'
-        'ytransform: xyz{linesep}'
+        'name: test{linesep}{linesep}'
+        'ytransform: xyz{linesep}{linesep}'
         'unordered: abc{linesep}').format(linesep=os.linesep)
 
 

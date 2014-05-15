@@ -3,6 +3,7 @@ Utilities for doing IO to YAML files.
 
 """
 import itertools
+import os
 
 import yaml
 
@@ -68,18 +69,20 @@ def ordered_yaml(cfg):
              'choice_column', 'sample_size', 'estimation_sample_size',
              'model_expression', 'ytransform']
 
-    s = ''
+    s = []
     for key in order:
         if key not in cfg:
             continue
-        s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
+        s.append(
+            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
 
     for key in cfg:
         if key in order:
             continue
-        s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
+        s.append(
+            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
 
-    return s
+    return os.linesep.join(s)
 
 
 def convert_to_yaml(cfg, str_or_buffer):
