@@ -7,6 +7,44 @@ import itertools
 import yaml
 
 
+def series_to_yaml_safe(series):
+    """
+    Convert a pandas Series to a dict that will survive YAML serialization
+    and re-conversion back to a Series.
+
+    Parameters
+    ----------
+    series : pandas.Series
+
+    Returns
+    -------
+    safe : dict
+
+    """
+    index = series.index.to_native_types()
+    values = series.values.tolist()
+
+    return {i: v for i, v in itertools.izip(index, values)}
+
+
+def frame_to_yaml_safe(frame):
+    """
+    Convert a pandas DataFrame to a dictionary that will survive
+    YAML serialization and re-conversion back to a DataFrame.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+
+    Returns
+    -------
+    safe : dict
+
+    """
+    return {col: series_to_yaml_safe(series)
+            for col, series in frame.iteritems()}
+
+
 def ordered_yaml(cfg):
     """
     Convert a dictionary to a YAML string with preferential ordering
@@ -76,23 +114,3 @@ def convert_to_yaml(cfg, str_or_buffer):
             f.write(s)
     else:
         str_or_buffer.write(s)
-
-
-def series_to_yaml_safe(series):
-    """
-    Convert a pandas Series to a dict that will survive YAML serialization
-    and re-conversion back to a Series.
-
-    Parameters
-    ----------
-    series : pandas.Series
-
-    Returns
-    -------
-    safe : dict
-
-    """
-    index = series.index.to_native_types()
-    values = series.values.tolist()
-
-    return {i: v for i, v in itertools.izip(index, values)}

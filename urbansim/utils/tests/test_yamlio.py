@@ -81,3 +81,16 @@ def test_series_to_yaml_safe_str_index():
     assert d == {'x': 'a', 'y': 'b', 'z': 'c'}
     y = yaml.dump(d, default_flow_style=False)
     pdt.assert_series_equal(pd.Series(yaml.load(y)), s)
+
+
+def test_frame_to_yaml_safe():
+    df = pd.DataFrame(
+        {'col1': np.array([100, 200, 300]),
+         'col2': np.array(['a', 'b', 'c'])},
+        index=np.arange(3))
+    d = yamlio.frame_to_yaml_safe(df)
+
+    assert d == {'col1': {0: 100, 1: 200, 2: 300},
+                 'col2': {0: 'a', 1: 'b', 2: 'c'}}
+    y = yaml.dump(d, default_flow_style=False)
+    pdt.assert_frame_equal(pd.DataFrame(yaml.load(y)), df)
