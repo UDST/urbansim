@@ -2,7 +2,6 @@ from __future__ import print_function, division
 
 import numpy as np
 import pandas as pd
-import yaml
 from patsy import dmatrix
 from prettytable import PrettyTable
 
@@ -148,29 +147,27 @@ class MNLLocationChoiceModel(object):
         MNLLocationChoiceModel
 
         """
-        if yaml_str:
-            j = yaml.loads(yaml_str)
-        elif isinstance(str_or_buffer, str):
-            with open(str_or_buffer) as f:
-                j = yaml.load(f)
-        else:
-            j = yaml.load(str_or_buffer)
+        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
 
         model = cls(
-            j['model_expression'],
-            j['sample_size'],
-            location_id_col=j.get('location_id_col', None),
-            choosers_fit_filters=j.get('choosers_fit_filters', None),
-            choosers_predict_filters=j.get('choosers_predict_filters', None),
-            alts_fit_filters=j.get('alts_fit_filters', None),
-            alts_predict_filters=j.get('alts_predict_filters', None),
-            interaction_predict_filters=j.get(
+            cfg['model_expression'],
+            cfg['sample_size'],
+            location_id_col=cfg.get('location_id_col', None),
+            choosers_fit_filters=cfg.get('choosers_fit_filters', None),
+            choosers_predict_filters=cfg.get('choosers_predict_filters', None),
+            alts_fit_filters=cfg.get('alts_fit_filters', None),
+            alts_predict_filters=cfg.get('alts_predict_filters', None),
+            interaction_predict_filters=cfg.get(
                 'interaction_predict_filters', None),
-            estimation_sample_size=j.get('estimation_sample_size', None),
-            choice_column=j.get('choice_column', None),
-            name=j.get('name', None)
+            estimation_sample_size=cfg.get('estimation_sample_size', None),
+            choice_column=cfg.get('choice_column', None),
+            name=cfg.get('name', None)
         )
-        model.set_coefficients(j.get('coefficients', None))
+
+        if cfg['log_likelihoods']:
+            model.log_likelihoods = cfg['log_likelihoods']
+        if cfg['fit_parameters']:
+            model.fit_parameters = pd.DataFrame(cfg['fit_parameters'])
 
         return model
 
@@ -323,10 +320,6 @@ class MNLLocationChoiceModel(object):
         return unit_choice(
             choosers.index, alt_choices, probabilities)
 
-    def model_fit_dict(self):
-        return dict([(str(k), float(v))
-                     for k, v in zip(self._model_columns, self.coefficients)])
-
     def to_dict(self):
         """
         Return a dict respresentation of an MNLLocationChoiceModel
@@ -337,10 +330,7 @@ class MNLLocationChoiceModel(object):
             'model_type': 'locationchoice',
             'model_expression': self.model_expression,
             'sample_size': self.sample_size,
-            'fitted': self.fitted,
             'name': self.name,
-            'coefficients': (None if not self.fitted
-                             else [float(x) for x in self.coefficients]),
             'location_id_col': self.location_id_col,
             'choosers_fit_filters': self.choosers_fit_filters,
             'choosers_predict_filters': self.choosers_predict_filters,
@@ -348,7 +338,11 @@ class MNLLocationChoiceModel(object):
             'alts_predict_filters': self.alts_predict_filters,
             'interaction_predict_filters': self.interaction_predict_filters,
             'estimation_sample_size': self.estimation_sample_size,
-            'choice_column': self.choice_column
+            'choice_column': self.choice_column,
+            'fitted': self.fitted,
+            'log_likelihoods': self.log_likelihoods,
+            'fit_parameters': (yamlio.frame_to_yaml_safe(self.fit_parameters)
+                               if self.fitted else None)
         }
 
     def to_yaml(self, str_or_buffer=None):

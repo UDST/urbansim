@@ -91,6 +91,13 @@ def test_mnl_lcm(choosers, alternatives):
     pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
     assert choices.isin(alternatives.index).all()
 
+    # check that we can do a YAML round-trip
+    yaml_str = model.to_yaml()
+    new_model = lcm.MNLLocationChoiceModel.from_yaml(yaml_str)
+
+    assert new_model.fitted
+    assert model.fit_parameters.to_dict() == new_model.fit_parameters.to_dict()
+
 
 def test_mnl_lcm_repeated_alts(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
