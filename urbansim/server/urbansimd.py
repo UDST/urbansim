@@ -1,20 +1,12 @@
-import cPickle
-import decimal
-import json
-import math
 import os
-import string
-import sys
-import time
-from decimal import Decimal
 
 import numpy
+import yaml, simplejson
 import pandas as pd
-import simplejson
-from bottle import Bottle, route, run, response, hook, request, post
+from bottle import route, run, response, hook, request
 
 from urbansim.urbansim import modelcompile
-from urbansim.utils import misc
+from urbansim.utils import misc, yamlio
 
 
 def jsonp(request, dictionary):
@@ -58,28 +50,23 @@ def enable_cors():
 @route('/configs')
 def list_configs():
     def resp():
+        print os.listdir(misc.configs_dir())
         files = [f for f in os.listdir(misc.configs_dir())
-                 if f[-5:] == '.json']
+                 if f[-5:] == '.yaml']
 
-        def not_modelset(f):
-            c = open(os.path.join(misc.configs_dir(), f)).read()
-            c = json.loads(c)
-            return 'model' in c and c['model'] != 'modelset'
-        return filter(not_modelset, files)
+        return files
     return wrap_request(request, response, resp())
 
+@route('/config/<configname>', method="OPTIONS")
+def ans_opt(configname):
+    return {}
 
 @route('/config/<configname>', method="GET")
 def read_config(configname):
     def resp():
         c = open(os.path.join(misc.configs_dir(), configname)).read()
-        return simplejson.loads(c)
+        return yaml.load(c)
     return wrap_request(request, response, resp())
-
-
-@route('/config/<configname>', method="OPTIONS")
-def ans_opt(configname):
-    return {}
 
 
 @route('/config/<configname>', method="PUT")
@@ -87,8 +74,7 @@ def write_config(configname):
     json = request.json
 
     def resp():
-        s = simplejson.dumps(json, indent=4)
-        print s
+        s = yamlio.ordered_yaml(json)
         return open(os.path.join(misc.configs_dir(), configname), "w").write(s)
     return wrap_request(request, response, resp())
 
