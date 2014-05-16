@@ -36,10 +36,3 @@ def test_relocation_model_find(choosers, rates):
     rm = relo.RelocationModel(rates)
     movers = rm.find_movers(choosers)
     npt.assert_array_equal(movers, ['a', 'c', 'e'])
-
-
-def test_relocation_model_mark(choosers, rates):
-    rm = relo.RelocationModel(rates)
-    choosers = rm.move_and_mark(choosers)
-    npt.assert_array_equal(
-        choosers.building_id, [np.nan, 101, np.nan, 103, np.nan])
