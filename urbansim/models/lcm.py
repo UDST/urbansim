@@ -79,11 +79,6 @@ class MNLLocationChoiceModel(object):
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
-    location_id_col : str, optional
-        Name of a column in the choosers table that corresponds to the
-        index of the location being chosen. If given, this is used to
-        make sure that during prediction only choosers that have nan
-        in this column choose new alternatives.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -108,7 +103,7 @@ class MNLLocationChoiceModel(object):
         in output.
 
     """
-    def __init__(self, model_expression, sample_size, location_id_col=None,
+    def __init__(self, model_expression, sample_size,
                  choosers_fit_filters=None, choosers_predict_filters=None,
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
@@ -116,7 +111,6 @@ class MNLLocationChoiceModel(object):
                  choice_column=None, name=None):
         self.model_expression = model_expression
         self.sample_size = sample_size
-        self.location_id_col = location_id_col
         self.choosers_fit_filters = choosers_fit_filters
         self.choosers_predict_filters = choosers_predict_filters
         self.alts_fit_filters = alts_fit_filters
@@ -152,7 +146,6 @@ class MNLLocationChoiceModel(object):
         model = cls(
             cfg['model_expression'],
             cfg['sample_size'],
-            location_id_col=cfg.get('location_id_col', None),
             choosers_fit_filters=cfg.get('choosers_fit_filters', None),
             choosers_predict_filters=cfg.get('choosers_predict_filters', None),
             alts_fit_filters=cfg.get('alts_fit_filters', None),
@@ -290,8 +283,6 @@ class MNLLocationChoiceModel(object):
         """
         self.assert_fitted()
 
-        if self.location_id_col:
-            choosers = choosers[choosers[self.location_id_col].isnull()]
         choosers = util.apply_filter_query(
             choosers, self.choosers_predict_filters)
         alternatives = util.apply_filter_query(
@@ -331,7 +322,6 @@ class MNLLocationChoiceModel(object):
             'model_expression': self.model_expression,
             'sample_size': self.sample_size,
             'name': self.name,
-            'location_id_col': self.location_id_col,
             'choosers_fit_filters': self.choosers_fit_filters,
             'choosers_predict_filters': self.choosers_predict_filters,
             'alts_fit_filters': self.alts_fit_filters,
