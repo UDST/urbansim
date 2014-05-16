@@ -58,7 +58,6 @@ def test_unit_choice_none_available(choosers, alternatives):
 def test_mnl_lcm(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
-    location_id_col = 'thing_id'
     choosers_fit_filters = ['var1 != 5']
     choosers_predict_filters = ['var1 != 7']
     alts_fit_filters = ['var3 != 15']
@@ -69,7 +68,7 @@ def test_mnl_lcm(choosers, alternatives):
     name = 'Test LCM'
 
     model = lcm.MNLLocationChoiceModel(
-        model_exp, sample_size, location_id_col,
+        model_exp, sample_size,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
@@ -83,10 +82,7 @@ def test_mnl_lcm(choosers, alternatives):
     assert len(model.fit_parameters) == 2
     assert len(model.fit_parameters.columns) == 3
 
-    choosers.thing_id = np.nan
-    choosers.thing_id.iloc[0] = 'a'
-
-    choices = model.predict(choosers, alternatives)
+    choices = model.predict(choosers.iloc[1:], alternatives)
 
     pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
     assert choices.isin(alternatives.index).all()
@@ -102,7 +98,6 @@ def test_mnl_lcm(choosers, alternatives):
 def test_mnl_lcm_repeated_alts(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
-    location_id_col = None
     choosers_fit_filters = ['var1 != 5']
     choosers_predict_filters = ['var1 != 7']
     alts_fit_filters = ['var3 != 15']
@@ -113,7 +108,7 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
     name = 'Test LCM'
 
     model = lcm.MNLLocationChoiceModel(
-        model_exp, sample_size, location_id_col,
+        model_exp, sample_size,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
