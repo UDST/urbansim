@@ -185,9 +185,9 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     l1 = -1 * mnl_loglik(beta, *args)[0]
 
     log_likelihood = {
-        'null': l0[0][0],
-        'convergence': l1[0][0],
-        'ratio': (1 - (l1 / l0))[0][0]
+        'null': float(l0[0][0]),
+        'convergence': float(l1[0][0]),
+        'ratio': float((1 - (l1 / l0))[0][0])
     }
 
     fit_parameters = pd.DataFrame({
