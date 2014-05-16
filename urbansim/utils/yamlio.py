@@ -2,7 +2,48 @@
 Utilities for doing IO to YAML files.
 
 """
+import itertools
+import os
+
 import yaml
+
+
+def series_to_yaml_safe(series):
+    """
+    Convert a pandas Series to a dict that will survive YAML serialization
+    and re-conversion back to a Series.
+
+    Parameters
+    ----------
+    series : pandas.Series
+
+    Returns
+    -------
+    safe : dict
+
+    """
+    index = series.index.to_native_types()
+    values = series.values.tolist()
+
+    return {i: v for i, v in itertools.izip(index, values)}
+
+
+def frame_to_yaml_safe(frame):
+    """
+    Convert a pandas DataFrame to a dictionary that will survive
+    YAML serialization and re-conversion back to a DataFrame.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+
+    Returns
+    -------
+    safe : dict
+
+    """
+    return {col: series_to_yaml_safe(series)
+            for col, series in frame.iteritems()}
 
 
 def ordered_yaml(cfg):
@@ -26,22 +67,22 @@ def ordered_yaml(cfg):
              'alts_fit_filters', 'alts_predict_filters',
              'interaction_predict_filters',
              'choice_column', 'sample_size', 'estimation_sample_size',
-             'simple_relocation_rate',
-             'patsy', 'dep_var', 'dep_var_transform', 'model_expression',
-             'ytransform']
+             'model_expression', 'ytransform']
 
-    s = ''
+    s = []
     for key in order:
         if key not in cfg:
             continue
-        s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
+        s.append(
+            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
 
     for key in cfg:
         if key in order:
             continue
-        s += yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4)
+        s.append(
+            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
 
-    return s
+    return os.linesep.join(s)
 
 
 def convert_to_yaml(cfg, str_or_buffer):
@@ -74,3 +115,35 @@ def convert_to_yaml(cfg, str_or_buffer):
             f.write(s)
     else:
         str_or_buffer.write(s)
+
+
+def yaml_to_dict(yaml_str=None, str_or_buffer=None):
+    """
+    Load YAML from a string, file, or buffer (an object with a .read method).
+    Parameters are mutually exclusive.
+
+    Parameters
+    ----------
+    yaml_str : str, optional
+        A string of YAML.
+    str_or_buffer : str or file like, optional
+        File name or buffer from which to load YAML.
+
+    Returns
+    -------
+    dict
+        Conversion from YAML.
+
+    """
+    if not yaml_str and not str_or_buffer:
+        raise ValueError('One of yaml_str or str_or_buffer is required.')
+
+    if yaml_str:
+        d = yaml.load(yaml_str)
+    elif isinstance(str_or_buffer, str):
+        with open(str_or_buffer) as f:
+            d = yaml.load(f)
+    else:
+        d = yaml.load(str_or_buffer)
+
+    return d

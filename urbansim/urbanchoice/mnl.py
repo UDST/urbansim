@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import scipy.optimize
 
 import pmat
@@ -121,8 +122,32 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
     return choices.get_mat()
 
 
-def mnl_estimate(data, chosen, numalts, GPU=0, coeffrange=(-3, 3),
+def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
                  weights=None, lcgrad=False, beta=None):
+    """
+
+
+    Parameters
+    ----------
+    data
+    chosen
+    numalts
+    GPU : bool
+    coeffrange
+    weights
+    lcgrad : bool
+    beta
+
+    Returns
+    -------
+    log_likelihood : dict
+        Dictionary of log-likelihood values describing the quality of
+        the model fit.
+    fit_parameters : pandas.DataFrame
+        Table of fit parameters with columns 'Coefficient', 'Std. Error',
+        'T-Score'.
+
+    """
     atype = 'numpy' if not GPU else 'cuda'
 
     numvars = data.shape[1]
@@ -154,15 +179,20 @@ def mnl_estimate(data, chosen, numalts, GPU=0, coeffrange=(-3, 3),
     beta = bfgs_result[0]
     stderr = mnl_loglik(
         beta, data, chosen, numalts, weights, stderr=1, lcgrad=lcgrad)
-    tscore = beta / stderr
 
-    l_0beta = np.zeros(numvars)
-    l_0 = -1 * mnl_loglik(l_0beta, *args)[0]
-    l_1 = -1 * mnl_loglik(beta, *args)[0]
+    l0beta = np.zeros(numvars)
+    l0 = -1 * mnl_loglik(l0beta, *args)[0]
+    l1 = -1 * mnl_loglik(beta, *args)[0]
 
-    ll_ratio = 1 - (l_1 / l_0)
-    # print "Null Log-liklihood: %f" % l_0
-    # print "Log-liklihood at convergence: %f" % l_1
-    # print "Log-liklihood ratio: %f" % ll_ratio
+    log_likelihood = {
+        'null': l0[0][0],
+        'convergence': l1[0][0],
+        'ratio': (1 - (l1 / l0))[0][0]
+    }
 
-    return (l_0, l_1, ll_ratio), zip(beta, stderr, tscore)
+    fit_parameters = pd.DataFrame({
+        'Coefficient': beta,
+        'Std. Error': stderr,
+        'T-Score': beta / stderr})
+
+    return log_likelihood, fit_parameters

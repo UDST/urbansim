@@ -75,11 +75,13 @@ def test_mnl_lcm(choosers, alternatives):
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
+    model.report_fit()
 
     # hard to test things exactly because there's some randomness
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
-    assert len(model.fit_results) == 2
+    assert len(model.fit_parameters) == 2
+    assert len(model.fit_parameters.columns) == 3
 
     choosers.thing_id = np.nan
     choosers.thing_id.iloc[0] = 'a'
@@ -88,6 +90,13 @@ def test_mnl_lcm(choosers, alternatives):
 
     pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
     assert choices.isin(alternatives.index).all()
+
+    # check that we can do a YAML round-trip
+    yaml_str = model.to_yaml()
+    new_model = lcm.MNLLocationChoiceModel.from_yaml(yaml_str)
+
+    assert new_model.fitted
+    assert model.fit_parameters.to_dict() == new_model.fit_parameters.to_dict()
 
 
 def test_mnl_lcm_repeated_alts(choosers, alternatives):
@@ -110,11 +119,13 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
+    model.report_fit()
 
     # hard to test things exactly because there's some randomness
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
-    assert len(model.fit_results) == 2
+    assert len(model.fit_parameters) == 2
+    assert len(model.fit_parameters.columns) == 3
 
     repeated_index = alternatives.index.repeat([1, 2, 3, 2, 4, 3, 2, 1, 5, 8])
     repeated_alts = alternatives.loc[repeated_index].reset_index()
