@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from . import util
+from ..utils import yamlio
 
 
 def find_movers(choosers, rates, rate_column):
@@ -92,6 +93,30 @@ class RelocationModel(object):
         self.relocation_rates = rates
         self.rate_column = rate_column or 'probability_of_relocating'
 
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a RelocationModel instance from a saved YAML configuration.
+        Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        RelocationModel
+
+        """
+        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
+
+        return cls(
+            pd.DataFrame(cfg['relocation_rates']),
+            cfg.get('rate_column'))
+
     def find_movers(self, choosers):
         """
         Select movers from among a table of `choosers` according to the
@@ -109,3 +134,35 @@ class RelocationModel(object):
 
         """
         return find_movers(choosers, self.relocation_rates, self.rate_column)
+
+    def to_dict(self):
+        """
+        Returns a dictionary representation of a RelocationModel instance.
+
+        """
+        return {
+            'model_type': 'relocation',
+            'relocation_rates': yamlio.frame_to_yaml_safe(
+                self.relocation_rates),
+            'rate_column': self.rate_column
+        }
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML string if `str_or_buffer` is not given.
+
+        """
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)

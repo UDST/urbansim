@@ -3,6 +3,8 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
+from ...utils import testing
+
 from .. import relocation as relo
 
 
@@ -36,3 +38,11 @@ def test_relocation_model_find(choosers, rates):
     rm = relo.RelocationModel(rates)
     movers = rm.find_movers(choosers)
     npt.assert_array_equal(movers, ['a', 'c', 'e'])
+
+
+def test_relocation_model_yaml(rates):
+    rm = relo.RelocationModel(rates)
+    new_rm = relo.RelocationModel.from_yaml(rm.to_yaml())
+
+    testing.assert_frames_equal(new_rm.relocation_rates, rm.relocation_rates)
+    assert new_rm.rate_column == rm.rate_column
