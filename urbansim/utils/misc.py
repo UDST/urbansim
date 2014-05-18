@@ -31,11 +31,11 @@ def configs_dir():
 
 
 def charts_dir():
-    return mkifnotexists("charts")
+    return mkifnotexists("web/charts")
 
 
 def maps_dir():
-    return mkifnotexists("maps")
+    return mkifnotexists("web/maps")
 
 
 def runs_dir():
@@ -43,7 +43,7 @@ def runs_dir():
 
 
 def reports_dir():
-    return mkifnotexists("reports")
+    return mkifnotexists("web/reports")
 
 
 def coef_dir():

@@ -1,13 +1,17 @@
 import os
+import sys
 
 import numpy
-import yaml, simplejson
+import yaml
+import simplejson
 import pandas as pd
 from bottle import route, run, response, hook, request
 
-from urbansim.urbansim import modelcompile
+from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
+import inspect
+import models
 
 def jsonp(request, dictionary):
     if (request.query.callback):
@@ -364,30 +368,28 @@ def datasets_summary(name):
     return wrap_request(request, response, resp(name))
 
 
-@route('/compilemodel')
-def compilemodel():
-    def resp(req, modelname, mode):
-        print "Request: %s\n" % req
-        req = simplejson.loads(req)
-        returnobj = modelcompile.gen_model(req, modelname, mode)
-        print returnobj[1]
-        return returnobj[1]
-    modelname = request.query.get('modelname', 'autorun')
-    mode = request.query.get('mode', 'estimate')
-    req = request.query.get('json', '')
-    return wrap_request(request, response, resp(req, modelname, mode))
-
-
-@route('/execmodel')
-def execmodel():
-    def resp(modelname, mode):
+@route('/list_models')
+def list_models():
+    def resp():
         print "Request: %s\n" % request.query.json
-        req = simplejson.loads(request.query.json)
-        returnobj = modelcompile.run_model(req, DSET, configname=modelname, mode=mode)
-        return returnobj
-    modelname = request.query.get('modelname', 'autorun')
-    mode = request.query.get('mode', 'estimate')
-    return wrap_request(request, response, resp(modelname, mode))
+        functions = inspect.getmembers(models, predicate=inspect.isfunction)
+        functions = filter(lambda x: not x[0].startswith('_'), functions)
+        functions = [x[0] for x in functions]
+        return functions
+    return wrap_request(request, response, resp())
+
+
+@route('/exec_model/<modelname>')
+def exec_model(modelname):
+    def resp(modelname):
+        backup = sys.stdout
+        sys.stdout = StringIO()
+        getattr(models, modelname)(DSET)
+        s = sys.stdout.getvalue()
+        sys.stdout.close()
+        sys.stdout = backup
+        return {"log": s}
+    return wrap_request(request, response, resp(modelname))
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
