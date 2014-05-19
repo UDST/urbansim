@@ -35,7 +35,7 @@ def exec_developer(dset, year, agents, unit_fname, btypes,
     print "Target vacancy = %.2f, target of new units = %d" % \
         (TARGETVACANCY, targetunits)
 
-    #df = pd.read_csv(
+    # df = pd.read_csv(
     #    os.path.join(misc.data_dir(), 'far_predictions.csv'),
     #    index_col='parcel_id')
     df = dset.feasibility
@@ -105,4 +105,3 @@ def exec_developer(dset, year, agents, unit_fname, btypes,
 
     # need to remove parcels from consideration in feasibility
     dset.save_tmptbl("feasibility", dset.feasibility.drop(build))
-
