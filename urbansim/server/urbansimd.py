@@ -1,20 +1,17 @@
-import cPickle
-import decimal
-import json
-import math
 import os
-import string
 import sys
-import time
-from decimal import Decimal
 
 import numpy
-import pandas as pd
+import yaml
 import simplejson
-from bottle import Bottle, route, run, response, hook, request, post
+import pandas as pd
+from bottle import route, run, response, hook, request
 
-from urbansim.urbansim import modelcompile
-from urbansim.utils import misc
+from cStringIO import StringIO
+from urbansim.utils import misc, yamlio
+
+import inspect
+import models
 
 
 def jsonp(request, dictionary):
@@ -58,22 +55,11 @@ def enable_cors():
 @route('/configs')
 def list_configs():
     def resp():
+        print os.listdir(misc.configs_dir())
         files = [f for f in os.listdir(misc.configs_dir())
-                 if f[-5:] == '.json']
+                 if f[-5:] == '.yaml']
 
-        def not_modelset(f):
-            c = open(os.path.join(misc.configs_dir(), f)).read()
-            c = json.loads(c)
-            return 'model' in c and c['model'] != 'modelset'
-        return filter(not_modelset, files)
-    return wrap_request(request, response, resp())
-
-
-@route('/config/<configname>', method="GET")
-def read_config(configname):
-    def resp():
-        c = open(os.path.join(misc.configs_dir(), configname)).read()
-        return simplejson.loads(c)
+        return files
     return wrap_request(request, response, resp())
 
 
@@ -82,13 +68,20 @@ def ans_opt(configname):
     return {}
 
 
+@route('/config/<configname>', method="GET")
+def read_config(configname):
+    def resp():
+        c = open(os.path.join(misc.configs_dir(), configname)).read()
+        return yaml.load(c)
+    return wrap_request(request, response, resp())
+
+
 @route('/config/<configname>', method="PUT")
 def write_config(configname):
     json = request.json
 
     def resp():
-        s = simplejson.dumps(json, indent=4)
-        print s
+        s = yamlio.ordered_yaml(json)
         return open(os.path.join(misc.configs_dir(), configname), "w").write(s)
     return wrap_request(request, response, resp())
 
@@ -378,37 +371,34 @@ def datasets_summary(name):
     return wrap_request(request, response, resp(name))
 
 
-@route('/compilemodel')
-def compilemodel():
-    def resp(req, modelname, mode):
-        print "Request: %s\n" % req
-        req = simplejson.loads(req)
-        returnobj = modelcompile.gen_model(req, modelname, mode)
-        print returnobj[1]
-        return returnobj[1]
-    modelname = request.query.get('modelname', 'autorun')
-    mode = request.query.get('mode', 'estimate')
-    req = request.query.get('json', '')
-    return wrap_request(request, response, resp(req, modelname, mode))
-
-
-@route('/execmodel')
-def execmodel():
-    def resp(modelname, mode):
+@route('/list_models')
+def list_models():
+    def resp():
         print "Request: %s\n" % request.query.json
-        req = simplejson.loads(request.query.json)
-        returnobj = modelcompile.run_model(req, DSET, configname=modelname, mode=mode)
-        return returnobj
-    modelname = request.query.get('modelname', 'autorun')
-    mode = request.query.get('mode', 'estimate')
-    return wrap_request(request, response, resp(modelname, mode))
+        functions = inspect.getmembers(models, predicate=inspect.isfunction)
+        functions = filter(lambda x: not x[0].startswith('_'), functions)
+        functions = [x[0] for x in functions]
+        return functions
+    return wrap_request(request, response, resp())
+
+
+@route('/exec_model/<modelname>')
+def exec_model(modelname):
+    def resp(modelname):
+        backup = sys.stdout
+        sys.stdout = StringIO()
+        getattr(models, modelname)(DSET)
+        s = sys.stdout.getvalue()
+        sys.stdout.close()
+        sys.stdout = backup
+        return {"log": s}
+    return wrap_request(request, response, resp(modelname))
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
                      limit, page):
     if where:
-        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
-            table, where)
+        where = ".query('%s')" % where
     else:
         where = ""
     if sort and orderdesc:
