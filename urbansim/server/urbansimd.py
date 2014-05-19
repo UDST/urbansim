@@ -13,6 +13,7 @@ from urbansim.utils import misc, yamlio
 import inspect
 import models
 
+
 def jsonp(request, dictionary):
     if (request.query.callback):
         return "%s(%s)" % (request.query.callback, dictionary)
@@ -61,9 +62,11 @@ def list_configs():
         return files
     return wrap_request(request, response, resp())
 
+
 @route('/config/<configname>', method="OPTIONS")
 def ans_opt(configname):
     return {}
+
 
 @route('/config/<configname>', method="GET")
 def read_config(configname):
@@ -395,8 +398,7 @@ def exec_model(modelname):
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
                      limit, page):
     if where:
-        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
-            table, where)
+        where = ".query('%s')" % where
     else:
         where = ""
     if sort and orderdesc:
