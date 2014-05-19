@@ -18,12 +18,19 @@ def mkifnotexists(folder):
     return d
 
 
+def mkifnotexists_web(folder):
+    d = os.path.join(os.getenv('DATA_HOME', "."), "web", folder)
+    if not os.path.exists(d):
+        os.mkdir(d)
+    return d
+
+
 def data_dir():
     return mkifnotexists("data")
 
 
 def models_dir():
-    return mkifnotexists("models")
+    return mkifnotexists_web("models")
 
 
 def configs_dir():
@@ -31,31 +38,31 @@ def configs_dir():
 
 
 def charts_dir():
-    return mkifnotexists("charts")
+    return mkifnotexists_web("charts")
 
 
 def maps_dir():
-    return mkifnotexists("maps")
+    return mkifnotexists_web("maps")
 
 
 def runs_dir():
-    return mkifnotexists("runs")
+    return mkifnotexists_web("runs")
 
 
 def reports_dir():
-    return mkifnotexists("reports")
+    return mkifnotexists_web("reports")
 
 
 def coef_dir():
-    return mkifnotexists("coeffs")
+    return mkifnotexists_web("coeffs")
 
 
 def output_dir():
-    return mkifnotexists("output")
+    return mkifnotexists_web("output")
 
 
 def debug_dir():
-    return mkifnotexists("debug")
+    return mkifnotexists_web("debug")
 
 
 def config(fname):

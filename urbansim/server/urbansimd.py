@@ -7,14 +7,19 @@ import string
 import sys
 import time
 from decimal import Decimal
+import traceback
+import httplib2
+import yaml
 
 import numpy
 import pandas as pd
 import simplejson
-from bottle import Bottle, route, run, response, hook, request, post
+from bottle import Bottle, route, run, response, hook, request, post, error
 
 from urbansim.urbansim import modelcompile
 from urbansim.utils import misc
+
+from urbansim.server import tasks
 
 
 def jsonp(request, dictionary):
@@ -42,6 +47,30 @@ def wrap_request(request, response, obj):
     return jsonp(request, s)
 
 
+def catch_exceptions(func):
+    def inner(*args, **kwargs):
+        def resp():
+            try:
+                return {"success": func(*args, **kwargs)}
+            except:
+                e = sys.exc_info()
+                return {"error": {"type": str(e[0]), "value": str(e[1]),
+                        "traceback": traceback.format_exc()}}
+        return wrap_request(request, response, resp())
+    return inner
+
+
+def poll_result(task_id):
+    res = tasks.app.AsyncResult(task_id)
+    print res.state
+    ready = res.ready()
+    if ready:
+        data = res.get()
+    else:
+        data = res.state.split(",")
+    return {"ready": ready, "data": data}
+
+
 @hook('after_request')
 def enable_cors():
     """
@@ -58,30 +87,41 @@ def enable_cors():
 @route('/configs')
 def list_configs():
     def resp():
+        model_type = request.query.get('typeOfModel')
         files = [f for f in os.listdir(misc.configs_dir())
-                 if f[-5:] == '.json']
+                 if f[-5:] == '.yaml']
+        return files
 
-        def not_modelset(f):
+        def is_modelset(f):
             c = open(os.path.join(misc.configs_dir(), f)).read()
             c = json.loads(c)
-            return 'model' in c and c['model'] != 'modelset'
-        return filter(not_modelset, files)
+            return 'model' in c and c['model'] == 'modelset'
+        # what to do when just created models/sims, with no 'model' attr?
+        if model_type == 'modelset':
+            return [f for f in files if is_modelset(f)]
+        else:
+            return [f for f in files if not(is_modelset(f))]
     return wrap_request(request, response, resp())
+
+
+# make it REST. should be /config
+@route('/config_new/<configname>', method="PUT")
+def new_config(configname):
+    config = "{}"
+    f = open(os.path.join(misc.configs_dir(), configname), "w")
+    f.write(config)
+    f.close()
 
 
 @route('/config/<configname>', method="GET")
 def read_config(configname):
     def resp():
-        c = open(os.path.join(misc.configs_dir(), configname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.configs_dir(), configname))
+        return yaml.load(c)
     return wrap_request(request, response, resp())
 
 
-@route('/config/<configname>', method="OPTIONS")
-def ans_opt(configname):
-    return {}
-
-
+# figure out yaml.dump parameters for the desired format
 @route('/config/<configname>', method="PUT")
 def write_config(configname):
     json = request.json
@@ -93,7 +133,7 @@ def write_config(configname):
     return wrap_request(request, response, resp())
 
 
-@route('/charts')
+@route('/charts', method="GET")
 def list_charts():
     def resp():
         files = os.listdir(misc.charts_dir())
@@ -104,14 +144,9 @@ def list_charts():
 @route('/chart/<chartname>', method="GET")
 def read_config(chartname):
     def resp():
-        c = open(os.path.join(misc.charts_dir(), chartname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.charts_dir(), chartname))
+        return yaml.load(c)
     return wrap_request(request, response, resp())
-
-
-@route('/chart/<chartname>', method="OPTIONS")
-def ans_opt(chartname):
-    return {}
 
 
 @route('/chart/<chartname>', method="PUT")
@@ -125,69 +160,34 @@ def write_config(chartname):
     return wrap_request(request, response, resp())
 
 
+# figure out proper REST routes
 @route('/chartdata', method=['OPTIONS', 'GET', 'POST'])
 def query():
+    if request.method == "OPTIONS":
+        return {}
     req = request.query.json
     if (request.query.callback):
         response.content_type = "application/javascript"
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(req)
-    recs = get_chart_data(req)
-    s = simplejson.dumps([{'key': '', 'values': recs}], use_decimal=True)
-    print "Response: %s\n" % s
-    return jsonp(request, s)
+    # recs = tasks.get_chart_data.delay(req).get()
+    # recs = get_chart_data(req)
+    # s = simplejson.dumps([{'key': '', 'values': recs}], use_decimal=True)
+    # print "Response: %s\n" % s
+    # return jsonp(request, s)
+    # return [{'key': '', 'values': recs}]
+    task_id = tasks.get_chart_data.delay(req).id
+    print task_id
+    return task_id
 
 
-def get_chart_data(req):
-    table = req.get('table', '')
-    metric = req.get('metric', '')
-    groupby = req.get('groupby', '')
-    sort = req.get('sort', '')
-    limit = req.get('limit', '')
-    where = req.get('filter', '')
-    orderdesc = req.get('orderdesc', '')
-    jointobuildings = req.get('jointobuildings', False)
-
-    if where:
-        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
-            table, where)
-    else:
-        where = ""
-    if sort and orderdesc:
-        sort = ".order(ascending=False)"
-    if sort and not orderdesc:
-        sort = ".order(ascending=True)"
-    if not sort and orderdesc:
-        sort = ".sort_index(ascending=False)"
-    if not sort and not orderdesc:
-        sort = ".sort_index(ascending=True)"
-    if limit:
-        limit = ".head(%s)" % limit
-    else:
-        limit = ""
-
-    s = "DSET.fetch('%s',addzoneid=%s)%s" % (table, str(jointobuildings), where)
-
-    s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
-
-    print "Executing %s\n" % s
-    recs = eval(s)
-
-    if 'key_dictionary' in req:
-        key_dictionary = req['key_dictionary']
-        # not sure /configs is the proper place to save dicts
-        dictionary_file = open("configs/" + key_dictionary).read()
-        dictionary = json.loads(dictionary_file)
-        # attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
-        recs = [[dictionary[str(int(x))], float(recs.ix[x]) / 1000]
-                for x in recs.index]
-    else:
-        recs = [[x, float(recs.ix[x]) / 1000] for x in recs.index]
-
-    return recs
+@route('/chartdata/<task_id>', method=['OPTIONS', 'GET', 'POST'])
+@catch_exceptions
+def ask_result(task_id):
+    return poll_result(task_id)
 
 
-@route('/maps')
+@route('/maps', method="GET")
 def list_maps():
     def resp():
         files = os.listdir(misc.maps_dir())
@@ -198,14 +198,9 @@ def list_maps():
 @route('/map/<mapname>', method="GET")
 def read_config(mapname):
     def resp():
-        c = open(os.path.join(misc.maps_dir(), mapname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.maps_dir(), mapname))
+        return yaml.loads(c)
     return wrap_request(request, response, resp())
-
-
-@route('/map/<mapname>', method="OPTIONS")
-def ans_opt(mapname):
-    return {}
 
 
 @route('/map/<mapname>', method="PUT")
@@ -219,7 +214,7 @@ def write_config(mapname):
     return wrap_request(request, response, resp())
 
 
-@route('/reports')
+@route('/reports', method="GET")
 def list_reports():
     def resp():
         files = os.listdir(misc.reports_dir())
@@ -230,14 +225,9 @@ def list_reports():
 @route('/report/<reportname>', method="GET")
 def read_config(reportname):
     def resp():
-        c = open(os.path.join(misc.reports_dir(), reportname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.reports_dir(), reportname))
+        return yaml.load(c)
     return wrap_request(request, response, resp())
-
-
-@route('/report/<reportname>', method="OPTIONS")
-def ans_opt(reportname):
-    return {}
 
 
 @route('/report/<reportname>', method="PUT")
@@ -251,62 +241,16 @@ def write_config(reportname):
     return wrap_request(request, response, resp())
 
 
-@route('/report_data/<item>', method="GET")
-def return_data(item):
-    recs = None
-    config = None
-    template = None
+# should all this function be a celery task, or just get_chart-data?
+@route('/report_data_task/<item>', method="GET")
+def call_task(item):
+    return tasks.report_item_data.delay(item).id
 
-    def isChart(i):
-        return "chart" in i
 
-    if isChart(item):
-        config = open(os.path.join(misc.charts_dir(), item)).read()
-        config = json.loads(config)
-
-        def chart_type(c):
-            return "bar-chart"
-
-        if chart_type(item) == "bar-chart":
-            recs = get_chart_data(config)
-            template = """
-                <h2 style="text-align: center;">%s</h2>
-                <nvd3-multi-bar-chart
-                        data="report_data['%s'].data"
-                        id="%s"
-                        height="500"
-                        margin="{top: 10, right: 10, bottom: 50 , left: 80}"
-                        interactive="true"
-                        tooltips="true"
-                        showxaxis="true"
-                        xaxislabel="%s"
-                        yaxislabel="%s in thousands"
-                        showyaxis="true"
-                        xaxisrotatelabels="0"
-                        nodata="an error occurred in the chart"
-                        >
-                    <svg></svg>
-                </nvd3-multi-bar-chart>
-                        """ % (config['desc'], item, item[:-5],
-                               config['groupby'], config['metric'])
-            # ids wouldn't not work without the [:-5]
-    else:   # map
-        config = open(os.path.join(misc.maps_dir(), item)).read()
-        config = json.loads(config)
-        recs = get_chart_data(config)
-        template = """
-            <h2 style="text-align: center;">%s</h2>
-            <div id="%s" mapdirective style="height: 500px; width: 100%%;">
-            </div>
-                   """ % (config['desc'], item)
-
-    s = simplejson.dumps(
-        {'template': template, 'data': [{'key': '', 'values': recs}],
-            'config': config},
-        use_decimal=True
-        )
-    print "response: %s\n" % s
-    return jsonp(request, s)
+@route('/report_data_result/<task_id>', method="GET")
+@catch_exceptions
+def ask_result(task_id):
+    return poll_result(task_id)
 
 
 @route('/datasets')
@@ -394,14 +338,38 @@ def compilemodel():
 
 @route('/execmodel')
 def execmodel():
-    def resp(modelname, mode):
-        print "Request: %s\n" % request.query.json
-        req = simplejson.loads(request.query.json)
-        returnobj = modelcompile.run_model(req, DSET, configname=modelname, mode=mode)
-        return returnobj
-    modelname = request.query.get('modelname', 'autorun')
-    mode = request.query.get('mode', 'estimate')
-    return wrap_request(request, response, resp(modelname, mode))
+    return tasks.execmodel.delay(request.query).id
+
+
+@route('/execmodel/<task_id>')
+@catch_exceptions
+def get_result(task_id):
+    res = tasks.app.AsyncResult(task_id)
+    ready = res.ready()
+    if ready:
+        data = res.get()
+    else:
+        data = res._get_task_meta()["result"]
+    return {"ready": ready, "data": data}
+
+
+# thinking it's easier to have different tasks for models and sims
+@route('/run_sim')
+def run_sim():
+    pass
+    return tasks.run_sim.delay(request.query.json).id
+
+
+@route('/simulationids')
+def simulationids():
+    flowerAPI = "http://localhost:5555/api/"
+    h = httplib2.Http(".cache")
+    (resp_headers, content) = h.request(flowerAPI + """
+        tasks?limit=100&worker=All&type=urbansim.server.tasks.execmodel
+        &state=All""", "GET")
+    content = json.loads(content)
+    print content.keys()
+    return {'ids': content.keys()}
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
@@ -460,7 +428,6 @@ def datasets_records(name):
 def start_service(dset, port=8765, host='localhost'):
     global DSET
     DSET = dset
-
     run(host=host, port=port, debug=True, server='tornado')
 
 if __name__ == '__main__':
