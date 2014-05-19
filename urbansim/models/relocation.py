@@ -91,9 +91,8 @@ class RelocationModel(object):
         Name of column to modify when making movers with nan.
 
     """
-    def __init__(self, rates, col_to_mark='building_id'):
+    def __init__(self, rates):
         self.relocation_rates = rates
-        self.col_to_mark = col_to_mark
 
     def find_movers(self, choosers):
         """
@@ -112,24 +111,3 @@ class RelocationModel(object):
 
         """
         return find_movers(choosers, self.relocation_rates)
-
-    def move_and_mark(self, choosers):
-        """
-        Find movers from among a table of `choosers` and mark their
-        building_id's as nan.
-
-        Parameters
-        ----------
-        choosers : pandas.DataFrame
-            Table of agents from which to find movers.
-            This will be modified in place *and* returned.
-
-        Returns
-        -------
-        choosers : pandas.DataFrame
-            The same table as passed in, modified with movers marked.
-
-        """
-        movers = self.find_movers(choosers)
-        choosers[self.col_to_mark].loc[movers] = np.nan
-        return choosers

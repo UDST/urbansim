@@ -1,5 +1,7 @@
 from __future__ import division
 
+import itertools
+
 import numpy as np
 import pandas as pd
 
@@ -386,16 +388,23 @@ def _update_linked_table(table, col_name, added, copied, removed):
     updated : pandas.DataFrame
 
     """
-    table = table.loc[~table[col_name].isin(removed)]
+    table = table.loc[~table[col_name].isin(set(removed))]
+    sub_table = table.loc[table[col_name].isin(set(copied))]
 
     id_map = added.groupby(copied)
     new_rows = []
 
-    for copied_id, new_ids in id_map.items():
-        rows = table.query('{} == {}'.format(col_name, copied_id))
+    for copied_id, rows in sub_table.groupby(col_name, sort=False):
         # number of times we'll need to duplicate new_ids
         n_matching_rows = len(rows)
-        rows = rows.loc[rows.index.repeat(len(new_ids))]
+
+        new_ids = id_map[copied_id]
+
+        if len(new_ids) > 1:
+            rows = rows.loc[rows.index.repeat(len(new_ids))].copy()
+        else:
+            rows = rows.copy()
+
         rows[col_name] = new_ids * n_matching_rows
         new_rows.append(rows)
 
@@ -444,6 +453,8 @@ class TransitionModel(object):
         -------
         updated : pandas.DataFrame
             Table with rows removed or added.
+        added : pandas.Series
+            Indexes of new rows in `updated`.
         updated_links : dict of pandas.DataFrame
 
         """
@@ -452,8 +463,8 @@ class TransitionModel(object):
 
         updated, added, copied, removed = self.transitioner(data, year)
 
-        for table_name, (table, col) in linked_tables.items():
+        for table_name, (table, col) in linked_tables.iteritems():
             updated_links[table_name] = \
                 _update_linked_table(table, col, added, copied, removed)
 
-        return updated, updated_links
+        return updated, added, updated_links

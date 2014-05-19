@@ -209,24 +209,18 @@ class RegressionModel(object):
         RegressionModel
 
         """
-        if yaml_str:
-            j = yaml.load(yaml_str)
-        elif isinstance(str_or_buffer, str):
-            with open(str_or_buffer) as f:
-                j = yaml.load(f)
-        else:
-            j = yaml.load(str_or_buffer)
+        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
 
         model = cls(
-            j['fit_filters'],
-            j['predict_filters'],
-            j['model_expression'],
-            YTRANSFORM_MAPPING[j['ytransform']],
-            j['name'])
+            cfg['fit_filters'],
+            cfg['predict_filters'],
+            cfg['model_expression'],
+            YTRANSFORM_MAPPING[cfg['ytransform']],
+            cfg['name'])
 
-        if 'fitted' in j and j['fitted']:
+        if 'fitted' in cfg and cfg['fitted']:
             model.model_fit = _FakeRegressionResults(
-                model.str_model_expression, pd.Series(j['coefficients']))
+                model.str_model_expression, pd.Series(cfg['coefficients']))
 
         return model
 
@@ -297,10 +291,6 @@ class RegressionModel(object):
         return predict(
             data, self.predict_filters, self.model_fit, self.ytransform)
 
-    def model_fit_dict(self):
-        return dict([(str(k), float(v))
-                     for k, v in self.model_fit.params.to_dict().items()])
-
     def to_dict(self):
         """
         Returns a dictionary representation of a RegressionModel instance.
@@ -313,9 +303,9 @@ class RegressionModel(object):
             'predict_filters': self.predict_filters,
             'model_expression': self.model_expression,
             'ytransform': YTRANSFORM_MAPPING[self.ytransform],
-            'coefficients': (None if not self.fitted
-                             else self.model_fit_dict()),
-            'fitted': self.fitted
+            'fitted': self.fitted,
+            'coefficients': (yamlio.series_to_yaml_safe(self.model_fit.params)
+                             if self.fitted else None)
         }
 
     def to_yaml(self, str_or_buffer=None):

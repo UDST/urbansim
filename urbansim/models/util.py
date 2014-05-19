@@ -196,3 +196,31 @@ def str_model_expression(expr, add_constant=True):
             model_expression += ' - 1'
 
     return model_expression
+
+
+def sorted_groupby(df, groupby):
+    """
+    Perform a groupby on a DataFrame using a specific column
+    and assuming that that column is sorted.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    groupby : object
+        Column name on which to groupby. This column must be sorted.
+
+    Returns
+    -------
+    generator
+        Yields pairs of group_name, DataFrame.
+
+    """
+    start = 0
+    prev = df[groupby].iloc[start]
+    for i, x in enumerate(df[groupby]):
+        if x != prev:
+            yield prev, df.iloc[start:i]
+            prev = x
+            start = i
+    # need to send back the last group
+    yield prev, df.iloc[start:]

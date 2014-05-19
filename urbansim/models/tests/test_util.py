@@ -1,3 +1,5 @@
+import string
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -130,3 +132,16 @@ class Test_str_model_expression(object):
         assert util.str_model_expression(expr_dict) == self.full_expected
         assert util.str_model_expression(
             expr_dict, add_constant=False) == self.full_expected_no_const
+
+
+def test_sorted_groupby():
+    df = pd.DataFrame(
+        {'alpha': np.random.choice(list(string.lowercase), 100),
+         'num': np.random.randint(100)})
+    sorted_df = df.sort('alpha')
+
+    expected = {name: d.to_dict() for name, d in df.groupby('alpha')}
+    test = {name: d.to_dict()
+            for name, d in util.sorted_groupby(sorted_df, 'alpha')}
+
+    assert test == expected
