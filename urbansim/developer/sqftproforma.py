@@ -6,79 +6,80 @@ import pandas as pd
 
 class SqFtProFormaConfig:
 
-    parcel_sizes = [10000.0]
-    fars = [.25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 11.0]
-    uses = ['retail', 'industrial', 'office', 'residential']
-    forms = {
-        'retail': {
-            "retail": 1.0
-        },
-        'industrial': {
-            "industrial": 1.0
-        },
-        'office': {
-            "office": 1.0
-        },
-        'residential': {
-            "residential": 1.0
-        },
-        'mixedresidential': {
-            "retail": .1,
-            "residential": .9
-        },
-        'mixedoffice': {
-            "office": 0.7,
-            "residential": 0.3
+    def _reset_defaults(self):
+        self.parcel_sizes = [10000.0]
+        self.fars = [.25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 11.0]
+        self.uses = ['retail', 'industrial', 'office', 'residential']
+        self.forms = {
+            'retail': {
+                "retail": 1.0
+            },
+            'industrial': {
+                "industrial": 1.0
+            },
+            'office': {
+                "office": 1.0
+            },
+            'residential': {
+                "residential": 1.0
+            },
+            'mixedresidential': {
+                "retail": .1,
+                "residential": .9
+            },
+            'mixedoffice': {
+                "office": 0.7,
+                "residential": 0.3
+            }
         }
-    }
 
-    PROFITFACTOR = 1.0
-    EFFICIENCY = .7
-    PARCELUSE = .8
-    INTERESTRATE = .05
-    CAPRATE = INTERESTRATE
-    PERIODS = 20
+        self.profit_factor = 1.0
+        self.efficiency = .7
+        self.parcel_use = .8
+        self.interest_rate = .05
+        self.cap_rate = self.interest_rate
+        self.periods = 20
 
-    parking_rates = {
-        "retail": 2.0,
-        "industrial": .6,
-        "office": 1.0,
-        "residential": 1.0
-    }
-    SQFTPERRATE = 1000.0
+        self.parking_rates = {
+            "retail": 2.0,
+            "industrial": .6,
+            "office": 1.0,
+            "residential": 1.0
+        }
+        self.sqft_per_rate = 1000.0
 
-    parking_configs = ['surface', 'deck', 'underground']
+        self.parking_configs = ['surface', 'deck', 'underground']
 
-    costs = {
-        "retail": [160.0, 175.0, 200.0, 230.0],
-        "industrial": [140.0, 175.0, 200.0, 230.0],
-        "office": [160.0, 175.0, 200.0, 230.0],
-        "multifamily": [170.0, 190.0, 210.0, 240.0]
-    }
+        self.costs = {
+            "retail": [160.0, 175.0, 200.0, 230.0],
+            "industrial": [140.0, 175.0, 200.0, 230.0],
+            "office": [160.0, 175.0, 200.0, 230.0],
+            "residential": [170.0, 190.0, 210.0, 240.0]
+        }
 
-    heights_for_costs = [15, 55, 120, np.inf]
+        self.heights_for_costs = [15, 55, 120, np.inf]
 
-    parking_sqft_d = {
-        'surface': 300.0,
-        'deck': 250.0,
-        'underground': 250.0
-    }
-    parking_cost_d = {
-        'surface': 30,
-        'deck': 90,
-        'underground': 110
-    }
+        self.parking_sqft_d = {
+            'surface': 300.0,
+            'deck': 250.0,
+            'underground': 250.0
+        }
+        self.parking_cost_d = {
+            'surface': 30,
+            'deck': 90,
+            'underground': 110
+        }
 
-    HEIGHTPERSTORY = 10.0
-    MAXRETAILHEIGHT = 2.0
-    MAXINDUSTRIALHEIGHT = 2.0
+        self.height_per_story = 10.0
+        self.max_retail_height = 2.0
+        self.max_industrial_height = 2.0
 
     def __init__(self):
         """
         This class encapsulates the configuration options for the square
         foot based pro forma.
 
-        Attributes:
+        Attributes
         parcel_sizes : list
             A list of parcel sizes to test.  Interestingly, right now
             the parcel sizes cancel is this style of pro forma computation so
@@ -116,7 +117,7 @@ class SqFtProFormaConfig:
             foot pro forma, so the more typically parking ratio of spaces
             per residential unit must be converted to square feet for use in
             this pro forma.
-        SQFTPERRATE : float
+        sqft_per_rate : float
             The number of square feet per unit for use in the
             parking_rates above.  By default this is set to 1,000 but can be
             overridden.
@@ -155,44 +156,46 @@ class SqFtProFormaConfig:
             building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
             $230/sqft beyond.  A final value in the height_for_costs
             array of np.inf is typical.
-        HEIGHTPERSTORY : float
+        height_per_story : float
             The per-story height for the building used to turn an
             FAR into an actual height.
-        MAXRETAILHEIGHT : float
+        max_retail_height : float
             The maximum height of retail buildings to consider.
-        MAXINDUSTRIALHEIGHT : float
+        max_industrial_height : float
             The maxmium height of industrial buildings to consider.
-        PROFITFACTOR : float
+        profit_factor : float
             The ratio of profit a developer expects to make above the break
             even rent.
-        EFFICIENCY : float
+        efficiency : float
             The efficiency of the building.  This turns total FAR into the
             amount of space which gets a square foot rent.  The entire building
             gets the cost of course.
-        PARCELUSE : float
+        parcel_use : float
             The ratio of the building footprint to the parcel size.  Also used
             to turn an FAR into a height to cost properly.
-        INTERESTRATE : float
+        interest_rate : float
             The interest rate on loans.  Used to turn the total cost of the
             building into a mortgage payment per year.
-        PERIODS : float
+        periods : float
             Number of years (periods) for the construction loan.
-        CAPRATE : float
+        cap_rate : float
             The rate an investor is willing to pay for a cash flow per year.
-            This means $1/year is equivalent to 1/CAPRATE present dollars.
+            This means $1/year is equivalent to 1/cap_rate present dollars.
             This is a macroeconomic input that is widely available on the
             internet.
         """
-        pass
+        self._reset_defaults()
 
-    @property
-    def costs_arr(self):
-        return np.transpose(np.array([
-            [160.0, 175.0, 200.0, 230.0],  # retail
-            [140.0, 175.0, 200.0, 230.0],  # industrial
-            [160.0, 175.0, 200.0, 230.0],  # office
-            [170.0, 190.0, 210.0, 240.0],  # multifamily
-        ]))
+    # convert lists and dictionaries that are useful for users to
+    # np vectors that are usable by machines
+    def _convert_types(self):
+        self.fars = np.array(self.fars)
+        self.parking_rates = np.array([self.parking_rates[use] for use in self.uses])
+        for k, v in self.forms.iteritems():
+            self.forms[k] = np.array([self.forms[k].get(use, 0.0) for use in self.uses])
+            # normalize if not already
+            self.forms[k] /= self.forms[k].sum()
+        self.costs = np.transpose(np.array([self.costs[use] for use in self.uses]))
 
     @property
     def tiled_parcel_sizes(self):
@@ -223,7 +226,36 @@ class SqFtProForma:
         if config is None:
             config = SqFtProFormaConfig()
         self.config = config
+        self.config._convert_types()
         self._generate_lookup()
+
+    def _building_cost(self, use_mix, stories):
+        """
+        Generate building cost for a set of buildings
+
+        Parameters
+        ----------
+        use_mix : array
+            The mix of uses for this form
+        stories : series
+            A Pandas Series of stories
+
+        Returns
+        -------
+        The cost per sqft for this unit mix and height
+        """
+        c = self.config
+        # stories to heights
+        heights = stories * c.height_per_story
+        # cost index for this height
+        costs = np.searchsorted(c.heights_for_costs, heights)
+        # this will get set to nan later
+        costs[np.isnan(heights)] = 0
+        # compute cost with matrix multiply
+        costs = np.dot(np.squeeze(c.costs[costs.astype('int32')]), use_mix)
+        # some heights aren't allowed - cost should be nan
+        costs[np.isnan(stories).flatten()] = np.nan
+        return costs.flatten()
 
     # run the developer model on all possible inputs specified in the
     # configuration object - not generally called by the user
@@ -240,9 +272,11 @@ class SqFtProForma:
 
             for parking_config in c.parking_configs:
 
+                # going to make a dataframe to store values to make
+                # pro forma results transparent
                 df = pd.DataFrame(index=c.fars)
                 df['far'] = c.fars
-                df['pclsz'] = c.tiledparcelsizes
+                df['pclsz'] = c.tiled_parcel_sizes
 
                 building_bulk = np.reshape(
                     c.parcel_sizes, (-1, 1)) * np.reshape(c.fars, (1, -1))
@@ -254,7 +288,7 @@ class SqFtProForma:
                     orig_bulk = building_bulk
                     while 1:
                         parkingstalls = building_bulk * \
-                            np.sum(uses_distrib * c.parking_rates) / c.SQFTPERRATE
+                            np.sum(uses_distrib * c.parking_rates) / c.sqft_per_rate
                         if np.where(
                                 np.absolute(
                                     orig_bulk - building_bulk -
@@ -268,7 +302,7 @@ class SqFtProForma:
                 df['build'] = building_bulk
 
                 parkingstalls = building_bulk * \
-                    np.sum(uses_distrib * c.parking_rates) / c.SQFTPERRATE
+                    np.sum(uses_distrib * c.parking_rates) / c.sqft_per_rate
                 parking_cost = (c.parking_cost_d[parking_config] *
                                 parkingstalls *
                                 c.parking_sqft_d[parking_config])
@@ -278,46 +312,42 @@ class SqFtProForma:
                 if parking_config == 'underground':
                     df['parksqft'] = parkingstalls * \
                         c.parking_sqft_d[parking_config]
-                    stories = building_bulk / c.tiledparcelsizes
+                    stories = building_bulk / c.tiled_parcel_sizes
                 if parking_config == 'deck':
                     df['parksqft'] = parkingstalls * \
                         c.parking_sqft_d[parking_config]
                     stories = ((building_bulk + parkingstalls *
                                 c.parking_sqft_d[parking_config]) /
-                               c.tiledparcelsizes)
+                               c.tiled_parcel_sizes)
                 if parking_config == 'surface':
                     stories = building_bulk / \
-                        (c.tiledparcelsizes - parkingstalls *
+                        (c.tiled_parcel_sizes - parkingstalls *
                          c.parking_sqft_d[parking_config])
                     df['parksqft'] = parkingstalls * \
                         c.parking_sqft_d[parking_config]
+                    # not all fars support surface parking
                     stories[np.where(stories < 0.0)] = np.nan
 
-                stories /= c.PARCELUSE
-                # acquisition cost!
-                cost = c.building_cost(
-                    uses_distrib, stories, df) * building_bulk + parking_cost
+                df['total_sqft'] = df.build + df.parksqft
+                stories /= c.parcel_use
+                df['stories'] = stories
+                df['costsqft'] = self._building_cost(uses_distrib, stories)
+
+                df['build_cost'] = df.costsqft * df.build
                 df['parkcost'] = parking_cost
-                df['cost'] = cost
+                df['cost'] = df.build_cost + df.parkcost
 
-                yearly_cost_per_sqft = np.pmt(
-                    c.INTERESTRATE, c.PERIODS, cost) / (building_bulk * c.EFFICIENCY)
-                df['yearly_pmt'] = yearly_cost_per_sqft
+                df['yearly_pmt'] = np.pmt(c.interest_rate, c.periods, df.cost)
 
-                break_even_weighted_rent = c.PROFITFACTOR * \
-                    yearly_cost_per_sqft * -1.0
+                df['even_rent'] = c.profit_factor * df.yearly_pmt * -1.0 / \
+                    (df.build * c.efficiency)
                 if name == 'retail':
-                    break_even_weighted_rent[
-                        np.where(c.fars > c.MAXRETAILHEIGHT)] = np.nan
+                    df['even_rent'][c.fars > c.max_retail_height] = np.nan
                 if name == 'industrial':
-                    break_even_weighted_rent[
-                        np.where(c.fars > c.MAXINDUSTRIALHEIGHT)] = np.nan
-                df['even_rent'] = break_even_weighted_rent
-
+                    df['even_rent'][c.fars > c.max_industrial_height] = np.nan
                 df_d[(name, parking_config)] = df
 
-        self.df_d = df_d
-
+        # from here on out we need the min rent for a form and a far
         min_even_rents_d = {}
         bignum = 999999
 
@@ -333,24 +363,46 @@ class SqFtProForma:
             # this is the minimum cost per sqft for this form and far
             min_even_rents_d[name] = min_even_rents
 
+        self.dev_d = df_d
         self.min_even_rents_d = min_even_rents_d
 
-    def _building_cost(self, use_mix, stories, df):
-        c = self.config
-        height = stories * c.HEIGHTPERSTORY
+    """
+    Get the debug info after running the pro forma for a given form and parking
+    configuration
 
-        df['stories'] = stories
+    Parameters
+    ----------
+    form : string
+        The form to get debug info for
+    parking_config : string
+        The parking configuration to get debug info for
 
-        cost = np.searchsorted(c.heightsforcosts, height)
-        cost[np.isnan(height)] = 0
+    Returns
+    -------
+    A dataframe where the index is the far with many columns representing
+    intermediate steps in the pro forma computation.  Additional documentation
+    will be added at a later date, although many of the columns should be fairly
+    self-expanatory.
+    """
+    def get_debug_info(self, form, parking_config):
+        return self.dev_d[(form, parking_config)]
 
-        cost = np.dot(np.squeeze(c.costs[cost.astype('int32')]), use_mix)
-        cost[np.isnan(stories).flatten()] = np.nan
+    """
+    Get the break even rents for the pro forma for a given form
 
-        cost = np.reshape(cost, (-1, 1))
-        df['costsqft'] = cost
+    Parameters
+    ----------
+    form : string
+        Get a series representing the break even rent for each form in the config
 
-        return cost
+    Returns
+    -------
+    A series where the index is the far and the values are the yearly rents per
+    sqft at which the building is "break even" given the configuration parameters
+    that were passed at run time.
+    """
+    def get_break_even_rents(self, form):
+        return self.min_even_rents_d[form]
 
     # this function does the developer model lookups for all the actual parcels
     # form must be one of the forms specified here
@@ -370,7 +422,7 @@ class SqFtProForma:
         # min between max_fars and max_heights
         max_heights[np.isnan(max_heights)] = 9999.0
         max_fars[np.isnan(max_fars)] = 0.0
-        max_heights = max_heights / c.HEIGHTPERSTORY * c.PARCELUSE
+        max_heights = max_heights / c.HEIGHTPERSTORY * c.parcel_use
         max_fars = np.minimum(max_heights, max_fars)
 
         # zero out fars not allowed by zoning
@@ -382,15 +434,15 @@ class SqFtProForma:
 
         # cost to build the new building
         building_costs = building_bulks * \
-            np.reshape(even_rents.values, (1, -1)) / c.CAPRATE
+            np.reshape(even_rents.values, (1, -1)) / c.cap_rate
 
         # add cost to buy the current building
         building_costs = building_costs + \
-            np.reshape(land_costs.values, (-1, 1)) / c.CAPRATE
+            np.reshape(land_costs.values, (-1, 1)) / c.cap_rate
 
         # rent to make for the new building
         building_revenue = building_bulks * \
-            np.reshape(rents, (-1, 1)) / c.CAPRATE
+            np.reshape(rents, (-1, 1)) / c.cap_rate
 
         # profit for each form
         profit = building_revenue - building_costs
@@ -413,33 +465,17 @@ class SqFtProForma:
         # remove far of unprofitable building
         maxprofit_fars[pd.isnull(maxprofit)] = np.nan
 
-        '''
-  # this code does detailed debugging for a specific parcel
-  label = 151358
-  i = parcel_sizes.index.get_loc(label)
-  print "size\n", parcel_sizes.loc[label]
-  print "max_far\n", max_fars[i]
-  print "bulks\n", building_bulks[i,:]
-  print "costs\n", building_costs[i,:]
-  print "revenue\n", building_revenue[i,:]
-  print "profit\n", profit[i,:]
-  print "land_costs\n", land_costs.loc[label]
-  print "maxprofitind", maxprofitind[i]
-  print "maxprofit", maxprofit.loc[label]
-  print "max_profit_fars", maxprofit_fars.loc[label]
-  '''
-
         print "maxprofit_fars\n", maxprofit_fars.value_counts()
 
         return maxprofit_fars.astype('float32'), maxprofit
 
-    # this code creates the debugging plots to understand the behavior of
-    # the hypothetical building model
-    def debug_output(self):
+    # this code creates the debugging plots to understand
+    # the behavior of the hypothetical building model
+    def _debug_output(self):
         import matplotlib.pyplot as plt
         c = self.config
 
-        df_d = self.df_d
+        df_d = self.dev_d
         keys = df_d.keys()
         keys.sort()
         for key in keys:
@@ -451,7 +487,7 @@ class SqFtProForma:
 
         keys = c.forms.keys()
         keys.sort()
-        c = 1
+        cnt = 1
         share = None
         fig = plt.figure(figsize=(12, 3 * len(keys)))
         fig.suptitle('Profitable rents by use', fontsize=40)
@@ -466,9 +502,9 @@ class SqFtProForma:
             del sumdf['far']
 
             if share is None:
-                share = plt.subplot(len(keys) / 2, 2, c)
+                share = plt.subplot(len(keys) / 2, 2, cnt)
             else:
-                plt.subplot(len(keys) / 2, 2, c, sharex=share, sharey=share)
+                plt.subplot(len(keys) / 2, 2, cnt, sharex=share, sharey=share)
 
             handles = plt.plot(far, sumdf)
             plt.ylabel('even_rent')
@@ -477,5 +513,5 @@ class SqFtProForma:
             plt.legend(
                 handles, c.parking_configs, loc='lower right',
                 title='Parking type')
-            c += 1
+            cnt += 1
         plt.savefig('even_rents.png', bbox_inches=0)
