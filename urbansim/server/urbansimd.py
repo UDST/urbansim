@@ -144,10 +144,15 @@ def write_config(chartname):
     json = request.json
 
     def resp():
-        s = simplejson.dumps(json, indent=4)
+        s = yamlio.ordered_yaml(json)
         print s
         return open(os.path.join(misc.charts_dir(), chartname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+@route('/chart/<chartname>', method="OPTIONS")
+def ans_opt(chartname):
+    return {}
 
 
 # figure out proper REST routes
@@ -187,7 +192,7 @@ def list_maps():
 def read_config(mapname):
     def resp():
         c = open(os.path.join(misc.maps_dir(), mapname))
-        return yaml.loads(c)
+        return yaml.load(c)
     return wrap_request(request, response, resp())
 
 
@@ -196,10 +201,15 @@ def write_config(mapname):
     json = request.json
 
     def resp():
-        s = simplejson.dumps(json, indent=4)
+        s = yamlio.ordered_yaml(json)
         print s
         return open(os.path.join(misc.maps_dir(), mapname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+@route('/map/<mapname>', method="OPTIONS")
+def ans_opt(mapname):
+    return {}
 
 
 @route('/reports')
