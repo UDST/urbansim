@@ -20,8 +20,10 @@ from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
 import inspect
-import models
+sys.path.insert(0, ".")
+from bayarea import models
 
+from urbansim.server import tasks
 
 def jsonp(request, dictionary):
     if (request.query.callback):
@@ -113,6 +115,12 @@ def write_config(configname):
         s = yamlio.ordered_yaml(json)
         return open(os.path.join(misc.configs_dir(), configname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+# this can be a decorator, maybe put make only one decorator, wrap_request
+@route('/config/<configname>', method="OPTIONS") 
+def ans_opt(configname):
+    return {}
 
 
 @route('/charts')
@@ -315,15 +323,13 @@ def list_models():
 
 @route('/exec_model/<modelname>')
 def exec_model(modelname):
-    def resp(modelname):
-        backup = sys.stdout
-        sys.stdout = StringIO()
-        getattr(models, modelname)(DSET)
-        s = sys.stdout.getvalue()
-        sys.stdout.close()
-        sys.stdout = backup
-        return {"log": s}
-    return wrap_request(request, response, resp(modelname))
+    return tasks.exec_model.delay(modelname).id
+
+
+@route('/exec_model_result/<task_id>')
+@catch_exceptions
+def get_result(task_id):
+    return poll_result(task_id)
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,

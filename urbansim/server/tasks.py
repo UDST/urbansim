@@ -22,6 +22,7 @@ import time
 import numpy
 import pandas as pd
 import simplejson
+from cStringIO import StringIO
 
 from urbansim.urbansim import modelcompile
 from urbansim.utils import misc
@@ -29,7 +30,7 @@ from urbansim.utils import misc
 from celery import Celery
 
 sys.path.insert(0, ".")
-from bayarea import dataset
+from bayarea import dataset, models
 
 app = Celery()
 app.config_from_object({
@@ -50,36 +51,34 @@ def jsonp(request, dictionary):
 
 
 @app.task(bind=True)
-def execmodel(self, req_query):
-    req = simplejson.loads(req_query.json)
-    meta = app.AsyncResult(self.request.id)._get_task_meta()["result"]
-    meta = {"status_msg": ["Started"]}
-    if req["model"] == "modelset":
-        meta["progress_count"] = 0
-        years = req.get("numyearstorun", 1)
-        models = len(req["modelstorun"])
-        meta["progress_total"] = years * models
-    self.update_state(meta=meta)
+def exec_model(self, modelname):
+    backup = sys.stdout
+    sys.stdout = StringIO()
+    getattr(models, modelname)(DSET)
+    s = sys.stdout.getvalue()
+    sys.stdout.close()
+    sys.stdout = backup
+    return {"log": s}
 
-    def resp(modelname, mode, celery_task):
-        print "Request: %s\n" % req_query.json
-        # req = simplejson.loads(req_query.json)
-        returnobj = modelcompile.run_model(
-            req, DSET, configname=modelname, mode=mode, celery_task=celery_task)
-        return returnobj
-    modelname = req_query.get('modelname', 'autorun')
-    mode = req_query.get('mode', 'estimate')
-    return resp(modelname, mode, self)
+    #req = simplejson.loads(req_query.json)
+    #meta = app.AsyncResult(self.request.id)._get_task_meta()["result"]
+    #meta = {"status_msg": ["Started"]}
+    #if req["model"] == "modelset":
+    #    meta["progress_count"] = 0
+    #    years = req.get("numyearstorun", 1)
+    #    models = len(req["modelstorun"])
+    #    meta["progress_total"] = years * models
+    #self.update_state(meta=meta)
 
 
 @app.task(bind=True)
 def get_chart_data(self, req):
-    # self.update_state(state='CUSTOM_STATE')
-    with self.app.events.default_dispatcher() as dispatcher:
-        print "here comes dispatcher"
-        print dispatcher
-        dispatcher.send('task-custom_state', state='mi primer estado custom')
-    # time.sleep(30)
+    #self.update_state(state='CUSTOM_STATE')
+    #with self.app.events.default_dispatcher() as dispatcher:
+    #    print "here comes dispatcher"
+    #    print dispatcher
+    #    dispatcher.send('task-custom_state', state='mi primer estado custom')
+    #time.sleep(30)
 
     DSET = dataset.LocalDataset('../bayarea_urbansim/data/bayarea.h5')
     table = req.get('table', '')
