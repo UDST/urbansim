@@ -14,12 +14,13 @@ import yaml
 import numpy
 import pandas as pd
 import simplejson
-from bottle import Bottle, route, run, response, hook, request, post, error
+from bottle import Bottle, route, run, response, hook, request, post
 
-from urbansim.urbansim import modelcompile
-from urbansim.utils import misc
+from cStringIO import StringIO
+from urbansim.utils import misc, yamlio
 
-from urbansim.server import tasks
+import inspect
+import models
 
 
 def jsonp(request, dictionary):
@@ -87,36 +88,18 @@ def enable_cors():
 @route('/configs')
 def list_configs():
     def resp():
-        model_type = request.query.get('typeOfModel')
+        print os.listdir(misc.configs_dir())
         files = [f for f in os.listdir(misc.configs_dir())
                  if f[-5:] == '.yaml']
+
         return files
-
-        def is_modelset(f):
-            c = open(os.path.join(misc.configs_dir(), f)).read()
-            c = json.loads(c)
-            return 'model' in c and c['model'] == 'modelset'
-        # what to do when just created models/sims, with no 'model' attr?
-        if model_type == 'modelset':
-            return [f for f in files if is_modelset(f)]
-        else:
-            return [f for f in files if not(is_modelset(f))]
     return wrap_request(request, response, resp())
-
-
-# make it REST. should be /config
-@route('/config_new/<configname>', method="PUT")
-def new_config(configname):
-    config = "{}"
-    f = open(os.path.join(misc.configs_dir(), configname), "w")
-    f.write(config)
-    f.close()
 
 
 @route('/config/<configname>', method="GET")
 def read_config(configname):
     def resp():
-        c = open(os.path.join(misc.configs_dir(), configname))
+        c = open(os.path.join(misc.configs_dir(), configname)).read()
         return yaml.load(c)
     return wrap_request(request, response, resp())
 
@@ -127,13 +110,12 @@ def write_config(configname):
     json = request.json
 
     def resp():
-        s = simplejson.dumps(json, indent=4)
-        print s
+        s = yamlio.ordered_yaml(json)
         return open(os.path.join(misc.configs_dir(), configname), "w").write(s)
     return wrap_request(request, response, resp())
 
 
-@route('/charts', method="GET")
+@route('/charts')
 def list_charts():
     def resp():
         files = os.listdir(misc.charts_dir())
@@ -163,8 +145,6 @@ def write_config(chartname):
 # figure out proper REST routes
 @route('/chartdata', method=['OPTIONS', 'GET', 'POST'])
 def query():
-    if request.method == "OPTIONS":
-        return {}
     req = request.query.json
     if (request.query.callback):
         response.content_type = "application/javascript"
@@ -214,7 +194,7 @@ def write_config(mapname):
     return wrap_request(request, response, resp())
 
 
-@route('/reports', method="GET")
+@route('/reports')
 def list_reports():
     def resp():
         files = os.listdir(misc.reports_dir())
@@ -322,61 +302,34 @@ def datasets_summary(name):
     return wrap_request(request, response, resp(name))
 
 
-@route('/compilemodel')
-def compilemodel():
-    def resp(req, modelname, mode):
-        print "Request: %s\n" % req
-        req = simplejson.loads(req)
-        returnobj = modelcompile.gen_model(req, modelname, mode)
-        print returnobj[1]
-        return returnobj[1]
-    modelname = request.query.get('modelname', 'autorun')
-    mode = request.query.get('mode', 'estimate')
-    req = request.query.get('json', '')
-    return wrap_request(request, response, resp(req, modelname, mode))
+@route('/list_models')
+def list_models():
+    def resp():
+        print "Request: %s\n" % request.query.json
+        functions = inspect.getmembers(models, predicate=inspect.isfunction)
+        functions = filter(lambda x: not x[0].startswith('_'), functions)
+        functions = [x[0] for x in functions]
+        return functions
+    return wrap_request(request, response, resp())
 
 
-@route('/execmodel')
-def execmodel():
-    return tasks.execmodel.delay(request.query).id
-
-
-@route('/execmodel/<task_id>')
-@catch_exceptions
-def get_result(task_id):
-    res = tasks.app.AsyncResult(task_id)
-    ready = res.ready()
-    if ready:
-        data = res.get()
-    else:
-        data = res._get_task_meta()["result"]
-    return {"ready": ready, "data": data}
-
-
-# thinking it's easier to have different tasks for models and sims
-@route('/run_sim')
-def run_sim():
-    pass
-    return tasks.run_sim.delay(request.query.json).id
-
-
-@route('/simulationids')
-def simulationids():
-    flowerAPI = "http://localhost:5555/api/"
-    h = httplib2.Http(".cache")
-    (resp_headers, content) = h.request(flowerAPI + """
-        tasks?limit=100&worker=All&type=urbansim.server.tasks.execmodel
-        &state=All""", "GET")
-    content = json.loads(content)
-    print content.keys()
-    return {'ids': content.keys()}
+@route('/exec_model/<modelname>')
+def exec_model(modelname):
+    def resp(modelname):
+        backup = sys.stdout
+        sys.stdout = StringIO()
+        getattr(models, modelname)(DSET)
+        s = sys.stdout.getvalue()
+        sys.stdout.close()
+        sys.stdout = backup
+        return {"log": s}
+    return wrap_request(request, response, resp(modelname))
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
                      limit, page):
     if where:
-        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
-            table, where)
+        where = ".query('%s')" % where
     else:
         where = ""
     if sort and orderdesc:
@@ -428,6 +381,7 @@ def datasets_records(name):
 def start_service(dset, port=8765, host='localhost'):
     global DSET
     DSET = dset
+
     run(host=host, port=port, debug=True, server='tornado')
 
 if __name__ == '__main__':
