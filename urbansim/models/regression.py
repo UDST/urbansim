@@ -108,13 +108,21 @@ class _FakeRegressionResults(object):
     model_expression : str
         A patsy model expression that can be used with statsmodels.
         Should contain both the left- and right-hand sides.
-    coefficients : pandas.Series
-        Coefficients (params) from fitting `model_expression` to data.
+    fit_parameters : pandas.DataFrame
+        Stats results from fitting `model_expression` to data.
+        Should include columns 'Coefficient', 'Std. Error', and 'T-Score'.
+    rsquared : float
+    rsquared_adj : float
 
     """
-    def __init__(self, model_expression, coefficients):
+    def __init__(self, model_expression, fit_parameters, rsquared,
+                 rsquared_adj):
         self.model_expression = model_expression
-        self.coefficients = np.asanyarray(coefficients)
+        self.params = fit_parameters['Coefficient']
+        self.bse = fit_parameters['Std. Error']
+        self.pvalues = fit_parameters['T-Score']
+        self.rsquared = rsquared
+        self.rsquared_adj = rsquared_adj
 
     @property
     def _rhs(self):
@@ -140,7 +148,7 @@ class _FakeRegressionResults(object):
 
         """
         model_design = dmatrix(self._rhs, data=data, return_type='dataframe')
-        return model_design.dot(self.coefficients).values
+        return model_design.dot(self.params).values
 
 
 def _model_fit_to_table(fit):
@@ -249,8 +257,15 @@ class RegressionModel(object):
             cfg['name'])
 
         if 'fitted' in cfg and cfg['fitted']:
+            fit_parameters = pd.DataFrame(cfg['fit_parameters'])
+            fit_parameters.rsquared = cfg['fit_rsquared']
+            fit_parameters.rsquared_adj = cfg['fit_rsquared_adj']
+
             model.model_fit = _FakeRegressionResults(
-                model.str_model_expression, pd.Series(cfg['coefficients']))
+                model.str_model_expression,
+                fit_parameters,
+                cfg['fit_rsquared'], cfg['fit_rsquared_adj'])
+            model.fit_parameters = fit_parameters
 
         return model
 
@@ -283,8 +298,6 @@ class RegressionModel(object):
         fit = fit_model(data, self.fit_filters, self.str_model_expression)
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
-        self.fit_rsquared = fit.rsquared
-        self.fit_rsquared_adj = fit.rsquared_adj
         return fit
 
     @property
@@ -293,7 +306,7 @@ class RegressionModel(object):
         True if the model is ready for prediction.
 
         """
-        return bool(self.model_fit)
+        return self.model_fit is not None
 
     def assert_fitted(self):
         """
@@ -329,7 +342,7 @@ class RegressionModel(object):
         Returns a dictionary representation of a RegressionModel instance.
 
         """
-        return {
+        d = {
             'model_type': 'regression',
             'name': self.name,
             'fit_filters': self.fit_filters,
@@ -337,9 +350,18 @@ class RegressionModel(object):
             'model_expression': self.model_expression,
             'ytransform': YTRANSFORM_MAPPING[self.ytransform],
             'fitted': self.fitted,
-            'coefficients': (yamlio.series_to_yaml_safe(self.model_fit.params)
-                             if self.fitted else None)
+            'fit_parameters': None,
+            'fit_rsquared': None,
+            'fit_rsquared_adj': None
         }
+
+        if self.fitted:
+            d['fit_parameters'] = yamlio.frame_to_yaml_safe(
+                self.fit_parameters)
+            d['fit_rsquared'] = self.model_fit.rsquared
+            d['fit_rsquared_adj'] = self.model_fit.rsquared_adj
+
+        return d
 
     def to_yaml(self, str_or_buffer=None):
         """

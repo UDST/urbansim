@@ -14,6 +14,7 @@ from statsmodels.regression.linear_model import RegressionResultsWrapper
 
 from .. import regression
 from ...exceptions import ModelEvaluationError
+from ...utils import testing
 
 
 @pytest.fixture
@@ -80,13 +81,20 @@ def test_FakeRegressionResults(test_df):
     model = smf.ols(formula=model_exp, data=test_df)
     fit = model.fit()
 
+    fit_parameters = regression._model_fit_to_table(fit)
+
     wrapper = regression._FakeRegressionResults(
-        model_exp, fit.params)
+        model_exp, fit_parameters, fit.rsquared, fit.rsquared_adj)
 
     test_predict = pd.DataFrame({'col2': [0.5, 10, 25.6]})
 
     npt.assert_array_equal(
         wrapper.predict(test_predict), fit.predict(test_predict))
+    pdt.assert_series_equal(wrapper.params, fit.params)
+    pdt.assert_series_equal(wrapper.bse, fit.bse)
+    pdt.assert_series_equal(wrapper.pvalues, fit.pvalues)
+    assert wrapper.rsquared == fit.rsquared
+    assert wrapper.rsquared_adj == fit.rsquared_adj
 
 
 def test_RegressionModel(test_df):
@@ -142,16 +150,17 @@ def test_RegressionModelGroup(groupby_df):
 
 
 def assert_dict_specs_equal(j1, j2):
-    j1_coeff = j1.pop('coefficients')
-    j2_coeff = j2.pop('coefficients')
+    j1_params = j1.pop('fit_parameters')
+    j2_params = j2.pop('fit_parameters')
 
     assert j1 == j2
 
-    if j1_coeff and j2_coeff:
-        pdt.assert_series_equal(
-            pd.Series(j1_coeff), pd.Series(j2_coeff), check_dtype=False)
+    if j1_params and j2_params:
+        testing.assert_frames_equal(
+            pd.DataFrame(j1_params), pd.DataFrame(j2_params))
     else:
-        assert j1_coeff is j2_coeff
+        assert j1_params is None
+        assert j2_params is None
 
 
 class TestRegressionModelYAMLNotFit(object):
@@ -172,8 +181,10 @@ class TestRegressionModelYAMLNotFit(object):
             'predict_filters': predict_filters,
             'model_expression': model_exp,
             'ytransform': regression.YTRANSFORM_MAPPING[ytransform],
-            'coefficients': None,
-            'fitted': False
+            'fitted': False,
+            'fit_parameters': None,
+            'fit_rsquared': None,
+            'fit_rsquared_adj': None
         }
 
     def test_string(self):
@@ -215,15 +226,31 @@ class TestRegressionModelYAMLFit(TestRegressionModelYAMLNotFit):
         self.model.fit(test_df())
 
         self.expected_dict['fitted'] = True
-        self.expected_dict['coefficients'] = {
-            'Intercept': -5, 'col2': 1}
+        self.expected_dict['fit_rsquared'] = 1.0
+        self.expected_dict['fit_rsquared_adj'] = 1.0
+        self.expected_dict['fit_parameters'] = {
+            'Coefficient': {
+                'Intercept': -5.0,
+                'col2': 1.0000000000000002},
+            'T-Score': {
+                'Intercept': 8.621678386539817e-16,
+                'col2': 5.997311421859925e-16},
+            'Std. Error': {
+                'Intercept': 6.771450370191848e-15,
+                'col2': 9.420554752102651e-16}}
 
     def test_fitted_load(self, test_df):
         model = regression.RegressionModel.from_yaml(
             yaml_str=self.model.to_yaml())
         assert isinstance(model.model_fit, regression._FakeRegressionResults)
         npt.assert_array_equal(
-            self.model.predict(test_df), model.predict(test_df))
+            model.predict(test_df), self.model.predict(test_df))
+        testing.assert_frames_equal(
+            model.fit_parameters, self.model.fit_parameters)
+        assert model.fit_parameters.rsquared == \
+            self.model.fit_parameters.rsquared
+        assert model.fit_parameters.rsquared_adj == \
+            self.model.fit_parameters.rsquared_adj
 
 
 def test_model_fit_to_table(test_df):
