@@ -18,25 +18,6 @@ def enable_gpu():
     pmat.initialize_gpu()
 
 
-def estimate(data, est_params, numalts, availability=None, gpu=None):
-    global GPU
-    if gpu is None:
-        gpu = GPU
-    if est_params[0] == 'mnl':
-        if availability:
-            assert 0  # not implemented yet
-        return mnl.mnl_estimate(data, est_params[1], numalts, gpu)
-    elif est_params[0] == 'nl':
-        return nl.nl_estimate(
-            data, est_params[1], numalts, est_params[2], availability, gpu)
-
-    else:
-        assert 0
-
-
-def simulate(data, coeff, numalts, gpu=GPU):
-    return mnl.mnl_simulate(data, coeff, numalts, gpu)
-
 # if nested logit, add the field names for the additional nesting params
 
 
@@ -45,14 +26,6 @@ def add_fnames(fnames, est_params):
         fnames = ['mu%d' % (i + 1)
                   for i in range(est_params[2].numnests())] + fnames
     return fnames
-
-
-def mnl_estimate(data, chosen, numalts, gpu=GPU):
-    return mnl.mnl_estimate(data, chosen, numalts, gpu)
-
-
-def mnl_simulate(data, coeff, numalts, gpu=GPU, returnprobs=0):
-    return mnl.mnl_simulate(data, coeff, numalts, gpu, returnprobs)
 
 
 # TODO: split this out into separate functions for estimation
@@ -119,19 +92,6 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     chosen[:, 0] = 1
 
     return sample, alts_sample, chosen
-
-
-def mnl_choice_from_sample(sample, choices, SAMPLE_SIZE):
-    return np.reshape(
-        sample, (choices.size, SAMPLE_SIZE))[np.arange(choices.size), choices]
-
-
-def nl_estimate(data, chosen, numalts, nestinfo, gpu=GPU):
-    return nl.nl_estimate(data, chosen, numalts, nestinfo, gpu)
-
-
-def nl_simulate(data, coeff, numalts, gpu=GPU):
-    return nl.nl_simulate(data, coeff, numalts, gpu)
 
 
 def nl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE, nestcol,
