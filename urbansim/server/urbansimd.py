@@ -2,6 +2,7 @@ import cPickle
 import decimal
 import json
 import math
+import inspect
 import os
 import string
 import sys
@@ -19,9 +20,8 @@ from bottle import Bottle, route, run, response, hook, request, post
 from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
-import inspect
-sys.path.insert(0, ".")
-from bayarea import models
+# should be a local file
+import models
 
 from urbansim.server import tasks
 
