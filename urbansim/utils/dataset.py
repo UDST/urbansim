@@ -121,7 +121,7 @@ class Dataset(object):
 
         assert 'building_id' in df
 
-        cols = ['x','y']
+        cols = ['x', 'y']
         for col in cols:
             if col in df.columns:
                 del df[col]
