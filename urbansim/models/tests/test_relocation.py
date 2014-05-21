@@ -28,7 +28,7 @@ def rates():
 
 
 def test_find_movers(choosers, rates):
-    movers = relo.find_movers(choosers, rates)
+    movers = relo.find_movers(choosers, rates, 'probability_of_relocating')
     npt.assert_array_equal(movers, ['a', 'c', 'e'])
 
 

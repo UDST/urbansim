@@ -4,6 +4,8 @@ import pandas as pd
 import pytest
 from pandas.util import testing as pdt
 
+from ...utils import testing
+
 from .. import lcm
 
 
@@ -92,7 +94,7 @@ def test_mnl_lcm(choosers, alternatives):
     new_model = lcm.MNLLocationChoiceModel.from_yaml(yaml_str)
 
     assert new_model.fitted
-    assert model.fit_parameters.to_dict() == new_model.fit_parameters.to_dict()
+    testing.assert_frames_equal(model.fit_parameters, new_model.fit_parameters)
 
 
 def test_mnl_lcm_repeated_alts(choosers, alternatives):

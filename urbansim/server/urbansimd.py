@@ -1,3 +1,4 @@
+import inspect
 import os
 import sys
 
@@ -10,7 +11,7 @@ from bottle import route, run, response, hook, request
 from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
-import inspect
+# should be a local file
 import models
 
 
