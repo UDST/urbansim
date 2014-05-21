@@ -31,12 +31,10 @@ class SqFtProFormaConfig:
             }
         }
 
-        self.profit_factor = 1.0
-        self.efficiency = .7
-        self.parcel_use = .8
-        self.interest_rate = .05
-        self.cap_rate = self.interest_rate
-        self.periods = 20
+        self.profit_factor = 1.1
+        self.building_efficiency = .7
+        self.parcel_coverage = .8
+        self.cap_rate = .05
 
         self.parking_rates = {
             "retail": 2.0,
@@ -160,22 +158,18 @@ class SqFtProFormaConfig:
         max_retail_height : float
             The maximum height of retail buildings to consider.
         max_industrial_height : float
-            The maxmium height of industrial buildings to consider.
+            The maximum height of industrial buildings to consider.
         profit_factor : float
             The ratio of profit a developer expects to make above the break
-            even rent.
-        efficiency : float
+            even rent.  Should be greater than 1.0, e.g. a 10% profit would be
+            a profit factor of 1.1.
+        building_efficiency : float
             The efficiency of the building.  This turns total FAR into the
             amount of space which gets a square foot rent.  The entire building
             gets the cost of course.
-        parcel_use : float
+        parcel_coverage : float
             The ratio of the building footprint to the parcel size.  Also used
             to turn an FAR into a height to cost properly.
-        interest_rate : float
-            The interest rate on loans.  Used to turn the total cost of the
-            building into a mortgage payment per year.
-        periods : float
-            Number of years (periods) for the construction loan.
         cap_rate : float
             The rate an investor is willing to pay for a cash flow per year.
             This means $1/year is equivalent to 1/cap_rate present dollars.
@@ -334,15 +328,13 @@ class SqFtProForma:
                     stories[np.where(stories < 0.0)] = np.nan
 
                 df['total_sqft'] = df.build + df.parksqft
-                stories /= c.parcel_use
+                stories /= c.parcel_coverage
                 df['stories'] = stories
                 df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
 
                 df['build_cost'] = df.build_cost_sqft * df.build
                 df['park_cost'] = parking_cost
                 df['cost'] = df.build_cost + df.park_cost
-
-                #df['yearly_pmt'] = np.pmt(c.interest_rate, c.periods, df.cost)
 
                 df['ave_cost_sqft'] = (df.cost / df.total_sqft) * c.profit_factor
 
@@ -410,7 +402,7 @@ class SqFtProForma:
         """
         return self.min_ave_cost_d[form]
 
-    def lookup(self, form, df):
+    def lookup(self, form, df, only_built=True):
         """
         This function does the developer model lookups for all the actual input data.
 
@@ -421,8 +413,13 @@ class SqFtProForma:
         df: dataframe
             Pass in a single data frame which is indexed by parcel_id and has the
             following columns
+        only_built : bool
+            Whether to return only those buildings that are profitable and allowed
+            by zoning, or whether to return as much information as possible, even if
+            unlikely to be built (can be used when development might be subsidized
+            or when debugging)
 
-        Columns
+        Input Dataframe Columns
         -------
         rents : dataframe
             A set of columns, one for each of the uses passed in the configuration.
@@ -441,6 +438,34 @@ class SqFtProForma:
             will not be built above these heights.  Will pick between the min of
             the far and height, will ignore on of them if one is nan, but will not
             build if both are nan.
+
+        Returns
+        -------
+        A dataframe which is indexed by the parcel ids that were passed, with the
+        following columns.
+
+        building_size : Series, float
+            The number of square feet for the building to build.  Keep in mind
+            this includes parking and common space.  Will need a helpful function
+            to convert from gross square feet to actual usable square feet in
+            residential units.
+        building_cost : Series, float
+            The cost of constructing the building as given by the
+            ave_cost_per_sqft from the cost model (for this FAR) and the number
+            of square feet.
+        total_cost : Series, float
+            The cost of constructing the building plus the cost of acquisition of
+            the current parcel/building.
+        building_revenue : Series, float
+            The NPV of the revenue for the building to be built, which is the
+            number of square feet times the yearly rent divided by the cap
+            rate (with a few adjustment factors including building efficiency).
+        max_profit_far : Series, float
+            The FAR of the maximum profit building (constrained by the max_far and
+            max_height from the input dataframe).
+        max_profit :
+            The profit for the maximum profit building (constrained by the max_far
+            and max_height from the input dataframe).
         """
         c = self.config
 
@@ -452,57 +477,52 @@ class SqFtProForma:
         df['weighted_rent'] = np.dot(df[c.uses], c.forms[form])
 
         # min between max_fars and max_heights
-        df['max_far_from_heights'] = df.max_heights / c.height_per_story * c.parcel_use
+        df['max_far_from_heights'] = df.max_heights / c.height_per_story * \
+            c.parcel_coverage
         df['min_max_fars'] = df[['max_far_from_heights', 'max_fars']].min(axis=1).fillna(0)
-        df = df.query('min_max_fars > 0 and parcel_sizes > 0')
-        print df.min_max_fars
+        if only_built:
+            df = df.query('min_max_fars > 0 and parcel_sizes > 0')
 
         # all possible fars on all parcels
         fars = np.repeat(cost_sqft_index_col, len(df.index), axis=1)
-        print fars
 
         # zero out fars not allowed by zoning
         fars[fars > df.min_max_fars.values + .01] = np.nan
-        print fars
 
         # parcel sizes * possible fars
         building_bulks = fars * df.parcel_sizes.values
-        print building_bulks
 
         # cost to build the new building
         building_costs = building_bulks * cost_sqft_col
-        print building_costs
 
         # add cost to buy the current building
-        building_costs += df.land_costs.values
-        print "costs + land"
-        print building_costs
+        total_costs = building_costs + df.land_costs.values
 
         # rent to make for the new building
-        building_revenue = building_bulks * df.weighted_rent.values / c.cap_rate
-        print "revenue"
-        print building_revenue
+        building_revenue = building_bulks * c.building_efficiency *\
+            df.weighted_rent.values / c.cap_rate
 
         # profit for each form
-        profit = building_revenue - building_costs
-        print profit
+        profit = building_revenue - total_costs
 
-        maxprofitind = np.argmax(np.nan_to_num(profit.astype('float')), axis=0)
-        print maxprofitind
+        profit = profit.astype('float')
+        profit[np.isnan(profit)] = -np.inf
+        maxprofitind = np.argmax(profit, axis=0)
 
         def twod_get(indexes, arr):
             return arr[indexes, np.arange(indexes.size)].astype('float')
 
         outdf = pd.DataFrame({
             'building_size': twod_get(maxprofitind, building_bulks),
-            'building_cost': twod_get(maxprofitind, profit),
-            'land_cost': twod_get(maxprofitind, profit),
+            'building_cost': twod_get(maxprofitind, building_costs),
+            'total_cost': twod_get(maxprofitind, total_costs),
             'building_revenue': twod_get(maxprofitind, building_revenue),
             'max_profit_far': twod_get(maxprofitind, fars),
             'max_profit': twod_get(maxprofitind, profit)
         }, index=df.index)
-        print outdf.max_profit_far
-        print outdf.max_profit
+
+        if only_built:
+            outdf = outdf.query('max_profit > 0')
 
         return outdf
 
