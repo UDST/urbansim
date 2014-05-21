@@ -224,3 +224,17 @@ class TestRegressionModelYAMLFit(TestRegressionModelYAMLNotFit):
         assert isinstance(model.model_fit, regression._FakeRegressionResults)
         npt.assert_array_equal(
             self.model.predict(test_df), model.predict(test_df))
+
+
+def test_model_fit_to_table(test_df):
+    filters = []
+    model_exp = 'col1 ~ col2'
+    fit = regression.fit_model(test_df, filters, model_exp)
+    params = regression._model_fit_to_table(fit)
+
+    pdt.assert_series_equal(params['Coefficient'], fit.params)
+    pdt.assert_series_equal(params['Std. Error'], fit.bse)
+    pdt.assert_series_equal(params['T-Score'], fit.pvalues)
+
+    assert params.rsquared == fit.rsquared
+    assert params.rsquared_adj == fit.rsquared_adj

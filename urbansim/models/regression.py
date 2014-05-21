@@ -143,6 +143,35 @@ class _FakeRegressionResults(object):
         return model_design.dot(self.coefficients).values
 
 
+def _model_fit_to_table(fit):
+    """
+    Produce a pandas DataFrame of model fit results from a statsmodels
+    fit result object.
+
+    Parameters
+    ----------
+    fit : statsmodels.regression.linear_model.RegressionResults
+
+    Returns
+    -------
+    fit_parameters : pandas.DataFrame
+        Will have columns 'Coefficient', 'Std. Error', and 'T-Score'.
+        Index will be model terms.
+
+        This frame will also have non-standard attributes
+        .rsquared and .rsquared_adj with the same meaning and value
+        as on `fit`.
+
+    """
+    fit_parameters = pd.DataFrame(
+        {'Coefficient': fit.params,
+         'Std. Error': fit.bse,
+         'T-Score': fit.pvalues})
+    fit_parameters.rsquared = fit.rsquared
+    fit_parameters.rsquared_adj = fit.rsquared_adj
+    return fit_parameters
+
+
 YTRANSFORM_MAPPING = {
     None: None,
     np.exp: 'np.exp',
@@ -190,6 +219,7 @@ class RegressionModel(object):
         self.ytransform = ytransform
         self.name = name or 'RegressionModel'
         self.model_fit = None
+        self.fit_parameters = None
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -252,6 +282,9 @@ class RegressionModel(object):
         """
         fit = fit_model(data, self.fit_filters, self.str_model_expression)
         self.model_fit = fit
+        self.fit_parameters = _model_fit_to_table(fit)
+        self.fit_rsquared = fit.rsquared
+        self.fit_rsquared_adj = fit.rsquared_adj
         return fit
 
     @property
