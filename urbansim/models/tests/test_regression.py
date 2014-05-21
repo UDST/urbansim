@@ -125,6 +125,9 @@ def test_RegressionModel(test_df):
     expected = pd.Series([0.5, 1.5], index=['b', 'd'])
     pdt.assert_series_equal(predicted, expected)
 
+    # make sure this doesn't cause an error
+    model.report_fit()
+
 
 def test_RegressionModelGroup(groupby_df):
     model_exp = 'col1 ~ col2'

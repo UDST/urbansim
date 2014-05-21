@@ -4,6 +4,7 @@ import yaml
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from patsy import dmatrix
+from prettytable import PrettyTable
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -315,6 +316,32 @@ class RegressionModel(object):
         """
         if not self.fitted:
             raise RuntimeError('Model has not been fit.')
+
+    def report_fit(self):
+        """
+        Print a report of the fit results.
+
+        """
+        if not self.fitted:
+            print('Model not yet fit.')
+            return
+
+        print('R-Squared: {0:.3f}'.format(self.model_fit.rsquared))
+        print('Adj. R-Squared: {0:.3f}'.format(self.model_fit.rsquared_adj))
+        print('')
+
+        tbl = PrettyTable(
+            ['Component', ])
+        tbl = PrettyTable()
+
+        tbl.add_column('Component', self.fit_parameters.index.values)
+        for col in ('Coefficient', 'Std. Error', 'T-Score'):
+            tbl.add_column(col, self.fit_parameters[col].values)
+
+        tbl.align['Component'] = 'l'
+        tbl.float_format = '.3'
+
+        print(tbl)
 
     def predict(self, data):
         """
