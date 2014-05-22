@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-urbansim
+UrbanSim
 ========
 
 `UrbanSim <http://urbansim.org>`_ is a model system for analyzing urban
@@ -17,6 +17,7 @@ Contents:
    :maxdepth: 2
 
    models/index
+   utils/index
 
 
 
