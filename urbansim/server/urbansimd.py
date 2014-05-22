@@ -21,8 +21,7 @@ from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
 # should be a local file
-sys.path.insert(0, ".")
-from bayarea import models
+import models
 
 from urbansim.server import tasks
 
