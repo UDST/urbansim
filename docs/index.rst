@@ -3,13 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to urbansim's documentation!
-====================================
+urbansim
+========
+
+`UrbanSim <http://urbansim.org>`_ is a model system for analyzing urban
+development.
+It is an open source platform that has been continuously refined and
+distributed for planning applications around the world for over 15 years.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
+
+   models/index
 
 
 
