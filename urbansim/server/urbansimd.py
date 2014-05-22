@@ -21,9 +21,11 @@ from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
 # should be a local file
-import models
+sys.path.insert(0, ".")
+from bayarea import models
 
 from urbansim.server import tasks
+
 
 def jsonp(request, dictionary):
     if (request.query.callback):
@@ -65,12 +67,11 @@ def catch_exceptions(func):
 
 def poll_result(task_id):
     res = tasks.app.AsyncResult(task_id)
-    print res.state
     ready = res.ready()
     if ready:
         data = res.get()
     else:
-        data = res.state.split(",")
+        data = tasks.app.AsyncResult(task_id)._get_task_meta()["result"]
     return {"ready": ready, "data": data}
 
 
@@ -118,7 +119,7 @@ def write_config(configname):
 
 
 # this can be a decorator, maybe put make only one decorator, wrap_request
-@route('/config/<configname>', method="OPTIONS") 
+@route('/config/<configname>', method="OPTIONS")
 def ans_opt(configname):
     return {}
 
@@ -340,6 +341,19 @@ def exec_model(modelname):
 @catch_exceptions
 def get_result(task_id):
     return poll_result(task_id)
+
+
+@route('/sim_run')
+def run_sim():
+    sim_config = request.query.json
+    sim_config = simplejson.loads(sim_config)
+    return tasks.run_sim.delay(sim_config).id
+
+
+@route('/sim_result/<taskid>')
+@catch_exceptions
+def poll_sim_result(taskid):
+    return poll_result(taskid)
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,

@@ -50,8 +50,8 @@ def jsonp(request, dictionary):
     return dictionary
 
 
-@app.task(bind=True)
-def exec_model(self, modelname):
+@app.task()
+def exec_model(modelname):
     backup = sys.stdout
     sys.stdout = StringIO()
     getattr(models, modelname)(DSET)
@@ -60,26 +60,26 @@ def exec_model(self, modelname):
     sys.stdout = backup
     return {"log": s}
 
-    #req = simplejson.loads(req_query.json)
-    #meta = app.AsyncResult(self.request.id)._get_task_meta()["result"]
-    #meta = {"status_msg": ["Started"]}
-    #if req["model"] == "modelset":
-    #    meta["progress_count"] = 0
-    #    years = req.get("numyearstorun", 1)
-    #    models = len(req["modelstorun"])
-    #    meta["progress_total"] = years * models
-    #self.update_state(meta=meta)
+
+@app.task(bind=True)
+def run_sim(self, sim_config):
+    meta = app.AsyncResult(self.request.id)._get_task_meta()["result"]
+    meta["model_logs"] = []
+    self.update_state(meta=meta)
+
+    model_list = sim_config["model_list"]
+    for model_name in model_list:
+        model_log = exec_model(model_name)
+        model_log["model_name"] = model_name
+        meta = app.AsyncResult(self.request.id)._get_task_meta()["result"]
+        meta["model_logs"].append(model_log)
+        self.update_state(meta=meta)
+
+    return app.AsyncResult(self.request.id)._get_task_meta()["result"]
 
 
 @app.task(bind=True)
 def get_chart_data(self, req):
-    #self.update_state(state='CUSTOM_STATE')
-    #with self.app.events.default_dispatcher() as dispatcher:
-    #    print "here comes dispatcher"
-    #    print dispatcher
-    #    dispatcher.send('task-custom_state', state='mi primer estado custom')
-    #time.sleep(30)
-
     DSET = dataset.LocalDataset('../bayarea_urbansim/data/bayarea.h5')
     table = req.get('table', '')
     metric = req.get('metric', '')
