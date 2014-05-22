@@ -121,7 +121,7 @@ class _FakeRegressionResults(object):
         self.model_expression = model_expression
         self.params = fit_parameters['Coefficient']
         self.bse = fit_parameters['Std. Error']
-        self.pvalues = fit_parameters['T-Score']
+        self.tvalues = fit_parameters['T-Score']
         self.rsquared = rsquared
         self.rsquared_adj = rsquared_adj
 
@@ -175,7 +175,7 @@ def _model_fit_to_table(fit):
     fit_parameters = pd.DataFrame(
         {'Coefficient': fit.params,
          'Std. Error': fit.bse,
-         'T-Score': fit.pvalues})
+         'T-Score': fit.tvalues})
     fit_parameters.rsquared = fit.rsquared
     fit_parameters.rsquared_adj = fit.rsquared_adj
     return fit_parameters
