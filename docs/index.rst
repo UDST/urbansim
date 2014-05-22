@@ -11,14 +11,15 @@ development.
 It is an open source platform that has been continuously refined and
 distributed for planning applications around the world for over 15 years.
 
-Contents:
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
 
    models/index
    utils/index
-
+   urbanchoice/index
 
 
 Indices and tables
