@@ -3,10 +3,8 @@ import pandas as pd
 
 from . import util
 
-PROB_COL = 'probability_of_relocating'
 
-
-def find_movers(choosers, rates):
+def find_movers(choosers, rates, rate_column):
     """
     Returns an array of the indexes of the `choosers` that are slated
     to move.
@@ -16,9 +14,7 @@ def find_movers(choosers, rates):
     choosers : pandas.DataFrame
         Table of agents from which to find movers.
     rates : pandas.DataFrame
-        Table of relocation rates. Index is unused. Must have a
-        'probability_of_relocating' column with fraction relocation
-        rates.
+        Table of relocation rates. Index is unused.
 
         Other columns describe filters on the `choosers`
         table so that different segments can have different relocation
@@ -38,6 +34,8 @@ def find_movers(choosers, rates):
 
         nan should be used to flag filters that do not apply
         in a given row.
+    rate_column : object
+        Name of column in `rates` table that has relocation rates.
 
     Returns
     -------
@@ -49,8 +47,8 @@ def find_movers(choosers, rates):
         np.zeros(len(choosers)), index=choosers.index)
 
     for _, row in rates.iterrows():
-        indexes = util.filter_table(choosers, row, ignore={PROB_COL}).index
-        relocation_rates.loc[indexes] = row[PROB_COL]
+        indexes = util.filter_table(choosers, row, ignore={rate_column}).index
+        relocation_rates.loc[indexes] = row[rate_column]
 
     movers = relocation_rates.index[
         relocation_rates > np.random.random(len(choosers))]
@@ -65,9 +63,7 @@ class RelocationModel(object):
     Parameters
     ----------
     rates : pandas.DataFrame
-        Table of relocation rates. Index is unused. Must have a
-        'probability_of_relocating' column with fraction relocation
-        rates.
+        Table of relocation rates. Index is unused.
 
         Other columns describe filters on the `choosers`
         table so that different segments can have different relocation
@@ -87,12 +83,14 @@ class RelocationModel(object):
 
         nan should be used to flag filters that do not apply
         in a given row.
-    col_to_mark : str or int, optional
-        Name of column to modify when making movers with nan.
+    rate_column : object, optional
+        Name of column in `rates` table that contains relocation rates.
+        If not given 'probability_of_relocating' is used.
 
     """
-    def __init__(self, rates):
+    def __init__(self, rates, rate_column=None):
         self.relocation_rates = rates
+        self.rate_column = rate_column or 'probability_of_relocating'
 
     def find_movers(self, choosers):
         """
@@ -110,4 +108,4 @@ class RelocationModel(object):
             Suitable for indexing `choosers` by index.
 
         """
-        return find_movers(choosers, self.relocation_rates)
+        return find_movers(choosers, self.relocation_rates, self.rate_column)
