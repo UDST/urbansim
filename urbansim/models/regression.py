@@ -385,8 +385,8 @@ class RegressionModel(object):
         if self.fitted:
             d['fit_parameters'] = yamlio.frame_to_yaml_safe(
                 self.fit_parameters)
-            d['fit_rsquared'] = self.model_fit.rsquared
-            d['fit_rsquared_adj'] = self.model_fit.rsquared_adj
+            d['fit_rsquared'] = float(self.model_fit.rsquared)
+            d['fit_rsquared_adj'] = float(self.model_fit.rsquared_adj)
 
         return d
 
