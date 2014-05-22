@@ -333,7 +333,7 @@ def list_models():
 
 @route('/exec_model/<modelname>')
 def exec_model(modelname):
-    return tasks.exec_model.delay(modelname).id
+    return {"log": tasks.exec_model.delay(modelname).id}
 
 
 @route('/exec_model_result/<task_id>')
