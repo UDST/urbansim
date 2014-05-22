@@ -7,7 +7,7 @@ import numpy.testing as npt
 import pandas as pd
 
 
-def assert_frames_equal(actual, expected):
+def assert_frames_equal(actual, expected, use_close=False):
     """
     Compare DataFrame items by index and column and
     raise AssertionError if any item is not equal.
@@ -15,7 +15,20 @@ def assert_frames_equal(actual, expected):
     Ordering is unimportant, items are compared only by label.
     NaN and infinite values are supported.
 
+    Parameters
+    ----------
+    actual : pandas.DataFrame
+    expected : pandas.DataFrame
+    use_close : bool, optional
+        If True, use numpy.testing.assert_allclose instead of
+        numpy.testing.assert_equal.
+
     """
+    if use_close:
+        comp = npt.assert_allclose
+    else:
+        comp = npt.assert_equal
+
     assert (isinstance(actual, pd.DataFrame) and
             isinstance(expected, pd.DataFrame)), \
         'Inputs must both be pandas DataFrames.'
@@ -32,7 +45,7 @@ def assert_frames_equal(actual, expected):
             act_item = act_row[j]
 
             try:
-                npt.assert_equal(act_item, exp_item)
+                comp(act_item, exp_item)
             except AssertionError as e:
                 raise AssertionError(
                     e.message + '\n\nColumn: {!r}\nRow: {!r}'.format(j, i))
