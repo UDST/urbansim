@@ -1,7 +1,0 @@
-CAVEAT EMPTOR - this directory is under construction
-
-urbansimd-tiledindicators was the original version of this designed to work with geocanvas and generate indicators on the fly - eventually we realized we could set the whole vector for the indicator and didn't need to tile - might move to sandbox soon
-
-urbansimd-postgres is a sample server that generates charts from postgres data
-
-urabnsimd is the main app at this point, which is the backend for the website
