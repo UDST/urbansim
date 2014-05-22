@@ -22,8 +22,7 @@ class Serve(Command):
         return parser
 
     def take_action(self, args):
-        sys.path.insert(0, ".")
-        from bayarea import dataset
+        import dataset
         dset = dataset.LocalDataset(args.dataset)
 
         urbansimd.start_service(dset)
