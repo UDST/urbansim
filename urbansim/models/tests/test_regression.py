@@ -92,7 +92,7 @@ def test_FakeRegressionResults(test_df):
         wrapper.predict(test_predict), fit.predict(test_predict))
     pdt.assert_series_equal(wrapper.params, fit.params)
     pdt.assert_series_equal(wrapper.bse, fit.bse)
-    pdt.assert_series_equal(wrapper.pvalues, fit.pvalues)
+    pdt.assert_series_equal(wrapper.tvalues, fit.tvalues)
     assert wrapper.rsquared == fit.rsquared
     assert wrapper.rsquared_adj == fit.rsquared_adj
 
@@ -265,7 +265,7 @@ def test_model_fit_to_table(test_df):
 
     pdt.assert_series_equal(params['Coefficient'], fit.params)
     pdt.assert_series_equal(params['Std. Error'], fit.bse)
-    pdt.assert_series_equal(params['T-Score'], fit.pvalues)
+    pdt.assert_series_equal(params['T-Score'], fit.tvalues)
 
     assert params.rsquared == fit.rsquared
     assert params.rsquared_adj == fit.rsquared_adj
