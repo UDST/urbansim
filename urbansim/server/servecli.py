@@ -22,7 +22,6 @@ class Serve(Command):
         return parser
 
     def take_action(self, args):
-        sys.path.insert(0, ".")
         import dataset
         dset = dataset.LocalDataset(args.dataset)
 

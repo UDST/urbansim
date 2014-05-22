@@ -1,18 +1,29 @@
+import cPickle
+import decimal
+import json
+import math
 import inspect
 import os
+import string
 import sys
+import time
+from decimal import Decimal
+import traceback
+import httplib2
+import yaml
 
 import numpy
-import yaml
-import simplejson
 import pandas as pd
-from bottle import route, run, response, hook, request
+import simplejson
+from bottle import Bottle, route, run, response, hook, request, post
 
 from cStringIO import StringIO
 from urbansim.utils import misc, yamlio
 
 # should be a local file
 import models
+
+from urbansim.server import tasks
 
 
 def jsonp(request, dictionary):
@@ -40,6 +51,29 @@ def wrap_request(request, response, obj):
     return jsonp(request, s)
 
 
+def catch_exceptions(func):
+    def inner(*args, **kwargs):
+        def resp():
+            try:
+                return {"success": func(*args, **kwargs)}
+            except:
+                e = sys.exc_info()
+                return {"error": {"type": str(e[0]), "value": str(e[1]),
+                        "traceback": traceback.format_exc()}}
+        return wrap_request(request, response, resp())
+    return inner
+
+
+def poll_result(task_id):
+    res = tasks.app.AsyncResult(task_id)
+    ready = res.ready()
+    if ready:
+        data = res.get()
+    else:
+        data = tasks.app.AsyncResult(task_id)._get_task_meta()["result"]
+    return {"ready": ready, "data": data}
+
+
 @hook('after_request')
 def enable_cors():
     """
@@ -64,11 +98,6 @@ def list_configs():
     return wrap_request(request, response, resp())
 
 
-@route('/config/<configname>', method="OPTIONS")
-def ans_opt(configname):
-    return {}
-
-
 @route('/config/<configname>', method="GET")
 def read_config(configname):
     def resp():
@@ -77,6 +106,7 @@ def read_config(configname):
     return wrap_request(request, response, resp())
 
 
+# figure out yaml.dump parameters for the desired format
 @route('/config/<configname>', method="PUT")
 def write_config(configname):
     json = request.json
@@ -85,6 +115,12 @@ def write_config(configname):
         s = yamlio.ordered_yaml(json)
         return open(os.path.join(misc.configs_dir(), configname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+# this can be a decorator, maybe put make only one decorator, wrap_request
+@route('/config/<configname>', method="OPTIONS")
+def ans_opt(configname):
+    return {}
 
 
 @route('/charts')
@@ -98,8 +134,19 @@ def list_charts():
 @route('/chart/<chartname>', method="GET")
 def read_config(chartname):
     def resp():
-        c = open(os.path.join(misc.charts_dir(), chartname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.charts_dir(), chartname))
+        return yaml.load(c)
+    return wrap_request(request, response, resp())
+
+
+@route('/chart/<chartname>', method="PUT")
+def write_config(chartname):
+    json = request.json
+
+    def resp():
+        s = yamlio.ordered_yaml(json)
+        print s
+        return open(os.path.join(misc.charts_dir(), chartname), "w").write(s)
     return wrap_request(request, response, resp())
 
 
@@ -108,17 +155,7 @@ def ans_opt(chartname):
     return {}
 
 
-@route('/chart/<chartname>', method="PUT")
-def write_config(chartname):
-    json = request.json
-
-    def resp():
-        s = simplejson.dumps(json, indent=4)
-        print s
-        return open(os.path.join(misc.charts_dir(), chartname), "w").write(s)
-    return wrap_request(request, response, resp())
-
-
+# figure out proper REST routes
 @route('/chartdata', method=['OPTIONS', 'GET', 'POST'])
 def query():
     req = request.query.json
@@ -126,62 +163,24 @@ def query():
         response.content_type = "application/javascript"
     print "Request: %s\n" % request.query.json
     req = simplejson.loads(req)
-    recs = get_chart_data(req)
-    s = simplejson.dumps([{'key': '', 'values': recs}], use_decimal=True)
-    print "Response: %s\n" % s
-    return jsonp(request, s)
+    # recs = tasks.get_chart_data.delay(req).get()
+    # recs = get_chart_data(req)
+    # s = simplejson.dumps([{'key': '', 'values': recs}], use_decimal=True)
+    # print "Response: %s\n" % s
+    # return jsonp(request, s)
+    # return [{'key': '', 'values': recs}]
+    task_id = tasks.get_chart_data.delay(req).id
+    print task_id
+    return task_id
 
 
-def get_chart_data(req):
-    table = req.get('table', '')
-    metric = req.get('metric', '')
-    groupby = req.get('groupby', '')
-    sort = req.get('sort', '')
-    limit = req.get('limit', '')
-    where = req.get('filter', '')
-    orderdesc = req.get('orderdesc', '')
-    jointobuildings = req.get('jointobuildings', False)
-
-    if where:
-        where = "[DSET.fetch('%s').apply(lambda x: bool(%s),axis=1)]" % (
-            table, where)
-    else:
-        where = ""
-    if sort and orderdesc:
-        sort = ".order(ascending=False)"
-    if sort and not orderdesc:
-        sort = ".order(ascending=True)"
-    if not sort and orderdesc:
-        sort = ".sort_index(ascending=False)"
-    if not sort and not orderdesc:
-        sort = ".sort_index(ascending=True)"
-    if limit:
-        limit = ".head(%s)" % limit
-    else:
-        limit = ""
-
-    s = "DSET.fetch('%s',addzoneid=%s)%s" % (table, str(jointobuildings), where)
-
-    s = s + ".groupby('%s').%s%s%s" % (groupby, metric, sort, limit)
-
-    print "Executing %s\n" % s
-    recs = eval(s)
-
-    if 'key_dictionary' in req:
-        key_dictionary = req['key_dictionary']
-        # not sure /configs is the proper place to save dicts
-        dictionary_file = open("configs/" + key_dictionary).read()
-        dictionary = json.loads(dictionary_file)
-        # attention: the dictionary has keys from 0 to 15, ids come from 0 to 16
-        recs = [[dictionary[str(int(x))], float(recs.ix[x]) / 1000]
-                for x in recs.index]
-    else:
-        recs = [[x, float(recs.ix[x]) / 1000] for x in recs.index]
-
-    return recs
+@route('/chartdata/<task_id>', method=['OPTIONS', 'GET', 'POST'])
+@catch_exceptions
+def ask_result(task_id):
+    return poll_result(task_id)
 
 
-@route('/maps')
+@route('/maps', method="GET")
 def list_maps():
     def resp():
         files = os.listdir(misc.maps_dir())
@@ -192,14 +191,9 @@ def list_maps():
 @route('/map/<mapname>', method="GET")
 def read_config(mapname):
     def resp():
-        c = open(os.path.join(misc.maps_dir(), mapname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.maps_dir(), mapname))
+        return yaml.load(c)
     return wrap_request(request, response, resp())
-
-
-@route('/map/<mapname>', method="OPTIONS")
-def ans_opt(mapname):
-    return {}
 
 
 @route('/map/<mapname>', method="PUT")
@@ -207,10 +201,15 @@ def write_config(mapname):
     json = request.json
 
     def resp():
-        s = simplejson.dumps(json, indent=4)
+        s = yamlio.ordered_yaml(json)
         print s
         return open(os.path.join(misc.maps_dir(), mapname), "w").write(s)
     return wrap_request(request, response, resp())
+
+
+@route('/map/<mapname>', method="OPTIONS")
+def ans_opt(mapname):
+    return {}
 
 
 @route('/reports')
@@ -224,14 +223,9 @@ def list_reports():
 @route('/report/<reportname>', method="GET")
 def read_config(reportname):
     def resp():
-        c = open(os.path.join(misc.reports_dir(), reportname)).read()
-        return simplejson.loads(c)
+        c = open(os.path.join(misc.reports_dir(), reportname))
+        return yaml.load(c)
     return wrap_request(request, response, resp())
-
-
-@route('/report/<reportname>', method="OPTIONS")
-def ans_opt(reportname):
-    return {}
 
 
 @route('/report/<reportname>', method="PUT")
@@ -245,62 +239,16 @@ def write_config(reportname):
     return wrap_request(request, response, resp())
 
 
-@route('/report_data/<item>', method="GET")
-def return_data(item):
-    recs = None
-    config = None
-    template = None
+# should all this function be a celery task, or just get_chart-data?
+@route('/report_data_task/<item>', method="GET")
+def call_task(item):
+    return tasks.report_item_data.delay(item).id
 
-    def isChart(i):
-        return "chart" in i
 
-    if isChart(item):
-        config = open(os.path.join(misc.charts_dir(), item)).read()
-        config = json.loads(config)
-
-        def chart_type(c):
-            return "bar-chart"
-
-        if chart_type(item) == "bar-chart":
-            recs = get_chart_data(config)
-            template = """
-                <h2 style="text-align: center;">%s</h2>
-                <nvd3-multi-bar-chart
-                        data="report_data['%s'].data"
-                        id="%s"
-                        height="500"
-                        margin="{top: 10, right: 10, bottom: 50 , left: 80}"
-                        interactive="true"
-                        tooltips="true"
-                        showxaxis="true"
-                        xaxislabel="%s"
-                        yaxislabel="%s in thousands"
-                        showyaxis="true"
-                        xaxisrotatelabels="0"
-                        nodata="an error occurred in the chart"
-                        >
-                    <svg></svg>
-                </nvd3-multi-bar-chart>
-                        """ % (config['desc'], item, item[:-5],
-                               config['groupby'], config['metric'])
-            # ids wouldn't not work without the [:-5]
-    else:   # map
-        config = open(os.path.join(misc.maps_dir(), item)).read()
-        config = json.loads(config)
-        recs = get_chart_data(config)
-        template = """
-            <h2 style="text-align: center;">%s</h2>
-            <div id="%s" mapdirective style="height: 500px; width: 100%%;">
-            </div>
-                   """ % (config['desc'], item)
-
-    s = simplejson.dumps(
-        {'template': template, 'data': [{'key': '', 'values': recs}],
-            'config': config},
-        use_decimal=True
-        )
-    print "response: %s\n" % s
-    return jsonp(request, s)
+@route('/report_data_result/<task_id>', method="GET")
+@catch_exceptions
+def ask_result(task_id):
+    return poll_result(task_id)
 
 
 @route('/datasets')
@@ -385,15 +333,26 @@ def list_models():
 
 @route('/exec_model/<modelname>')
 def exec_model(modelname):
-    def resp(modelname):
-        backup = sys.stdout
-        sys.stdout = StringIO()
-        getattr(models, modelname)(DSET)
-        s = sys.stdout.getvalue()
-        sys.stdout.close()
-        sys.stdout = backup
-        return {"log": s}
-    return wrap_request(request, response, resp(modelname))
+    return {"log": tasks.exec_model.delay(modelname).id}
+
+
+@route('/exec_model_result/<task_id>')
+@catch_exceptions
+def get_result(task_id):
+    return poll_result(task_id)
+
+
+@route('/sim_run')
+def run_sim():
+    sim_config = request.query.json
+    sim_config = simplejson.loads(sim_config)
+    return tasks.run_sim.delay(sim_config).id
+
+
+@route('/sim_result/<taskid>')
+@catch_exceptions
+def poll_sim_result(taskid):
+    return poll_result(taskid)
 
 
 def pandas_statement(table, where, sort, orderdesc, groupby, metric,
