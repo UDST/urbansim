@@ -159,8 +159,9 @@ def assert_dict_specs_equal(j1, j2):
     assert j1 == j2
 
     if j1_params and j2_params:
-        testing.assert_frames_equal(
-            pd.DataFrame(j1_params), pd.DataFrame(j2_params))
+        pdt.assert_series_equal(
+            pd.Series(j1_params['Coefficient']),
+            pd.Series(j2_params['Coefficient']))
     else:
         assert j1_params is None
         assert j2_params is None
@@ -234,7 +235,7 @@ class TestRegressionModelYAMLFit(TestRegressionModelYAMLNotFit):
         self.expected_dict['fit_parameters'] = {
             'Coefficient': {
                 'Intercept': -5.0,
-                'col2': 1.0000000000000002},
+                'col2': 1.0},
             'T-Score': {
                 'Intercept': 8.621678386539817e-16,
                 'col2': 5.997311421859925e-16},
