@@ -52,3 +52,13 @@ Row: 0"""
 def test_frames_equal():
     frame = pd.DataFrame({'a': [1]})
     testing.assert_frames_equal(frame, frame)
+
+
+def test_frames_equal_close():
+    frame1 = pd.DataFrame({'a': [1]})
+    frame2 = pd.DataFrame({'a': [1.00000000000002]})
+
+    with pytest.raises(AssertionError):
+        testing.assert_frames_equal(frame1, frame2)
+
+    testing.assert_frames_equal(frame1, frame2, use_close=True)
