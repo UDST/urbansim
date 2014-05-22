@@ -1,3 +1,9 @@
+"""
+Utilities for making merged interaction tables of choosers and
+the alternatives from which they are choosing.
+Used for location choice models.
+
+"""
 import random
 import sys
 import time

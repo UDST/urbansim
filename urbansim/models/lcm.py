@@ -1,3 +1,8 @@
+"""
+Use the ``MNLLocationChoiceModel`` class to train a choice module using
+multinomial logit and make subsequent choice predictions.
+
+"""
 from __future__ import print_function, division
 
 import numpy as np
