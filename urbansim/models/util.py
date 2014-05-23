@@ -1,3 +1,7 @@
+"""
+Utilities used within the ``urbansim.models`` package.
+
+"""
 import collections
 import numbers
 

@@ -1,3 +1,9 @@
+"""
+Use the ``RegressionModel`` class to fit a model using statsmodels'
+OLS capability and then do subsequent prediction.
+
+"""
+
 import numpy as np
 import pandas as pd
 import yaml
@@ -13,7 +19,7 @@ from ..utils import yamlio
 
 def fit_model(df, filters, model_expression):
     """
-    Use statsmodels to construct a model relation.
+    Use statsmodels OLS to construct a model relation.
 
     Parameters
     ----------
@@ -198,6 +204,8 @@ class RegressionModel(object):
     """
     A hedonic (regression) model with the ability to store an
     estimated model and predict new data based on the model.
+
+    statsmodels' OLS implementation is used.
 
     Parameters
     ----------

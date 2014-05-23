@@ -1,3 +1,9 @@
+"""
+Number crunching code for multinomial logit.
+``mnl_estimate`` and ``mnl_simulate`` especially are used by
+``urbansim.models.lcm``.
+
+"""
 import numpy as np
 import pandas as pd
 import scipy.optimize

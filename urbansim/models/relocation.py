@@ -1,3 +1,8 @@
+"""
+Use the ``RelocationModel`` class to choose movers based on
+relocation rates.
+
+"""
 import numpy as np
 import pandas as pd
 

@@ -1,3 +1,7 @@
+"""
+Utilities used within urbansim that don't yet have a better home.
+
+"""
 from __future__ import print_function
 
 import os
