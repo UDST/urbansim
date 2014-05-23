@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Relocation Models &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+        <link rel="up" title="Real Estate Models" href="index.html"/>
+        <link rel="next" title="Model Related Utilities" href="util.html"/>
+        <link rel="prev" title="Transition Models" href="transition.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition.html">Transition Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Real Estate Models</a> &raquo;</li>
+      
+    <li>Relocation Models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/models/relocation.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="relocation-models">
+<h1>Relocation Models<a class="headerlink" href="#relocation-models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-urbansim.models.relocation">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.relocation" title="Permalink to this headline">¶</a></h2>
+<p>Use the <tt class="docutils literal"><span class="pre">RelocationModel</span></tt> class to choose movers based on
+relocation rates.</p>
+<dl class="class">
+<dt id="urbansim.models.relocation.RelocationModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.relocation.</tt><tt class="descname">RelocationModel</tt><big>(</big><em>rates</em>, <em>rate_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find movers within a population according to a table of
+relocation rates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rates</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of relocation rates. Index is unused.</p>
+<p>Other columns describe filters on the <cite>choosers</cite>
+table so that different segments can have different relocation
+rates. Columns that ends with &#8216;_max&#8217; will be used to create
+a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
+used to create &#8220;greater than or equal to&#8221; filters.
+A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+<p>An example <cite>rates</cite> structure:</p>
+<dl class="docutils">
+<dt>age_of_head_max  age_of_head_min</dt>
+<dd><dl class="first last docutils">
+<dt>nan               65</dt>
+<dd><p class="first last">65               40</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>In this example the <cite>choosers</cite> table would need to have an
+&#8216;age_of_head&#8217; column on which to filter.</p>
+<p>nan should be used to flag filters that do not apply
+in a given row.</p>
+</div></blockquote>
+<p><strong>rate_column</strong> : object, optional</p>
+<blockquote class="last">
+<div><p>Name of column in <cite>rates</cite> table that contains relocation rates.
+If not given &#8216;probability_of_relocating&#8217; is used.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.relocation.RelocationModel.find_movers">
+<tt class="descname">find_movers</tt><big>(</big><em>choosers</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel.find_movers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel.find_movers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select movers from among a table of <cite>choosers</cite> according to the
+stored relocation rates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of agents from which to find movers.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Suitable for indexing <cite>choosers</cite> by index.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.relocation.find_movers">
+<tt class="descclassname">urbansim.models.relocation.</tt><tt class="descname">find_movers</tt><big>(</big><em>choosers</em>, <em>rates</em>, <em>rate_column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/relocation.html#find_movers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.find_movers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array of the indexes of the <cite>choosers</cite> that are slated
+to move.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of agents from which to find movers.</p>
+</div></blockquote>
+<p><strong>rates</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of relocation rates. Index is unused.</p>
+<p>Other columns describe filters on the <cite>choosers</cite>
+table so that different segments can have different relocation
+rates. Columns that ends with &#8216;_max&#8217; will be used to create
+a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
+used to create &#8220;greater than or equal to&#8221; filters.
+A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+<p>An example <cite>rates</cite> structure:</p>
+<dl class="docutils">
+<dt>age_of_head_max  age_of_head_min</dt>
+<dd><dl class="first last docutils">
+<dt>nan               65</dt>
+<dd><p class="first last">65               40</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>In this example the <cite>choosers</cite> table would need to have an
+&#8216;age_of_head&#8217; column on which to filter.</p>
+<p>nan should be used to flag filters that do not apply
+in a given row.</p>
+</div></blockquote>
+<p><strong>rate_column</strong> : object</p>
+<blockquote>
+<div><p>Name of column in <cite>rates</cite> table that has relocation rates.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Suitable for indexing <cite>choosers</cite> by index.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="util.html" class="btn btn-neutral float-right" title="Model Related Utilities"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="transition.html" class="btn btn-neutral" title="Transition Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>urbansim.utils.testing &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>urbansim.utils.testing</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for urbansim.utils.testing</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities used in testing of UrbanSim.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="kn">as</span> <span class="nn">npt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="assert_frames_equal"><a class="viewcode-back" href="../../../utils/testing.html#urbansim.utils.testing.assert_frames_equal">[docs]</a><span class="k">def</span> <span class="nf">assert_frames_equal</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">use_close</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare DataFrame items by index and column and</span>
+<span class="sd">    raise AssertionError if any item is not equal.</span>
+
+<span class="sd">    Ordering is unimportant, items are compared only by label.</span>
+<span class="sd">    NaN and infinite values are supported.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    actual : pandas.DataFrame</span>
+<span class="sd">    expected : pandas.DataFrame</span>
+<span class="sd">    use_close : bool, optional</span>
+<span class="sd">        If True, use numpy.testing.assert_allclose instead of</span>
+<span class="sd">        numpy.testing.assert_equal.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">use_close</span><span class="p">:</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_allclose</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">and</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)),</span> \
+        <span class="s">&#39;Inputs must both be pandas DataFrames.&#39;</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">exp_row</span> <span class="ow">in</span> <span class="n">expected</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">actual</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s">&#39;Expected row {!r} not found.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="n">act_row</span> <span class="o">=</span> <span class="n">actual</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">exp_item</span> <span class="ow">in</span> <span class="n">exp_row</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">act_row</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> \
+                <span class="s">&#39;Expected column {!r} not found.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+
+            <span class="n">act_item</span> <span class="o">=</span> <span class="n">act_row</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">comp</span><span class="p">(</span><span class="n">act_item</span><span class="p">,</span> <span class="n">exp_item</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">message</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">Column: {!r}</span><span class="se">\n</span><span class="s">Row: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

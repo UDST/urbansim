@@ -1,0 +1,451 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Location Choice Models &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+        <link rel="up" title="Real Estate Models" href="index.html"/>
+        <link rel="next" title="Transition Models" href="transition.html"/>
+        <link rel="prev" title="Regression Models" href="regression.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="regression.html">Regression Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Real Estate Models</a> &raquo;</li>
+      
+    <li>Location Choice Models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/models/lcm.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="location-choice-models">
+<h1>Location Choice Models<a class="headerlink" href="#location-choice-models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-urbansim.models.lcm">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.lcm" title="Permalink to this headline">¶</a></h2>
+<p>Use the <tt class="docutils literal"><span class="pre">MNLLocationChoiceModel</span></tt> class to train a choice module using
+multinomial logit and make subsequent choice predictions.</p>
+<dl class="class">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.lcm.</tt><tt class="descname">MNLLocationChoiceModel</tt><big>(</big><em>model_expression</em>, <em>sample_size</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A location choice model with the ability to store an estimated
+model and predict new data based on the model.
+Based on multinomial logit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model_expression</strong> : str, iterable, or dict</p>
+<blockquote>
+<div><p>A patsy model expression. Should contain only a right-hand side.</p>
+</div></blockquote>
+<p><strong>sample_size</strong> : int</p>
+<blockquote>
+<div><p>Number of choices to sample for estimating the model.</p>
+</div></blockquote>
+<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to choosers table before fitting the model.</p>
+</div></blockquote>
+<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the choosers table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>alts_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before fitting the model.</p>
+</div></blockquote>
+<p><strong>alts_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the merged choosers/alternatives table
+before predicting agent choices.</p>
+</div></blockquote>
+<p><strong>estimation_sample_size</strong> : int, optional, whether to sample choosers</p>
+<blockquote>
+<div><p>during estimation (needs to be applied after choosers_fit_filters)</p>
+</div></blockquote>
+<p><strong>choice_column</strong> : optional</p>
+<blockquote>
+<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+the alternatives index is used.</p>
+</div></blockquote>
+<p><strong>name</strong> : optional</p>
+<blockquote class="last">
+<div><p>Optional descriptive name for this model that may be used
+in output.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted">
+<tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises <cite>RuntimeError</cite> if the model is not ready for prediction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.fit">
+<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and save model parameters based on given data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+<p><strong>current_choice</strong> : pandas.Series</p>
+<blockquote>
+<div><p>A Series describing the <cite>alternatives</cite> currently chosen
+by the <cite>choosers</cite>. Should have an index matching <cite>choosers</cite>
+and values matching the index of <cite>alternatives</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>null_ll</strong> : float</p>
+<blockquote>
+<div><p>Null Log-liklihood</p>
+</div></blockquote>
+<p><strong>conv_ll</strong> : float</p>
+<blockquote>
+<div><p>Log-liklihood at convergence</p>
+</div></blockquote>
+<p><strong>ll_ratio</strong> : float</p>
+<blockquote class="last">
+<div><p>Log-liklihood ratio</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if model is ready for prediction.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.from_yaml">
+<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a LocationChoiceModel instance from a saved YAML configuration.
+Arguments are mutally exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<blockquote>
+<div><p>A YAML string from which to load model.</p>
+</div></blockquote>
+<p><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MNLLocationChoiceModel</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.predict">
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose from among alternatives for a group of agents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in this table is used for determining
+agent probabilities of choosing alternatives.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.report_fit">
+<tt class="descname">report_fit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.report_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a report of the fit results.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.str_model_expression">
+<tt class="descname">str_model_expression</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model expression as a string suitable for use with patsy/statsmodels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict respresentation of an MNLLocationChoiceModel
+instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.to_yaml">
+<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model respresentation to YAML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>By default a YAML string is returned. If a string is
+given here the YAML will be written to that file.
+If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+YAML will be written to that object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<blockquote class="last">
+<div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.lcm.unit_choice">
+<tt class="descclassname">urbansim.models.lcm.</tt><tt class="descname">unit_choice</tt><big>(</big><em>chooser_ids</em>, <em>alternative_ids</em>, <em>probabilities</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#unit_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.unit_choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Have a set of choosers choose from among alternatives according
+to a probability distribution. Choice is binary: each
+alternative can only be chosen once.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chooser_ids</strong> : 1d array_like</p>
+<blockquote>
+<div><p>Array of IDs of the agents that are making choices.</p>
+</div></blockquote>
+<p><strong>alternative_ids</strong> : 1d array_like</p>
+<blockquote>
+<div><p>Array of IDs of alternatives among which agents are making choices.</p>
+</div></blockquote>
+<p><strong>probabilities</strong> : 1d array_like</p>
+<blockquote>
+<div><p>The probability that an agent will choose an alternative.
+Must be the same shape as <cite>alternative_ids</cite>. Unavailable
+alternatives should have a probability of 0.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="transition.html" class="btn btn-neutral float-right" title="Transition Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="regression.html" class="btn btn-neutral" title="Regression Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

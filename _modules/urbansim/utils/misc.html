@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>urbansim.utils.misc &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>urbansim.utils.misc</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for urbansim.utils.misc</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities used within urbansim that don&#39;t yet have a better home.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+
+<span class="k">def</span> <span class="nf">_mkifnotexists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="n">folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+
+<div class="viewcode-block" id="data_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.data_dir">[docs]</a><span class="k">def</span> <span class="nf">data_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the input data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="configs_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.configs_dir">[docs]</a><span class="k">def</span> <span class="nf">configs_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the model configuration files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;configs&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="runs_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.runs_dir">[docs]</a><span class="k">def</span> <span class="nf">runs_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the run output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;runs&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="charts_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.charts_dir">[docs]</a><span class="k">def</span> <span class="nf">charts_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the chart configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/charts&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="maps_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.maps_dir">[docs]</a><span class="k">def</span> <span class="nf">maps_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the map configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/maps&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="reports_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reports_dir">[docs]</a><span class="k">def</span> <span class="nf">reports_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the report configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/reports&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="config"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.config">[docs]</a><span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the config path for the file with the given filename.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs_dir</span><span class="p">(),</span> <span class="n">fname</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_run_number"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.get_run_number">[docs]</a><span class="k">def</span> <span class="nf">get_run_number</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a run number for this execution of the model system, for</span>
+<span class="sd">    identifying the output hdf5 files).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The integer number for this run of the model system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="s">&#39;RUNNUM&#39;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="s">&#39;RUNNUM&#39;</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">num</span>
+
+</div>
+<div class="viewcode-block" id="signif"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.signif">[docs]</a><span class="k">def</span> <span class="nf">signif</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a statistical significance to its ascii representation - this</span>
+<span class="sd">    should be the same representation created in R.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">3.1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;***&#39;</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">2.33</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;**&#39;</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">1.64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;*&#39;</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">1.28</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;.&#39;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span>
+
+</div>
+<span class="n">naics_d</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="s">&#39;Agriculture&#39;</span><span class="p">,</span>
+    <span class="mi">21</span><span class="p">:</span> <span class="s">&#39;Mining&#39;</span><span class="p">,</span>
+    <span class="mi">22</span><span class="p">:</span> <span class="s">&#39;Utilities&#39;</span><span class="p">,</span>
+    <span class="mi">23</span><span class="p">:</span> <span class="s">&#39;Construction&#39;</span><span class="p">,</span>
+    <span class="mi">31</span><span class="p">:</span> <span class="s">&#39;Manufacturing&#39;</span><span class="p">,</span>
+    <span class="mi">32</span><span class="p">:</span> <span class="s">&#39;Manufacturing&#39;</span><span class="p">,</span>
+    <span class="mi">33</span><span class="p">:</span> <span class="s">&#39;Manufacturing&#39;</span><span class="p">,</span>
+    <span class="mi">42</span><span class="p">:</span> <span class="s">&#39;Wholesale&#39;</span><span class="p">,</span>
+    <span class="mi">44</span><span class="p">:</span> <span class="s">&#39;Retail&#39;</span><span class="p">,</span>
+    <span class="mi">45</span><span class="p">:</span> <span class="s">&#39;Retail&#39;</span><span class="p">,</span>
+    <span class="mi">48</span><span class="p">:</span> <span class="s">&#39;Transportation&#39;</span><span class="p">,</span>
+    <span class="mi">49</span><span class="p">:</span> <span class="s">&#39;Warehousing&#39;</span><span class="p">,</span>
+    <span class="mi">51</span><span class="p">:</span> <span class="s">&#39;Information&#39;</span><span class="p">,</span>
+    <span class="mi">52</span><span class="p">:</span> <span class="s">&#39;Finance and Insurance&#39;</span><span class="p">,</span>
+    <span class="mi">53</span><span class="p">:</span> <span class="s">&#39;Real Estate&#39;</span><span class="p">,</span>
+    <span class="mi">54</span><span class="p">:</span> <span class="s">&#39;Professional&#39;</span><span class="p">,</span>
+    <span class="mi">55</span><span class="p">:</span> <span class="s">&#39;Management&#39;</span><span class="p">,</span>
+    <span class="mi">56</span><span class="p">:</span> <span class="s">&#39;Administrative&#39;</span><span class="p">,</span>
+    <span class="mi">61</span><span class="p">:</span> <span class="s">&#39;Educational&#39;</span><span class="p">,</span>
+    <span class="mi">62</span><span class="p">:</span> <span class="s">&#39;Health Care&#39;</span><span class="p">,</span>
+    <span class="mi">71</span><span class="p">:</span> <span class="s">&#39;Arts&#39;</span><span class="p">,</span>
+    <span class="mi">72</span><span class="p">:</span> <span class="s">&#39;Accomodation and Food&#39;</span><span class="p">,</span>
+    <span class="mi">81</span><span class="p">:</span> <span class="s">&#39;Other&#39;</span><span class="p">,</span>
+    <span class="mi">92</span><span class="p">:</span> <span class="s">&#39;Public&#39;</span><span class="p">,</span>
+    <span class="mi">99</span><span class="p">:</span> <span class="s">&#39;Unknown&#39;</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="naicsname"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.naicsname">[docs]</a><span class="k">def</span> <span class="nf">naicsname</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function maps NAICS (job codes) from number to name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">naics_d</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="numpymat2df"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.numpymat2df">[docs]</a><span class="k">def</span> <span class="nf">numpymat2df</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sometimes (though not very often) it is useful to convert a numpy matrix</span>
+<span class="sd">    which has no column names to a Pandas dataframe for use of the Pandas</span>
+<span class="sd">    functions.  This method converts a 2D numpy matrix to Pandas dataframe</span>
+<span class="sd">    with default column headers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mat : The numpy matrix</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A pandas dataframe with the same data as the input matrix but with columns</span>
+<span class="sd">    named x0,  x1, ... x[n-1] for the number of columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="nb">dict</span><span class="p">((</span><span class="s">&#39;x</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">mat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+</div>
+<div class="viewcode-block" id="df64bitto32bit"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.df64bitto32bit">[docs]</a><span class="k">def</span> <span class="nf">df64bitto32bit</span><span class="p">(</span><span class="n">tbl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a Pandas dataframe from 64 bit types to 32 bit types to save</span>
+<span class="sd">    memory or disk space.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tbl : The dataframe to convert</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The converted dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">newtbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">tbl</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">tbl</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">newtbl</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">series64bitto32bit</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="n">colname</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">newtbl</span>
+
+</div>
+<div class="viewcode-block" id="series64bitto32bit"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.series64bitto32bit">[docs]</a><span class="k">def</span> <span class="nf">series64bitto32bit</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a Pandas series from 64 bit types to 32 bit types to save</span>
+<span class="sd">    memory or disk space.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s : The series to convert</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The converted series</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float32&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int32&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="pandasdfsummarytojson"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.pandasdfsummarytojson">[docs]</a><span class="k">def</span> <span class="nf">pandasdfsummarytojson</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert the result of a</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : The result of a Pandas describe operation.</span>
+<span class="sd">    ndigits : int, optional - The number of significant digits to round to.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A json object which captures the describe.  Keys are field names and</span>
+<span class="sd">    values are dictionaries with all of the indexes returned by the Pandas</span>
+<span class="sd">    describe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

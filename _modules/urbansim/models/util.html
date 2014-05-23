@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>urbansim.models.util &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>urbansim.models.util</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for urbansim.models.util</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities used within the ``urbansim.models`` package.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">patsy</span>
+
+
+<div class="viewcode-block" id="apply_filter_query"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.apply_filter_query">[docs]</a><span class="k">def</span> <span class="nf">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use the DataFrame.query method to filter a table down to the</span>
+<span class="sd">    desired rows.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    filters : list of str, optional</span>
+<span class="sd">        List of filters to apply. Will be joined together with</span>
+<span class="sd">        &#39; and &#39; and passed to DataFrame.query.</span>
+<span class="sd">        If not supplied no filtering will be done.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filtered_df : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn a `name` and `value` into a string expression compatible</span>
+<span class="sd">    the ``DataFrame.query`` method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Should be the name of a column in the table to which the</span>
+<span class="sd">        filter will be applied.</span>
+
+<span class="sd">        A suffix of &#39;_max&#39; will result in a &quot;less than&quot; filter,</span>
+<span class="sd">        a suffix of &#39;_min&#39; will result in a &quot;greater than or equal to&quot; filter,</span>
+<span class="sd">        and no recognized suffix will result in an &quot;equal to&quot; filter.</span>
+<span class="sd">    value : any</span>
+<span class="sd">        Value side of filter for comparison to column values.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filter_exp : str</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;_min&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;&gt;=&#39;</span>
+    <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;_max&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;==&#39;</span>
+
+    <span class="k">return</span> <span class="s">&#39;{} {} {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="filter_table"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.filter_table">[docs]</a><span class="k">def</span> <span class="nf">filter_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filter_series</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter a table based on a set of restrictions given in</span>
+<span class="sd">    Series of column name / filter parameter pairs. The column</span>
+<span class="sd">    names can have suffixes `_min` and `_max` to indicate</span>
+<span class="sd">    &quot;less than&quot; and &quot;greater than&quot; constraints.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    table : pandas.DataFrame</span>
+<span class="sd">        Table to filter.</span>
+<span class="sd">    filter_series : pandas.Series</span>
+<span class="sd">        Series of column name / value pairs of filter constraints.</span>
+<span class="sd">        Columns that ends with &#39;_max&#39; will be used to create</span>
+<span class="sd">        a &quot;less than&quot; filters, columns that end with &#39;_min&#39; will be</span>
+<span class="sd">        used to create &quot;greater than or equal to&quot; filters.</span>
+<span class="sd">        A column with no suffix will be used to make an &#39;equal to&#39; filter.</span>
+<span class="sd">    ignore : sequence of str, optional</span>
+<span class="sd">        List of column names that should not be used for filtering.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filtered : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span> <span class="k">if</span> <span class="n">ignore</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+               <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">filter_series</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+               <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ignore</span> <span class="ow">or</span>
+                       <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">and</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="p">)))]</span>
+    <span class="k">return</span> <span class="n">apply_filter_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="concat_indexes"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.concat_indexes">[docs]</a><span class="k">def</span> <span class="nf">concat_indexes</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenate a sequence of pandas Indexes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    indexes : sequence of pandas.Index</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.Index</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">indexes</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="has_constant_expr"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.has_constant_expr">[docs]</a><span class="k">def</span> <span class="nf">has_constant_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Report whether a model expression has constant specific term.</span>
+<span class="sd">    That is, a term explicitly specying whether the model should or</span>
+<span class="sd">    should not include a constant. (e.g. &#39;+ 1&#39; or &#39;- 1&#39;.)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    expr : str</span>
+<span class="sd">        Model expression to check.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    has_constant : bool</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">has_constant</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&#39;ONE&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">has_constant</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">True</span>
+
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">return</span> <span class="n">has_constant</span><span class="p">(</span><span class="n">patsy</span><span class="o">.</span><span class="n">parse_formula</span><span class="o">.</span><span class="n">parse_formula</span><span class="p">(</span><span class="n">expr</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="str_model_expression"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.str_model_expression">[docs]</a><span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    We support specifying model expressions as strings, lists, or dicts;</span>
+<span class="sd">    but for use with patsy and statsmodels we need a string.</span>
+<span class="sd">    This function will take any of those as input and return a string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    expr : str, iterable, or dict</span>
+<span class="sd">        A string will be returned unmodified except to add or remove</span>
+<span class="sd">        a constant.</span>
+<span class="sd">        An iterable sequence will be joined together with &#39; + &#39;.</span>
+<span class="sd">        A dictionary should have ``right_side`` and, optionally,</span>
+<span class="sd">        ``left_side`` keys. The ``right_side`` can be a list or a string</span>
+<span class="sd">        and will be handled as above. If ``left_side`` is present it will</span>
+<span class="sd">        be joined with ``right_side`` with &#39; ~ &#39;.</span>
+<span class="sd">    add_constant : bool, optional</span>
+<span class="sd">        Whether to add a &#39; + 1&#39; (if True) or &#39; - 1&#39; (if False) to the model.</span>
+<span class="sd">        If the expression already has a &#39;+ 1&#39; or &#39;- 1&#39; this option will be</span>
+<span class="sd">        ignored.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    model_expression : str</span>
+<span class="sd">        A string model expression suitable for use with statsmodels and patsy.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
+            <span class="n">left_side</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;left_side&#39;</span><span class="p">)</span>
+            <span class="n">right_side</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">[</span><span class="s">&#39;right_side&#39;</span><span class="p">],</span> <span class="n">add_constant</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># some kind of iterable like a list</span>
+            <span class="n">left_side</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">right_side</span> <span class="o">=</span> <span class="s">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">left_side</span><span class="p">:</span>
+            <span class="n">model_expression</span> <span class="o">=</span> <span class="s">&#39; ~ &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">left_side</span><span class="p">,</span> <span class="n">right_side</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_expression</span> <span class="o">=</span> <span class="n">right_side</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model_expression</span> <span class="o">=</span> <span class="n">expr</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_constant_expr</span><span class="p">(</span><span class="n">model_expression</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">add_constant</span><span class="p">:</span>
+            <span class="n">model_expression</span> <span class="o">+=</span> <span class="s">&#39; + 1&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_expression</span> <span class="o">+=</span> <span class="s">&#39; - 1&#39;</span>
+
+    <span class="k">return</span> <span class="n">model_expression</span>
+
+</div>
+<div class="viewcode-block" id="sorted_groupby"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.sorted_groupby">[docs]</a><span class="k">def</span> <span class="nf">sorted_groupby</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">groupby</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform a groupby on a DataFrame using a specific column</span>
+<span class="sd">    and assuming that that column is sorted.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    groupby : object</span>
+<span class="sd">        Column name on which to groupby. This column must be sorted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    generator</span>
+<span class="sd">        Yields pairs of group_name, DataFrame.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">groupby</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">groupby</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">prev</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">prev</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="c"># need to send back the last group</span>
+    <span class="k">yield</span> <span class="n">prev</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

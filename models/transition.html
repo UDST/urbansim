@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Transition Models &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+        <link rel="up" title="Real Estate Models" href="index.html"/>
+        <link rel="next" title="Relocation Models" href="relocation.html"/>
+        <link rel="prev" title="Location Choice Models" href="lcm.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Real Estate Models</a> &raquo;</li>
+      
+    <li>Transition Models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/models/transition.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="transition-models">
+<h1>Transition Models<a class="headerlink" href="#transition-models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-urbansim.models.transition">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.transition" title="Permalink to this headline">¶</a></h2>
+<p>Use the <tt class="docutils literal"><span class="pre">TransitionModel</span></tt> class with the different transitioners to
+add or remove agents based on growth rates or target totals.</p>
+<dl class="class">
+<dt id="urbansim.models.transition.GrowthRateTransition">
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">GrowthRateTransition</tt><big>(</big><em>growth_rate</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transition given tables using a simple growth rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>growth_rate</strong> : float</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.transition.GrowthRateTransition.transition">
+<tt class="descname">transition</tt><big>(</big><em>data</em>, <em>year</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition.transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or remove rows to/from a table according to the prescribed
+growth rate for this model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Rows will be removed from or added to this table.</p>
+</div></blockquote>
+<p><strong>year</strong> : None, optional</p>
+<blockquote>
+<div><p>Here for compatibility with other transition models,
+but ignored.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with rows removed or added.</p>
+</div></blockquote>
+<p><strong>added</strong> : pandas.Index</p>
+<blockquote>
+<div><p>New indexes of the rows that were added.</p>
+</div></blockquote>
+<p><strong>copied</strong> : pandas.Index</p>
+<blockquote>
+<div><p>Indexes of rows that were copied. A row copied multiple times
+will have multiple entries.</p>
+</div></blockquote>
+<p><strong>removed</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Index of rows that were removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.transition.TabularGrowthRateTransition">
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TabularGrowthRateTransition</tt><big>(</big><em>growth_rates</em>, <em>rates_column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Growth rate based transitions where the rates are stored in
+a table indexed by year with optional segmentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>growth_rates</strong> : pandas.DataFrame</p>
+<p><strong>rates_column</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the column in <cite>growth_rates</cite> that contains the rates.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.transition.TabularGrowthRateTransition.transition">
+<tt class="descname">transition</tt><big>(</big><em>data</em>, <em>year</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition.transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or remove rows to/from a table according to the prescribed
+growth rate for this model and year.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Rows will be removed from or added to this table.</p>
+</div></blockquote>
+<p><strong>year</strong> : None, optional</p>
+<blockquote>
+<div><p>Here for compatibility with other transition models,
+but ignored.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with rows removed or added.</p>
+</div></blockquote>
+<p><strong>added</strong> : pandas.Index</p>
+<blockquote>
+<div><p>New indexes of the rows that were added.</p>
+</div></blockquote>
+<p><strong>copied</strong> : pandas.Index</p>
+<blockquote>
+<div><p>Indexes of rows that were copied. A row copied multiple times
+will have multiple entries.</p>
+</div></blockquote>
+<p><strong>removed</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Index of rows that were removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.transition.TabularTotalsTransition">
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TabularTotalsTransition</tt><big>(</big><em>targets</em>, <em>totals_column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transition data via control totals in pandas DataFrame with
+optional segmentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>targets</strong> : pandas.DataFrame</p>
+<p><strong>totals_column</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the column in <cite>targets</cite> that contains the control totals.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.transition.TabularTotalsTransition.transition">
+<tt class="descname">transition</tt><big>(</big><em>data</em>, <em>year</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition.transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or remove rows to/from a table according to the prescribed
+totals for this model and year.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Rows will be removed from or added to this table.</p>
+</div></blockquote>
+<p><strong>year</strong> : None, optional</p>
+<blockquote>
+<div><p>Here for compatibility with other transition models,
+but ignored.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with rows removed or added.</p>
+</div></blockquote>
+<p><strong>added</strong> : pandas.Index</p>
+<blockquote>
+<div><p>New indexes of the rows that were added.</p>
+</div></blockquote>
+<p><strong>copied</strong> : pandas.Index</p>
+<blockquote>
+<div><p>Indexes of rows that were copied. A row copied multiple times
+will have multiple entries.</p>
+</div></blockquote>
+<p><strong>removed</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Index of rows that were removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.transition.TransitionModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TransitionModel</tt><big>(</big><em>transitioner</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TransitionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TransitionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Models things moving into or out of a region.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>transitioner</strong> : callable</p>
+<blockquote class="last">
+<div><p>A callable that takes a data table and a year number and returns
+and new data table, the indexes of rows added, the indexes
+of rows copied, and the indexes of rows removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.transition.TransitionModel.transition">
+<tt class="descname">transition</tt><big>(</big><em>data</em>, <em>year</em>, <em>linked_tables=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TransitionModel.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TransitionModel.transition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or remove rows from a table based on population targets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Rows will be removed from or added to this table.</p>
+</div></blockquote>
+<p><strong>year</strong> : int</p>
+<blockquote>
+<div><p>Year number that will be passed to <cite>transitioner</cite>.</p>
+</div></blockquote>
+<p><strong>linked_tables</strong> : dict of tuple, optional</p>
+<blockquote>
+<div><p>Dictionary of (table, &#8216;column name&#8217;) pairs. The column name
+should match the index of <cite>data</cite>. Indexes in <cite>data</cite> that
+are copied or removed will also be copied and removed in
+linked tables. They dictionary keys are used in the
+returned <cite>updated_links</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with rows removed or added.</p>
+</div></blockquote>
+<p><strong>added</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Indexes of new rows in <cite>updated</cite>.</p>
+</div></blockquote>
+<p class="last"><strong>updated_links</strong> : dict of pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.transition.add_or_remove_rows">
+<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">add_or_remove_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>starting_index=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_or_remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_or_remove_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or remove rows to/from a table. Rows are added
+for positive <cite>nrows</cite> and removed for negative <cite>nrows</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : DataFrame</p>
+<p><strong>nrows</strong> : float</p>
+<blockquote>
+<div><p>Number of rows to add or remove.</p>
+</div></blockquote>
+<p><strong>starting_index</strong> : int, optional</p>
+<blockquote>
+<div><p>The starting index from which to calculate indexes for new rows.
+If not given the max + 1 of the index of <cite>data</cite> will be used.
+(Not applicable if rows are being removed.)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with random rows removed.</p>
+</div></blockquote>
+<p><strong>added</strong> : pandas.Index</p>
+<blockquote>
+<div><p>New indexes of the rows that were added.</p>
+</div></blockquote>
+<p><strong>copied</strong> : pandas.Index</p>
+<blockquote>
+<div><p>Indexes of rows that were copied. A row copied multiple times
+will have multiple entries.</p>
+</div></blockquote>
+<p><strong>removed</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Index of rows that were removed.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.transition.add_rows">
+<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">add_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>starting_index=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add rows to data table according to a given nrows.
+New rows will have their IDs set to NaN.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<p><strong>nrows</strong> : int</p>
+<blockquote>
+<div><p>Number of rows to add.</p>
+</div></blockquote>
+<p><strong>starting_index</strong> : int, optional</p>
+<blockquote>
+<div><p>The starting index from which to calculate indexes for the new
+rows. If not given the max + 1 of the index of <cite>data</cite> will be used.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with rows added. New rows will have their index values
+set to NaN.</p>
+</div></blockquote>
+<p><strong>added</strong> : pandas.Index</p>
+<blockquote>
+<div><p>New indexes of the rows that were added.</p>
+</div></blockquote>
+<p><strong>copied</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Indexes of rows that were copied. A row copied multiple times
+will have multiple entries.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.transition.remove_rows">
+<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">remove_rows</tt><big>(</big><em>data</em>, <em>nrows</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.remove_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a random <cite>nrows</cite> number of rows from a table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : DataFrame</p>
+<p><strong>nrows</strong> : float</p>
+<blockquote>
+<div><p>Number of rows to remove.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table with random rows removed.</p>
+</div></blockquote>
+<p><strong>removed</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Indexes of the rows removed from the table.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="relocation.html" class="btn btn-neutral float-right" title="Relocation Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="lcm.html" class="btn btn-neutral" title="Location Choice Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

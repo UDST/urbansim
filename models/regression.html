@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Regression Models &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+        <link rel="up" title="Real Estate Models" href="index.html"/>
+        <link rel="next" title="Location Choice Models" href="lcm.html"/>
+        <link rel="prev" title="Real Estate Models" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Real Estate Models</a> &raquo;</li>
+      
+    <li>Regression Models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/models/regression.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="regression-models">
+<h1>Regression Models<a class="headerlink" href="#regression-models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-urbansim.models.regression">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.regression" title="Permalink to this headline">¶</a></h2>
+<p>Use the <tt class="docutils literal"><span class="pre">RegressionModel</span></tt> class to fit a model using statsmodels&#8217;
+OLS capability and then do subsequent prediction.</p>
+<dl class="class">
+<dt id="urbansim.models.regression.RegressionModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">RegressionModel</tt><big>(</big><em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A hedonic (regression) model with the ability to store an
+estimated model and predict new data based on the model.</p>
+<p>statsmodels&#8217; OLS implementation is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fit_filters</strong> : list of str</p>
+<blockquote>
+<div><p>Filters applied before fitting the model.</p>
+</div></blockquote>
+<p><strong>predict_filters</strong> : list of str</p>
+<blockquote>
+<div><p>Filters applied before calculating new data points.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str or dict</p>
+<blockquote>
+<div><p>A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.</p>
+</div></blockquote>
+<p><strong>ytransform</strong> : callable, optional</p>
+<blockquote>
+<div><p>A function to call on the array of predicted output.
+For example, if the model relation is predicting the log
+of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+the results reflect actual price.</p>
+<p>By default no transformation is applied.</p>
+</div></blockquote>
+<p><strong>name</strong> : optional</p>
+<blockquote class="last">
+<div><p>Optional descriptive name for this model that may be used
+in output.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.assert_fitted">
+<tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises a RuntimeError if the model is not ready for prediction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.fit">
+<tt class="descname">fit</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the model to data and store/return the results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Data to use for fitting the model. Must contain all the
+columns referenced by the <cite>model_expression</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
+<blockquote class="last">
+<div><p>This is returned for inspection, but also stored on the
+class instance for use during prediction.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.regression.RegressionModel.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the model is ready for prediction.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.regression.RegressionModel.from_yaml">
+<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a RegressionModel instance from a saved YAML configuration.
+Arguments are mutally exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<blockquote>
+<div><p>A YAML string from which to load model.</p>
+</div></blockquote>
+<p><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionModel</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.predict">
+<tt class="descname">predict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict a new data set based on an estimated model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Data to use for prediction. Must contain all the columns
+referenced by the right-hand side of the <cite>model_expression</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Predicted values as a pandas Series. Will have the index of <cite>data</cite>
+after applying filters.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.report_fit">
+<tt class="descname">report_fit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.report_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a report of the fit results.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.regression.RegressionModel.str_model_expression">
+<tt class="descname">str_model_expression</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model expression as a string suitable for use with patsy/statsmodels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary representation of a RegressionModel instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.to_yaml">
+<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model respresentation to YAML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>By default a YAML string is returned. If a string is
+given here the YAML will be written to that file.
+If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+YAML will be written to that object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<blockquote class="last">
+<div><p>YAML string if <cite>str_or_buffer</cite> is not given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.regression.RegressionModelGroup">
+<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">RegressionModelGroup</tt><big>(</big><em>segmentation_col</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages a group of regression models that refer to different segments
+within a single table.</p>
+<p>Model names must match the segment names after doing a Pandas groupby.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> : str</p>
+<blockquote class="last">
+<div><p>Name of the column on which to segment.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModelGroup.add_model">
+<tt class="descname">add_model</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a <cite>RegressionModel</cite> instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : <cite>RegressionModel</cite></p>
+<blockquote class="last">
+<div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of
+the groupby segments.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModelGroup.add_model_from_params">
+<tt class="descname">add_model_from_params</tt><big>(</big><em>name</em>, <em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a model by passing arguments through to <cite>RegressionModel</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : any</p>
+<blockquote>
+<div><p>Must match a groupby segment name.</p>
+</div></blockquote>
+<p><strong>fit_filters</strong> : list of str</p>
+<blockquote>
+<div><p>Filters applied before fitting the model.</p>
+</div></blockquote>
+<p><strong>predict_filters</strong> : list of str</p>
+<blockquote>
+<div><p>Filters applied before calculating new data points.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str</p>
+<blockquote>
+<div><p>A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.</p>
+</div></blockquote>
+<p><strong>ytransform</strong> : callable, optional</p>
+<blockquote class="last">
+<div><p>A function to call on the array of predicted output.
+For example, if the model relation is predicting the log
+of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+the results reflect actual price.</p>
+<p>By default no transformation is applied.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModelGroup.fit">
+<tt class="descname">fit</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit each of the models in the group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
+<blockquote class="last">
+<div><p>Keys are the segment names.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.RegressionModelGroup.predict">
+<tt class="descname">predict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict new data for each group in the segmentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Data to use for prediction. Must have a column with the
+same name as <cite>segmentation_col</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+after applying filters and minus any groups that do not have
+models.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.regression.fit_model">
+<tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">fit_model</tt><big>(</big><em>df</em>, <em>filters</em>, <em>model_expression</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#fit_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.fit_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use statsmodels OLS to construct a model relation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Data to use for fit. Should contain all the columns
+referenced in the <cite>model_expression</cite>.</p>
+</div></blockquote>
+<p><strong>filters</strong> : list of str</p>
+<blockquote>
+<div><p>Any filters to apply before doing the model fit.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str</p>
+<blockquote>
+<div><p>A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.regression.predict">
+<tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">predict</tt><big>(</big><em>df</em>, <em>filters</em>, <em>model_fit</em>, <em>ytransform=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply model to new data to predict new dependent values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
+<p><strong>filters</strong> : list of str</p>
+<blockquote>
+<div><p>Any filters to apply before doing prediction.</p>
+</div></blockquote>
+<p><strong>model_fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
+<blockquote>
+<div><p>Result of model estimation.</p>
+</div></blockquote>
+<p><strong>ytransform</strong> : callable, optional</p>
+<blockquote>
+<div><p>A function to call on the array of predicted output.
+For example, if the model relation is predicting the log
+of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+the results reflect actual price.</p>
+<p>By default no transformation is applied.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Predicted values as a pandas Series. Will have the index of <cite>df</cite>
+after applying filters.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="lcm.html" class="btn btn-neutral float-right" title="Location Choice Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Real Estate Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

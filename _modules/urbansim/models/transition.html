@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>urbansim.models.transition &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>urbansim.models.transition</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for urbansim.models.transition</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Use the ``TransitionModel`` class with the different transitioners to</span>
+<span class="sd">add or remove agents based on growth rates or target totals.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+
+
+<span class="k">def</span> <span class="nf">_empty_index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
+
+
+<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.add_rows">[docs]</a><span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add rows to data table according to a given nrows.</span>
+<span class="sd">    New rows will have their IDs set to NaN.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : pandas.DataFrame</span>
+<span class="sd">    nrows : int</span>
+<span class="sd">        Number of rows to add.</span>
+<span class="sd">    starting_index : int, optional</span>
+<span class="sd">        The starting index from which to calculate indexes for the new</span>
+<span class="sd">        rows. If not given the max + 1 of the index of `data` will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    updated : pandas.DataFrame</span>
+<span class="sd">        Table with rows added. New rows will have their index values</span>
+<span class="sd">        set to NaN.</span>
+<span class="sd">    added : pandas.Index</span>
+<span class="sd">        New indexes of the rows that were added.</span>
+<span class="sd">    copied : pandas.Index</span>
+<span class="sd">        Indexes of rows that were copied. A row copied multiple times</span>
+<span class="sd">        will have multiple entries.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">starting_index</span><span class="p">:</span>
+        <span class="n">starting_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">i_to_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
+    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i_to_copy</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">added_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+        <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
+    <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">added_index</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">]),</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">i_to_copy</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.remove_rows">[docs]</a><span class="k">def</span> <span class="nf">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove a random `nrows` number of rows from a table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : DataFrame</span>
+<span class="sd">    nrows : float</span>
+<span class="sd">        Number of rows to remove.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    updated : pandas.DataFrame</span>
+<span class="sd">        Table with random rows removed.</span>
+<span class="sd">    removed : pandas.Index</span>
+<span class="sd">        Indexes of the rows removed from the table.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span>  <span class="c"># in case a negative number came in</span>
+    <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Operation would remove entire table.&#39;</span><span class="p">)</span>
+
+    <span class="n">i_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i_to_keep</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">i_to_keep</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.add_or_remove_rows">[docs]</a><span class="k">def</span> <span class="nf">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add or remove rows to/from a table. Rows are added</span>
+<span class="sd">    for positive `nrows` and removed for negative `nrows`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : DataFrame</span>
+<span class="sd">    nrows : float</span>
+<span class="sd">        Number of rows to add or remove.</span>
+<span class="sd">    starting_index : int, optional</span>
+<span class="sd">        The starting index from which to calculate indexes for new rows.</span>
+<span class="sd">        If not given the max + 1 of the index of `data` will be used.</span>
+<span class="sd">        (Not applicable if rows are being removed.)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    updated : pandas.DataFrame</span>
+<span class="sd">        Table with random rows removed.</span>
+<span class="sd">    added : pandas.Index</span>
+<span class="sd">        New indexes of the rows that were added.</span>
+<span class="sd">    copied : pandas.Index</span>
+<span class="sd">        Indexes of rows that were copied. A row copied multiple times</span>
+<span class="sd">        will have multiple entries.</span>
+<span class="sd">    removed : pandas.Index</span>
+<span class="sd">        Index of rows that were removed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">)</span>
+        <span class="n">removed</span> <span class="o">=</span> <span class="n">_empty_index</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">updated</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
+        <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> \
+            <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span>
+
+</div>
+<div class="viewcode-block" id="GrowthRateTransition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.GrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">GrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transition given tables using a simple growth rate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    growth_rate : float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span> <span class="o">=</span> <span class="n">growth_rate</span>
+
+<div class="viewcode-block" id="GrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.GrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
+<span class="sd">        growth rate for this model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Rows will be removed from or added to this table.</span>
+<span class="sd">        year : None, optional</span>
+<span class="sd">            Here for compatibility with other transition models,</span>
+<span class="sd">            but ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        updated : pandas.DataFrame</span>
+<span class="sd">            Table with rows removed or added.</span>
+<span class="sd">        added : pandas.Index</span>
+<span class="sd">            New indexes of the rows that were added.</span>
+<span class="sd">        copied : pandas.Index</span>
+<span class="sd">            Indexes of rows that were copied. A row copied multiple times</span>
+<span class="sd">            will have multiple entries.</span>
+<span class="sd">        removed : pandas.Index</span>
+<span class="sd">            Index of rows that were removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call `self.transition` with inputs.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="TabularGrowthRateTransition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularGrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularGrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Growth rate based transitions where the rates are stored in</span>
+<span class="sd">    a table indexed by year with optional segmentation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    growth_rates : pandas.DataFrame</span>
+<span class="sd">    rates_column : str</span>
+<span class="sd">        Name of the column in `growth_rates` that contains the rates.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rates</span><span class="p">,</span> <span class="n">rates_column</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">growth_rates</span> <span class="o">=</span> <span class="n">growth_rates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rates_column</span> <span class="o">=</span> <span class="n">rates_column</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Table that has transition configuration.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rates</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_config_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Non-filter column in config table.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates_column</span>
+
+    <span class="k">def</span> <span class="nf">_calc_nrows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_data</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the number of rows to add to or remove from some data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        len_data : int</span>
+<span class="sd">            The current number of rows in the data table.</span>
+<span class="sd">        growth_rate : float</span>
+<span class="sd">            Growth rate as a fraction. Positive for growth, negative</span>
+<span class="sd">            for removing rows.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">len_data</span> <span class="o">*</span> <span class="n">growth_rate</span><span class="p">))</span>
+
+<div class="viewcode-block" id="TabularGrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularGrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
+<span class="sd">        growth rate for this model and year.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Rows will be removed from or added to this table.</span>
+<span class="sd">        year : None, optional</span>
+<span class="sd">            Here for compatibility with other transition models,</span>
+<span class="sd">            but ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        updated : pandas.DataFrame</span>
+<span class="sd">            Table with rows removed or added.</span>
+<span class="sd">        added : pandas.Index</span>
+<span class="sd">            New indexes of the rows that were added.</span>
+<span class="sd">        copied : pandas.Index</span>
+<span class="sd">            Indexes of rows that were copied. A row copied multiple times</span>
+<span class="sd">            will have multiple entries.</span>
+<span class="sd">        removed : pandas.Index</span>
+<span class="sd">            Index of rows that were removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_table</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No targets for given year: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+
+        <span class="c"># want this to be a DataFrame</span>
+        <span class="n">year_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">year</span><span class="p">]]</span>
+
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">added_indexes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">copied_indexes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">removed_indexes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># since we&#39;re looping over descrete segments we need to track</span>
+        <span class="c"># out here where their new indexes will begin</span>
+        <span class="n">starting_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">year_config</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">})</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
+            <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> \
+                <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">)</span>
+            <span class="n">starting_index</span> <span class="o">=</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
+            <span class="n">added_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">added</span><span class="p">)</span>
+            <span class="n">copied_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
+            <span class="n">removed_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">removed</span><span class="p">)</span>
+
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+        <span class="n">added_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">added_indexes</span><span class="p">)</span>
+        <span class="n">copied_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">copied_indexes</span><span class="p">)</span>
+        <span class="n">removed_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">removed_indexes</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added_indexes</span><span class="p">,</span> <span class="n">copied_indexes</span><span class="p">,</span> <span class="n">removed_indexes</span>
+</div>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call `self.transition` with inputs.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="TabularTotalsTransition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularTotalsTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularTotalsTransition</span><span class="p">(</span><span class="n">TabularGrowthRateTransition</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transition data via control totals in pandas DataFrame with</span>
+<span class="sd">    optional segmentation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    targets : pandas.DataFrame</span>
+<span class="sd">    totals_column : str</span>
+<span class="sd">        Name of the column in `targets` that contains the control totals.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">totals_column</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">totals_column</span> <span class="o">=</span> <span class="n">totals_column</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Table that has transition configuration.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_config_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Non-filter column in config table.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">totals_column</span>
+
+    <span class="k">def</span> <span class="nf">_calc_nrows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_data</span><span class="p">,</span> <span class="n">target_pop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the number of rows to add to or remove from some data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        len_data : int</span>
+<span class="sd">            The current number of rows in the data table.</span>
+<span class="sd">        target_pop : int</span>
+<span class="sd">            Target population.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">target_pop</span> <span class="o">-</span> <span class="n">len_data</span>
+
+<div class="viewcode-block" id="TabularTotalsTransition.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularTotalsTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
+<span class="sd">        totals for this model and year.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Rows will be removed from or added to this table.</span>
+<span class="sd">        year : None, optional</span>
+<span class="sd">            Here for compatibility with other transition models,</span>
+<span class="sd">            but ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        updated : pandas.DataFrame</span>
+<span class="sd">            Table with rows removed or added.</span>
+<span class="sd">        added : pandas.Index</span>
+<span class="sd">            New indexes of the rows that were added.</span>
+<span class="sd">        copied : pandas.Index</span>
+<span class="sd">            Indexes of rows that were copied. A row copied multiple times</span>
+<span class="sd">            will have multiple entries.</span>
+<span class="sd">        removed : pandas.Index</span>
+<span class="sd">            Index of rows that were removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TabularTotalsTransition</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_update_linked_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Copy and update rows in a table that has a column referencing another</span>
+<span class="sd">    table that has had rows added via copying.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    table : pandas.DataFrame</span>
+<span class="sd">        Table to update with new or removed rows.</span>
+<span class="sd">    col_name : str</span>
+<span class="sd">        Name of column in `table` that corresponds to the index values</span>
+<span class="sd">        in `copied` and `removed`.</span>
+<span class="sd">    added : pandas.Index</span>
+<span class="sd">        Indexes of rows that are new in the linked table.</span>
+<span class="sd">    copied : pandas.Index</span>
+<span class="sd">        Indexes of rows that were copied to make new rows in linked table.</span>
+<span class="sd">    removed : pandas.Index</span>
+<span class="sd">        Indexes of rows that were removed from the linked table.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    updated : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">removed</span><span class="p">))]</span>
+    <span class="n">sub_table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">copied</span><span class="p">))]</span>
+
+    <span class="n">id_map</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
+    <span class="n">new_rows</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">copied_id</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">sub_table</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c"># number of times we&#39;ll need to duplicate new_ids</span>
+        <span class="n">n_matching_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+
+        <span class="n">new_ids</span> <span class="o">=</span> <span class="n">id_map</span><span class="p">[</span><span class="n">copied_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_ids</span><span class="p">))]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">rows</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ids</span> <span class="o">*</span> <span class="n">n_matching_rows</span>
+        <span class="n">new_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+
+    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">new_rows</span><span class="p">)</span>
+
+    <span class="n">starting_index</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+        <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">table</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="TransitionModel"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TransitionModel">[docs]</a><span class="k">class</span> <span class="nc">TransitionModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Models things moving into or out of a region.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transitioner : callable</span>
+<span class="sd">        A callable that takes a data table and a year number and returns</span>
+<span class="sd">        and new data table, the indexes of rows added, the indexes</span>
+<span class="sd">        of rows copied, and the indexes of rows removed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transitioner</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span> <span class="o">=</span> <span class="n">transitioner</span>
+
+<div class="viewcode-block" id="TransitionModel.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TransitionModel.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">linked_tables</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add or remove rows from a table based on population targets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Rows will be removed from or added to this table.</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year number that will be passed to `transitioner`.</span>
+<span class="sd">        linked_tables : dict of tuple, optional</span>
+<span class="sd">            Dictionary of (table, &#39;column name&#39;) pairs. The column name</span>
+<span class="sd">            should match the index of `data`. Indexes in `data` that</span>
+<span class="sd">            are copied or removed will also be copied and removed in</span>
+<span class="sd">            linked tables. They dictionary keys are used in the</span>
+<span class="sd">            returned `updated_links`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        updated : pandas.DataFrame</span>
+<span class="sd">            Table with rows removed or added.</span>
+<span class="sd">        added : pandas.Series</span>
+<span class="sd">            Indexes of new rows in `updated`.</span>
+<span class="sd">        updated_links : dict of pandas.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">linked_tables</span> <span class="o">=</span> <span class="n">linked_tables</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">updated_links</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="n">linked_tables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">updated_links</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">_update_linked_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">updated_links</span></div></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
