@@ -1,3 +1,8 @@
+"""
+Use the ``TransitionModel`` class with the different transitioners to
+add or remove agents based on growth rates or target totals.
+
+"""
 from __future__ import division
 
 import itertools

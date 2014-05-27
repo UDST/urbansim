@@ -1,3 +1,9 @@
+"""
+Use the ``RegressionModel`` class to fit a model using statsmodels'
+OLS capability and then do subsequent prediction.
+
+"""
+
 import numpy as np
 import pandas as pd
 import yaml
@@ -13,7 +19,7 @@ from ..utils import yamlio
 
 def fit_model(df, filters, model_expression):
     """
-    Use statsmodels to construct a model relation.
+    Use statsmodels OLS to construct a model relation.
 
     Parameters
     ----------
@@ -121,7 +127,7 @@ class _FakeRegressionResults(object):
         self.model_expression = model_expression
         self.params = fit_parameters['Coefficient']
         self.bse = fit_parameters['Std. Error']
-        self.pvalues = fit_parameters['T-Score']
+        self.tvalues = fit_parameters['T-Score']
         self.rsquared = rsquared
         self.rsquared_adj = rsquared_adj
 
@@ -175,7 +181,7 @@ def _model_fit_to_table(fit):
     fit_parameters = pd.DataFrame(
         {'Coefficient': fit.params,
          'Std. Error': fit.bse,
-         'T-Score': fit.pvalues})
+         'T-Score': fit.tvalues})
     fit_parameters.rsquared = fit.rsquared
     fit_parameters.rsquared_adj = fit.rsquared_adj
     return fit_parameters
@@ -198,6 +204,8 @@ class RegressionModel(object):
     """
     A hedonic (regression) model with the ability to store an
     estimated model and predict new data based on the model.
+
+    statsmodels' OLS implementation is used.
 
     Parameters
     ----------
@@ -385,8 +393,8 @@ class RegressionModel(object):
         if self.fitted:
             d['fit_parameters'] = yamlio.frame_to_yaml_safe(
                 self.fit_parameters)
-            d['fit_rsquared'] = self.model_fit.rsquared
-            d['fit_rsquared_adj'] = self.model_fit.rsquared_adj
+            d['fit_rsquared'] = float(self.model_fit.rsquared)
+            d['fit_rsquared_adj'] = float(self.model_fit.rsquared_adj)
 
         return d
 
