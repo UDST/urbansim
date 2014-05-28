@@ -6,8 +6,6 @@ OLS capability and then do subsequent prediction.
 
 import numpy as np
 import pandas as pd
-import yaml
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from patsy import dmatrix
 from prettytable import PrettyTable

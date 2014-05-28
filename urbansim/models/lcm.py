@@ -189,10 +189,12 @@ class MNLLocationChoiceModel(object):
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing,
             e.g. buildings.
-        current_choice : pandas.Series
+        current_choice : pandas.Series or str
             A Series describing the `alternatives` currently chosen
             by the `choosers`. Should have an index matching `choosers`
             and values matching the index of `alternatives`.
+
+            If a string is given it should be a column in `choosers`.
 
         Returns
         -------
@@ -204,10 +206,15 @@ class MNLLocationChoiceModel(object):
             Log-liklihood ratio
 
         """
+        if not isinstance(current_choice, pd.Series):
+            current_choice = choosers[current_choice]
+
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+
         if self.estimation_sample_size:
             choosers = choosers.loc[np.random.choice(
                 choosers.index, self.estimation_sample_size, replace=False)]
+
         current_choice = current_choice.loc[choosers.index]
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
