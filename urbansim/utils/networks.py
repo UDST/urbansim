@@ -41,7 +41,7 @@ def from_yaml(dset, cfgname):
         radius = variable["radius"]
 
         dfname = variable["dataframe"]
-        df = dset.fetch(dfname)
+        df = dset.fetch_object(dfname)
 
         if "filters" in variable:
             util.apply_filter_query(df, variable["filters"])
@@ -51,8 +51,7 @@ def from_yaml(dset, cfgname):
             radius, agg, decay)
 
         nodes[name] = NETWORKS.accvar(
-            df, radius, agg=agg, decay=decay, vname=vname
-            ).astype('float').values
+            df, radius, agg=agg, decay=decay, vname=vname).astype('float').values
 
         if "apply" in variable:
             nodes[name] = nodes[name].apply(eval(variable["apply"]))

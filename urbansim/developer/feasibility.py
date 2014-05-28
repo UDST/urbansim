@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import time
 import os
-from urbansim.utils import misc, spotproforma
+import sqftproforma
 
 
 def get_possible_rents_by_use(dset):
@@ -40,12 +40,11 @@ RENTMULTIPLIER = 1.0  # this is essentially a calibration constant
 DEV = None
 
 
-def feasibility_run(dset, year=2010):
-
+def generate(dset):
     global DEV
     if DEV is None:
-        print "Running pro forma"
-        DEV = spotproforma.Developer()
+        print "Running pro forma options"
+        DEV = sqftproforma.SqFtProForma()
 
     parcels = dset.fetch('parcels').join(
         dset.fetch('zoning_for_parcels'), how="left")

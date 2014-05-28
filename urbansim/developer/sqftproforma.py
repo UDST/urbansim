@@ -421,19 +421,19 @@ class SqFtProForma:
 
         Input Dataframe Columns
         -------
-        rents : dataframe
+        rent : dataframe
             A set of columns, one for each of the uses passed in the configuration.
             Values are yearly rents for that use.  Typical column names would be
             "residential", "retail", "industrial" and "office"
-        land_costs : series
+        land_cost : series
             A series representing the CURRENT yearly rent for each parcel.  Used to
             compute acquisition costs for the parcel.
-        parcel_sizes : series
+        parcel_size : series
             A series representing the parcel size for each parcel.
-        max_fars : series
+        max_far : series
             A series representing the maximum far allowed by zoning.  Buildings
             will not be built above these fars.
-        max_heights : series
+        max_height : series
             A series representing the maxmium height allowed by zoning.  Buildings
             will not be built above these heights.  Will pick between the min of
             the far and height, will ignore on of them if one is nan, but will not
@@ -477,11 +477,11 @@ class SqFtProForma:
         df['weighted_rent'] = np.dot(df[c.uses], c.forms[form])
 
         # min between max_fars and max_heights
-        df['max_far_from_heights'] = df.max_heights / c.height_per_story * \
+        df['max_far_from_heights'] = df.max_height / c.height_per_story * \
             c.parcel_coverage
-        df['min_max_fars'] = df[['max_far_from_heights', 'max_fars']].min(axis=1).fillna(0)
+        df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1).fillna(0)
         if only_built:
-            df = df.query('min_max_fars > 0 and parcel_sizes > 0')
+            df = df.query('min_max_fars > 0 and parcel_size > 0')
 
         # all possible fars on all parcels
         fars = np.repeat(cost_sqft_index_col, len(df.index), axis=1)
@@ -490,13 +490,13 @@ class SqFtProForma:
         fars[fars > df.min_max_fars.values + .01] = np.nan
 
         # parcel sizes * possible fars
-        building_bulks = fars * df.parcel_sizes.values
+        building_bulks = fars * df.parcel_size.values
 
         # cost to build the new building
         building_costs = building_bulks * cost_sqft_col
 
         # add cost to buy the current building
-        total_costs = building_costs + df.land_costs.values
+        total_costs = building_costs + df.land_cost.values
 
         # rent to make for the new building
         building_revenue = building_bulks * c.building_efficiency *\
