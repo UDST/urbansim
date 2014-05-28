@@ -15,6 +15,8 @@ def test_patch_patsy():
 
     assert patsy.categorical.categorical_to_int.__code__ is \
         categorical_to_int.__code__
+    assert patsy.build.categorical_to_int.__code__ is \
+        categorical_to_int.__code__
     assert patsy.categorical.CategoricalSniffer.sniff.__code__ is \
         sniff.__code__
 

@@ -107,4 +107,5 @@ def sniff(self, data):
 def patch_patsy():
     import patsy
     patsy.categorical.categorical_to_int = categorical_to_int
+    patsy.build.categorical_to_int = categorical_to_int
     patsy.categorical.CategoricalSniffer.sniff = sniff
