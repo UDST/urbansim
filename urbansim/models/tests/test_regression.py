@@ -142,7 +142,9 @@ def test_RegressionModelGroup(groupby_df):
     assert isinstance(hmg.models['y'], regression.RegressionModel)
     assert hmg.models['y'].name == 'y'
 
+    assert hmg.fitted is False
     fits = hmg.fit(groupby_df)
+    assert hmg.fitted is True
     assert isinstance(fits['x'], RegressionResultsWrapper)
     assert isinstance(fits['y'], RegressionResultsWrapper)
 
@@ -281,7 +283,9 @@ def test_SegmentedRegressionModel_raises(groupby_df):
 def test_SegmentedRegressionModel(groupby_df):
     seg = regression.SegmentedRegressionModel(
         'group', default_model_expr='col1 ~ col2')
+    assert seg.fitted is False
     fits = seg.fit(groupby_df)
+    assert seg.fitted is True
 
     assert 'x' in fits and 'y' in fits
     assert isinstance(fits['x'], RegressionResultsWrapper)
@@ -293,16 +297,91 @@ def test_SegmentedRegressionModel(groupby_df):
 
 
 def test_SegmentedRegressionModel_explicit(groupby_df):
-    seg = regression.SegmentedRegressionModel('group')
+    seg = regression.SegmentedRegressionModel(
+        'group', fit_filters=['col1 not in [2]'],
+        predict_filters=['group != "z"'])
     seg.add_segment('x', 'col1 ~ col2')
-    seg.add_segment('y', 'col2 ~ col1')
+    seg.add_segment('y', 'np.exp(col2) ~ np.exp(col1)', np.log)
     fits = seg.fit(groupby_df)
 
     assert 'x' in fits and 'y' in fits
     assert isinstance(fits['x'], RegressionResultsWrapper)
 
     test_data = pd.DataFrame(
-        {'group': ['x', 'y'], 'col1': [-5, 100], 'col2': [0.5, 10.5]})
+        {'group': ['x', 'z', 'y'],
+         'col1': [-5, 42, 100],
+         'col2': [0.5, 42, 10.5]})
     predicted = seg.predict(test_data)
 
-    pdt.assert_series_equal(predicted.sort_index(), pd.Series([-4.5, 105]))
+    pdt.assert_series_equal(
+        predicted.sort_index(), pd.Series([-4.5, 105], index=[0, 2]))
+
+
+def test_SegmentedRegressionModel_yaml(groupby_df):
+    seg = regression.SegmentedRegressionModel(
+        'group', fit_filters=['col1 not in [2]'],
+        predict_filters=['group != "z"'], default_model_expr='col1 ~ col2')
+    seg.add_segment('x')
+    seg.add_segment('y', 'np.exp(col2) ~ np.exp(col1)', np.log)
+
+    expected_dict = {
+        'model_type': 'segmented_regression',
+        'segmentation_col': 'group',
+        'fit_filters': ['col1 not in [2]'],
+        'predict_filters': ['group != "z"'],
+        'default_config': {
+            'model_expression': 'col1 ~ col2',
+            'ytransform': None
+        },
+        'fitted': False,
+        'models': {
+            'x': {
+                'name': 'x',
+                'fitted': False,
+                'fit_parameters': None,
+                'fit_rsquared': None,
+                'fit_rsquared_adj': None
+            },
+            'y': {
+                'name': 'y',
+                'model_expression': 'np.exp(col2) ~ np.exp(col1)',
+                'ytransform': 'np.log',
+                'fitted': False,
+                'fit_parameters': None,
+                'fit_rsquared': None,
+                'fit_rsquared_adj': None
+            }
+        }
+    }
+
+    assert yaml.load(seg.to_yaml()) == expected_dict
+
+    new_seg = regression.SegmentedRegressionModel.from_yaml(seg.to_yaml())
+    assert yaml.load(new_seg.to_yaml()) == expected_dict
+
+    seg.fit(groupby_df)
+
+    expected_dict['fitted'] = True
+    expected_dict['models']['x']['fitted'] = True
+    expected_dict['models']['y']['fitted'] = True
+    del expected_dict['models']['x']['fit_parameters']
+    del expected_dict['models']['x']['fit_rsquared']
+    del expected_dict['models']['x']['fit_rsquared_adj']
+    del expected_dict['models']['y']['fit_parameters']
+    del expected_dict['models']['y']['fit_rsquared']
+    del expected_dict['models']['y']['fit_rsquared_adj']
+
+    actual_dict = yaml.load(seg.to_yaml())
+    assert isinstance(actual_dict['models']['x'].pop('fit_parameters'), dict)
+    assert isinstance(actual_dict['models']['x'].pop('fit_rsquared'), float)
+    assert isinstance(
+        actual_dict['models']['x'].pop('fit_rsquared_adj'), float)
+    assert isinstance(actual_dict['models']['y'].pop('fit_parameters'), dict)
+    assert isinstance(actual_dict['models']['y'].pop('fit_rsquared'), float)
+    assert isinstance(
+        actual_dict['models']['y'].pop('fit_rsquared_adj'), float)
+
+    assert actual_dict == expected_dict
+
+    new_seg = regression.SegmentedRegressionModel.from_yaml(seg.to_yaml())
+    assert new_seg.fitted is True

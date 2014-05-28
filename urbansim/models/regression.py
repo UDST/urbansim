@@ -514,6 +514,11 @@ class RegressionModelGroup(object):
         return {name: self.models[name].fit(df)
                 for name, df in self._iter_groups(data)}
 
+    @property
+    def fitted(self):
+        return (all(m.fitted for m in self.models.values())
+                if self.models else False)
+
     def predict(self, data):
         """
         Predict new data for each group in the segmentation.
@@ -572,6 +577,45 @@ class SegmentedRegressionModel(object):
         self.predict_filters = predict_filters
         self.default_model_expr = default_model_expr
         self.default_ytransform = default_ytransform
+
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a SegmentedRegressionModel instance from a saved YAML
+        configuration. Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        SegmentedRegressionModel
+
+        """
+        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
+
+        default_model_expr = cfg['default_config']['model_expression']
+        default_ytransform = cfg['default_config']['ytransform']
+
+        seg = cls(
+            cfg['segmentation_col'], cfg['fit_filters'],
+            cfg['predict_filters'], default_model_expr,
+            YTRANSFORM_MAPPING[default_ytransform])
+
+        for name, m in cfg['models'].items():
+            m['model_expression'] = m.get(
+                'model_expression', default_model_expr)
+            m['ytransform'] = m.get('ytransform', default_ytransform)
+            m['fit_filters'] = None
+            m['predict_filters'] = None
+            reg = RegressionModel.from_yaml(yamlio.convert_to_yaml(m, None))
+            seg._group.add_model(reg)
+
+        return seg
 
     def add_segment(self, name, model_expression=None, ytransform='default'):
         """
@@ -635,6 +679,10 @@ class SegmentedRegressionModel(object):
 
         return self._group.fit(data)
 
+    @property
+    def fitted(self):
+        return self._group.fitted
+
     def predict(self, data):
         """
         Predict new data for each group in the segmentation.
@@ -654,3 +702,70 @@ class SegmentedRegressionModel(object):
         """
         data = util.apply_filter_query(data, self.predict_filters)
         return self._group.predict(data)
+
+    def _process_model_dict(self, d):
+        """
+        Remove redundant items from a model's configuration dict.
+
+        Parameters
+        ----------
+        d : dict
+            Modified in place.
+
+        Returns
+        -------
+        dict
+            Modified `d`.
+
+        """
+        del d['model_type']
+        del d['fit_filters']
+        del d['predict_filters']
+
+        if d['model_expression'] == self.default_model_expr:
+            del d['model_expression']
+
+        if d['ytransform'] == self.default_ytransform:
+            del d['ytransform']
+
+        return d
+
+    def to_dict(self):
+        """
+        Returns a dict representation of this instance suitable for
+        conversion to YAML.
+
+        """
+        return {
+            'model_type': 'segmented_regression',
+            'segmentation_col': self.segmentation_col,
+            'fit_filters': self.fit_filters,
+            'predict_filters': self.predict_filters,
+            'default_config': {
+                'model_expression': self.default_model_expr,
+                'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
+            },
+            'fitted': self.fitted,
+            'models': {name: self._process_model_dict(m.to_dict())
+                       for name, m in self._group.models.items()}
+        }
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML string if `str_or_buffer` is not given.
+
+        """
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
