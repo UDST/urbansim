@@ -38,7 +38,7 @@ def hedonic_simulate(df, cfgname, outdf, outfname):
     hm = RegressionModel.from_yaml(str_or_buffer=cfg)
     price_or_rent = hm.predict(df)
     print price_or_rent.describe()
-    outdf[outfname] = price_or_rent.reindex(outdf.index)
+    outdf.loc[price_or_rent.index.values, outfname] = price_or_rent
 
 
 def lcm_estimate(choosers, chosen_fname, alternatives, cfgname):
