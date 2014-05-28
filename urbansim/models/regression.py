@@ -426,7 +426,7 @@ class RegressionModelGroup(object):
 
     Parameters
     ----------
-    segmentation_col : str
+    segmentation_col
         Name of the column on which to segment.
 
     """
@@ -535,3 +535,122 @@ class RegressionModelGroup(object):
         results = [self.models[name].predict(df)
                    for name, df in self._iter_groups(data)]
         return pd.concat(results)
+
+
+class SegmentedRegressionModel(object):
+    """
+    A regression model group that allows segments to have different
+    model expressions and ytransforms but all have the same filters.
+
+    Parameters
+    ----------
+    segmentation_col
+        Name of column in the data table on which to segment. Will be used
+        with a pandas groupby on the data table.
+    fit_filters : list of str, optional
+        Filters applied before fitting the model.
+    predict_filters : list of str, optional
+        Filters applied before calculating new data points.
+    default_model_expr : str or dict, optional
+        A patsy model expression that can be used with statsmodels.
+        Should contain both the left- and right-hand sides.
+    default_ytransform : callable, optional
+        A function to call on the array of predicted output.
+        For example, if the model relation is predicting the log
+        of price, you might pass ``ytransform=np.exp`` so that
+        the results reflect actual price.
+
+        By default no transformation is applied.
+
+    """
+    def __init__(
+            self, segmentation_col, fit_filters=None, predict_filters=None,
+            default_model_expr=None, default_ytransform=None):
+        self.segmentation_col = segmentation_col
+        self._group = RegressionModelGroup(segmentation_col)
+        self.fit_filters = fit_filters
+        self.predict_filters = predict_filters
+        self.default_model_expr = default_model_expr
+        self.default_ytransform = default_ytransform
+
+    def add_segment(self, name, model_expression=None, ytransform='default'):
+        """
+        Add a new segment with its own model expression and ytransform.
+
+        Parameters
+        ----------
+        name
+            Segment name. Must match a segment in the groupby of the data.
+        model_expression : str or dict, optional
+            A patsy model expression that can be used with statsmodels.
+            Should contain both the left- and right-hand sides.
+            If not given the default model will be used, which must not be
+            None.
+       ytransform : callable, optional
+            A function to call on the array of predicted output.
+            For example, if the model relation is predicting the log
+            of price, you might pass ``ytransform=np.exp`` so that
+            the results reflect actual price.
+
+            If not given the default ytransform will be used.
+
+        """
+        if not model_expression:
+            if self.default_model_expr is None:
+                raise ValueError(
+                    'No default model available, '
+                    'you must supply a model experssion.')
+            model_expression = self.default_model_expr
+
+        if ytransform == 'default':
+            ytransform = self.default_ytransform
+
+        # no fit or predict filters, we'll take care of that this side.
+        self._group.add_model_from_params(
+            name, None, None, model_expression, ytransform)
+
+    def fit(self, data):
+        """
+        Fit each segment. Segments that have not already been explicitly
+        added will be automatically added with default model and ytransform.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Must have a column with the same name as `segmentation_col`.
+
+        Returns
+        -------
+        fits : dict of statsmodels.regression.linear_model.OLSResults
+            Keys are the segment names.
+
+        """
+        unique = data[self.segmentation_col].unique()
+
+        for x in unique:
+            if x not in self._group.models:
+                self.add_segment(x)
+
+        data = util.apply_filter_query(data, self.fit_filters)
+
+        return self._group.fit(data)
+
+    def predict(self, data):
+        """
+        Predict new data for each group in the segmentation.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to use for prediction. Must have a column with the
+            same name as `segmentation_col`.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters.
+
+        """
+        data = util.apply_filter_query(data, self.predict_filters)
+        return self._group.predict(data)

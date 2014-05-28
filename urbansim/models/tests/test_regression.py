@@ -269,3 +269,40 @@ def test_model_fit_to_table(test_df):
 
     assert params.rsquared == fit.rsquared
     assert params.rsquared_adj == fit.rsquared_adj
+
+
+def test_SegmentedRegressionModel_raises(groupby_df):
+    seg = regression.SegmentedRegressionModel('group')
+
+    with pytest.raises(ValueError):
+        seg.fit(groupby_df)
+
+
+def test_SegmentedRegressionModel(groupby_df):
+    seg = regression.SegmentedRegressionModel(
+        'group', default_model_expr='col1 ~ col2')
+    fits = seg.fit(groupby_df)
+
+    assert 'x' in fits and 'y' in fits
+    assert isinstance(fits['x'], RegressionResultsWrapper)
+
+    test_data = pd.DataFrame({'group': ['x', 'y'], 'col2': [0.5, 10.5]})
+    predicted = seg.predict(test_data)
+
+    pdt.assert_series_equal(predicted.sort_index(), pd.Series([-4.5, 5.5]))
+
+
+def test_SegmentedRegressionModel_explicit(groupby_df):
+    seg = regression.SegmentedRegressionModel('group')
+    seg.add_segment('x', 'col1 ~ col2')
+    seg.add_segment('y', 'col2 ~ col1')
+    fits = seg.fit(groupby_df)
+
+    assert 'x' in fits and 'y' in fits
+    assert isinstance(fits['x'], RegressionResultsWrapper)
+
+    test_data = pd.DataFrame(
+        {'group': ['x', 'y'], 'col1': [-5, 100], 'col2': [0.5, 10.5]})
+    predicted = seg.predict(test_data)
+
+    pdt.assert_series_equal(predicted.sort_index(), pd.Series([-4.5, 105]))
