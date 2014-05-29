@@ -685,6 +685,10 @@ class SegmentedRegressionModel(object):
 
     @property
     def fitted(self):
+        """
+        Whether models for all segments have been fit.
+
+        """
         return self._group.fitted
 
     def predict(self, data):

@@ -140,11 +140,40 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
 
 def test_mnl_lcm_group(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
-    sample_size = 2
+    sample_size = 4
 
     group = lcm.MNLLocationChoiceModelGroup('group')
     group.add_model_from_params('x', model_exp, sample_size)
     group.add_model_from_params('y', model_exp, sample_size)
+
+    assert group.fitted is False
+    logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
+    assert group.fitted is True
+
+    assert 'x' in logliks and 'y' in logliks
+    assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
+
+    choices = group.predict(grouped_choosers, alternatives)
+
+    assert len(choices.unique()) == len(choices)
+    assert choices.isin(alternatives.index).all()
+
+
+def test_mnl_lcm_segmented_raises():
+    group = lcm.SegmentedMNLLocationChoiceModel('group', 2)
+
+    with pytest.raises(ValueError):
+        group.add_segment('x')
+
+
+def test_mnl_lcm_segmented(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('x')
+    group.add_segment('y', 'var3 + var1:var2')
 
     assert group.fitted is False
     logliks = group.fit(grouped_choosers, alternatives, 'thing_id')

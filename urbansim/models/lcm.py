@@ -530,3 +530,167 @@ class MNLLocationChoiceModelGroup(object):
             results.append(choices)
 
         return pd.concat(results)
+
+
+class SegmentedMNLLocationChoiceModel(object):
+    """
+    An MNL LCM group that allows segments to have different model expressions
+    but otherwise share configurations.
+
+    Parameters
+    ----------
+    segmentation_col
+        Name of column in the choosers table that will be used for groupby.
+    sample_size : int
+        Number of choices to sample for estimating the model.
+    choosers_fit_filters : list of str, optional
+        Filters applied to choosers table before fitting the model.
+    choosers_predict_filters : list of str, optional
+        Filters applied to the choosers table before calculating
+        new data points.
+    alts_fit_filters : list of str, optional
+        Filters applied to the alternatives table before fitting the model.
+    alts_predict_filters : list of str, optional
+        Filters applied to the alternatives table before calculating
+        new data points.
+    interaction_predict_filters : list of str, optional
+        Filters applied to the merged choosers/alternatives table
+        before predicting agent choices.
+    estimation_sample_size : int, optional, whether to sample choosers
+        during estimation (needs to be applied after choosers_fit_filters)
+    choice_column : optional
+        Name of the column in the `alternatives` table that choosers
+        should choose. e.g. the 'building_id' column. If not provided
+        the alternatives index is used.
+    default_model_expr : str, iterable, or dict, optional
+        A patsy model expression. Should contain only a right-hand side.
+
+    """
+    def __init__(self, segmentation_col, sample_size,
+                 choosers_fit_filters=None, choosers_predict_filters=None,
+                 alts_fit_filters=None, alts_predict_filters=None,
+                 interaction_predict_filters=None,
+                 estimation_sample_size=None,
+                 choice_column=None, default_model_expr=None):
+        self.segmentation_col = segmentation_col
+        self.sample_size = sample_size
+        self.choosers_fit_filters = choosers_fit_filters
+        self.choosers_predict_filters = choosers_predict_filters
+        self.alts_fit_filters = alts_fit_filters
+        self.alts_predict_filters = alts_predict_filters
+        self.interaction_predict_filters = interaction_predict_filters
+        self.estimation_sample_size = estimation_sample_size
+        self.choice_column = choice_column
+        self.default_model_expr = default_model_expr
+        self._group = MNLLocationChoiceModelGroup(segmentation_col)
+
+    def add_segment(self, name, model_expression=None):
+        """
+        Add a new segment with its own model expression.
+
+        Parameters
+        ----------
+        name
+            Segment name. Must match a segment in the groupby of the data.
+        model_expression : str or dict, optional
+            A patsy model expression that can be used with statsmodels.
+            Should contain both the left- and right-hand sides.
+            If not given the default model will be used, which must not be
+            None.
+
+        """
+        if not model_expression:
+            if not self.default_model_expr:
+                raise ValueError(
+                    'No default model available, '
+                    'you must supply a model experssion.')
+            model_expression = self.default_model_expr
+
+        # we'll take care of some of the filtering this side before
+        # segmentation
+        self._group.add_model_from_params(
+            name=name,
+            model_expression=model_expression,
+            sample_size=self.sample_size,
+            choosers_fit_filters=None,
+            choosers_predict_filters=None,
+            alts_fit_filters=None,
+            alts_predict_filters=None,
+            interaction_predict_filters=self.interaction_predict_filters,
+            estimation_sample_size=self.estimation_sample_size,
+            choice_column=self.choice_column)
+
+    def fit(self, choosers, alternatives, current_choice):
+        """
+        Fit and save models based on given data after segmenting
+        the `choosers` table. Segments that have not already been explicitly
+        added will be automatically added with default model.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Must have a column with the same name as the .segmentation_col
+            attribute.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+        current_choice
+            Name of column in `choosers` that indicates which alternative
+            they have currently chosen.
+
+        Returns
+        -------
+        log_likelihoods : dict of dict
+            Keys will be model names and values will be dictionaries of
+            log-liklihood values as returned by MNLLocationChoiceModel.fit.
+
+        """
+        unique = choosers[self.segmentation_col].unique()
+
+        for x in unique:
+            if x not in self._group.models:
+                self.add_segment(x)
+
+        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+        alternatives = util.apply_filter_query(
+            alternatives, self.alts_fit_filters)
+
+        return self._group.fit(choosers, alternatives, current_choice)
+
+    @property
+    def fitted(self):
+        """
+        Whether models for all segments have been fit.
+
+        """
+        return self._group.fitted
+
+    def predict(self, choosers, alternatives):
+        """
+        Choose from among alternatives for a group of agents after
+        segmenting the `choosers` table.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in this table is used for determining
+            agent probabilities of choosing alternatives.
+            Must have a column matching the .segmentation_col attribute.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        choices : pandas.Series
+            Mapping of chooser ID to alternative ID. Some choosers
+            will map to a nan value when there are not enough alternatives
+            for all the choosers.
+
+        """
+        choosers = util.apply_filter_query(
+            choosers, self.choosers_predict_filters)
+        alternatives = util.apply_filter_query(
+            alternatives, self.alts_predict_filters)
+        return self._group.predict(choosers, alternatives)
