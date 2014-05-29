@@ -33,13 +33,19 @@ class Dataset(object):
     def save_tmptbl(self, name, tbl):
         self.d[name] = tbl
 
-    def save_output(self, filename):
-        outstore = pd.HDFStore(filename, savetbls)
+    def save_output(self, filename, savetbls=None, debug=False):
+
+        if savetbls is None:
+            savetbls = self.d.keys()
+
+        outstore = pd.HDFStore(filename, "w")
 
         for key in savetbls:
             df = self.fetch(key)
             df = misc.df64bitto32bit(df)
-            print key + "\n", df.describe()
+            print key
+            if debug:
+                print df.describe()
             outstore[key] = df
 
         outstore.close()
