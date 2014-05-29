@@ -516,6 +516,10 @@ class RegressionModelGroup(object):
 
     @property
     def fitted(self):
+        """
+        Whether all models in the group have been fitted.
+
+        """
         return (all(m.fitted for m in self.models.values())
                 if self.models else False)
 

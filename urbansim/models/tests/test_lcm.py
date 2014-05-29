@@ -16,6 +16,12 @@ def choosers():
 
 
 @pytest.fixture
+def grouped_choosers(choosers):
+    choosers['group'] = ['x', 'y', 'x', 'x', 'y']
+    return choosers
+
+
+@pytest.fixture
 def alternatives():
     return pd.DataFrame(
         {'var2': range(10, 20),
@@ -129,4 +135,25 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
     choices = model.predict(choosers, repeated_alts)
 
     pdt.assert_index_equal(choices.index, pd.Index([0, 1, 3, 4]))
+    assert choices.isin(alternatives.index).all()
+
+
+def test_mnl_lcm_group(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 2
+
+    group = lcm.MNLLocationChoiceModelGroup('group')
+    group.add_model_from_params('x', model_exp, sample_size)
+    group.add_model_from_params('y', model_exp, sample_size)
+
+    assert group.fitted is False
+    logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
+    assert group.fitted is True
+
+    assert 'x' in logliks and 'y' in logliks
+    assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
+
+    choices = group.predict(grouped_choosers, alternatives)
+
+    assert len(choices.unique()) == len(choices)
     assert choices.isin(alternatives.index).all()
