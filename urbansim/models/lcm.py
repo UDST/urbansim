@@ -584,6 +584,59 @@ class SegmentedMNLLocationChoiceModel(object):
         self.default_model_expr = default_model_expr
         self._group = MNLLocationChoiceModelGroup(segmentation_col)
 
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a SegmentedMNLLocationChoiceModel instance from a saved YAML
+        configuration. Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        SegmentedMNLLocationChoiceModel
+
+        """
+        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
+
+        default_model_expr = cfg['default_config']['model_expression']
+
+        seg = cls(
+            cfg['segmentation_col'],
+            cfg['sample_size'],
+            cfg['choosers_fit_filters'],
+            cfg['choosers_predict_filters'],
+            cfg['alts_fit_filters'],
+            cfg['alts_predict_filters'],
+            cfg['interaction_predict_filters'],
+            cfg['estimation_sample_size'],
+            cfg['choice_column'],
+            default_model_expr)
+
+        for name, m in cfg['models'].items():
+            m['model_expression'] = m.get(
+                'model_expression', default_model_expr)
+            m['sample_size'] = cfg['sample_size']
+            m['choosers_fit_filters'] = None
+            m['choosers_predict_filters'] = None
+            m['alts_fit_filters'] = None
+            m['alts_predict_filters'] = None
+            m['interaction_predict_filters'] = \
+                cfg['interaction_predict_filters']
+            m['estimation_sample_size'] = cfg['estimation_sample_size']
+            m['choice_column'] = cfg['choice_column']
+
+            model = MNLLocationChoiceModel.from_yaml(
+                yamlio.convert_to_yaml(m, None))
+            seg._group.add_model(model)
+
+        return seg
+
     def add_segment(self, name, model_expression=None):
         """
         Add a new segment with its own model expression.
@@ -694,3 +747,78 @@ class SegmentedMNLLocationChoiceModel(object):
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
         return self._group.predict(choosers, alternatives)
+
+    def _process_model_dict(self, d):
+        """
+        Remove redundant items from a model's configuration dict.
+
+        Parameters
+        ----------
+        d : dict
+            Modified in place.
+
+        Returns
+        -------
+        dict
+            Modified `d`.
+
+        """
+        del d['model_type']
+        del d['sample_size']
+        del d['choosers_fit_filters']
+        del d['choosers_predict_filters']
+        del d['alts_fit_filters']
+        del d['alts_predict_filters']
+        del d['interaction_predict_filters']
+        del d['estimation_sample_size']
+        del d['choice_column']
+
+        if d['model_expression'] == self.default_model_expr:
+            del d['model_expression']
+
+        return d
+
+    def to_dict(self):
+        """
+        Returns a dict representation of this instance suitable for
+        conversion to YAML.
+
+        """
+        return {
+            'model_type': 'segmented_locationchoice',
+            'segmentation_col': self.segmentation_col,
+            'sample_size': self.sample_size,
+            'choosers_fit_filters': self.choosers_fit_filters,
+            'choosers_predict_filters': self.choosers_predict_filters,
+            'alts_fit_filters': self.alts_fit_filters,
+            'alts_predict_filters': self.alts_predict_filters,
+            'interaction_predict_filters': self.interaction_predict_filters,
+            'estimation_sample_size': self.estimation_sample_size,
+            'choice_column': self.choice_column,
+            'default_config': {
+                'model_expression': self.default_model_expr,
+            },
+            'fitted': self.fitted,
+            'models': {name: self._process_model_dict(m.to_dict())
+                       for name, m in self._group.models.items()}
+        }
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML is string if `str_or_buffer` is not given.
+
+        """
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)

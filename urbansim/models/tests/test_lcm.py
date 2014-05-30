@@ -1,6 +1,7 @@
 import numpy.testing as npt
 import pandas as pd
 import pytest
+import yaml
 from pandas.util import testing as pdt
 
 from ...utils import testing
@@ -186,3 +187,71 @@ def test_mnl_lcm_segmented(grouped_choosers, alternatives):
 
     assert len(choices.unique()) == len(choices)
     assert choices.isin(alternatives.index).all()
+
+
+def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('x')
+    group.add_segment('y', 'var3 + var1:var2')
+
+    expected_dict = {
+        'model_type': 'segmented_locationchoice',
+        'segmentation_col': 'group',
+        'sample_size': sample_size,
+        'choosers_fit_filters': None,
+        'choosers_predict_filters': None,
+        'alts_fit_filters': None,
+        'alts_predict_filters': None,
+        'interaction_predict_filters': None,
+        'estimation_sample_size': None,
+        'choice_column': None,
+        'default_config': {
+            'model_expression': model_exp,
+        },
+        'fitted': False,
+        'models': {
+            'x': {
+                'name': 'x',
+                'fitted': False,
+                'log_likelihoods': None,
+                'fit_parameters': None
+            },
+            'y': {
+                'name': 'y',
+                'model_expression': 'var3 + var1:var2',
+                'fitted': False,
+                'log_likelihoods': None,
+                'fit_parameters': None
+            }
+        }
+    }
+
+    assert yaml.load(group.to_yaml()) == expected_dict
+
+    new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
+    assert yaml.load(new_seg.to_yaml()) == expected_dict
+
+    group.fit(grouped_choosers, alternatives, 'thing_id')
+
+    expected_dict['fitted'] = True
+    expected_dict['models']['x']['fitted'] = True
+    expected_dict['models']['y']['fitted'] = True
+    del expected_dict['models']['x']['fit_parameters']
+    del expected_dict['models']['x']['log_likelihoods']
+    del expected_dict['models']['y']['fit_parameters']
+    del expected_dict['models']['y']['log_likelihoods']
+
+    actual_dict = yaml.load(group.to_yaml())
+    assert isinstance(actual_dict['models']['x'].pop('fit_parameters'), dict)
+    assert isinstance(actual_dict['models']['x'].pop('log_likelihoods'), dict)
+    assert isinstance(actual_dict['models']['y'].pop('fit_parameters'), dict)
+    assert isinstance(actual_dict['models']['y'].pop('log_likelihoods'), dict)
+
+    assert actual_dict == expected_dict
+
+    new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
+    assert new_seg.fitted is True
