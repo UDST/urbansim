@@ -1,7 +1,9 @@
 import numpy as np
+import pandas as pd
 from urbansim.utils import misc
 from urbansim.models import RegressionModel, MNLLocationChoiceModel, \
     GrowthRateTransition
+from urbansim.developer import sqftproforma
 
 
 def hedonic_estimate(df, cfgname):

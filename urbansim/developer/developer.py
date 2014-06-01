@@ -1,107 +1,155 @@
 import pandas as pd
 import numpy as np
 
-TARGETVACANCY = .1  # really should be a target per TAZ
-MAXPARCELSIZE = 200000  # really need some subdivision
-AVERESUNITSIZE = 1300  # really should be an accessibility variable
-AVENONRESUNITSIZE = 250  # really should be an accessibility variable
 
+class Developer:
 
-def developer_run(dset, year=2010):
-    res_developer_run(dset, year)
-    nonres_developer_run(dset, year)
+    def __init__(self, feasibility):
+        """
+        Pass the dataframe that is returned by feasibility here
+        """
+        self.f = feasibility
 
+    @staticmethod
+    def max_form(f, colname):
+        """
+        Assumes dataframe with hierarchical columns with first index equal to the
+        use and second index equal to the attribtue
 
-def res_developer_run(dset, year=2010):
-    exec_developer(dset, year, "households", "residential_units",
-                   [1, 2, 3])
+        e.g. f.columns equal to:
+        mixedoffice   building_cost
+                      building_revenue
+                      building_size
+                      max_profit
+                      max_profit_far
+                      total_cost
+        industrial    building_cost
+                      building_revenue
+                      building_size
+                      max_profit
+                      max_profit_far
+                      total_cost
+        """
+        df = f.stack(level=0)[[colname]].stack().unstack(level=1).reset_index(level=1, drop=True)
+        return df.idxmax(axis=1)
 
+    def keep_form_with_max_profit(self):
+        """
+        This converts the dataframe, which shows all profitable forms,
+        to the form with the greatest profit, so that more profitable
+        forms outcompete less profitable forms.
+        """
+        f = self.dset.feasibility
+        mu = self.max_form(f, "max_profit")
+        indexes = [tuple(x) for x in mu.reset_index().values]
+        df = f.stack(level=0).loc[indexes]
+        df.index.names = ["parcel_id", "use"]
+        df = df.reset_index(level=1)
+        return df
 
-def nonres_developer_run(dset, year=2010):
-    exec_developer(dset, year, "jobs", "non_residential_units",
-                   [4, 7, 8, 9, 10, 11, 12, 14], nonres=True)
+    @staticmethod
+    def compute_units_to_build(num_agents, num_units, target_vacancy):
+        """
+        Compute number of units to build to match target vacancy.
 
+        Parameters:
+        num_agents : int
+            number of agents that need units in the region
+        num_units : int
+            number of units in buildings
+        target_vacancy : float (0-1.0)
+            target vacancy rate
 
-def exec_developer(dset, year, agents, unit_fname, btypes,
-                   nonres=False):
-    numagents = len(dset.fetch(agents).index)
-    numunits = dset.buildings[unit_fname].sum()
-    print "Running developer for %s" % agents
-    print "Number of agents: %d" % numagents
-    print "Number of agent spaces: %d" % numunits
-    assert TARGETVACANCY < 1.0
-    targetunits = max(numagents / (1 - TARGETVACANCY) - numunits, 0)
-    print "Current vacancy = %.2f" % (1 - numagents / numunits)
-    print "Target vacancy = %.2f, target of new units = %d" % \
-        (TARGETVACANCY, targetunits)
+        Returns : int
+            the number of units that need to be built
+        """
+        print "Number of agents: %d" % num_agents
+        print "Number of agent spaces: %d" % num_units
+        assert target_vacancy < 1.0
+        target_units = max(num_agents / (1 - target_vacancy) - num_units, 0)
+        print "Current vacancy = %.2f" % (1 - num_agents / num_units)
+        print "Target vacancy = %.2f, target of new units = %d" % (target_vacancy, target_units)
+        return target_units
 
-    # df = pd.read_csv(
-    #    os.path.join(misc.data_dir(), 'far_predictions.csv'),
-    #    index_col='parcel_id')
-    df = dset.feasibility
+    def pick(self, form, target_units, parcel_size, ave_unit_size,
+             current_units, max_parcel_size=200000, drop_after_build=True):
+        """
+        Choose the buildings from the list that are feasible to build in
+        order to match the specified demand.
 
-    fnames = ["type%d_profit" % i for i in btypes]
-    fnames_d = dict((fnames[i], btypes[i]) for i in range(len(fnames)))
+        Parameters
+        ----------
+        form : string
+            One of the building forms from the pro forma specification -
+            e.g. "residential" or "mixedresidential" - these are configuration
+            parameters pass previously to the pro forma.
+        target_units : int
+            The number of units to build.  For non-residential buildings this
+            should be passed as the number of job spaces that need to be created.
+        parcel_size : series
+            The size of the parcels.  This was passed to feasibility as well,
+            but should be passed here as well.  Index should be parcel_ids.
+        ave_unit_size : series
+            The average unit size around each parcel - this is indexed
+            by parcel, but is usually a disaggregated version of a zonal or
+            accessibility aggregation.
+        current_units : series
+            The current number of units on the parcel.  Is used to compute the
+            net number of units produced by the developer model.  Many times
+            the developer model is redeveloping units (demolishing them) and
+            is trying to meet a total number of net units produced.
+        max_parcel_size : float
+            Parcels larger than this size will not be considered for
+            development - usually large parcels should be specified manually
+            in a development projects table.
+        drop_after_build : bool
+            Whether or not to drop parcels from consideration after they
+            have been chosen for development.  Usually this is true so as
+            to not develop the same parcel twice.
+        """
 
-    # pick the max profit building type so a parcel only gets
-    # developed once
-    df["max_profit"] = df[fnames].max(axis=1)
-    df["max_btype"] = df[fnames].idxmax(axis=1).map(fnames_d)
+        df = self.feasibility[form]
 
-    # this is a little bit wonky too - need to take
-    # the far from the max profit above
-    df["max_feasiblefar"] = df[
-        ["type%d_feasiblefar" % i for i in btypes]].max(axis=1)
+        # feasible buildings only for this building type
+        df = df[df.max_feasiblefar > 0]
+        df["parcel_size"] = parcel_size
+        df = df[df.parcel_size < max_parcel_size]
+        df['new_sqft'] = df.parcel_size * df.max_feasiblefar
+        df['new_units'] = np.round(df.new_sqft / ave_unit_size)
+        df['current_units'] = current_units
+        df['net_units'] = df.new_units - df.current_units
 
-    # feasible buildings only for this building type
-    df = df[df.max_feasiblefar > 0]
-    df = df[df.parcelsize < MAXPARCELSIZE]
-    df['newsqft'] = df.parcelsize * df.max_feasiblefar
-    AVEUNITSIZE = AVENONRESUNITSIZE if nonres else AVERESUNITSIZE
-    df['newunits'] = np.ceil(df.newsqft / AVEUNITSIZE).astype('int')
+        print "Describe of net units\n", df.new_units.describe()
 
-    df['total_units'] = dset.buildings.groupby('parcel_id')[unit_fname].sum()
-    df['netunits'] = df.newunits - df.total_units
-    print "Describe of netunits\n", df.describe()
+        choices = np.random.choice(df.index.values, size=len(df.index),
+                                   replace=False,
+                                   p=(df.max_profit.values / df.max_profit.sum()))
+        net_units = df.net_units.loc[choices]
+        tot_units = net_units.values.cumsum()
+        ind = np.searchsorted(tot_units, target_units, side="right")
+        build_idx = choices[:ind]
 
-    choices = np.random.choice(df.index.values, size=len(df.index),
-                               replace=False,
-                               p=(df.max_profit.values / df.max_profit.sum()))
-    netunits = df.netunits.loc[choices]
-    totunits = netunits.values.cumsum()
-    ind = np.searchsorted(totunits, targetunits, side="right")
-    build = choices[:ind]
+        print "Describe of buildings built\n", df.total_units.describe()
+        print "Describe of profit\n", df.max_profit.describe()
 
-    # from here on just keep the ones to build
-    df = df.loc[build]
+        if drop_after_build:
+            self.feasibility = self.feasibility.drop(build_idx)
 
-    print "Describe of buildings built\n", df.total_units.describe()
-    print "Describe of profit\n", df.max_profit.describe()
-    print "Buildings by type\n", df.max_btype.value_counts()
-    print "Units by type\n", \
-        df.groupby('max_btype').netunits.sum().order(ascending=False)
+        new_df = df.loc[build_idx]
+        print new_df.index.name
+        new_df.index.name = "parcel_id"
+        return new_df.reset_index()
 
-    # df = df.join(dset.parcels).reset_index()
-    # format new buildings to concatenate with old buildings
-    NOTHING = np.zeros(len(df.index))
-    df['parcel_id'] = df.index
-    df['building_type'] = df.max_btype
-    df['residential_units'] = NOTHING if nonres else df.newunits
-    df['non_residential_units'] = df.newunits if nonres else NOTHING
-    df['building_sqft'] = df.newsqft
-    df['stories'] = df.max_feasiblefar
-    df['building_type_id'] = df.max_btype
-    df['year_built'] = np.ones(len(df.index)) * year
-    df['general_type'] = df.building_type_id.map(dset.BUILDING_TYPE_MAP)
-    df['unit_sqft'] = AVEUNITSIZE
-    df['lot_size'] = dset.parcels.shape_area * 10.764
-    df['unit_lot_size'] = df.lot_size / df.residential_units
-    for f in ['x', 'y', '_node_id']:
-        df[f] = dset.parcels[f]
-    maxind = np.max(dset.buildings.index.values)
-    df.index = df.index + maxind + 1
-    dset.buildings = pd.concat([dset.buildings, df], verify_integrity=True)
-    dset.buildings.index.name = 'building_id'
-
-    # need to remove parcels from consideration in feasibility
-    dset.save_tmptbl("feasibility", dset.feasibility.drop(build))
+    @staticmethod
+    def merge(old_df, new_df):
+        """
+        Merge two dataframes of buildings.  The old dataframe is
+        usually the buildings dataset and the new dataframe is a modified
+        (by the user) version of what is returned by the pick method.
+        """
+        maxind = np.max(old_df.index.values)
+        new_df.index = new_df.index + maxind + 1
+        concat_df = pd.concat([old_df, new_df], verify_integrity=True)
+        print concat_df.index.name
+        concat_df.index.name = 'building_id'
+        return concat_df

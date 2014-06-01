@@ -17,15 +17,12 @@ warnings.filterwarnings('ignore', category=pd.io.pytables.PerformanceWarning)
 
 class Dataset(object):
 
-    def __init__(self, filename):
+    def __init__(self, filename, scenario="baseline"):
         self.store = pd.HDFStore(filename, "r")
-        # keep track of in memory pandas data frames so as not to load multiple
-        # times form disk
+        # keep track of in memory pandas data frames so as
+        # not to load multiple times form disk
         self.d = {}
-        self.coeffs = pd.DataFrame()  # keep all coefficients in memory
-        self.attrs = {}  # keep all computed outputs in memory
-        self.savetbls = []  # names of tables to write to output hdf5
-        self.scenario = "baseline"
+        self.scenario = scenario
 
     def list_tbls(self):
         return list(set([x[1:] for x in self.store.keys()] + self.d.keys()))
@@ -43,7 +40,7 @@ class Dataset(object):
         for key in savetbls:
             df = self.fetch(key)
             df = misc.df64bitto32bit(df)
-            print key
+            print "Writing %s to disk" % key
             if debug:
                 print df.describe()
             outstore[key] = df
