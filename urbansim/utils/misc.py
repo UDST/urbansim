@@ -89,6 +89,33 @@ def get_run_number():
     return num
 
 
+def compute_range(travel_data, attr, travel_time_attr, dist, agg=np.sum):
+    """
+    Compute a zone-based accessibility query using the urbansim format
+    travel data dataframe.
+
+    Parameters
+    ----------
+    travel_data : dataframe
+        The dataframe of urbansim format travel data.  Has from_zone_id as
+        first index, to_zone_id as second index, and different impedances
+        between zones as columns.
+    attr : series
+        The attr to aggregate.  Should be indexed by zone_id and the values
+        will be aggregated.
+    travel_time_attr : string
+        The column name in travel_data to use as the impedance.
+    dist : float
+        The max distance to aggregate up to
+    agg : function, optional, np.sum by default
+        The numpy function to use for aggregation
+    """
+    travel_data = travel_data.reset_index(level=1)
+    travel_data = travel_data[travel_data[travel_time_attr] < dist]
+    travel_data["attr"] = attr[travel_data.to_zone_id].values
+    return travel_data.groupby(level=0).attr.apply(agg)
+
+
 def reindex(series1, series2):
     """
     This reindexes the first series by the second series.  This is an extremely
