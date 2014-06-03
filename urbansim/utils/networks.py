@@ -141,6 +141,6 @@ class Networks:
             df['_node_id%d' % gno] = pd.Series(
                 self.pya.XYtoNode(xys, gno=gno), index=df.index)
         # assign the external id as well
-        df['_node_id'] = pd.Series(
-            self.pya.getGraphIDS()[df['_node_id0']], index=df.index)
+        df['_node_id'] = pd.Series(self.pya.getGraphIDS()[df['_node_id0'].values],
+                                   index=df.index)
         return df
