@@ -42,7 +42,10 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     # something that isn't in the alternatives table
     if chosenalts is not None:
         isin = chosenalts.isin(alternatives.index)
-        removing = isin.value_counts()[False]
+        try:
+            removing = isin.value_counts().loc[False]
+        except:
+            removing = None
         if removing:
             print (
                 "Removing {} choice situations because chosen "

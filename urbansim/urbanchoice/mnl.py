@@ -22,6 +22,8 @@ from pmat import PMAT
 def mnl_probs(data, beta, numalts):
     clamp = data.typ == 'numpy'
     utilities = beta.multiply(data)
+    if numalts == 0:
+        raise Exception("Number of alternatives is zero")
     utilities.reshape(numalts, utilities.size() / numalts)
 
     exponentiated_utility = utilities.exp(inplace=True)
