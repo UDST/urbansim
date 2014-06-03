@@ -41,7 +41,7 @@ def from_yaml(dset, cfgname):
         radius = variable["radius"]
 
         dfname = variable["dataframe"]
-        df = dset.fetch_object(dfname)
+        df = dset.view(dfname).build_df()
 
         if "filters" in variable:
             util.apply_filter_query(df, variable["filters"])

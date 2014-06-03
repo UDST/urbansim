@@ -74,24 +74,15 @@ class Dataset(object):
             raise Exception()
         return self.fetch(name)
 
-    def add_xy(self, df):
-
-        assert 'building_id' in df
-
-        cols = ['x', 'y']
-        for col in cols:
-            if col in df.columns:
-                del df[col]
-
-        df = pd.merge(df, self.buildings[cols],
-                      left_on='building_id', right_index=True)
-        return df
-
 
 class CustomDataFrame(object):
     def __init__(self, dset, name):
         self.dset = dset
         self.name = name
+
+    @property
+    def df(self):
+        return self.dset.fetch(self.name)
 
     def build_df(obj, flds=None):
         if flds is None:
@@ -105,8 +96,7 @@ class CustomDataFrame(object):
         try:
             return super(CustomDataFrame, "__getattr__")(name)
         except:
-            df = self.dset.fetch(self.name)
-            attr = getattr(df, name)
+            attr = getattr(self.df, name)
             if self.dset.debug is True:
                 print "Returning primary attribute: %s of %s" % (name, self.name)
             return attr
