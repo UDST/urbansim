@@ -1,9 +1,10 @@
 import numpy as np
+import yaml
 import pandas as pd
 from urbansim.utils import misc
-from urbansim.models import RegressionModel, MNLLocationChoiceModel, \
+from urbansim.models import RegressionModel, SegmentedRegressionModel, \
+    MNLLocationChoiceModel, \
     GrowthRateTransition
-from urbansim.developer import sqftproforma
 
 
 def hedonic_estimate(df, cfgname):
@@ -17,8 +18,16 @@ def hedonic_estimate(df, cfgname):
     """
     print "Running hedonic estimation\n"
     cfg = misc.config(cfgname)
-    hm = RegressionModel.from_yaml(str_or_buffer=cfg)
-    print hm.fit(df).summary()
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "regression":
+        hm = RegressionModel.from_yaml(str_or_buffer=cfg)
+        print hm.fit(df).summary()
+    if model_type == "segmented_regression":
+        hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
+        for k, v in hm.fit(df).items():
+            print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
+            print v.summary()
+            print
     hm.to_yaml(str_or_buffer=cfg)
 
 

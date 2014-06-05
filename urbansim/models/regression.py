@@ -606,6 +606,9 @@ class SegmentedRegressionModel(object):
             cfg['predict_filters'], default_model_expr,
             YTRANSFORM_MAPPING[default_ytransform])
 
+        if "models" not in cfg:
+            cfg["models"] = {}
+
         for name, m in cfg['models'].items():
             m['model_expression'] = m.get(
                 'model_expression', default_model_expr)
@@ -669,13 +672,13 @@ class SegmentedRegressionModel(object):
             Keys are the segment names.
 
         """
+        data = util.apply_filter_query(data, self.fit_filters)
+
         unique = data[self.segmentation_col].unique()
 
         for x in unique:
             if x not in self._group.models:
                 self.add_segment(x)
-
-        data = util.apply_filter_query(data, self.fit_filters)
 
         return self._group.fit(data)
 
@@ -728,6 +731,8 @@ class SegmentedRegressionModel(object):
         if d['ytransform'] == self.default_ytransform:
             del d['ytransform']
 
+        d["name"] = yamlio.to_scalar_safe(d["name"])
+
         return d
 
     def to_dict(self):
@@ -746,7 +751,7 @@ class SegmentedRegressionModel(object):
                 'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
             },
             'fitted': self.fitted,
-            'models': {name: self._process_model_dict(m.to_dict())
+            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
                        for name, m in self._group.models.items()}
         }
 

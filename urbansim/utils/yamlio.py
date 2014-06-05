@@ -4,6 +4,7 @@ Utilities for doing IO to YAML files.
 """
 import itertools
 import os
+import numpy as np
 
 import yaml
 
@@ -46,6 +47,16 @@ def frame_to_yaml_safe(frame):
             for col, series in frame.iteritems()}
 
 
+def to_scalar_safe(obj):
+    """
+    Convert a numpy data type to a standard python scalar.
+    """
+    try:
+        return np.asscalar(obj)
+    except:
+        return obj
+
+
 def ordered_yaml(cfg):
     """
     Convert a dictionary to a YAML string with preferential ordering
@@ -62,12 +73,14 @@ def ordered_yaml(cfg):
         Nicely formatted YAML string.
 
     """
-    order = ['name', 'model_type', 'fit_filters', 'predict_filters',
+    order = ['name', 'model_type', 'segmentation_col', 'fit_filters',
+             'predict_filters',
              'choosers_fit_filters', 'choosers_predict_filters',
              'alts_fit_filters', 'alts_predict_filters',
              'interaction_predict_filters',
              'choice_column', 'sample_size', 'estimation_sample_size',
-             'model_expression', 'ytransform', 'coefficients', 'fitted']
+             'model_expression', 'ytransform', 'default_config', 'models',
+             'coefficients', 'fitted']
 
     s = []
     for key in order:
