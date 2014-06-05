@@ -41,7 +41,7 @@ def from_yaml(dset, cfgname):
         radius = variable["radius"]
 
         dfname = variable["dataframe"]
-        df = dset.fetch(dfname)
+        df = dset.view(dfname).build_df()
 
         if "filters" in variable:
             util.apply_filter_query(df, variable["filters"])
@@ -51,8 +51,7 @@ def from_yaml(dset, cfgname):
             radius, agg, decay)
 
         nodes[name] = NETWORKS.accvar(
-            df, radius, agg=agg, decay=decay, vname=vname
-            ).astype('float').values
+            df, radius, agg=agg, decay=decay, vname=vname).astype('float').values
 
         if "apply" in variable:
             nodes[name] = nodes[name].apply(eval(variable["apply"]))
@@ -142,6 +141,6 @@ class Networks:
             df['_node_id%d' % gno] = pd.Series(
                 self.pya.XYtoNode(xys, gno=gno), index=df.index)
         # assign the external id as well
-        df['_node_id'] = pd.Series(
-            self.pya.getGraphIDS()[df['_node_id0']], index=df.index)
+        df['_node_id'] = pd.Series(self.pya.getGraphIDS()[df['_node_id0'].values],
+                                   index=df.index)
         return df
