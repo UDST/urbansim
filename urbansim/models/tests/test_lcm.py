@@ -1,4 +1,3 @@
-import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
@@ -115,7 +114,7 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
-    loglik = model.fit(choosers, alternatives, choosers.thing_id)
+    loglik = model.fit(choosers, alternatives, 'thing_id')
     model.report_fit()
 
     # hard to test things exactly because there's some randomness
