@@ -46,7 +46,11 @@ def hedonic_simulate(df, cfgname, outdf, outfname):
     """
     print "Running hedonic simulation\n"
     cfg = misc.config(cfgname)
-    hm = RegressionModel.from_yaml(str_or_buffer=cfg)
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "regression":
+        hm = RegressionModel.from_yaml(str_or_buffer=cfg)
+    if model_type == "segmented_regression":
+        hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
     price_or_rent = hm.predict(df)
     print price_or_rent.describe()
     outdf.loc[price_or_rent.index.values, outfname] = price_or_rent
