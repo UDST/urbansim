@@ -574,7 +574,7 @@ class SegmentedRegressionModel(object):
     """
     def __init__(
             self, segmentation_col, fit_filters=None, predict_filters=None,
-            default_model_expr=None, default_ytransform=None, min_segment_size=10):
+            default_model_expr=None, default_ytransform=None, min_segment_size=0):
         self.segmentation_col = segmentation_col
         self._group = RegressionModelGroup(segmentation_col)
         self.fit_filters = fit_filters
