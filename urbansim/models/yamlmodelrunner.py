@@ -22,13 +22,17 @@ def hedonic_estimate(df, cfgname):
     if model_type == "regression":
         hm = RegressionModel.from_yaml(str_or_buffer=cfg)
         print hm.fit(df).summary()
+        est_data = hm.est_data
     if model_type == "segmented_regression":
         hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
-        for k, v in hm.fit(df).items():
+        hm.min_segment_size = 10
+        for k, v in hm.fit(df, debug=True).items():
             print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
             print v.summary()
             print
+        est_data = {name: hm._group.models[name].est_data for name in hm._group.models}
     hm.to_yaml(str_or_buffer=cfg)
+    return est_data
 
 
 def hedonic_simulate(df, cfgname, outdf, outfname):
@@ -51,6 +55,7 @@ def hedonic_simulate(df, cfgname, outdf, outfname):
         hm = RegressionModel.from_yaml(str_or_buffer=cfg)
     if model_type == "segmented_regression":
         hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
+        hm.min_segment_size = 10
     price_or_rent = hm.predict(df)
     print price_or_rent.describe()
     outdf.loc[price_or_rent.index.values, outfname] = price_or_rent

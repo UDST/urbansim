@@ -235,6 +235,7 @@ class RegressionModel(object):
         self.name = name or 'RegressionModel'
         self.model_fit = None
         self.fit_parameters = None
+        self.est_data = None
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -285,7 +286,7 @@ class RegressionModel(object):
         return util.str_model_expression(
             self.model_expression, add_constant=True)
 
-    def fit(self, data):
+    def fit(self, data, debug=False):
         """
         Fit the model to data and store/return the results.
 
@@ -294,6 +295,10 @@ class RegressionModel(object):
         data : pandas.DataFrame
             Data to use for fitting the model. Must contain all the
             columns referenced by the `model_expression`.
+        debug : bool
+            If debug is set to true, this sets the attribute "est_data"
+            to a dataframe with the actual data used for estimation of
+            this model.
 
         Returns
         -------
@@ -305,6 +310,12 @@ class RegressionModel(object):
         fit = fit_model(data, self.fit_filters, self.str_model_expression)
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
+        if debug:
+            df = pd.DataFrame(fit.model.exog, columns=fit.model.exog_names, index=data.index)
+            df[fit.model.endog_names] = fit.model.endog
+            df["fittedvalues"] = fit.fittedvalues
+            df["residuals"] = fit.resid
+            self.est_data = df
         return fit
 
     @property
@@ -496,7 +507,7 @@ class RegressionModelGroup(object):
         for name in self.models:
             yield name, groups.get_group(name)
 
-    def fit(self, data):
+    def fit(self, data, debug=False):
         """
         Fit each of the models in the group.
 
@@ -504,6 +515,9 @@ class RegressionModelGroup(object):
         ----------
         data : pandas.DataFrame
             Must have a column with the same name as `segmentation_col`.
+        debug : bool
+            If set to true (default false) will pass the debug parameter
+            to model estimation.
 
         Returns
         -------
@@ -511,7 +525,7 @@ class RegressionModelGroup(object):
             Keys are the segment names.
 
         """
-        return {name: self.models[name].fit(df)
+        return {name: self.models[name].fit(df, debug=debug)
                 for name, df in self._iter_groups(data)}
 
     @property
@@ -661,7 +675,7 @@ class SegmentedRegressionModel(object):
         self._group.add_model_from_params(
             name, None, None, model_expression, ytransform)
 
-    def fit(self, data):
+    def fit(self, data, debug=False):
         """
         Fit each segment. Segments that have not already been explicitly
         added will be automatically added with default model and ytransform.
@@ -670,6 +684,8 @@ class SegmentedRegressionModel(object):
         ----------
         data : pandas.DataFrame
             Must have a column with the same name as `segmentation_col`.
+        debug : bool
+            If set to true will pass debug to the fit method of each model.
 
         Returns
         -------
@@ -686,7 +702,7 @@ class SegmentedRegressionModel(object):
             if x not in self._group.models and value_counts[x] > self.min_segment_size:
                 self.add_segment(x)
 
-        return self._group.fit(data)
+        return self._group.fit(data, debug=debug)
 
     @property
     def fitted(self):
