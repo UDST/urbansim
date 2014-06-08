@@ -1,13 +1,10 @@
-import copy
-import os
-import time
 import warnings
 
 import numpy as np
 import pandas as pd
-import simplejson
 
 from urbansim.utils import misc
+reindex = misc.reindex
 
 warnings.filterwarnings('ignore', category=pd.io.pytables.PerformanceWarning)
 
@@ -17,15 +14,20 @@ warnings.filterwarnings('ignore', category=pd.io.pytables.PerformanceWarning)
 
 class Dataset(object):
 
-    def __init__(self, filename):
+    def __init__(self, filename, scenario="baseline"):
         self.store = pd.HDFStore(filename, "r")
-        # keep track of in memory pandas data frames so as not to load multiple
-        # times form disk
+        # keep track of in memory pandas data frames so as
+        # not to load multiple times form disk
         self.d = {}
-        self.coeffs = pd.DataFrame()  # keep all coefficients in memory
-        self.attrs = {}  # keep all computed outputs in memory
-        self.savetbls = []  # names of tables to write to output hdf5
-        self.scenario = "baseline"
+        self.scenario = scenario
+        self.clear_views()
+        self.debug = False
+
+    def view(self, name):
+        return self.views[name]
+
+    def clear_views(self):
+        self.views = {}
 
     def list_tbls(self):
         return list(set([x[1:] for x in self.store.keys()] + self.d.keys()))
@@ -33,13 +35,19 @@ class Dataset(object):
     def save_tmptbl(self, name, tbl):
         self.d[name] = tbl
 
-    def save_output(self, filename):
-        outstore = pd.HDFStore(filename, savetbls)
+    def save_output(self, filename, savetbls=None, debug=False):
+
+        if savetbls is None:
+            savetbls = self.d.keys()
+
+        outstore = pd.HDFStore(filename, "w")
 
         for key in savetbls:
             df = self.fetch(key)
             df = misc.df64bitto32bit(df)
-            print key + "\n", df.describe()
+            print "Writing %s to disk" % key
+            if debug:
+                print df.describe()
             outstore[key] = df
 
         outstore.close()
@@ -66,29 +74,15 @@ class Dataset(object):
             raise Exception()
         return self.fetch(name)
 
-    def compute_range(self, attr, dist, agg=np.sum):
-        travel_data = self.fetch('travel_data').reset_index(level=1)
-        travel_data = travel_data[travel_data.travel_time < dist]
-        travel_data["attr"] = attr[travel_data.to_zone_id].values
-        return travel_data.groupby(level=0).attr.apply(agg)
 
-    def add_xy(self, df):
+class CustomDataFrame(object):
+    def __init__(self, dset, name):
+        self.dset = dset
+        self.name = name
 
-        assert 'building_id' in df
-
-        cols = ['x', 'y']
-        for col in cols:
-            if col in df.columns:
-                del df[col]
-
-        df = pd.merge(df, self.buildings[cols],
-                      left_on='building_id', right_index=True)
-        return df
-
-
-class CustomDataFrame:
-    def __init__(self):
-        pass
+    @property
+    def df(self):
+        return self.dset.fetch(self.name)
 
     def build_df(obj, flds=None):
         if flds is None:
@@ -97,3 +91,44 @@ class CustomDataFrame:
         df = pd.concat(columns, axis=1)
         df.columns = flds
         return df
+
+    def __getattr__(self, name):
+        try:
+            return super(CustomDataFrame, "__getattr__")(name)
+        except:
+            attr = getattr(self.df, name)
+            if self.dset.debug is True:
+                print "Returning primary attribute: %s of %s" % (name, self.name)
+            return attr
+
+
+def variable(func):
+    @property
+    def _decorator(self):
+        if hasattr(self, "_property_cache") and func in self._property_cache:
+            val = self._property_cache[func]
+            if self.dset.debug is True:
+                print "Returning from cache: %s of %s" % \
+                      (func.__name__, self.name)
+            return val
+
+        s = func(self)
+
+        if self.dset.debug is True:
+            print "Computing: %s of %s as" % (func.__name__, self.name)
+            print "    %s" % s
+        try:
+            r = eval(s, globals(), self.dset.views)
+        except Exception as e:
+            print "Variable computation failed!!"
+            print s
+            print e, "\n\n\n"
+
+        r[np.isinf(r)] = np.nan
+
+        if not hasattr(self, "_property_cache"):
+            self._property_cache = {}
+        self._property_cache[func] = r
+
+        return r
+    return _decorator

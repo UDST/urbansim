@@ -560,6 +560,10 @@ class SegmentedRegressionModel(object):
         Filters applied before fitting the model.
     predict_filters : list of str, optional
         Filters applied before calculating new data points.
+    min_segment_size : int
+        This model will add all segments that have at least this number of
+        observations. A very small number of observations (e.g. 1) will
+        cause an error with estimation.
     default_model_expr : str or dict, optional
         A patsy model expression that can be used with statsmodels.
         Should contain both the left- and right-hand sides.
@@ -574,13 +578,14 @@ class SegmentedRegressionModel(object):
     """
     def __init__(
             self, segmentation_col, fit_filters=None, predict_filters=None,
-            default_model_expr=None, default_ytransform=None):
+            default_model_expr=None, default_ytransform=None, min_segment_size=0):
         self.segmentation_col = segmentation_col
         self._group = RegressionModelGroup(segmentation_col)
         self.fit_filters = fit_filters
         self.predict_filters = predict_filters
         self.default_model_expr = default_model_expr
         self.default_ytransform = default_ytransform
+        self.min_segment_size = min_segment_size
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -609,6 +614,9 @@ class SegmentedRegressionModel(object):
             cfg['segmentation_col'], cfg['fit_filters'],
             cfg['predict_filters'], default_model_expr,
             YTRANSFORM_MAPPING[default_ytransform])
+
+        if "models" not in cfg:
+            cfg["models"] = {}
 
         for name, m in cfg['models'].items():
             m['model_expression'] = m.get(
@@ -673,13 +681,14 @@ class SegmentedRegressionModel(object):
             Keys are the segment names.
 
         """
+        data = util.apply_filter_query(data, self.fit_filters)
+
         unique = data[self.segmentation_col].unique()
+        value_counts = data[self.segmentation_col].value_counts()
 
         for x in unique:
-            if x not in self._group.models:
+            if x not in self._group.models and value_counts[x] > self.min_segment_size:
                 self.add_segment(x)
-
-        data = util.apply_filter_query(data, self.fit_filters)
 
         return self._group.fit(data)
 
@@ -736,6 +745,8 @@ class SegmentedRegressionModel(object):
         if d['ytransform'] == self.default_ytransform:
             del d['ytransform']
 
+        d["name"] = yamlio.to_scalar_safe(d["name"])
+
         return d
 
     def to_dict(self):
@@ -754,7 +765,7 @@ class SegmentedRegressionModel(object):
                 'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
             },
             'fitted': self.fitted,
-            'models': {name: self._process_model_dict(m.to_dict())
+            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
                        for name, m in self._group.models.items()}
         }
 

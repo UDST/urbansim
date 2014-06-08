@@ -1,4 +1,4 @@
-from .regression import RegressionModel, RegressionModelGroup
+from .regression import RegressionModel, RegressionModelGroup, SegmentedRegressionModel
 from .lcm import MNLLocationChoiceModel
 from .transition import (
     GrowthRateTransition, TabularGrowthRateTransition,

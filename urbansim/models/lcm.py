@@ -162,9 +162,9 @@ class MNLLocationChoiceModel(object):
             name=cfg.get('name', None)
         )
 
-        if cfg['log_likelihoods']:
+        if cfg.get('log_likelihoods', None):
             model.log_likelihoods = cfg['log_likelihoods']
-        if cfg['fit_parameters']:
+        if cfg.get('fit_parameters', None):
             model.fit_parameters = pd.DataFrame(cfg['fit_parameters'])
 
         return model
