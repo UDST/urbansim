@@ -161,7 +161,11 @@ def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
     """
     print "Running location choice model simulation\n"
     cfg = misc.config(cfgname)
-    lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "locationchoice":
+        lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+    elif model_type == "segmented_locationchoice":
+        lcm = SegmentedMNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
     movers = choosers[choosers[output_fname].isnull()]
     new_units = lcm.predict(movers, locations)
     print "Assigned %d choosers to new units" % len(new_units.index)
