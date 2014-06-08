@@ -123,7 +123,7 @@ class MNLLocationChoiceModel(object):
         self.interaction_predict_filters = interaction_predict_filters
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
-        self.name = name or 'MNLLocationChoiceModel'
+        self.name = name if name is not None else 'MNLLocationChoiceModel'
 
         self.log_likelihoods = None
         self.fit_parameters = None
@@ -210,7 +210,9 @@ class MNLLocationChoiceModel(object):
 
         if self.estimation_sample_size:
             choosers = choosers.loc[np.random.choice(
-                choosers.index, self.estimation_sample_size, replace=False)]
+                choosers.index,
+                min(self.estimation_sample_size, len(choosers)),
+                replace=False)]
 
         current_choice = current_choice.loc[choosers.index]
         alternatives = util.apply_filter_query(
@@ -618,6 +620,9 @@ class SegmentedMNLLocationChoiceModel(object):
             cfg['choice_column'],
             default_model_expr)
 
+        if "models" not in cfg:
+            cfg["models"] = {}
+
         for name, m in cfg['models'].items():
             m['model_expression'] = m.get(
                 'model_expression', default_model_expr)
@@ -656,7 +661,7 @@ class SegmentedMNLLocationChoiceModel(object):
             if not self.default_model_expr:
                 raise ValueError(
                     'No default model available, '
-                    'you must supply a model experssion.')
+                    'you must supply a model expression.')
             model_expression = self.default_model_expr
 
         # we'll take care of some of the filtering this side before
@@ -699,13 +704,14 @@ class SegmentedMNLLocationChoiceModel(object):
             log-liklihood values as returned by MNLLocationChoiceModel.fit.
 
         """
+        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+
         unique = choosers[self.segmentation_col].unique()
 
         for x in unique:
             if x not in self._group.models:
                 self.add_segment(x)
 
-        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
 
@@ -776,6 +782,8 @@ class SegmentedMNLLocationChoiceModel(object):
         if d['model_expression'] == self.default_model_expr:
             del d['model_expression']
 
+        d["name"] = yamlio.to_scalar_safe(d["name"])
+
         return d
 
     def to_dict(self):
@@ -799,7 +807,7 @@ class SegmentedMNLLocationChoiceModel(object):
                 'model_expression': self.default_model_expr,
             },
             'fitted': self.fitted,
-            'models': {name: self._process_model_dict(m.to_dict())
+            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
                        for name, m in self._group.models.items()}
         }
 
