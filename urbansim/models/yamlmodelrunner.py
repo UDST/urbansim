@@ -22,14 +22,17 @@ def hedonic_estimate(df, cfgname):
     if model_type == "regression":
         hm = RegressionModel.from_yaml(str_or_buffer=cfg)
         print hm.fit(df).summary()
+        est_data = hm.est_data
     if model_type == "segmented_regression":
         hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
         hm.min_segment_size = 10
-        for k, v in hm.fit(df).items():
+        for k, v in hm.fit(df, debug=True).items():
             print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
             print v.summary()
             print
+        est_data = {name: hm._group.models[name].est_data for name in hm._group.models}
     hm.to_yaml(str_or_buffer=cfg)
+    return est_data
 
 
 def hedonic_simulate(df, cfgname, outdf, outfname):
