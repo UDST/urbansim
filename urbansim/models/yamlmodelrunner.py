@@ -3,7 +3,7 @@ import yaml
 import pandas as pd
 from urbansim.utils import misc
 from urbansim.models import RegressionModel, SegmentedRegressionModel, \
-    MNLLocationChoiceModel, \
+    MNLLocationChoiceModel, SegmentedMNLLocationChoiceModel, \
     GrowthRateTransition
 
 
@@ -81,9 +81,18 @@ def lcm_estimate(choosers, chosen_fname, alternatives, cfgname):
     """
     print "Running location choice model estimation\n"
     cfg = misc.config(cfgname)
-    lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
-    lcm.fit(choosers, alternatives, choosers[chosen_fname])
-    lcm.report_fit()
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "locationchoice":
+        lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        lcm.report_fit()
+    elif model_type == "segmented_locationchoice":
+        lcm = SegmentedMNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        for k, v in lcm._group.models.items():
+            print "LCM RESULTS FOR SEGMENT %s\n" % str(k)
+            v.report_fit()
+            print
     lcm.to_yaml(str_or_buffer=cfg)
 
 
