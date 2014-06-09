@@ -9,6 +9,8 @@ New lightweight version of UrbanSim, a tool for modeling metropolitan real estat
 
 Documentation is on the github wiki: https://github.com/synthicity/urbansim/wiki
 
+**Installation instructions** for UrbanSim users are available on [this page](https://github.com/synthicity/urbansim/wiki/Installation-Instructions).
+
 UrbanSim
 -------
 UrbanSim [1] is a model system for analyzing urban development.  It is an open source platform that has been continuously refined and distributed for planning applications around the world for over 15 years.  Part of the evolution of the platform is the necessary process of re-engineering the code to take advantage of new developments in computational libraries and infrastructure.  We implemented UrbanSim initially in Java in the late 1990's, and by 2005 determined that it was time to re-implement it in Python, and created the Open Platform for Urban Simulation (OPUS) software implementation at that time.  Now, almost a decade later, it is time again to revisit the implementation to take advantage of an amazing amount of innovation in the scientific computing community. The new implementation is hosted on this GitHub site, and maintained by Synthicity and hopefully a growing community of contributors.
@@ -33,7 +35,5 @@ We have now converted a full set of UrbanSim models in the new framework, enabli
 [3] http://pandas.pydata.org
 
 [4] http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793
-
-*Installation instructions* for UrbanSim users are available on [this page](https://github.com/synthicity/urbansim/wiki/Installation-Instructions).
 
 We do strongly recommend that you contact info@synthicity.org about your project to make sure you can get professional support when you need it, and know what you are getting into.  For major applied projects, professional support is highly recommended.
