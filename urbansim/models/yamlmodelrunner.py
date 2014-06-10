@@ -1,9 +1,10 @@
 import numpy as np
+import yaml
 import pandas as pd
 from urbansim.utils import misc
-from urbansim.models import RegressionModel, MNLLocationChoiceModel, \
+from urbansim.models import RegressionModel, SegmentedRegressionModel, \
+    MNLLocationChoiceModel, SegmentedMNLLocationChoiceModel, \
     GrowthRateTransition
-from urbansim.developer import sqftproforma
 
 
 def hedonic_estimate(df, cfgname):
@@ -17,9 +18,21 @@ def hedonic_estimate(df, cfgname):
     """
     print "Running hedonic estimation\n"
     cfg = misc.config(cfgname)
-    hm = RegressionModel.from_yaml(str_or_buffer=cfg)
-    print hm.fit(df).summary()
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "regression":
+        hm = RegressionModel.from_yaml(str_or_buffer=cfg)
+        print hm.fit(df).summary()
+        est_data = hm.est_data
+    if model_type == "segmented_regression":
+        hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
+        hm.min_segment_size = 10
+        for k, v in hm.fit(df, debug=True).items():
+            print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
+            print v.summary()
+            print
+        est_data = {name: hm._group.models[name].est_data for name in hm._group.models}
     hm.to_yaml(str_or_buffer=cfg)
+    return est_data
 
 
 def hedonic_simulate(df, cfgname, outdf, outfname):
@@ -37,7 +50,12 @@ def hedonic_simulate(df, cfgname, outdf, outfname):
     """
     print "Running hedonic simulation\n"
     cfg = misc.config(cfgname)
-    hm = RegressionModel.from_yaml(str_or_buffer=cfg)
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "regression":
+        hm = RegressionModel.from_yaml(str_or_buffer=cfg)
+    if model_type == "segmented_regression":
+        hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
+        hm.min_segment_size = 10
     price_or_rent = hm.predict(df)
     print price_or_rent.describe()
     outdf.loc[price_or_rent.index.values, outfname] = price_or_rent
@@ -63,9 +81,18 @@ def lcm_estimate(choosers, chosen_fname, alternatives, cfgname):
     """
     print "Running location choice model estimation\n"
     cfg = misc.config(cfgname)
-    lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
-    lcm.fit(choosers, alternatives, choosers[chosen_fname])
-    lcm.report_fit()
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "locationchoice":
+        lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        lcm.report_fit()
+    elif model_type == "segmented_locationchoice":
+        lcm = SegmentedMNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        for k, v in lcm._group.models.items():
+            print "LCM RESULTS FOR SEGMENT %s\n" % str(k)
+            v.report_fit()
+            print
     lcm.to_yaml(str_or_buffer=cfg)
 
 
@@ -134,7 +161,11 @@ def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
     """
     print "Running location choice model simulation\n"
     cfg = misc.config(cfgname)
-    lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+    model_type = yaml.load(open(cfg))["model_type"]
+    if model_type == "locationchoice":
+        lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+    elif model_type == "segmented_locationchoice":
+        lcm = SegmentedMNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
     movers = choosers[choosers[output_fname].isnull()]
     new_units = lcm.predict(movers, locations)
     print "Assigned %d choosers to new units" % len(new_units.index)

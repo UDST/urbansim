@@ -6,8 +6,6 @@ OLS capability and then do subsequent prediction.
 
 import numpy as np
 import pandas as pd
-import yaml
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from patsy import dmatrix
 from prettytable import PrettyTable
@@ -237,6 +235,7 @@ class RegressionModel(object):
         self.name = name or 'RegressionModel'
         self.model_fit = None
         self.fit_parameters = None
+        self.est_data = None
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -287,7 +286,7 @@ class RegressionModel(object):
         return util.str_model_expression(
             self.model_expression, add_constant=True)
 
-    def fit(self, data):
+    def fit(self, data, debug=False):
         """
         Fit the model to data and store/return the results.
 
@@ -296,6 +295,10 @@ class RegressionModel(object):
         data : pandas.DataFrame
             Data to use for fitting the model. Must contain all the
             columns referenced by the `model_expression`.
+        debug : bool
+            If debug is set to true, this sets the attribute "est_data"
+            to a dataframe with the actual data used for estimation of
+            this model.
 
         Returns
         -------
@@ -307,6 +310,12 @@ class RegressionModel(object):
         fit = fit_model(data, self.fit_filters, self.str_model_expression)
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
+        if debug:
+            df = pd.DataFrame(fit.model.exog, columns=fit.model.exog_names, index=data.index)
+            df[fit.model.endog_names] = fit.model.endog
+            df["fittedvalues"] = fit.fittedvalues
+            df["residuals"] = fit.resid
+            self.est_data = df
         return fit
 
     @property
@@ -428,7 +437,7 @@ class RegressionModelGroup(object):
 
     Parameters
     ----------
-    segmentation_col : str
+    segmentation_col
         Name of the column on which to segment.
 
     """
@@ -498,7 +507,7 @@ class RegressionModelGroup(object):
         for name in self.models:
             yield name, groups.get_group(name)
 
-    def fit(self, data):
+    def fit(self, data, debug=False):
         """
         Fit each of the models in the group.
 
@@ -506,6 +515,9 @@ class RegressionModelGroup(object):
         ----------
         data : pandas.DataFrame
             Must have a column with the same name as `segmentation_col`.
+        debug : bool
+            If set to true (default false) will pass the debug parameter
+            to model estimation.
 
         Returns
         -------
@@ -513,8 +525,17 @@ class RegressionModelGroup(object):
             Keys are the segment names.
 
         """
-        return {name: self.models[name].fit(df)
+        return {name: self.models[name].fit(df, debug=debug)
                 for name, df in self._iter_groups(data)}
+
+    @property
+    def fitted(self):
+        """
+        Whether all models in the group have been fitted.
+
+        """
+        return (all(m.fitted for m in self.models.values())
+                if self.models else False)
 
     def predict(self, data):
         """
@@ -537,3 +558,249 @@ class RegressionModelGroup(object):
         results = [self.models[name].predict(df)
                    for name, df in self._iter_groups(data)]
         return pd.concat(results)
+
+
+class SegmentedRegressionModel(object):
+    """
+    A regression model group that allows segments to have different
+    model expressions and ytransforms but all have the same filters.
+
+    Parameters
+    ----------
+    segmentation_col
+        Name of column in the data table on which to segment. Will be used
+        with a pandas groupby on the data table.
+    fit_filters : list of str, optional
+        Filters applied before fitting the model.
+    predict_filters : list of str, optional
+        Filters applied before calculating new data points.
+    min_segment_size : int
+        This model will add all segments that have at least this number of
+        observations. A very small number of observations (e.g. 1) will
+        cause an error with estimation.
+    default_model_expr : str or dict, optional
+        A patsy model expression that can be used with statsmodels.
+        Should contain both the left- and right-hand sides.
+    default_ytransform : callable, optional
+        A function to call on the array of predicted output.
+        For example, if the model relation is predicting the log
+        of price, you might pass ``ytransform=np.exp`` so that
+        the results reflect actual price.
+
+        By default no transformation is applied.
+
+    """
+    def __init__(
+            self, segmentation_col, fit_filters=None, predict_filters=None,
+            default_model_expr=None, default_ytransform=None, min_segment_size=0):
+        self.segmentation_col = segmentation_col
+        self._group = RegressionModelGroup(segmentation_col)
+        self.fit_filters = fit_filters
+        self.predict_filters = predict_filters
+        self.default_model_expr = default_model_expr
+        self.default_ytransform = default_ytransform
+        self.min_segment_size = min_segment_size
+
+    @classmethod
+    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
+        """
+        Create a SegmentedRegressionModel instance from a saved YAML
+        configuration. Arguments are mutally exclusive.
+
+        Parameters
+        ----------
+        yaml_str : str, optional
+            A YAML string from which to load model.
+        str_or_buffer : str or file like, optional
+            File name or buffer from which to load YAML.
+
+        Returns
+        -------
+        SegmentedRegressionModel
+
+        """
+        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
+
+        default_model_expr = cfg['default_config']['model_expression']
+        default_ytransform = cfg['default_config']['ytransform']
+
+        seg = cls(
+            cfg['segmentation_col'], cfg['fit_filters'],
+            cfg['predict_filters'], default_model_expr,
+            YTRANSFORM_MAPPING[default_ytransform])
+
+        if "models" not in cfg:
+            cfg["models"] = {}
+
+        for name, m in cfg['models'].items():
+            m['model_expression'] = m.get(
+                'model_expression', default_model_expr)
+            m['ytransform'] = m.get('ytransform', default_ytransform)
+            m['fit_filters'] = None
+            m['predict_filters'] = None
+            reg = RegressionModel.from_yaml(yamlio.convert_to_yaml(m, None))
+            seg._group.add_model(reg)
+
+        return seg
+
+    def add_segment(self, name, model_expression=None, ytransform='default'):
+        """
+        Add a new segment with its own model expression and ytransform.
+
+        Parameters
+        ----------
+        name
+            Segment name. Must match a segment in the groupby of the data.
+        model_expression : str or dict, optional
+            A patsy model expression that can be used with statsmodels.
+            Should contain both the left- and right-hand sides.
+            If not given the default model will be used, which must not be
+            None.
+       ytransform : callable, optional
+            A function to call on the array of predicted output.
+            For example, if the model relation is predicting the log
+            of price, you might pass ``ytransform=np.exp`` so that
+            the results reflect actual price.
+
+            If not given the default ytransform will be used.
+
+        """
+        if not model_expression:
+            if self.default_model_expr is None:
+                raise ValueError(
+                    'No default model available, '
+                    'you must supply a model experssion.')
+            model_expression = self.default_model_expr
+
+        if ytransform == 'default':
+            ytransform = self.default_ytransform
+
+        # no fit or predict filters, we'll take care of that this side.
+        self._group.add_model_from_params(
+            name, None, None, model_expression, ytransform)
+
+    def fit(self, data, debug=False):
+        """
+        Fit each segment. Segments that have not already been explicitly
+        added will be automatically added with default model and ytransform.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Must have a column with the same name as `segmentation_col`.
+        debug : bool
+            If set to true will pass debug to the fit method of each model.
+
+        Returns
+        -------
+        fits : dict of statsmodels.regression.linear_model.OLSResults
+            Keys are the segment names.
+
+        """
+        data = util.apply_filter_query(data, self.fit_filters)
+
+        unique = data[self.segmentation_col].unique()
+        value_counts = data[self.segmentation_col].value_counts()
+
+        for x in unique:
+            if x not in self._group.models and value_counts[x] > self.min_segment_size:
+                self.add_segment(x)
+
+        return self._group.fit(data, debug=debug)
+
+    @property
+    def fitted(self):
+        """
+        Whether models for all segments have been fit.
+
+        """
+        return self._group.fitted
+
+    def predict(self, data):
+        """
+        Predict new data for each group in the segmentation.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to use for prediction. Must have a column with the
+            same name as `segmentation_col`.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters.
+
+        """
+        data = util.apply_filter_query(data, self.predict_filters)
+        return self._group.predict(data)
+
+    def _process_model_dict(self, d):
+        """
+        Remove redundant items from a model's configuration dict.
+
+        Parameters
+        ----------
+        d : dict
+            Modified in place.
+
+        Returns
+        -------
+        dict
+            Modified `d`.
+
+        """
+        del d['model_type']
+        del d['fit_filters']
+        del d['predict_filters']
+
+        if d['model_expression'] == self.default_model_expr:
+            del d['model_expression']
+
+        if d['ytransform'] == self.default_ytransform:
+            del d['ytransform']
+
+        d["name"] = yamlio.to_scalar_safe(d["name"])
+
+        return d
+
+    def to_dict(self):
+        """
+        Returns a dict representation of this instance suitable for
+        conversion to YAML.
+
+        """
+        return {
+            'model_type': 'segmented_regression',
+            'segmentation_col': self.segmentation_col,
+            'fit_filters': self.fit_filters,
+            'predict_filters': self.predict_filters,
+            'default_config': {
+                'model_expression': self.default_model_expr,
+                'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
+            },
+            'fitted': self.fitted,
+            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
+                       for name, m in self._group.models.items()}
+        }
+
+    def to_yaml(self, str_or_buffer=None):
+        """
+        Save a model respresentation to YAML.
+
+        Parameters
+        ----------
+        str_or_buffer : str or file like, optional
+            By default a YAML string is returned. If a string is
+            given here the YAML will be written to that file.
+            If an object with a ``.write`` method is given the
+            YAML will be written to that object.
+
+        Returns
+        -------
+        j : str
+            YAML string if `str_or_buffer` is not given.
+
+        """
+        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)

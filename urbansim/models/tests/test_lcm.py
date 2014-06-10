@@ -1,7 +1,7 @@
-import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+import yaml
 from pandas.util import testing as pdt
 
 from ...utils import testing
@@ -14,6 +14,12 @@ def choosers():
     return pd.DataFrame(
         {'var1': range(5, 10),
          'thing_id': ['a', 'c', 'e', 'g', 'i']})
+
+
+@pytest.fixture
+def grouped_choosers(choosers):
+    choosers['group'] = ['x', 'y', 'x', 'x', 'y']
+    return choosers
 
 
 @pytest.fixture
@@ -115,7 +121,7 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
-    loglik = model.fit(choosers, alternatives, choosers.thing_id)
+    loglik = model.fit(choosers, alternatives, 'thing_id')
     model.report_fit()
 
     # hard to test things exactly because there's some randomness
@@ -131,3 +137,121 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
 
     pdt.assert_index_equal(choices.index, pd.Index([0, 1, 3, 4]))
     assert choices.isin(alternatives.index).all()
+
+
+def test_mnl_lcm_group(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.MNLLocationChoiceModelGroup('group')
+    group.add_model_from_params('x', model_exp, sample_size)
+    group.add_model_from_params('y', model_exp, sample_size)
+
+    assert group.fitted is False
+    logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
+    assert group.fitted is True
+
+    assert 'x' in logliks and 'y' in logliks
+    assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
+
+    choices = group.predict(grouped_choosers, alternatives)
+
+    assert len(choices.unique()) == len(choices)
+    assert choices.isin(alternatives.index).all()
+
+
+def test_mnl_lcm_segmented_raises():
+    group = lcm.SegmentedMNLLocationChoiceModel('group', 2)
+
+    with pytest.raises(ValueError):
+        group.add_segment('x')
+
+
+def test_mnl_lcm_segmented(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('x')
+    group.add_segment('y', 'var3 + var1:var2')
+
+    assert group.fitted is False
+    logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
+    assert group.fitted is True
+
+    assert 'x' in logliks and 'y' in logliks
+    assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
+
+    choices = group.predict(grouped_choosers, alternatives)
+
+    assert len(choices.unique()) == len(choices)
+    assert choices.isin(alternatives.index).all()
+
+
+def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('x')
+    group.add_segment('y', 'var3 + var1:var2')
+
+    expected_dict = {
+        'model_type': 'segmented_locationchoice',
+        'segmentation_col': 'group',
+        'sample_size': sample_size,
+        'choosers_fit_filters': None,
+        'choosers_predict_filters': None,
+        'alts_fit_filters': None,
+        'alts_predict_filters': None,
+        'interaction_predict_filters': None,
+        'estimation_sample_size': None,
+        'choice_column': None,
+        'default_config': {
+            'model_expression': model_exp,
+        },
+        'fitted': False,
+        'models': {
+            'x': {
+                'name': 'x',
+                'fitted': False,
+                'log_likelihoods': None,
+                'fit_parameters': None
+            },
+            'y': {
+                'name': 'y',
+                'model_expression': 'var3 + var1:var2',
+                'fitted': False,
+                'log_likelihoods': None,
+                'fit_parameters': None
+            }
+        }
+    }
+
+    assert yaml.load(group.to_yaml()) == expected_dict
+
+    new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
+    assert yaml.load(new_seg.to_yaml()) == expected_dict
+
+    group.fit(grouped_choosers, alternatives, 'thing_id')
+
+    expected_dict['fitted'] = True
+    expected_dict['models']['x']['fitted'] = True
+    expected_dict['models']['y']['fitted'] = True
+    del expected_dict['models']['x']['fit_parameters']
+    del expected_dict['models']['x']['log_likelihoods']
+    del expected_dict['models']['y']['fit_parameters']
+    del expected_dict['models']['y']['log_likelihoods']
+
+    actual_dict = yaml.load(group.to_yaml())
+    assert isinstance(actual_dict['models']['x'].pop('fit_parameters'), dict)
+    assert isinstance(actual_dict['models']['x'].pop('log_likelihoods'), dict)
+    assert isinstance(actual_dict['models']['y'].pop('fit_parameters'), dict)
+    assert isinstance(actual_dict['models']['y'].pop('log_likelihoods'), dict)
+
+    assert actual_dict == expected_dict
+
+    new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
+    assert new_seg.fitted is True

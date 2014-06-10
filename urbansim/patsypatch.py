@@ -1,3 +1,18 @@
+"""
+This module exists to help us with some performance headaches in patsy.
+Specifically with categorical data. A lot of urbansim models have
+boolean columns via expressions like I(year_built < 1940). patsy's
+categorical code checks every single value in those columns to see
+whether it is nan, but if we know the data are pandas.Series instances
+we should be able to check the dtype to see if it is boolean and,
+if so, take appropriate specific action that avoids looking at every
+value.
+
+The function ``patch_patsy`` monkeypatches a function and a method
+in patsy with replacements that check the input data's dtype for
+boolean and act appropriately.
+
+"""
 import numpy as np
 import pandas as pd
 from patsy import PatsyError
@@ -7,6 +22,7 @@ from patsy.util import (SortAnythingKey,
                         iterable)
 
 
+# replaces function patsy.categorical.categorical_to_int
 def categorical_to_int(data, levels, NA_action, origin=None):
     assert isinstance(levels, tuple)
     # In this function, missing values are always mapped to -1
@@ -68,6 +84,7 @@ def categorical_to_int(data, levels, NA_action, origin=None):
     return out
 
 
+# replaces method patsy.categorical.CategoricalSniffer.sniff
 def sniff(self, data):
     if hasattr(data, "contrast"):
         self._contrast = data.contrast
@@ -105,6 +122,14 @@ def sniff(self, data):
 
 
 def patch_patsy():
+    """
+    Replace the function patsy.categorical.categorical_to_int
+    (in multiple places) and the method
+    patsy.categorical.CategoricalSniffer.sniff with replacements
+    of our own that have special handling for arrays with
+    boolean dtypes.
+
+    """
     import patsy
     patsy.categorical.categorical_to_int = categorical_to_int
     patsy.build.categorical_to_int = categorical_to_int

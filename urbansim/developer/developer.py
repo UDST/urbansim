@@ -72,7 +72,8 @@ class Developer:
         return target_units
 
     def pick(self, form, target_units, parcel_size, ave_unit_size,
-             current_units, max_parcel_size=200000, drop_after_build=True):
+             current_units, max_parcel_size=200000, min_unit_size=400,
+             drop_after_build=True):
         """
         Choose the buildings from the list that are feasible to build in
         order to match the specified demand.
@@ -93,6 +94,9 @@ class Developer:
             The average unit size around each parcel - this is indexed
             by parcel, but is usually a disaggregated version of a zonal or
             accessibility aggregation.
+        min_unit_size : float
+            Values less than this number in ave_unit_size will be set to this
+            number.  Deals with cases where units are currently not built.
         current_units : series
             The current number of units on the parcel.  Is used to compute the
             net number of units produced by the developer model.  Many times
@@ -111,15 +115,20 @@ class Developer:
         df = self.feasibility[form]
 
         # feasible buildings only for this building type
-        df = df[df.max_feasiblefar > 0]
+        df = df[df.max_profit_far > 0]
         df["parcel_size"] = parcel_size
         df = df[df.parcel_size < max_parcel_size]
-        df['new_sqft'] = df.parcel_size * df.max_feasiblefar
+        df['new_sqft'] = df.parcel_size * df.max_profit_far
+        ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
         df['new_units'] = np.round(df.new_sqft / ave_unit_size)
         df['current_units'] = current_units
         df['net_units'] = df.new_units - df.current_units
+        df = df[df.net_units > 0]
 
-        print "Describe of net units\n", df.new_units.describe()
+        print "Describe of net units\n", df.net_units.describe()
+        print "Sum of net units that are profitable", df.net_units.sum()
+        if df.net_units.sum() < target_units:
+            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO MATCH DEMAND"
 
         choices = np.random.choice(df.index.values, size=len(df.index),
                                    replace=False,
@@ -129,14 +138,10 @@ class Developer:
         ind = np.searchsorted(tot_units, target_units, side="right")
         build_idx = choices[:ind]
 
-        print "Describe of buildings built\n", df.total_units.describe()
-        print "Describe of profit\n", df.max_profit.describe()
-
         if drop_after_build:
             self.feasibility = self.feasibility.drop(build_idx)
 
         new_df = df.loc[build_idx]
-        print new_df.index.name
         new_df.index.name = "parcel_id"
         return new_df.reset_index()
 
