@@ -8,7 +8,7 @@ class Developer:
         """
         Pass the dataframe that is returned by feasibility here
         """
-        self.f = feasibility
+        self.feasibility = feasibility
 
     @staticmethod
     def max_form(f, colname):
