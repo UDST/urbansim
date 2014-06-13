@@ -153,7 +153,7 @@ class _FakeRegressionResults(object):
 
         """
         model_design = dmatrix(self._rhs, data=data, return_type='dataframe')
-        return model_design.dot(self.params).values
+        return model_design.dot(self.params.loc[model_design.columns]).values
 
 
 def _model_fit_to_table(fit):
@@ -311,7 +311,8 @@ class RegressionModel(object):
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
-            df = pd.DataFrame(fit.model.exog, columns=fit.model.exog_names, index=data.index)
+            index = util.apply_filter_query(data, self.fit_filters).index
+            df = pd.DataFrame(fit.model.exog, columns=fit.model.exog_names, index=index)
             df[fit.model.endog_names] = fit.model.endog
             df["fittedvalues"] = fit.fittedvalues
             df["residuals"] = fit.resid

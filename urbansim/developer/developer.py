@@ -14,7 +14,7 @@ class Developer:
     def max_form(f, colname):
         """
         Assumes dataframe with hierarchical columns with first index equal to the
-        use and second index equal to the attribtue
+        use and second index equal to the attribute
 
         e.g. f.columns equal to:
         mixedoffice   building_cost
@@ -118,14 +118,13 @@ class Developer:
         df = df[df.max_profit_far > 0]
         df["parcel_size"] = parcel_size
         df = df[df.parcel_size < max_parcel_size]
-        df['new_sqft'] = df.parcel_size * df.max_profit_far
         ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
-        df['new_units'] = np.round(df.new_sqft / ave_unit_size)
+        df['residential_units'] = np.round(df.building_sqft / ave_unit_size)
         df['current_units'] = current_units
-        df['net_units'] = df.new_units - df.current_units
+        df['net_units'] = df.residential_units - df.current_units
         df = df[df.net_units > 0]
 
-        print "Describe of net units\n", df.net_units.describe()
+        # print "Describe of net units\n", df.net_units.describe()
         print "Sum of net units that are profitable", df.net_units.sum()
         if df.net_units.sum() < target_units:
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO MATCH DEMAND"
@@ -155,6 +154,5 @@ class Developer:
         maxind = np.max(old_df.index.values)
         new_df.index = new_df.index + maxind + 1
         concat_df = pd.concat([old_df, new_df], verify_integrity=True)
-        print concat_df.index.name
         concat_df.index.name = 'building_id'
         return concat_df

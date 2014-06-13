@@ -85,8 +85,12 @@ class CustomDataFrame(object):
         return self.dset.fetch(self.name)
 
     def build_df(obj, flds=None):
+        flds = None
         if flds is None:
-            flds = obj.flds
+            if obj.flds is None:
+                return obj.df
+            else:
+                flds = obj.flds
         columns = [getattr(obj, fld) for fld in flds]
         df = pd.concat(columns, axis=1)
         df.columns = flds

@@ -8,6 +8,7 @@ class SqFtProFormaConfig:
         self.parcel_sizes = [10000.0]
         self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 11.0]
         self.uses = ['retail', 'industrial', 'office', 'residential']
+        self.residential_uses = [False, False, False, True]
         self.forms = {
             'retail': {
                 "retail": 1.0
@@ -185,10 +186,13 @@ class SqFtProFormaConfig:
         """
         self.fars = np.array(self.fars)
         self.parking_rates = np.array([self.parking_rates[use] for use in self.uses])
+        self.res_ratios = {}
+        assert len(self.uses) == len(self.residential_uses)
         for k, v in self.forms.iteritems():
             self.forms[k] = np.array([self.forms[k].get(use, 0.0) for use in self.uses])
             # normalize if not already
             self.forms[k] /= self.forms[k].sum()
+            self.res_ratios[k] = pd.Series(self.forms[k])[self.residential_uses].sum()
         self.costs = np.transpose(np.array([self.costs[use] for use in self.uses]))
 
     @property
@@ -298,7 +302,7 @@ class SqFtProForma:
                         building_bulk = orig_bulk - parkingstalls * \
                             c.parking_sqft_d[parking_config]
 
-                df['build'] = building_bulk
+                df['building_sqft'] = building_bulk
 
                 parkingstalls = building_bulk * \
                     np.sum(uses_distrib * c.parking_rates) / c.sqft_per_rate
@@ -309,11 +313,11 @@ class SqFtProForma:
                 df['spaces'] = parkingstalls
 
                 if parking_config == 'underground':
-                    df['parksqft'] = parkingstalls * \
+                    df['park_sqft'] = parkingstalls * \
                         c.parking_sqft_d[parking_config]
                     stories = building_bulk / c.tiled_parcel_sizes
                 if parking_config == 'deck':
-                    df['parksqft'] = parkingstalls * \
+                    df['park_sqft'] = parkingstalls * \
                         c.parking_sqft_d[parking_config]
                     stories = ((building_bulk + parkingstalls *
                                 c.parking_sqft_d[parking_config]) /
@@ -322,17 +326,17 @@ class SqFtProForma:
                     stories = building_bulk / \
                         (c.tiled_parcel_sizes - parkingstalls *
                          c.parking_sqft_d[parking_config])
-                    df['parksqft'] = parkingstalls * \
+                    df['park_sqft'] = parkingstalls * \
                         c.parking_sqft_d[parking_config]
                     # not all fars support surface parking
                     stories[np.where(stories < 0.0)] = np.nan
 
-                df['total_sqft'] = df.build + df.parksqft
+                df['total_sqft'] = df.building_sqft + df.park_sqft
                 stories /= c.parcel_coverage
                 df['stories'] = stories
                 df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
 
-                df['build_cost'] = df.build_cost_sqft * df.build
+                df['build_cost'] = df.build_cost_sqft * df.building_sqft
                 df['park_cost'] = parking_cost
                 df['cost'] = df.build_cost + df.park_cost
 
@@ -444,7 +448,7 @@ class SqFtProForma:
         A dataframe which is indexed by the parcel ids that were passed, with the
         following columns.
 
-        building_size : Series, float
+        building_sqft : Series, float
             The number of square feet for the building to build.  Keep in mind
             this includes parking and common space.  Will need a helpful function
             to convert from gross square feet to actual usable square feet in
@@ -513,7 +517,7 @@ class SqFtProForma:
             return arr[indexes, np.arange(indexes.size)].astype('float')
 
         outdf = pd.DataFrame({
-            'building_size': twod_get(maxprofitind, building_bulks),
+            'building_sqft': twod_get(maxprofitind, building_bulks),
             'building_cost': twod_get(maxprofitind, building_costs),
             'total_cost': twod_get(maxprofitind, total_costs),
             'building_revenue': twod_get(maxprofitind, building_revenue),
@@ -523,6 +527,12 @@ class SqFtProForma:
 
         if only_built:
             outdf = outdf.query('max_profit > 0')
+
+        resratio = c.res_ratios[form]
+        nonresratio = 1.0 - resratio
+        outdf["residential_sqft"] = outdf.building_sqft * c.building_efficiency * resratio
+        outdf["non_residential_sqft"] = outdf.building_sqft * c.building_efficiency * nonresratio
+        outdf["stories"] = outdf["max_profit_far"] / c.parcel_coverage
 
         return outdf
 
