@@ -185,7 +185,7 @@ def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
 
     # go back to the buildings from units
     sim_pdf = pd.concat(sim_pdf.values(), keys=sim_pdf.keys(), axis=1)
-    sim_pdf.index = locations[output_fname]
+    sim_pdf.index = locations.loc[sim_pdf.index][output_fname].values
     sim_pdf = sim_pdf.groupby(level=0).first()
 
     return sim_pdf

@@ -92,7 +92,7 @@ class CustomDataFrame(object):
             else:
                 flds = obj.flds
         columns = [getattr(obj, fld) for fld in flds]
-        df = pd.concat(columns, axis=1)
+        df = pd.concat(columns, axis=1, verify_integrity=True)
         df.columns = flds
         return df
 
