@@ -815,8 +815,11 @@ class SegmentedMNLLocationChoiceModel(object):
                 'model_expression': self.default_model_expr,
             },
             'fitted': self.fitted,
-            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
-                       for name, m in self._group.models.items()}
+            'models': {
+                yamlio.to_scalar_safe(name):
+                    self._process_model_dict(m.to_dict())
+                for name, m in self._group.models.items()
+            }
         }
 
     def to_yaml(self, str_or_buffer=None):

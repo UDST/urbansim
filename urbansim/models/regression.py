@@ -311,7 +311,8 @@ class RegressionModel(object):
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
-            df = pd.DataFrame(fit.model.exog, columns=fit.model.exog_names, index=data.index)
+            df = pd.DataFrame(
+                fit.model.exog, columns=fit.model.exog_names, index=data.index)
             df[fit.model.endog_names] = fit.model.endog
             df["fittedvalues"] = fit.fittedvalues
             df["residuals"] = fit.resid
@@ -592,7 +593,8 @@ class SegmentedRegressionModel(object):
     """
     def __init__(
             self, segmentation_col, fit_filters=None, predict_filters=None,
-            default_model_expr=None, default_ytransform=None, min_segment_size=0):
+            default_model_expr=None, default_ytransform=None,
+            min_segment_size=0):
         self.segmentation_col = segmentation_col
         self._group = RegressionModelGroup(segmentation_col)
         self.fit_filters = fit_filters
@@ -703,7 +705,8 @@ class SegmentedRegressionModel(object):
         value_counts = data[self.segmentation_col].value_counts()
 
         for x in unique:
-            if x not in self._group.models and value_counts[x] > self.min_segment_size:
+            if x not in self._group.models and \
+                    value_counts[x] > self.min_segment_size:
                 self.add_segment(x)
 
         return self._group.fit(data, debug=debug)
@@ -781,8 +784,10 @@ class SegmentedRegressionModel(object):
                 'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
             },
             'fitted': self.fitted,
-            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
-                       for name, m in self._group.models.items()}
+            'models': {
+                yamlio.to_scalar_safe(name):
+                    self._process_model_dict(m.to_dict())
+                for name, m in self._group.models.items()}
         }
 
     def to_yaml(self, str_or_buffer=None):
