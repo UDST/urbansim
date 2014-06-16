@@ -301,3 +301,22 @@ def test_transition_model(basic_df, grow_targets_filters, totals_col, year):
     assert added.isin(new.index).all()
     assert not added.isin(basic_df.index).any()
     npt.assert_array_equal(added.values, [basic_df.index.values.max() + 1])
+
+
+def test_tabular_transition_add_and_remove():
+    data = pd.DataFrame(
+        {'a': ['x', 'x', 'y', 'y', 'y', 'y', 'y', 'y', 'z', 'z']})
+
+    totals = pd.DataFrame(
+        {'a': ['x', 'y', 'z'],
+         'total': [3, 1, 10]},
+        index=[2112, 2112, 2112])
+
+    tran = transition.TabularTotalsTransition(totals, 'total')
+    model = transition.TransitionModel(tran)
+
+    new, added, _ = model.transition(data, 2112)
+
+    assert len(new) == totals.total.sum()
+    assert added.is_unique is True
+    assert new.index.is_unique is True

@@ -5,8 +5,6 @@ add or remove agents based on growth rates or target totals.
 """
 from __future__ import division
 
-import itertools
-
 import numpy as np
 import pandas as pd
 
@@ -264,7 +262,7 @@ class TabularGrowthRateTransition(object):
         copied_indexes = []
         removed_indexes = []
 
-        # since we're looping over descrete segments we need to track
+        # since we're looping over discrete segments we need to track
         # out here where their new indexes will begin
         starting_index = data.index.values.max() + 1
 
@@ -273,7 +271,9 @@ class TabularGrowthRateTransition(object):
             nrows = self._calc_nrows(len(subset), row[self._config_column])
             updated, added, copied, removed = \
                 add_or_remove_rows(subset, nrows, starting_index)
-            starting_index = starting_index + nrows + 1
+            if nrows > 0:
+                # only update the starting index if rows were added
+                starting_index = starting_index + nrows
             segments.append(updated)
             added_indexes.append(added)
             copied_indexes.append(copied)
