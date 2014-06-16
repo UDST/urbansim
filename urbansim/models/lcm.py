@@ -708,6 +708,14 @@ class SegmentedMNLLocationChoiceModel(object):
 
         unique = choosers[self.segmentation_col].unique()
 
+        # Remove any existing segments that may no longer have counterparts
+        # in the data. This can happen when loading a saved model and then
+        # calling this method with data that no longer has segments that
+        # were there the last time this was called.
+        gone = set(self._group.models) - set(unique)
+        for g in gone:
+            del self._group.models[g]
+
         for x in unique:
             if x not in self._group.models:
                 self.add_segment(x)

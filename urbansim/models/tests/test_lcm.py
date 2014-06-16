@@ -255,3 +255,18 @@ def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
 
     new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
     assert new_seg.fitted is True
+
+
+def test_segmented_lcm_removes_old_models(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('a')
+    group.add_segment('b')
+    group.add_segment('c')
+
+    group.fit(grouped_choosers, alternatives, 'thing_id')
+
+    assert sorted(group._group.models.keys()) == ['x', 'y']
