@@ -385,3 +385,15 @@ def test_SegmentedRegressionModel_yaml(groupby_df):
 
     new_seg = regression.SegmentedRegressionModel.from_yaml(seg.to_yaml())
     assert new_seg.fitted is True
+
+
+def test_SegmentedRegressionModel_removes_gone_segments(groupby_df):
+    seg = regression.SegmentedRegressionModel(
+        'group', default_model_expr='col1 ~ col2')
+    seg.add_segment('a')
+    seg.add_segment('b')
+    seg.add_segment('c')
+
+    seg.fit(groupby_df)
+
+    assert sorted(seg._group.models.keys()) == ['x', 'y']
