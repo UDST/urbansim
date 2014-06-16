@@ -194,12 +194,13 @@ def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
     sample_size = 4
 
     group = lcm.SegmentedMNLLocationChoiceModel(
-        'group', sample_size, default_model_expr=model_exp)
+        'group', sample_size, default_model_expr=model_exp, name='test_seg')
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
 
     expected_dict = {
         'model_type': 'segmented_locationchoice',
+        'name': 'test_seg',
         'segmentation_col': 'group',
         'sample_size': sample_size,
         'choosers_fit_filters': None,

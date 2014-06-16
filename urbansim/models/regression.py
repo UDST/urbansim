@@ -589,12 +589,16 @@ class SegmentedRegressionModel(object):
         the results reflect actual price.
 
         By default no transformation is applied.
+    min_segment_size : int, optional
+        Segments with less than this many members will be skipped.
+    name : str, optional
+        A name used in places to identify the model.
 
     """
     def __init__(
             self, segmentation_col, fit_filters=None, predict_filters=None,
             default_model_expr=None, default_ytransform=None,
-            min_segment_size=0):
+            min_segment_size=0, name=None):
         self.segmentation_col = segmentation_col
         self._group = RegressionModelGroup(segmentation_col)
         self.fit_filters = fit_filters
@@ -602,6 +606,7 @@ class SegmentedRegressionModel(object):
         self.default_model_expr = default_model_expr
         self.default_ytransform = default_ytransform
         self.min_segment_size = min_segment_size
+        self.name = name if name is not None else 'SegmentedRegressionModel'
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -629,7 +634,8 @@ class SegmentedRegressionModel(object):
         seg = cls(
             cfg['segmentation_col'], cfg['fit_filters'],
             cfg['predict_filters'], default_model_expr,
-            YTRANSFORM_MAPPING[default_ytransform])
+            YTRANSFORM_MAPPING[default_ytransform], cfg['min_segment_size'],
+            cfg['name'])
 
         if "models" not in cfg:
             cfg["models"] = {}
@@ -784,9 +790,11 @@ class SegmentedRegressionModel(object):
         """
         return {
             'model_type': 'segmented_regression',
+            'name': self.name,
             'segmentation_col': self.segmentation_col,
             'fit_filters': self.fit_filters,
             'predict_filters': self.predict_filters,
+            'min_segment_size': self.min_segment_size,
             'default_config': {
                 'model_expression': self.default_model_expr,
                 'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]

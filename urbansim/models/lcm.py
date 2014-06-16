@@ -566,6 +566,8 @@ class SegmentedMNLLocationChoiceModel(object):
         the alternatives index is used.
     default_model_expr : str, iterable, or dict, optional
         A patsy model expression. Should contain only a right-hand side.
+    name : str, optional
+        An optional string used to identify the model in places.
 
     """
     def __init__(self, segmentation_col, sample_size,
@@ -573,7 +575,7 @@ class SegmentedMNLLocationChoiceModel(object):
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
                  estimation_sample_size=None,
-                 choice_column=None, default_model_expr=None):
+                 choice_column=None, default_model_expr=None, name=None):
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
         self.choosers_fit_filters = choosers_fit_filters
@@ -585,6 +587,8 @@ class SegmentedMNLLocationChoiceModel(object):
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
         self._group = MNLLocationChoiceModelGroup(segmentation_col)
+        self.name = (name if name is not None else
+                     'SegmentedMNLLocationChoiceModel')
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -618,7 +622,8 @@ class SegmentedMNLLocationChoiceModel(object):
             cfg['interaction_predict_filters'],
             cfg['estimation_sample_size'],
             cfg['choice_column'],
-            default_model_expr)
+            default_model_expr,
+            cfg['name'])
 
         if "models" not in cfg:
             cfg["models"] = {}
@@ -802,6 +807,7 @@ class SegmentedMNLLocationChoiceModel(object):
         """
         return {
             'model_type': 'segmented_locationchoice',
+            'name': self.name,
             'segmentation_col': self.segmentation_col,
             'sample_size': self.sample_size,
             'choosers_fit_filters': self.choosers_fit_filters,

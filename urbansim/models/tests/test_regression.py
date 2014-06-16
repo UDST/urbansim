@@ -320,15 +320,18 @@ def test_SegmentedRegressionModel_explicit(groupby_df):
 def test_SegmentedRegressionModel_yaml(groupby_df):
     seg = regression.SegmentedRegressionModel(
         'group', fit_filters=['col1 not in [2]'],
-        predict_filters=['group != "z"'], default_model_expr='col1 ~ col2')
+        predict_filters=['group != "z"'], default_model_expr='col1 ~ col2',
+        min_segment_size=5000, name='test_seg')
     seg.add_segment('x')
     seg.add_segment('y', 'np.exp(col2) ~ np.exp(col1)', np.log)
 
     expected_dict = {
         'model_type': 'segmented_regression',
+        'name': 'test_seg',
         'segmentation_col': 'group',
         'fit_filters': ['col1 not in [2]'],
         'predict_filters': ['group != "z"'],
+        'min_segment_size': 5000,
         'default_config': {
             'model_expression': 'col1 ~ col2',
             'ytransform': None
