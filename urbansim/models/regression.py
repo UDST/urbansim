@@ -311,7 +311,8 @@ class RegressionModel(object):
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
-            df = pd.DataFrame(fit.model.exog, columns=fit.model.exog_names, index=data.index)
+            df = pd.DataFrame(
+                fit.model.exog, columns=fit.model.exog_names, index=data.index)
             df[fit.model.endog_names] = fit.model.endog
             df["fittedvalues"] = fit.fittedvalues
             df["residuals"] = fit.resid
@@ -588,11 +589,16 @@ class SegmentedRegressionModel(object):
         the results reflect actual price.
 
         By default no transformation is applied.
+    min_segment_size : int, optional
+        Segments with less than this many members will be skipped.
+    name : str, optional
+        A name used in places to identify the model.
 
     """
     def __init__(
             self, segmentation_col, fit_filters=None, predict_filters=None,
-            default_model_expr=None, default_ytransform=None, min_segment_size=0):
+            default_model_expr=None, default_ytransform=None,
+            min_segment_size=0, name=None):
         self.segmentation_col = segmentation_col
         self._group = RegressionModelGroup(segmentation_col)
         self.fit_filters = fit_filters
@@ -600,6 +606,7 @@ class SegmentedRegressionModel(object):
         self.default_model_expr = default_model_expr
         self.default_ytransform = default_ytransform
         self.min_segment_size = min_segment_size
+        self.name = name if name is not None else 'SegmentedRegressionModel'
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -627,7 +634,8 @@ class SegmentedRegressionModel(object):
         seg = cls(
             cfg['segmentation_col'], cfg['fit_filters'],
             cfg['predict_filters'], default_model_expr,
-            YTRANSFORM_MAPPING[default_ytransform])
+            YTRANSFORM_MAPPING[default_ytransform], cfg['min_segment_size'],
+            cfg['name'])
 
         if "models" not in cfg:
             cfg["models"] = {}
@@ -702,8 +710,17 @@ class SegmentedRegressionModel(object):
         unique = data[self.segmentation_col].unique()
         value_counts = data[self.segmentation_col].value_counts()
 
+        # Remove any existing segments that may no longer have counterparts
+        # in the data. This can happen when loading a saved model and then
+        # calling this method with data that no longer has segments that
+        # were there the last time this was called.
+        gone = set(self._group.models) - set(unique)
+        for g in gone:
+            del self._group.models[g]
+
         for x in unique:
-            if x not in self._group.models and value_counts[x] > self.min_segment_size:
+            if x not in self._group.models and \
+                    value_counts[x] > self.min_segment_size:
                 self.add_segment(x)
 
         return self._group.fit(data, debug=debug)
@@ -773,16 +790,20 @@ class SegmentedRegressionModel(object):
         """
         return {
             'model_type': 'segmented_regression',
+            'name': self.name,
             'segmentation_col': self.segmentation_col,
             'fit_filters': self.fit_filters,
             'predict_filters': self.predict_filters,
+            'min_segment_size': self.min_segment_size,
             'default_config': {
                 'model_expression': self.default_model_expr,
                 'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
             },
             'fitted': self.fitted,
-            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
-                       for name, m in self._group.models.items()}
+            'models': {
+                yamlio.to_scalar_safe(name):
+                    self._process_model_dict(m.to_dict())
+                for name, m in self._group.models.items()}
         }
 
     def to_yaml(self, str_or_buffer=None):
