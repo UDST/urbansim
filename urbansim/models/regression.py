@@ -153,7 +153,7 @@ class _FakeRegressionResults(object):
 
         """
         model_design = dmatrix(self._rhs, data=data, return_type='dataframe')
-        return model_design.dot(self.params.loc[model_design.columns]).values
+        return model_design.dot(self.params).values
 
 
 def _model_fit_to_table(fit):

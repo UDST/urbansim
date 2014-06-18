@@ -85,7 +85,6 @@ class CustomDataFrame(object):
         return self.dset.fetch(self.name)
 
     def build_df(obj, flds=None):
-        flds = None
         if flds is None:
             if obj.flds is None:
                 return obj.df
@@ -126,7 +125,7 @@ def variable(func):
         except Exception as e:
             print "Variable computation failed!!"
             print s
-            print e, "\n\n\n"
+            raise e
 
         r[np.isinf(r)] = np.nan
 

@@ -531,7 +531,7 @@ class SqFtProForma:
         resratio = c.res_ratios[form]
         nonresratio = 1.0 - resratio
         outdf["residential_sqft"] = outdf.building_sqft * c.building_efficiency * resratio
-        outdf["non_residential_sqft"] = outdf.building_sqft * c.building_efficiency * nonresratio
+        outdf["non_residential_sqft"] = outdf.building_sqft * nonresratio
         outdf["stories"] = outdf["max_profit_far"] / c.parcel_coverage
 
         return outdf
