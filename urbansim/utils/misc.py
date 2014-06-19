@@ -53,6 +53,14 @@ def maps_dir():
     return _mkifnotexists("web/maps")
 
 
+def simulations_dir():
+    """
+    Return the directory for the simulation configuration files (used by the
+    website).
+    """
+    return _mkifnotexists("web/simulations")
+
+
 def reports_dir():
     """
     Return the directory for the report configuration files (used by the
