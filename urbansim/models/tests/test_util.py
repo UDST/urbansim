@@ -71,6 +71,16 @@ def test_apply_filter_query_no_filter(test_df):
     pdt.assert_frame_equal(filtered, expected)
 
 
+def test_apply_filter_query_str(test_df):
+    filters = 'col1 < 3'
+    filtered = util.apply_filter_query(test_df, filters)
+    expected = pd.DataFrame(
+        {'col1': [0, 1, 2],
+         'col2': [5, 6, 7]},
+        index=['a', 'b', 'c'])
+    pdt.assert_frame_equal(filtered, expected)
+
+
 @pytest.mark.parametrize('name, val, filter_exp', [
     ('x', 1, 'x == 1'),
     ('x', 'a', "x == 'a'"),

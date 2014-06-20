@@ -587,6 +587,8 @@ class SegmentedMNLLocationChoiceModel(object):
         the alternatives index is used.
     default_model_expr : str, iterable, or dict, optional
         A patsy model expression. Should contain only a right-hand side.
+    name : str, optional
+        An optional string used to identify the model in places.
 
     """
     def __init__(self, segmentation_col, sample_size,
@@ -594,7 +596,7 @@ class SegmentedMNLLocationChoiceModel(object):
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
                  estimation_sample_size=None,
-                 choice_column=None, default_model_expr=None):
+                 choice_column=None, default_model_expr=None, name=None):
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
         self.choosers_fit_filters = choosers_fit_filters
@@ -606,6 +608,8 @@ class SegmentedMNLLocationChoiceModel(object):
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
         self._group = MNLLocationChoiceModelGroup(segmentation_col)
+        self.name = (name if name is not None else
+                     'SegmentedMNLLocationChoiceModel')
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -639,7 +643,8 @@ class SegmentedMNLLocationChoiceModel(object):
             cfg['interaction_predict_filters'],
             cfg['estimation_sample_size'],
             cfg['choice_column'],
-            default_model_expr)
+            default_model_expr,
+            cfg['name'])
 
         if "models" not in cfg:
             cfg["models"] = {}
@@ -728,6 +733,14 @@ class SegmentedMNLLocationChoiceModel(object):
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
 
         unique = choosers[self.segmentation_col].unique()
+
+        # Remove any existing segments that may no longer have counterparts
+        # in the data. This can happen when loading a saved model and then
+        # calling this method with data that no longer has segments that
+        # were there the last time this was called.
+        gone = set(self._group.models) - set(unique)
+        for g in gone:
+            del self._group.models[g]
 
         for x in unique:
             if x not in self._group.models:
@@ -823,6 +836,7 @@ class SegmentedMNLLocationChoiceModel(object):
         """
         return {
             'model_type': 'segmented_locationchoice',
+            'name': self.name,
             'segmentation_col': self.segmentation_col,
             'sample_size': self.sample_size,
             'choosers_fit_filters': self.choosers_fit_filters,
@@ -836,8 +850,11 @@ class SegmentedMNLLocationChoiceModel(object):
                 'model_expression': self.default_model_expr,
             },
             'fitted': self.fitted,
-            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
-                       for name, m in self._group.models.items()}
+            'models': {
+                yamlio.to_scalar_safe(name):
+                    self._process_model_dict(m.to_dict())
+                for name, m in self._group.models.items()
+            }
         }
 
     def to_yaml(self, str_or_buffer=None):
