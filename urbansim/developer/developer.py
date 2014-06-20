@@ -14,7 +14,7 @@ class Developer:
     def max_form(f, colname):
         """
         Assumes dataframe with hierarchical columns with first index equal to the
-        use and second index equal to the attribtue
+        use and second index equal to the attribute
 
         e.g. f.columns equal to:
         mixedoffice   building_cost
@@ -33,17 +33,26 @@ class Developer:
         df = f.stack(level=0)[[colname]].stack().unstack(level=1).reset_index(level=1, drop=True)
         return df.idxmax(axis=1)
 
-    def keep_form_with_max_profit(self):
+    def keep_form_with_max_profit(self, forms=None):
         """
         This converts the dataframe, which shows all profitable forms,
         to the form with the greatest profit, so that more profitable
         forms outcompete less profitable forms.
+
+        Parameters
+        ----------
+        forms: list of strings
+            List of forms which compete which other.  Can leave some out.
         """
-        f = self.dset.feasibility
+        f = self.feasibility
+
+        if forms is not None:
+            f = f[forms]
+
         mu = self.max_form(f, "max_profit")
         indexes = [tuple(x) for x in mu.reset_index().values]
         df = f.stack(level=0).loc[indexes]
-        df.index.names = ["parcel_id", "use"]
+        df.index.names = ["parcel_id", "form"]
         df = df.reset_index(level=1)
         return df
 
@@ -67,23 +76,25 @@ class Developer:
         print "Number of agent spaces: %d" % num_units
         assert target_vacancy < 1.0
         target_units = max(num_agents / (1 - target_vacancy) - num_units, 0)
-        print "Current vacancy = %.2f" % (1 - num_agents / num_units)
+        print "Current vacancy = %.2f" % (1 - num_agents / float(num_units))
         print "Target vacancy = %.2f, target of new units = %d" % (target_vacancy, target_units)
         return target_units
 
     def pick(self, form, target_units, parcel_size, ave_unit_size,
              current_units, max_parcel_size=200000, min_unit_size=400,
-             drop_after_build=True):
+             drop_after_build=True, residential=True):
         """
         Choose the buildings from the list that are feasible to build in
         order to match the specified demand.
 
         Parameters
         ----------
-        form : string
-            One of the building forms from the pro forma specification -
+        form : string or list
+            One or more of the building forms from the pro forma specification -
             e.g. "residential" or "mixedresidential" - these are configuration
-            parameters pass previously to the pro forma.
+            parameters passed previously to the pro forma.  If more than one form
+            is passed the forms compete with each other (based on profitability)
+            for which one gets built in order to meet demand.
         target_units : int
             The number of units to build.  For non-residential buildings this
             should be passed as the number of job spaces that need to be created.
@@ -110,22 +121,31 @@ class Developer:
             Whether or not to drop parcels from consideration after they
             have been chosen for development.  Usually this is true so as
             to not develop the same parcel twice.
+        residential: bool
+            If creating non-residential buildings set this to false and developer
+            will fill in non_residential_units rather than residential_units
         """
 
-        df = self.feasibility[form]
+        if isinstance(form, list):
+            df = self.keep_form_with_max_profit(form)
+        else:
+            df = self.feasibility[form]
 
         # feasible buildings only for this building type
         df = df[df.max_profit_far > 0]
         df["parcel_size"] = parcel_size
         df = df[df.parcel_size < max_parcel_size]
-        df['new_sqft'] = df.parcel_size * df.max_profit_far
         ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
-        df['new_units'] = np.round(df.new_sqft / ave_unit_size)
         df['current_units'] = current_units
-        df['net_units'] = df.new_units - df.current_units
+        if residential:
+            df['residential_units'] = np.round(df.building_sqft / ave_unit_size)
+            df['net_units'] = df.residential_units - df.current_units
+        else:
+            df['non_residential_units'] = np.round(df.building_sqft / ave_unit_size)
+            df['net_units'] = df.non_residential_units - df.current_units
         df = df[df.net_units > 0]
 
-        print "Describe of net units\n", df.net_units.describe()
+        # print "Describe of net units\n", df.net_units.describe()
         print "Sum of net units that are profitable", df.net_units.sum()
         if df.net_units.sum() < target_units:
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO MATCH DEMAND"
@@ -155,6 +175,5 @@ class Developer:
         maxind = np.max(old_df.index.values)
         new_df.index = new_df.index + maxind + 1
         concat_df = pd.concat([old_df, new_df], verify_integrity=True)
-        print concat_df.index.name
         concat_df.index.name = 'building_id'
         return concat_df

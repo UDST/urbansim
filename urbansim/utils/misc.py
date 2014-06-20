@@ -53,6 +53,14 @@ def maps_dir():
     return _mkifnotexists("web/maps")
 
 
+def simulations_dir():
+    """
+    Return the directory for the simulation configuration files (used by the
+    website).
+    """
+    return _mkifnotexists("web/simulations")
+
+
 def reports_dir():
     """
     Return the directory for the report configuration files (used by the
@@ -166,12 +174,12 @@ naics_d = {
     21: 'Mining',
     22: 'Utilities',
     23: 'Construction',
-    31: 'Manufacturing',
-    32: 'Manufacturing',
-    33: 'Manufacturing',
+    31: 'Manufacturing1',
+    32: 'Manufacturing2',
+    33: 'Manufacturing3',
     42: 'Wholesale',
-    44: 'Retail',
-    45: 'Retail',
+    44: 'Retail1',
+    45: 'Retail2',
     48: 'Transportation',
     49: 'Warehousing',
     51: 'Information',

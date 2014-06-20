@@ -21,8 +21,8 @@ def hedonic_estimate(df, cfgname):
     model_type = yaml.load(open(cfg))["model_type"]
     if model_type == "regression":
         hm = RegressionModel.from_yaml(str_or_buffer=cfg)
-        print hm.fit(df).summary()
-        est_data = hm.est_data
+        print hm.fit(df, debug=True).summary()
+        est_data = {"est_data": hm.est_data}
     if model_type == "segmented_regression":
         hm = SegmentedRegressionModel.from_yaml(str_or_buffer=cfg)
         hm.min_segment_size = 10
@@ -162,16 +162,33 @@ def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
     print "Running location choice model simulation\n"
     cfg = misc.config(cfgname)
     model_type = yaml.load(open(cfg))["model_type"]
+
     if model_type == "locationchoice":
         lcm = MNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
     elif model_type == "segmented_locationchoice":
         lcm = SegmentedMNLLocationChoiceModel.from_yaml(str_or_buffer=cfg)
+
     movers = choosers[choosers[output_fname].isnull()]
-    new_units = lcm.predict(movers, locations)
+
+    new_units = lcm.predict(movers, locations, debug=True)
     print "Assigned %d choosers to new units" % len(new_units.index)
+    if len(new_units) == 0:
+        return
     outdf[output_fname].loc[new_units.index] = \
         locations.loc[new_units.values][output_fname].values
     _print_number_unplaced(outdf, output_fname)
+
+    if model_type == "locationchoice":
+        sim_pdf = {"sim_pdf": lcm.sim_pdf}
+    elif model_type == "segmented_locationchoice":
+        sim_pdf = {name: lcm._group.models[name].sim_pdf for name in lcm._group.models}
+
+    # go back to the buildings from units
+    sim_pdf = pd.concat(sim_pdf.values(), keys=sim_pdf.keys(), axis=1)
+    sim_pdf.index = locations.loc[sim_pdf.index][output_fname].values
+    sim_pdf = sim_pdf.groupby(level=0).first()
+
+    return sim_pdf
 
 
 def simple_relocation(choosers, relocation_rate, fieldname='building_id'):
@@ -189,8 +206,8 @@ def simple_relocation(choosers, relocation_rate, fieldname='building_id'):
     """
     print "Running relocation\n"
     _print_number_unplaced(choosers, fieldname)
-    chooser_ids = np.random.choice(choosers.index, size=relocation_rate *
-                                   len(choosers.index), replace=False)
+    chooser_ids = np.random.choice(choosers.index, size=int(relocation_rate *
+                                   len(choosers)), replace=False)
     choosers[fieldname].loc[chooser_ids] = np.nan
     _print_number_unplaced(choosers, fieldname)
 

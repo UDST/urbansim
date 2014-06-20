@@ -86,9 +86,12 @@ class CustomDataFrame(object):
 
     def build_df(obj, flds=None):
         if flds is None:
-            flds = obj.flds
+            if obj.flds is None:
+                return obj.df
+            else:
+                flds = obj.flds
         columns = [getattr(obj, fld) for fld in flds]
-        df = pd.concat(columns, axis=1)
+        df = pd.concat(columns, axis=1, verify_integrity=True)
         df.columns = flds
         return df
 
@@ -122,7 +125,7 @@ def variable(func):
         except Exception as e:
             print "Variable computation failed!!"
             print s
-            print e, "\n\n\n"
+            raise e
 
         r[np.isinf(r)] = np.nan
 

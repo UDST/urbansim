@@ -124,6 +124,7 @@ class MNLLocationChoiceModel(object):
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.name = name if name is not None else 'MNLLocationChoiceModel'
+        self.sim_pdf = None
 
         self.log_likelihoods = None
         self.fit_parameters = None
@@ -271,7 +272,7 @@ class MNLLocationChoiceModel(object):
 
         print(tbl)
 
-    def predict(self, choosers, alternatives):
+    def predict(self, choosers, alternatives, debug=False):
         """
         Choose from among alternatives for a group of agents.
 
@@ -283,6 +284,10 @@ class MNLLocationChoiceModel(object):
             agent probabilities of choosing alternatives.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
+        debug : bool
+            If debug is set to true, well set the variable "sim_pdf" on
+            the object to store the probabilities for mapping of the
+            outcome.
 
         Returns
         -------
@@ -299,21 +304,32 @@ class MNLLocationChoiceModel(object):
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
 
+        if len(choosers) == 0:
+            return pd.Series()
+
         # TODO: only using 1st item in choosers for determining probabilities.
         # Need to expand options around this.
+        num_choosers = 1
         _, merged, _ = interaction.mnl_interaction_dataset(
-            choosers.head(1), alternatives, len(alternatives))
+            choosers.head(num_choosers), alternatives, len(alternatives))
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
 
+        coeffs = [self.fit_parameters['Coefficient'][x] for x in model_design.columns]
+
         # probabilities are returned from mnl_simulate as a 2d array
         # and need to be flatted for use in unit_choice.
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
-            self.fit_parameters['Coefficient'].values,
+            coeffs,
             numalts=len(merged), returnprobs=True).flatten()
+
+        if debug:
+            # when we're not doing 1st item of choosers, this will break!
+            assert num_choosers == 1
+            self.sim_pdf = pd.Series(probabilities, index=alternatives.index)
 
         # figure out exactly which things from which choices are drawn
         alt_choices = (
@@ -460,8 +476,9 @@ class MNLLocationChoiceModelGroup(object):
         """
         groups = data.groupby(self.segmentation_col)
 
-        for name in self.models:
-            yield name, groups.get_group(name)
+        for name, group in groups:
+            print("Returning group %s" % str(name))
+            yield name, group
 
     def fit(self, choosers, alternatives, current_choice):
         """
@@ -500,7 +517,7 @@ class MNLLocationChoiceModelGroup(object):
         return (all(m.fitted for m in self.models.values())
                 if self.models else False)
 
-    def predict(self, choosers, alternatives):
+    def predict(self, choosers, alternatives, debug=False):
         """
         Choose from among alternatives for a group of agents after
         segmenting the `choosers` table.
@@ -514,6 +531,10 @@ class MNLLocationChoiceModelGroup(object):
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
+        debug : bool
+            If debug is set to true, well set the variable "sim_pdf" on
+            the object to store the probabilities for mapping of the
+            outcome.
 
         Returns
         -------
@@ -526,7 +547,7 @@ class MNLLocationChoiceModelGroup(object):
         results = []
 
         for name, df in self._iter_groups(choosers):
-            choices = self.models[name].predict(df, alternatives)
+            choices = self.models[name].predict(df, alternatives, debug=debug)
             # remove chosen alternatives
             alternatives = alternatives.loc[~alternatives.index.isin(choices)]
             results.append(choices)
@@ -738,7 +759,7 @@ class SegmentedMNLLocationChoiceModel(object):
         """
         return self._group.fitted
 
-    def predict(self, choosers, alternatives):
+    def predict(self, choosers, alternatives, debug=False):
         """
         Choose from among alternatives for a group of agents after
         segmenting the `choosers` table.
@@ -752,6 +773,10 @@ class SegmentedMNLLocationChoiceModel(object):
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
+        debug : bool
+            If debug is set to true, well set the variable "sim_pdf" on
+            the object to store the probabilities for mapping of the
+            outcome.
 
         Returns
         -------
@@ -765,7 +790,11 @@ class SegmentedMNLLocationChoiceModel(object):
             choosers, self.choosers_predict_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
-        return self._group.predict(choosers, alternatives)
+
+        if len(choosers) == 0:
+            return pd.Series()
+
+        return self._group.predict(choosers, alternatives, debug=debug)
 
     def _process_model_dict(self, d):
         """

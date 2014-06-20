@@ -311,6 +311,7 @@ class RegressionModel(object):
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
+            index = util.apply_filter_query(data, self.fit_filters).index
             df = pd.DataFrame(
                 fit.model.exog, columns=fit.model.exog_names, index=data.index)
             df[fit.model.endog_names] = fit.model.endog

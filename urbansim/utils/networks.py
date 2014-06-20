@@ -10,14 +10,14 @@ import pandas as pd
 from . import misc
 from ..models import util
 
-NETWORKS = None
-
 
 def from_yaml(dset, cfgname):
     print "Computing accessibility variables"
     cfg = yaml.load(open(misc.config(cfgname)))
 
-    nodes = pd.DataFrame(index=NETWORKS.external_nodeids)
+    nodes = pd.DataFrame(index=dset.NETWORKS.external_nodeids)
+
+    node_col = cfg.get('node_col', None)
 
     for variable in cfg['variable_definitions']:
 
@@ -41,20 +41,32 @@ def from_yaml(dset, cfgname):
         radius = variable["radius"]
 
         dfname = variable["dataframe"]
-        df = dset.view(dfname).build_df()
+
+        flds = [vname] if vname else []
+        if 'add_fields' in variable:
+            flds += variable['add_fields']
+        if node_col:
+            flds.append(node_col)
+        print "    Fields available to accvar =", ', '.join(flds)
+
+        df = dset.view(dfname).build_df(flds)
 
         if "filters" in variable:
-            util.apply_filter_query(df, variable["filters"])
+            df = util.apply_filter_query(df, variable["filters"])
+            print "    Filters = %s" % variable["filters"]
 
         print "    dataframe = %s, varname=%s" % (dfname, vname)
         print "    radius = %s, aggregation = %s, decay = %s" % (
             radius, agg, decay)
 
-        nodes[name] = NETWORKS.accvar(
-            df, radius, agg=agg, decay=decay, vname=vname).astype('float').values
+        nodes[name] = dset.NETWORKS.accvar(
+            df, radius, node_ids=node_col, agg=agg, decay=decay,
+            vname=vname).astype('float').values
 
         if "apply" in variable:
             nodes[name] = nodes[name].apply(eval(variable["apply"]))
+
+    print "Done"
 
     return nodes
 
@@ -109,9 +121,15 @@ class Networks:
             for gno in range(pya.numgraphs):
                 node_ids.append(pya.XYtoNode(xys, distance=1000, gno=gno))
         if isinstance(node_ids, str):
-            node_ids = [df[node_ids].values]
+            l = len(df)
+            df = df.dropna(subset=[node_ids])
+            newl = len(df)
+            if newl-l > 0:
+                print "Removed %d rows because there are no node_ids" % (newl-l)
+            node_ids = [df[node_ids].astype("int32").values]
         elif not isinstance(node_ids, list):
             node_ids = [node_ids]
+
         pya.initializeAccVars(1)
         num = 0
         aggvar = df[vname].astype('float32') if vname is not None else np.ones(
