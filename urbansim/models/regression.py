@@ -313,7 +313,7 @@ class RegressionModel(object):
         if debug:
             index = util.apply_filter_query(data, self.fit_filters).index
             df = pd.DataFrame(
-                fit.model.exog, columns=fit.model.exog_names, index=data.index)
+                fit.model.exog, columns=fit.model.exog_names, index=index)
             df[fit.model.endog_names] = fit.model.endog
             df["fittedvalues"] = fit.fittedvalues
             df["residuals"] = fit.resid
