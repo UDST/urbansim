@@ -503,7 +503,8 @@ class MNLLocationChoiceModelGroup(object):
         groups = data.groupby(self.segmentation_col)
 
         for name, group in groups:
-            print("Returning group %s" % str(name))
+            logger.debug(
+                'returning group {} in LCM group {}'.format(name, self.name))
             yield name, group
 
     def fit(self, choosers, alternatives, current_choice):
