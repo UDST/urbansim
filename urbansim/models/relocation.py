@@ -3,10 +3,14 @@ Use the ``RelocationModel`` class to choose movers based on
 relocation rates.
 
 """
+import logging
+
 import numpy as np
 import pandas as pd
 
 from . import util
+
+logger = logging.getLogger(__name__)
 
 
 def find_movers(choosers, rates, rate_column):
@@ -48,6 +52,7 @@ def find_movers(choosers, rates, rate_column):
         Suitable for indexing `choosers` by index.
 
     """
+    logger.debug('start: find movers for relocation')
     relocation_rates = pd.Series(
         np.zeros(len(choosers)), index=choosers.index)
 
@@ -57,6 +62,8 @@ def find_movers(choosers, rates, rate_column):
 
     movers = relocation_rates.index[
         relocation_rates > np.random.random(len(choosers))]
+    logger.debug('picked {} movers for relocation'.format(len(movers)))
+    logger.debug('finish: find movers for relocation')
     return movers
 
 

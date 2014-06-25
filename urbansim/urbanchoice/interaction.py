@@ -4,6 +4,7 @@ the alternatives from which they are choosing.
 Used for location choice models.
 
 """
+import logging
 import random
 import sys
 import time
@@ -15,7 +16,8 @@ import mnl
 import nl
 import pmat
 
-GPU = 0
+logger = logging.getLogger(__name__)
+GPU = False
 
 
 def enable_gpu():
@@ -38,6 +40,10 @@ def add_fnames(fnames, est_params):
 # and simulation.
 def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
                             chosenalts=None):
+    logger.debug((
+        'start: compute MNL interaction dataset with {} choosers, '
+        '{} alternatives, and sample_size={}'
+        ).format(len(choosers), len(alternatives), SAMPLE_SIZE))
     # filter choosers and their current choices if they point to
     # something that isn't in the alternatives table
     if chosenalts is not None:
@@ -47,10 +53,10 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
         except:
             removing = None
         if removing:
-            print (
+            logger.info((
                 "Removing {} choice situations because chosen "
                 "alt doesn't exist"
-            ).format(removing)
+            ).format(removing))
             choosers = choosers[isin]
             chosenalts = chosenalts[isin]
 
@@ -100,6 +106,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     chosen = np.zeros((numchoosers, SAMPLE_SIZE))
     chosen[:, 0] = 1
 
+    logger.debug('finish: compute MNL interaction dataset')
     return sample, alts_sample, chosen
 
 
