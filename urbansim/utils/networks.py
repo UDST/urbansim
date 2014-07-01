@@ -10,12 +10,13 @@ import pandas as pd
 from . import misc
 from ..models import util
 
+NETWORKS = None
 
 def from_yaml(dset, cfgname):
     print "Computing accessibility variables"
     cfg = yaml.load(open(misc.config(cfgname)))
 
-    nodes = pd.DataFrame(index=dset.NETWORKS.external_nodeids)
+    nodes = pd.DataFrame(index=NETWORKS.external_nodeids)
 
     node_col = cfg.get('node_col', None)
 
@@ -59,7 +60,7 @@ def from_yaml(dset, cfgname):
         print "    radius = %s, aggregation = %s, decay = %s" % (
             radius, agg, decay)
 
-        nodes[name] = dset.NETWORKS.accvar(
+        nodes[name] = NETWORKS.accvar(
             df, radius, node_ids=node_col, agg=agg, decay=decay,
             vname=vname).astype('float').values
 

@@ -5,6 +5,8 @@ multinomial logit and make subsequent choice predictions.
 """
 from __future__ import print_function, division
 
+import logging
+
 import numpy as np
 import pandas as pd
 from patsy import dmatrix
@@ -13,6 +15,9 @@ from prettytable import PrettyTable
 from . import util
 from ..urbanchoice import interaction, mnl
 from ..utils import yamlio
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 
 def unit_choice(chooser_ids, alternative_ids, probabilities):
@@ -44,6 +49,10 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
     alternative_ids = np.asanyarray(alternative_ids)
     probabilities = np.asanyarray(probabilities)
 
+    logger.debug(
+        'start: unit choice with {} choosers and {} alternatives'.format(
+            len(chooser_ids), len(alternative_ids)))
+
     choices = pd.Series([np.nan] * len(chooser_ids), index=chooser_ids)
 
     if probabilities.sum() == 0:
@@ -69,6 +78,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
 
     choices[chooser_ids] = chosen
 
+    logger.debug('finish: unit choice')
     return choices
 
 
@@ -168,6 +178,7 @@ class MNLLocationChoiceModel(object):
         if cfg.get('fit_parameters', None):
             model.fit_parameters = pd.DataFrame(cfg['fit_parameters'])
 
+        logger.debug('loaded LCM model {} from YAML'.format(model.name))
         return model
 
     @property
@@ -204,6 +215,8 @@ class MNLLocationChoiceModel(object):
             model fit. Will have keys 'null', 'convergence', and 'ratio'.
 
         """
+        logger.debug('start: fit LCM model {}'.format(self.name))
+
         if not isinstance(current_choice, pd.Series):
             current_choice = choosers[current_choice]
 
@@ -216,8 +229,10 @@ class MNLLocationChoiceModel(object):
                 replace=False)]
 
         current_choice = current_choice.loc[choosers.index]
+
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
+
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
@@ -225,6 +240,8 @@ class MNLLocationChoiceModel(object):
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
         self.fit_parameters.index = model_design.columns
+
+        logger.debug('finish: fit LCM model {}'.format(self.name))
         return self.log_likelihoods
 
     @property
@@ -298,6 +315,7 @@ class MNLLocationChoiceModel(object):
 
         """
         self.assert_fitted()
+        logger.debug('start: predict LCM model {}'.format(self.name))
 
         choosers = util.apply_filter_query(
             choosers, self.choosers_predict_filters)
@@ -317,7 +335,8 @@ class MNLLocationChoiceModel(object):
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
 
-        coeffs = [self.fit_parameters['Coefficient'][x] for x in model_design.columns]
+        coeffs = [self.fit_parameters['Coefficient'][x]
+                  for x in model_design.columns]
 
         # probabilities are returned from mnl_simulate as a 2d array
         # and need to be flatted for use in unit_choice.
@@ -335,8 +354,10 @@ class MNLLocationChoiceModel(object):
         alt_choices = (
             merged[self.choice_column] if self.choice_column else merged.index)
 
-        return unit_choice(
+        result = unit_choice(
             choosers.index, alt_choices, probabilities)
+        logger.debug('finish: predict LCM model {}'.format(self.name))
+        return result
 
     def to_dict(self):
         """
@@ -380,6 +401,7 @@ class MNLLocationChoiceModel(object):
             YAML is string if `str_or_buffer` is not given.
 
         """
+        logger.debug('serializing LCM model {} to YAML'.format(self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
 
@@ -397,8 +419,9 @@ class MNLLocationChoiceModelGroup(object):
         a pandas groupby on the choosers table.
 
     """
-    def __init__(self, segmentation_col):
+    def __init__(self, segmentation_col, name=None):
         self.segmentation_col = segmentation_col
+        self.name = name if name is not None else 'MNLLocationChoiceModelGroup'
         self.models = {}
 
     def add_model(self, model):
@@ -412,6 +435,8 @@ class MNLLocationChoiceModelGroup(object):
             in the choosers table.
 
         """
+        logger.debug(
+            'adding model {} to LCM group {}'.format(model.name, self.name))
         self.models[model.name] = model
 
     def add_model_from_params(
@@ -452,6 +477,7 @@ class MNLLocationChoiceModelGroup(object):
             the alternatives index is used.
 
         """
+        logger.debug('adding model {} to LCM group {}'.format(name, self.name))
         self.models[name] = MNLLocationChoiceModel(
             model_expression, sample_size,
             choosers_fit_filters, choosers_predict_filters,
@@ -477,7 +503,8 @@ class MNLLocationChoiceModelGroup(object):
         groups = data.groupby(self.segmentation_col)
 
         for name, group in groups:
-            print("Returning group %s" % str(name))
+            logger.debug(
+                'returning group {} in LCM group {}'.format(name, self.name))
             yield name, group
 
     def fit(self, choosers, alternatives, current_choice):
@@ -505,7 +532,10 @@ class MNLLocationChoiceModelGroup(object):
             log-liklihood values as returned by MNLLocationChoiceModel.fit.
 
         """
-        return {name: self.models[name].fit(df, alternatives, current_choice)
+        with log_start_finish(
+                'fit models in LCM group {}'.format(self.name), logger):
+            return {
+                name: self.models[name].fit(df, alternatives, current_choice)
                 for name, df in self._iter_groups(choosers)}
 
     @property
@@ -544,6 +574,7 @@ class MNLLocationChoiceModelGroup(object):
             for all the choosers.
 
         """
+        logger.debug('start: predict models in LCM group {}'.format(self.name))
         results = []
 
         for name, df in self._iter_groups(choosers):
@@ -552,7 +583,9 @@ class MNLLocationChoiceModelGroup(object):
             alternatives = alternatives.loc[~alternatives.index.isin(choices)]
             results.append(choices)
 
-        return pd.concat(results)
+        logger.debug(
+            'finish: predict models in LCM group {}'.format(self.name))
+        return pd.concat(results) if results else pd.Series()
 
 
 class SegmentedMNLLocationChoiceModel(object):
@@ -587,6 +620,8 @@ class SegmentedMNLLocationChoiceModel(object):
         the alternatives index is used.
     default_model_expr : str, iterable, or dict, optional
         A patsy model expression. Should contain only a right-hand side.
+    name : str, optional
+        An optional string used to identify the model in places.
 
     """
     def __init__(self, segmentation_col, sample_size,
@@ -594,7 +629,7 @@ class SegmentedMNLLocationChoiceModel(object):
                  alts_fit_filters=None, alts_predict_filters=None,
                  interaction_predict_filters=None,
                  estimation_sample_size=None,
-                 choice_column=None, default_model_expr=None):
+                 choice_column=None, default_model_expr=None, name=None):
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
         self.choosers_fit_filters = choosers_fit_filters
@@ -606,6 +641,8 @@ class SegmentedMNLLocationChoiceModel(object):
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
         self._group = MNLLocationChoiceModelGroup(segmentation_col)
+        self.name = (name if name is not None else
+                     'SegmentedMNLLocationChoiceModel')
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
@@ -639,7 +676,8 @@ class SegmentedMNLLocationChoiceModel(object):
             cfg['interaction_predict_filters'],
             cfg['estimation_sample_size'],
             cfg['choice_column'],
-            default_model_expr)
+            default_model_expr,
+            cfg['name'])
 
         if "models" not in cfg:
             cfg["models"] = {}
@@ -661,6 +699,8 @@ class SegmentedMNLLocationChoiceModel(object):
                 yamlio.convert_to_yaml(m, None))
             seg._group.add_model(model)
 
+        logger.debug(
+            'loaded segmented LCM model {} from YAML'.format(seg.name))
         return seg
 
     def add_segment(self, name, model_expression=None):
@@ -678,6 +718,8 @@ class SegmentedMNLLocationChoiceModel(object):
             None.
 
         """
+        logger.debug('adding LCM model {} to segmented model {}'.format(
+            name, self.name))
         if not model_expression:
             if not self.default_model_expr:
                 raise ValueError(
@@ -725,9 +767,18 @@ class SegmentedMNLLocationChoiceModel(object):
             log-liklihood values as returned by MNLLocationChoiceModel.fit.
 
         """
+        logger.debug('start: fit models in segmented LCM {}'.format(self.name))
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
 
         unique = choosers[self.segmentation_col].unique()
+
+        # Remove any existing segments that may no longer have counterparts
+        # in the data. This can happen when loading a saved model and then
+        # calling this method with data that no longer has segments that
+        # were there the last time this was called.
+        gone = set(self._group.models) - set(unique)
+        for g in gone:
+            del self._group.models[g]
 
         for x in unique:
             if x not in self._group.models:
@@ -736,7 +787,10 @@ class SegmentedMNLLocationChoiceModel(object):
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
 
-        return self._group.fit(choosers, alternatives, current_choice)
+        results = self._group.fit(choosers, alternatives, current_choice)
+        logger.debug(
+            'finish: fit models in segmented LCM {}'.format(self.name))
+        return results
 
     @property
     def fitted(self):
@@ -773,15 +827,17 @@ class SegmentedMNLLocationChoiceModel(object):
             for all the choosers.
 
         """
+        logger.debug(
+            'start: predict models in segmented LCM {}'.format(self.name))
         choosers = util.apply_filter_query(
             choosers, self.choosers_predict_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
 
-        if len(choosers) == 0:
-            return pd.Series()
-
-        return self._group.predict(choosers, alternatives, debug=debug)
+        results = self._group.predict(choosers, alternatives, debug=debug)
+        logger.debug(
+            'finish: predict models in segmented LCM {}'.format(self.name))
+        return results
 
     def _process_model_dict(self, d):
         """
@@ -823,6 +879,7 @@ class SegmentedMNLLocationChoiceModel(object):
         """
         return {
             'model_type': 'segmented_locationchoice',
+            'name': self.name,
             'segmentation_col': self.segmentation_col,
             'sample_size': self.sample_size,
             'choosers_fit_filters': self.choosers_fit_filters,
@@ -836,8 +893,11 @@ class SegmentedMNLLocationChoiceModel(object):
                 'model_expression': self.default_model_expr,
             },
             'fitted': self.fitted,
-            'models': {yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
-                       for name, m in self._group.models.items()}
+            'models': {
+                yamlio.to_scalar_safe(name):
+                    self._process_model_dict(m.to_dict())
+                for name, m in self._group.models.items()
+            }
         }
 
     def to_yaml(self, str_or_buffer=None):
@@ -858,4 +918,5 @@ class SegmentedMNLLocationChoiceModel(object):
             YAML is string if `str_or_buffer` is not given.
 
         """
+        logger.debug('serializing segmented LCM {} to YAML'.format(self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)

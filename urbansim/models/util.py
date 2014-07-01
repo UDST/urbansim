@@ -3,11 +3,16 @@ Utilities used within the ``urbansim.models`` package.
 
 """
 import collections
+import logging
 import numbers
 
 import numpy as np
 import pandas as pd
 import patsy
+
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 
 def apply_filter_query(df, filters=None):
@@ -18,9 +23,10 @@ def apply_filter_query(df, filters=None):
     Parameters
     ----------
     df : pandas.DataFrame
-    filters : list of str, optional
+    filters : list of str or str, optional
         List of filters to apply. Will be joined together with
-        ' and ' and passed to DataFrame.query.
+        ' and ' and passed to DataFrame.query. A string will be passed
+        straight to DataFrame.query.
         If not supplied no filtering will be done.
 
     Returns
@@ -28,11 +34,15 @@ def apply_filter_query(df, filters=None):
     filtered_df : pandas.DataFrame
 
     """
-    if filters:
-        query = ' and '.join(filters)
-        return df.query(query)
-    else:
-        return df
+    with log_start_finish('apply filter query: {!r}'.format(filters), logger):
+        if filters:
+            if isinstance(filters, str):
+                query = filters
+            else:
+                query = ' and '.join(filters)
+            return df.query(query)
+        else:
+            return df
 
 
 def _filterize(name, value):
@@ -66,7 +76,11 @@ def _filterize(name, value):
     else:
         comp = '=='
 
-    return '{} {} {!r}'.format(name, comp, value)
+    result = '{} {} {!r}'.format(name, comp, value)
+    logger.debug(
+        'converted name={} and value={} to filter {}'.format(
+            name, value, result))
+    return result
 
 
 def filter_table(table, filter_series, ignore=None):
@@ -94,14 +108,15 @@ def filter_table(table, filter_series, ignore=None):
     filtered : pandas.DataFrame
 
     """
-    ignore = ignore if ignore else set()
+    with log_start_finish('filter table', logger):
+        ignore = ignore if ignore else set()
 
-    filters = [_filterize(name, val)
-               for name, val in filter_series.iteritems()
-               if not (name in ignore or
-                       (isinstance(val, numbers.Number) and
-                        np.isnan(val)))]
-    return apply_filter_query(table, filters)
+        filters = [_filterize(name, val)
+                   for name, val in filter_series.iteritems()
+                   if not (name in ignore or
+                           (isinstance(val, numbers.Number) and
+                            np.isnan(val)))]
+        return apply_filter_query(table, filters)
 
 
 def concat_indexes(indexes):
@@ -199,6 +214,9 @@ def str_model_expression(expr, add_constant=True):
         else:
             model_expression += ' - 1'
 
+    logger.debug(
+        'converted expression: {!r} to model: {!r}'.format(
+            expr, model_expression))
     return model_expression
 
 
