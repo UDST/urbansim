@@ -12,6 +12,7 @@ from ..models import util
 
 NETWORKS = None
 
+
 def from_yaml(dset, cfgname):
     print "Computing accessibility variables"
     cfg = yaml.load(open(misc.config(cfgname)))
