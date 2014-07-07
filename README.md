@@ -3,7 +3,7 @@ urbansim
 
 [![build status](http://img.shields.io/travis/synthicity/urbansim.svg)](https://travis-ci.org/synthicity/urbansim) [![test coverage](http://img.shields.io/coveralls/synthicity/urbansim.svg)](https://coveralls.io/r/synthicity/urbansim)
 
-New lightweight version of UrbanSim, a tool for modeling metropolitan real estate markets
+New version of UrbanSim, a tool for modeling metropolitan real estate markets
 
 ![synthicity](http://www.synthicity.com/uploads/1/8/3/2/18327643/9164254_orig.png)
 
