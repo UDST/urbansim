@@ -348,7 +348,7 @@ class MNLLocationChoiceModel(object):
         if debug:
             # when we're not doing 1st item of choosers, this will break!
             assert num_choosers == 1
-            self.sim_pdf = pd.Series(probabilities, index=alternatives.index)
+            self.sim_pdf = pd.Series(probabilities, index=merged.index)
 
         # figure out exactly which things from which choices are drawn
         alt_choices = (
