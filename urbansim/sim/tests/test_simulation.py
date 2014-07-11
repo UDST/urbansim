@@ -19,6 +19,9 @@ def test_tables(df):
     def test_func(test_frame):
         return test_frame.to_frame() / 2
 
+    assert set(sim.list_tables()) == {'test_frame', 'test_func'}
+
     table = sim.get_table('test_func')
 
     pdt.assert_frame_equal(table.to_frame(), df / 2)
+    pdt.assert_frame_equal(table.to_frame(columns=['a']), df[['a']] / 2)

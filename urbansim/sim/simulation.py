@@ -22,6 +22,14 @@ class _DataFrameWrapper(object):
         self.name = name
         self._frame = frame
 
+    @property
+    def columns(self):
+        """
+        Columns in this table.
+
+        """
+        return self._frame.columns
+
     def to_frame(self, columns=None):
         """
         Make a DataFrame with the given columns.
@@ -37,7 +45,10 @@ class _DataFrameWrapper(object):
         frame : pandas.DataFrame
 
         """
-        return self._frame
+        if columns:
+            return self._frame[list(columns)]
+        else:
+            return self._frame
 
 
 class _TableFuncWrapper(object):
@@ -56,6 +67,15 @@ class _TableFuncWrapper(object):
         self.name = name
         self._func = func
         self._arg_list = inspect.getargspec(func).args
+        self._columns = self.to_frame().columns
+
+    @property
+    def columns(self):
+        """
+        Columns in this table.
+
+        """
+        return self._columns
 
     def to_frame(self, columns=None):
         """
@@ -74,6 +94,7 @@ class _TableFuncWrapper(object):
         """
         kwargs = {t: get_table(t) for t in self._arg_list}
         frame = self._func(**kwargs)
+        self._columns = frame.columns
         return _DataFrameWrapper(self.name, frame).to_frame(columns)
 
 
