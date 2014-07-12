@@ -541,6 +541,7 @@ class SqFtProForma:
         this code creates the debugging plots to understand
         the behavior of the hypothetical building model
         """
+        import matplotlib
         import matplotlib.pyplot as plt
         c = self.config
 
@@ -558,6 +559,7 @@ class SqFtProForma:
         keys.sort()
         cnt = 1
         share = None
+        matplotlib.use('Agg')
         fig = plt.figure(figsize=(12, 3 * len(keys)))
         fig.suptitle('Profitable rents by use', fontsize=40)
         for name in keys:
