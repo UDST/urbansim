@@ -73,3 +73,8 @@ def test_sqftproforma_high_cost(simple_dev_inputs_high_cost):
             assert len(out) == 0
         if form == "office":
             assert len(out) == 0
+
+
+def test_sqftproforma_debug():
+    pf = sqpf.SqFtProForma()
+    pf._debug_output()

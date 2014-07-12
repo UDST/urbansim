@@ -550,9 +550,9 @@ class SqFtProForma:
         for key in keys:
             print "\n", key, "\n"
             print df_d[key]
-        for key in self.min_even_rents_d.keys():
+        for form in self.config.forms:
             print "\n", key, "\n"
-            print self.min_even_rents_d[key]
+            print self.get_ave_cost_sqft(form)
 
         keys = c.forms.keys()
         keys.sort()
@@ -566,7 +566,7 @@ class SqFtProForma:
                 df = df_d[(name, parking_config)]
                 if sumdf is None:
                     sumdf = pd.DataFrame(df['far'])
-                sumdf[parking_config] = df['even_rent']
+                sumdf[parking_config] = df['ave_cost_sqft']
             far = sumdf['far']
             del sumdf['far']
 
