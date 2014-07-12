@@ -5,7 +5,7 @@ urbansim
 
 New version of UrbanSim, a tool for modeling metropolitan real estate markets
 
-![synthicity](http://www.synthicity.com/uploads/1/8/3/2/18327643/9164254_orig.png)
+![synthicity](http://i.imgur.com/4YyN8ob.jpg)
 
 Documentation is on the github wiki: https://github.com/synthicity/urbansim/wiki
 
