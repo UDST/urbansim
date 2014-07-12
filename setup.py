@@ -19,6 +19,7 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
         'Django>=1.6.2',
+        'matplotlib>=1.3.1',
         'numpy>=1.8.0',
         'pandas>=0.13.1',
         'patsy>=0.2.1',
