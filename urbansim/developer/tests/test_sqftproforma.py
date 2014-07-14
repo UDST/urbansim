@@ -66,7 +66,7 @@ def test_sqftproforma_low_cost(simple_dev_inputs_low_cost):
 def test_reasonable_feasibility_results():
     pf = sqpf.SqFtProForma()
     df = pd.DataFrame(
-        {'residential': [40, 40, 40],
+        {'residential': [30, 20, 10],
          'office': [15, 15, 15],
          'retail': [12, 12, 12],
          'industrial': [12, 12, 12],
@@ -74,16 +74,41 @@ def test_reasonable_feasibility_results():
          'parcel_size': [1000, 1000, 1000],
          'max_far': [2.0, 2.0, 2.0],
          'max_height': [80, 80, 80]}, index=['a', 'b', 'c'])
-    print
-    print df.describe()
 
     out = pf.lookup("residential", df)
     first = out.iloc[0]
-    print first
     # far limit is 2
     assert first.max_profit_far == 2
     # at an far of 2, this is the building_sqft
     assert first.building_sqft == 2000
+    # confirm cost per sqft is between 100 and 400 per sqft
+    assert 100 < first.building_cost/first.building_sqft < 400
+    # total cost equals building cost plus land cost
+    assert first.total_cost == first.building_cost + df.iloc[0].land_cost
+    # revenue per sqft should be between 200 and 800 per sqft
+    assert 200 < first.building_revenue/first.building_sqft < 800
+    assert first.residential_sqft == first.building_sqft * pf.config.building_efficiency
+    # because of parcel inefficiency, stories should be greater than far, but not too much more
+    assert first.max_profit_far < first.stories < first.max_profit_far * 2.0
+    assert first.non_residential_sqft == 0
+    assert first.max_profit > 0
+
+    assert len(out) == 2
+
+    second = out.iloc[1]
+    # this is an interesting one - at $20/year/sqft for rent, we don't build to max far
+    # this means the max_far pushes us into into another cost category and is mainly
+    # due to the parking requirements that push the building to the corner of a parcel
+    # and require that it be taller while still maintaining surface parking
+    assert second.max_profit_far == 1.8
+
+    # we can test this be reducing the parking requirements
+    c = sqpf.SqFtProFormaConfig()
+    c.parking_rates["residential"] = 0
+    pf = sqpf.SqFtProForma(c)
+    out = pf.lookup("residential", df)
+    second = out.iloc[1]
+    assert second.max_profit_far == 2.0
 
 
 def test_sqftproforma_high_cost(simple_dev_inputs_high_cost):

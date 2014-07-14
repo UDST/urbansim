@@ -373,7 +373,7 @@ class SqFtProForma:
 
                 df['total_sqft'] = df.building_sqft + df.park_sqft
                 stories /= c.parcel_coverage
-                df['stories'] = stories
+                df['stories'] = np.ceil(stories)
                 df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
 
                 df['build_cost'] = df.build_cost_sqft * df.building_sqft
