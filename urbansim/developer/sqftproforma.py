@@ -1,5 +1,9 @@
 import numpy as np
 import pandas as pd
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class SqFtProFormaConfig:
@@ -199,6 +203,41 @@ class SqFtProFormaConfig:
     def tiled_parcel_sizes(self):
         return np.reshape(np.repeat(self.parcel_sizes, self.fars.size), (-1, 1))
 
+    def check_is_reasonable(self):
+        fars = pd.Series(self.fars)
+        assert len(fars[fars > 20]) == 0
+        assert len(fars[fars <= 0]) == 0
+        for k, v in self.forms.iteritems():
+            assert isinstance(v, dict)
+            for k2, v2 in self.forms[k].iteritems():
+                assert isinstance(k2, str)
+                assert isinstance(v2, float)
+            for k2, v2 in self.forms[k].iteritems():
+                assert isinstance(k2, str)
+                assert isinstance(v2, float)
+        for k, v in self.parking_rates.iteritems():
+            assert isinstance(k, str)
+            assert k in self.uses
+            assert 0 <= v < 5
+        for k, v in self.parking_sqft_d.iteritems():
+            assert isinstance(k, str)
+            assert k in self.parking_configs
+            assert 50 <= v <= 1000
+        for k, v in self.parking_sqft_d.iteritems():
+            assert isinstance(k, str)
+            assert k in self.parking_cost_d
+            assert 10 <= v <= 300
+        for v in self.heights_for_costs:
+            assert isinstance(v, int) or isinstance(v, float)
+            if np.isinf(v):
+                continue
+            assert 0 <= v <= 1000
+        for k, v in self.costs.iteritems():
+            assert isinstance(k, str)
+            assert k in self.uses
+            for i in v:
+                assert 10 < i < 1000
+
 
 class SqFtProForma:
 
@@ -223,6 +262,7 @@ class SqFtProForma:
         """
         if config is None:
             config = SqFtProFormaConfig()
+        config.check_is_reasonable()
         self.config = config
         self.config._convert_types()
         self._generate_lookup()
@@ -550,11 +590,11 @@ class SqFtProForma:
         keys = df_d.keys()
         keys.sort()
         for key in keys:
-            print "\n", key, "\n"
-            print df_d[key]
+            logger.debug("\n" + str(key) + "\n")
+            logger.debug(df_d[key])
         for form in self.config.forms:
-            print "\n", key, "\n"
-            print self.get_ave_cost_sqft(form)
+            logger.debug("\n" + str(key) + "\n")
+            logger.debug(self.get_ave_cost_sqft(form))
 
         keys = c.forms.keys()
         keys.sort()

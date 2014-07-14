@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import pytest
 
 from .. import sqftproforma as sqpf
@@ -62,6 +63,29 @@ def test_sqftproforma_low_cost(simple_dev_inputs_low_cost):
             assert len(out) == 3
 
 
+def test_reasonable_feasibility_results():
+    pf = sqpf.SqFtProForma()
+    df = pd.DataFrame(
+        {'residential': [40, 40, 40],
+         'office': [15, 15, 15],
+         'retail': [12, 12, 12],
+         'industrial': [12, 12, 12],
+         'land_cost': [1000*100, 1000*100, 1000*100],
+         'parcel_size': [1000, 1000, 1000],
+         'max_far': [2.0, 2.0, 2.0],
+         'max_height': [80, 80, 80]}, index=['a', 'b', 'c'])
+    print
+    print df.describe()
+
+    out = pf.lookup("residential", df)
+    first = out.iloc[0]
+    print first
+    # far limit is 2
+    assert first.max_profit_far == 2
+    # at an far of 2, this is the building_sqft
+    assert first.building_sqft == 2000
+
+
 def test_sqftproforma_high_cost(simple_dev_inputs_high_cost):
     pf = sqpf.SqFtProForma()
 
@@ -73,6 +97,41 @@ def test_sqftproforma_high_cost(simple_dev_inputs_high_cost):
             assert len(out) == 0
         if form == "office":
             assert len(out) == 0
+
+
+def test_debug_info():
+    pf = sqpf.SqFtProForma()
+    for form in pf.config.forms:
+        for parking_config in pf.config.parking_configs:
+            pf.get_debug_info(form, parking_config)
+
+
+def test_appropriate_range():
+    # these are price per sqft costs.  I suppose these could change as
+    # time goes on, but for now this is a reasonable range for sqft costs
+    pf = sqpf.SqFtProForma()
+    for form in pf.config.forms:
+        s = pf.get_ave_cost_sqft(form)
+        assert len(s[s > 400.0]) == 0
+        assert len(s[s < 50.0]) == 0
+
+
+def test_roughly_monotonic():
+    pf = sqpf.SqFtProForma()
+    for form in pf.config.forms:
+        s = pf.get_ave_cost_sqft(form).values
+        for i in range(0, s.size-1):
+            left, right = s[i], s[i+1]
+            if np.isnan(left) or np.isnan(right):
+                continue
+            # actually this doesn't have to perfectly monotonic since
+            # construction costs make the function somewhat discontinuous
+            assert left < right*1.1
+
+
+def test_config_params():
+    c = sqpf.SqFtProFormaConfig()
+    c.check_is_reasonable()
 
 
 def test_sqftproforma_debug():
