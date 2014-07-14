@@ -3,6 +3,7 @@ Use the ``RegressionModel`` class to fit a model using statsmodels'
 OLS capability and then do subsequent prediction.
 
 """
+import logging
 
 import numpy as np
 import pandas as pd
@@ -13,6 +14,9 @@ from prettytable import PrettyTable
 from . import util
 from ..exceptions import ModelEvaluationError
 from ..utils import yamlio
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 
 def fit_model(df, filters, model_expression):
@@ -37,7 +41,8 @@ def fit_model(df, filters, model_expression):
     """
     df = util.apply_filter_query(df, filters)
     model = smf.ols(formula=model_expression, data=df)
-    return model.fit()
+    with log_start_finish('statsmodels OLS fit', logger):
+        return model.fit()
 
 
 def predict(df, filters, model_fit, ytransform=None):
@@ -67,7 +72,9 @@ def predict(df, filters, model_fit, ytransform=None):
 
     """
     df = util.apply_filter_query(df, filters)
-    sim_data = model_fit.predict(df)
+
+    with log_start_finish('statsmodels predict', logger):
+        sim_data = model_fit.predict(df)
 
     if len(sim_data) != len(df):
         raise ModelEvaluationError(
@@ -152,8 +159,10 @@ class _FakeRegressionResults(object):
             Array of predicted values.
 
         """
-        model_design = dmatrix(self._rhs, data=data, return_type='dataframe')
-        return model_design.dot(self.params).values
+        with log_start_finish('_FakeRegressionResults prediction', logger):
+            model_design = dmatrix(
+                self._rhs, data=data, return_type='dataframe')
+            return model_design.dot(self.params).values
 
 
 def _model_fit_to_table(fit):
@@ -275,6 +284,7 @@ class RegressionModel(object):
                 cfg['fit_rsquared'], cfg['fit_rsquared_adj'])
             model.fit_parameters = fit_parameters
 
+        logger.debug('loaded regression model {} from YAML'.format(model.name))
         return model
 
     @property
@@ -307,7 +317,9 @@ class RegressionModel(object):
             class instance for use during prediction.
 
         """
-        fit = fit_model(data, self.fit_filters, self.str_model_expression)
+        with log_start_finish('fitting model {}'.format(self.name), logger):
+            fit = fit_model(data, self.fit_filters, self.str_model_expression)
+
         self.model_fit = fit
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
@@ -380,8 +392,9 @@ class RegressionModel(object):
 
         """
         self.assert_fitted()
-        return predict(
-            data, self.predict_filters, self.model_fit, self.ytransform)
+        with log_start_finish('predicting model {}'.format(self.name), logger):
+            return predict(
+                data, self.predict_filters, self.model_fit, self.ytransform)
 
     def to_dict(self):
         """
@@ -427,6 +440,8 @@ class RegressionModel(object):
             YAML string if `str_or_buffer` is not given.
 
         """
+        logger.debug(
+            'serializing regression model {} to YAML'.format(self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
 
@@ -441,10 +456,13 @@ class RegressionModelGroup(object):
     ----------
     segmentation_col
         Name of the column on which to segment.
+    name
+        Optional name used to identify the model in places.
 
     """
-    def __init__(self, segmentation_col):
+    def __init__(self, segmentation_col, name=None):
         self.segmentation_col = segmentation_col
+        self.name = name if name is not None else 'RegressionModelGroup'
         self.models = {}
 
     def add_model(self, model):
@@ -458,6 +476,8 @@ class RegressionModelGroup(object):
             the groupby segments.
 
         """
+        logger.debug(
+            'adding model {} to group {}'.format(model.name, self.name))
         self.models[model.name] = model
 
     def add_model_from_params(self, name, fit_filters, predict_filters,
@@ -485,6 +505,8 @@ class RegressionModelGroup(object):
             By default no transformation is applied.
 
         """
+        logger.debug(
+            'adding model {} to group {}'.format(name, self.name))
         model = RegressionModel(
             fit_filters, predict_filters, model_expression, ytransform, name)
         self.models[name] = model
@@ -527,8 +549,10 @@ class RegressionModelGroup(object):
             Keys are the segment names.
 
         """
-        return {name: self.models[name].fit(df, debug=debug)
-                for name, df in self._iter_groups(data)}
+        with log_start_finish(
+                'fitting models in group {}'.format(self.name), logger):
+            return {name: self.models[name].fit(df, debug=debug)
+                    for name, df in self._iter_groups(data)}
 
     @property
     def fitted(self):
@@ -557,8 +581,10 @@ class RegressionModelGroup(object):
             models.
 
         """
-        results = [self.models[name].predict(df)
-                   for name, df in self._iter_groups(data)]
+        with log_start_finish(
+                'predicting models in group {}'.format(self.name), logger):
+            results = [self.models[name].predict(df)
+                       for name, df in self._iter_groups(data)]
         return pd.concat(results)
 
 
@@ -650,6 +676,8 @@ class SegmentedRegressionModel(object):
             reg = RegressionModel.from_yaml(yamlio.convert_to_yaml(m, None))
             seg._group.add_model(reg)
 
+        logger.debug(
+            'loaded segmented regression model {} from yaml'.format(seg.name))
         return seg
 
     def add_segment(self, name, model_expression=None, ytransform='default'):
@@ -688,6 +716,8 @@ class SegmentedRegressionModel(object):
         self._group.add_model_from_params(
             name, None, None, model_expression, ytransform)
 
+        logger.debug('added segment {} to model {}'.format(name, self.name))
+
     def fit(self, data, debug=False):
         """
         Fit each segment. Segments that have not already been explicitly
@@ -724,7 +754,10 @@ class SegmentedRegressionModel(object):
                     value_counts[x] > self.min_segment_size:
                 self.add_segment(x)
 
-        return self._group.fit(data, debug=debug)
+        with log_start_finish(
+                'fitting models in segmented model {}'.format(self.name),
+                logger):
+            return self._group.fit(data, debug=debug)
 
     @property
     def fitted(self):
@@ -751,8 +784,11 @@ class SegmentedRegressionModel(object):
             after applying filters.
 
         """
-        data = util.apply_filter_query(data, self.predict_filters)
-        return self._group.predict(data)
+        with log_start_finish(
+                'predicting models in segmented model {}'.format(self.name),
+                logger):
+            data = util.apply_filter_query(data, self.predict_filters)
+            return self._group.predict(data)
 
     def _process_model_dict(self, d):
         """
@@ -825,4 +861,7 @@ class SegmentedRegressionModel(object):
             YAML string if `str_or_buffer` is not given.
 
         """
+        logger.debug(
+            'serializing segmented regression model {} to yaml'.format(
+                self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)

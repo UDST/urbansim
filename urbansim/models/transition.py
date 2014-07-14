@@ -5,10 +5,15 @@ add or remove agents based on growth rates or target totals.
 """
 from __future__ import division
 
+import logging
+
 import numpy as np
 import pandas as pd
 
 from . import util
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 
 def _empty_index():
@@ -41,6 +46,7 @@ def add_rows(data, nrows, starting_index=None):
         will have multiple entries.
 
     """
+    logger.debug('start: adding {} rows in transition model'.format(nrows))
     if nrows == 0:
         return data, _empty_index(), _empty_index()
 
@@ -53,6 +59,8 @@ def add_rows(data, nrows, starting_index=None):
         starting_index, starting_index + nrows, dtype=np.int))
     new_rows.index = added_index
 
+    logger.debug(
+        'finish: added {} rows in transition model'.format(len(new_rows)))
     return pd.concat([data, new_rows]), added_index, pd.Index(i_to_copy)
 
 
@@ -74,6 +82,7 @@ def remove_rows(data, nrows):
         Indexes of the rows removed from the table.
 
     """
+    logger.debug('start: removing {} rows in transition model'.format(nrows))
     nrows = abs(nrows)  # in case a negative number came in
     if nrows == 0:
         return data, _empty_index()
@@ -83,6 +92,7 @@ def remove_rows(data, nrows):
     i_to_keep = np.random.choice(
         data.index.values, len(data) - nrows, replace=False)
 
+    logger.debug('finish: removed {} rows in transition model'.format(nrows))
     return data.loc[i_to_keep], data.index.diff(i_to_keep)
 
 
@@ -168,7 +178,11 @@ class GrowthRateTransition(object):
 
         """
         nrows = int(round(len(data) * self.growth_rate))
-        return add_or_remove_rows(data, nrows)
+        with log_start_finish(
+                'adding {} rows via growth rate ({}) transition'.format(
+                    nrows, self.growth_rate),
+                logger):
+            return add_or_remove_rows(data, nrows)
 
     def __call__(self, data, year):
         """
@@ -251,11 +265,13 @@ class TabularGrowthRateTransition(object):
             Index of rows that were removed.
 
         """
+        logger.debug('start: tabular transition')
         if year not in self._config_table.index:
             raise ValueError('No targets for given year: {}'.format(year))
 
         # want this to be a DataFrame
         year_config = self._config_table.loc[[year]]
+        logger.debug('transitioning {} segments'.format(len(year_config)))
 
         segments = []
         added_indexes = []
@@ -284,6 +300,7 @@ class TabularGrowthRateTransition(object):
         copied_indexes = util.concat_indexes(copied_indexes)
         removed_indexes = util.concat_indexes(removed_indexes)
 
+        logger.debug('finish: tabular transition')
         return updated, added_indexes, copied_indexes, removed_indexes
 
     def __call__(self, data, year):
@@ -366,7 +383,8 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
             Index of rows that were removed.
 
         """
-        return super(TabularTotalsTransition, self).transition(data, year)
+        with log_start_finish('tabular totals transition', logger):
+            return super(TabularTotalsTransition, self).transition(data, year)
 
 
 def _update_linked_table(table, col_name, added, copied, removed):
@@ -393,9 +411,11 @@ def _update_linked_table(table, col_name, added, copied, removed):
     updated : pandas.DataFrame
 
     """
+    logger.debug('start: update linked table after transition')
     table = table.loc[~table[col_name].isin(set(removed))]
     sub_table = table.loc[table[col_name].isin(set(copied))]
 
+    # map new IDs to the IDs from which they were copied
     id_map = added.groupby(copied)
     new_rows = []
 
@@ -419,6 +439,7 @@ def _update_linked_table(table, col_name, added, copied, removed):
     new_rows.index = np.arange(
         starting_index, starting_index + len(new_rows), dtype=np.int)
 
+    logger.debug('finish: update linked table after transition')
     return pd.concat([table, new_rows])
 
 
@@ -463,13 +484,17 @@ class TransitionModel(object):
         updated_links : dict of pandas.DataFrame
 
         """
+        logger.debug('start: transition')
         linked_tables = linked_tables or {}
         updated_links = {}
 
-        updated, added, copied, removed = self.transitioner(data, year)
+        with log_start_finish('add/remove rows', logger):
+            updated, added, copied, removed = self.transitioner(data, year)
 
         for table_name, (table, col) in linked_tables.iteritems():
+            logger.debug('updating linked table {}'.format(table_name))
             updated_links[table_name] = \
                 _update_linked_table(table, col, added, copied, removed)
 
+        logger.debug('finish: transition')
         return updated, added, updated_links

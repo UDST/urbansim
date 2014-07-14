@@ -4,12 +4,18 @@ Number crunching code for multinomial logit.
 ``urbansim.models.lcm``.
 
 """
+import logging
+
 import numpy as np
 import pandas as pd
 import scipy.optimize
 
 import pmat
 from pmat import PMAT
+
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 # right now MNL can only estimate location choice models, where every equation
 # is the same
@@ -20,6 +26,7 @@ from pmat import PMAT
 
 
 def mnl_probs(data, beta, numalts):
+    logging.debug('start: calculate MNL probabilities')
     clamp = data.typ == 'numpy'
     utilities = beta.multiply(data)
     if numalts == 0:
@@ -39,6 +46,7 @@ def mnl_probs(data, beta, numalts):
     if clamp:
         probs.clamptomin(1e-300)
 
+    logging.debug('finish: calculate MNL probabilities')
     return probs
 
 
@@ -55,6 +63,7 @@ def get_standard_error(hessian):
 
 def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
                stderr=0):
+    logger.debug('start: calculate MNL log-likelihood')
     numvars = beta.size
     numobs = data.size() / numvars / numalts
 
@@ -103,10 +112,14 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
         loglik = loglik.get_mat()[0, 0]
         gradarr = np.reshape(gradarr.get_mat(), (1, gradarr.size()))[0]
 
+    logger.debug('finish: calculate MNL log-likelihood')
     return -1 * loglik, -1 * gradarr
 
 
 def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
+    logger.debug(
+        'start: MNL simulation with len(data)={} and numalts={}'.format(
+            len(data), numalts))
     atype = 'numpy' if not GPU else 'cuda'
 
     data = np.transpose(data)
@@ -127,6 +140,7 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
     r = pmat.random(probs.size() / numalts)
     choices = probs.subtract(r, inplace=True).firstpositive(axis=0)
 
+    logger.debug('finish: MNL simulation')
     return choices.get_mat()
 
 
@@ -156,6 +170,9 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
         'T-Score'.
 
     """
+    logger.debug(
+        'start: MNL fit with len(data)={} and numalts={}'.format(
+            len(data), numalts))
     atype = 'numpy' if not GPU else 'cuda'
 
     numvars = data.shape[1]
@@ -175,15 +192,16 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
         beta = np.zeros(numvars)
     bounds = np.array([coeffrange for i in range(numvars)])
 
-    args = (data, chosen, numalts, weights, lcgrad)
-    bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
-                                               beta,
-                                               args=args,
-                                               fprime=None,
-                                               factr=1e5,
-                                               approx_grad=False,
-                                               bounds=bounds
-                                               )
+    with log_start_finish('scipy optimization for MNL fit', logger):
+        args = (data, chosen, numalts, weights, lcgrad)
+        bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
+                                                   beta,
+                                                   args=args,
+                                                   fprime=None,
+                                                   factr=1e5,
+                                                   approx_grad=False,
+                                                   bounds=bounds
+                                                   )
     beta = bfgs_result[0]
     stderr = mnl_loglik(
         beta, data, chosen, numalts, weights, stderr=1, lcgrad=lcgrad)
@@ -203,4 +221,5 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
         'Std. Error': stderr,
         'T-Score': beta / stderr})
 
+    logger.debug('finish: MNL fit')
     return log_likelihood, fit_parameters
