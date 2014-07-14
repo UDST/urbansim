@@ -2,8 +2,19 @@ import inspect
 from collections import Callable
 
 import pandas as pd
+import toolz
 
 _TABLES = {}
+_COLUMNS = {}
+
+
+def clear_sim():
+    """
+    Clear any stored state from the simulation.
+
+    """
+    _TABLES.clear()
+    _COLUMNS.clear()
 
 
 class _DataFrameWrapper(object):
@@ -28,7 +39,7 @@ class _DataFrameWrapper(object):
         Columns in this table.
 
         """
-        return self._frame.columns
+        return self._frame.columns + _list_columns_for_table(self.name)
 
     def to_frame(self, columns=None):
         """
@@ -38,17 +49,27 @@ class _DataFrameWrapper(object):
         ----------
         columns : sequence, optional
             Sequence of the column names desired in the DataFrame.
-            If None all columns are returned.
+            If None all columns are returned, including registered columns.
 
         Returns
         -------
         frame : pandas.DataFrame
 
         """
+        extra_cols = _columns_for_table(self.name)
+
         if columns:
-            return self._frame[list(columns)]
+            local_cols = [c for c in self._frame.columns
+                          if c in columns and c not in extra_cols]
+            extra_cols = toolz.keyfilter(lambda c: c in columns, extra_cols)
+            df = self._frame[local_cols].copy()
         else:
-            return self._frame
+            df = self._frame.copy()
+
+        for name, col in extra_cols.items():
+            df[name] = col()
+
+        return df
 
 
 class _TableFuncWrapper(object):
@@ -67,15 +88,15 @@ class _TableFuncWrapper(object):
         self.name = name
         self._func = func
         self._arg_list = inspect.getargspec(func).args
-        self._columns = self.to_frame().columns
+        self._columns = []
 
     @property
     def columns(self):
         """
-        Columns in this table.
+        Columns in this table. (May often be out of date.)
 
         """
-        return self._columns
+        return self._columns + _list_columns_for_table(self.table)
 
     def to_frame(self, columns=None):
         """
@@ -96,6 +117,57 @@ class _TableFuncWrapper(object):
         frame = self._func(**kwargs)
         self._columns = frame.columns
         return _DataFrameWrapper(self.name, frame).to_frame(columns)
+
+
+class _ColumnFuncWrapper(object):
+    """
+    Wrap a function that returns a Series.
+
+    Parameters
+    ----------
+    table_name : str
+        Table with which the column will be associated.
+    column_name : str
+        Name for the column.
+    func : callable
+        Should return a Series that has an
+        index matching the table to which it is being added.
+
+    """
+    def __init__(self, table_name, column_name, func):
+        self.table_name = table_name
+        self.name = column_name
+        self._func = func
+        self._arg_list = inspect.getargspec(func).args
+
+    def __call__(self):
+        kwargs = {t: get_table(t) for t in self._arg_list}
+        return self._func(**kwargs)
+
+
+class _SeriesWrapper(object):
+    """
+    Wrap a Series for the purpose of giving it the same interface as a
+    `_ColumnFuncWrapper`.
+
+    Parameters
+    ----------
+    table_name : str
+        Table with which the column will be associated.
+    column_name : str
+        Name for the column.
+    func : callable
+        Should return a Series that has an
+        index matching the table to which it is being added.
+
+    """
+    def __init__(self, table_name, column_name, series):
+        self.table_name = table_name
+        self.name = column_name
+        self._column = series
+
+    def __call__(self):
+        return self._column
 
 
 def add_table(table_name, table):
@@ -162,3 +234,79 @@ def list_tables():
 
     """
     return list(_TABLES.keys())
+
+
+def add_column(table_name, column_name, column):
+    """
+    Add a new column to a table from a Series or callable.
+
+    Parameters
+    ----------
+    table_name : str
+        Table with which the column will be associated.
+    column_name : str
+        Name for the column.
+    column : pandas.Series or callable
+        If a callable it should return a Series. Any Series should have an
+        index matching the table to which it is being added.
+
+    """
+    if isinstance(column, pd.Series):
+        column = _SeriesWrapper(table_name, column_name, column)
+    elif isinstance(column, Callable):
+        column = \
+            _ColumnFuncWrapper(table_name, column_name, column)
+    else:
+        raise TypeError('Only Series or calleable allowed for column.')
+
+    _COLUMNS[(table_name, column_name)] = column
+
+
+def column(table_name, column_name):
+    """
+    Decorator version of `add_column` used for decorating functions
+    that return a Series with an index matching the named table.
+
+    The argument names of the function should match known tables, which
+    will be injected.
+
+    """
+    def decorator(func):
+        add_column(table_name, column_name, func)
+        return func
+    return decorator
+
+
+def _list_columns_for_table(table_name):
+    """
+    Return a list of all the extra columns registered for a given table.
+
+    Parameters
+    ----------
+    table_name : str
+
+    Returns
+    -------
+    columns : list of str
+
+    """
+    return [cname for tname, cname in _COLUMNS.keys() if tname == table_name]
+
+
+def _columns_for_table(table_name):
+    """
+    Return all of the columns registered for a given table.
+
+    Parameters
+    ----------
+    table_name : str
+
+    Returns
+    -------
+    columns : dict of column wrappers
+        Keys will be column names.
+
+    """
+    return {cname: col
+            for (tname, cname), col in _COLUMNS.items()
+            if tname == table_name}
