@@ -5,7 +5,7 @@ install:
 - sudo pip install conda
 - sudo conda init
 - |
-  conda create -p $HOME/py --yes pip jinja2 numpy pandas patsy scipy statsmodels pytables pytest pyyaml "python=$TRAVIS_PYTHON_VERSION"
+  conda create -p $HOME/py --yes pip jinja2 numpy pandas patsy scipy statsmodels pytables pytest pyyaml matplotlib "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install Django shapely simplejson
 - pip install pytest-cov coveralls pep8
