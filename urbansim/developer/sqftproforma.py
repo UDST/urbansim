@@ -1,12 +1,16 @@
 import numpy as np
 import pandas as pd
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class SqFtProFormaConfig:
 
     def _reset_defaults(self):
         self.parcel_sizes = [10000.0]
-        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 7.0, 9.0, 11.0]
+        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 11.0]
         self.uses = ['retail', 'industrial', 'office', 'residential']
         self.residential_uses = [False, False, False, True]
         self.forms = {
@@ -199,6 +203,41 @@ class SqFtProFormaConfig:
     def tiled_parcel_sizes(self):
         return np.reshape(np.repeat(self.parcel_sizes, self.fars.size), (-1, 1))
 
+    def check_is_reasonable(self):
+        fars = pd.Series(self.fars)
+        assert len(fars[fars > 20]) == 0
+        assert len(fars[fars <= 0]) == 0
+        for k, v in self.forms.iteritems():
+            assert isinstance(v, dict)
+            for k2, v2 in self.forms[k].iteritems():
+                assert isinstance(k2, str)
+                assert isinstance(v2, float)
+            for k2, v2 in self.forms[k].iteritems():
+                assert isinstance(k2, str)
+                assert isinstance(v2, float)
+        for k, v in self.parking_rates.iteritems():
+            assert isinstance(k, str)
+            assert k in self.uses
+            assert 0 <= v < 5
+        for k, v in self.parking_sqft_d.iteritems():
+            assert isinstance(k, str)
+            assert k in self.parking_configs
+            assert 50 <= v <= 1000
+        for k, v in self.parking_sqft_d.iteritems():
+            assert isinstance(k, str)
+            assert k in self.parking_cost_d
+            assert 10 <= v <= 300
+        for v in self.heights_for_costs:
+            assert isinstance(v, int) or isinstance(v, float)
+            if np.isinf(v):
+                continue
+            assert 0 <= v <= 1000
+        for k, v in self.costs.iteritems():
+            assert isinstance(k, str)
+            assert k in self.uses
+            for i in v:
+                assert 10 < i < 1000
+
 
 class SqFtProForma:
 
@@ -223,6 +262,7 @@ class SqFtProForma:
         """
         if config is None:
             config = SqFtProFormaConfig()
+        config.check_is_reasonable()
         self.config = config
         self.config._convert_types()
         self._generate_lookup()
@@ -333,7 +373,7 @@ class SqFtProForma:
 
                 df['total_sqft'] = df.building_sqft + df.park_sqft
                 stories /= c.parcel_coverage
-                df['stories'] = stories
+                df['stories'] = np.ceil(stories)
                 df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
 
                 df['build_cost'] = df.build_cost_sqft * df.building_sqft
@@ -541,6 +581,8 @@ class SqFtProForma:
         this code creates the debugging plots to understand
         the behavior of the hypothetical building model
         """
+        import matplotlib
+        matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         c = self.config
 
@@ -548,11 +590,11 @@ class SqFtProForma:
         keys = df_d.keys()
         keys.sort()
         for key in keys:
-            print "\n", key, "\n"
-            print df_d[key]
-        for key in self.min_even_rents_d.keys():
-            print "\n", key, "\n"
-            print self.min_even_rents_d[key]
+            logger.debug("\n" + str(key) + "\n")
+            logger.debug(df_d[key])
+        for form in self.config.forms:
+            logger.debug("\n" + str(key) + "\n")
+            logger.debug(self.get_ave_cost_sqft(form))
 
         keys = c.forms.keys()
         keys.sort()
@@ -566,7 +608,7 @@ class SqFtProForma:
                 df = df_d[(name, parking_config)]
                 if sumdf is None:
                     sumdf = pd.DataFrame(df['far'])
-                sumdf[parking_config] = df['even_rent']
+                sumdf[parking_config] = df['ave_cost_sqft']
             far = sumdf['far']
             del sumdf['far']
 

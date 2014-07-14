@@ -250,7 +250,7 @@ class RegressionModel(object):
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
         """
         Create a RegressionModel instance from a saved YAML configuration.
-        Arguments are mutally exclusive.
+        Arguments are mutually exclusive.
 
         Parameters
         ----------
