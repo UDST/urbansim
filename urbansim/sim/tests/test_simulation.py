@@ -3,6 +3,7 @@ import pytest
 from pandas.util import testing as pdt
 
 from .. import simulation as sim
+from ...utils.testing import assert_frames_equal
 
 
 @pytest.fixture
@@ -126,4 +127,42 @@ def test_models(df, clear_sim):
         pd.DataFrame(
             {'a': [5, 7, 9],
              'b': [4, 5, 6]},
+            index=['x', 'y', 'z']))
+
+
+def test_model_run(df, clear_sim):
+    sim.add_table('test_table', df)
+
+    @sim.table('table_func')
+    def table_func(test_table):
+        tt = test_table.to_frame()
+        tt['c'] = [7, 8, 9]
+        return tt
+
+    @sim.column('table_func', 'new_col')
+    def new_col(test_table, table_func):
+        tt = test_table.to_frame()
+        tf = table_func.to_frame(columns=['c'])
+        return tt['a'] + tt['b'] + tf['c']
+
+    @sim.model('test_model1')
+    def test_model1(year, test_table, table_func):
+        tf = table_func.to_frame(columns=['new_col'])
+        test_table[year] = tf['new_col'] + year
+
+    @sim.model('test_model2')
+    def test_model2(test_table):
+        tt = test_table.to_frame()
+        test_table['a'] = tt['a'] ** 2
+
+    sim.run(models=['test_model1', 'test_model2'], years=[2000, 3000])
+
+    test_table = sim.get_table('test_table')
+    assert_frames_equal(
+        test_table.to_frame(),
+        pd.DataFrame(
+            {'a': [1, 16, 81],
+             'b': [4, 5, 6],
+             2000: [2012, 2015, 2018],
+             3000: [3012, 3017, 3024]},
             index=['x', 'y', 'z']))

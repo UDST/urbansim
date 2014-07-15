@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import inspect
 from collections import Callable
 
@@ -106,7 +108,7 @@ class _TableFuncWrapper(object):
     def __init__(self, name, func):
         self.name = name
         self._func = func
-        self._arg_list = inspect.getargspec(func).args
+        self._arg_list = set(inspect.getargspec(func).args)
         self._columns = []
 
     @property
@@ -157,7 +159,7 @@ class _ColumnFuncWrapper(object):
         self.table_name = table_name
         self.name = column_name
         self._func = func
-        self._arg_list = inspect.getargspec(func).args
+        self._arg_list = set(inspect.getargspec(func).args)
 
     def __call__(self):
         kwargs = {t: get_table(t) for t in self._arg_list}
@@ -202,10 +204,12 @@ class _ModelFuncWrapper(object):
     def __init__(self, model_name, func):
         self.name = model_name
         self._func = func
-        self._arg_list = inspect.getargspec(func).args
+        self._arg_list = set(inspect.getargspec(func).args)
 
-    def __call__(self):
-        kwargs = {t: get_table(t) for t in self._arg_list}
+    def __call__(self, year=None):
+        kwargs = {t: get_table(t) for t in self._arg_list if t != 'year'}
+        if 'year' in self._arg_list:
+            kwargs['year'] = year
         return self._func(**kwargs)
 
 
@@ -355,6 +359,10 @@ def add_model(model_name, func):
     """
     Add a model function to the simulation.
 
+    Model argument names are used for injecting known tables of the same name.
+    The argument name "year" may be used to have the current simulation
+    year injected.
+
     Parameters
     ----------
     model_name : str
@@ -392,3 +400,24 @@ def get_model(model_name):
         return _MODELS[model_name]
     else:
         raise KeyError('no model named {}'.format(model_name))
+
+
+def run(models, years=None):
+    """
+    Run models in series, optionally repeatedly over some years.
+
+    Parameters
+    ----------
+    models : list of str
+        List of models to run identified by their name.
+
+    """
+    years = years or [None]
+
+    for year in years:
+        if year:
+            print('Running year {}'.format(year))
+        for model_name in models:
+            print('Running model {}'.format(model_name))
+            model = get_model(model_name)
+            model(year=year)
