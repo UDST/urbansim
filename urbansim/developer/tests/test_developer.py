@@ -73,8 +73,3 @@ def test_developer_merge():
     dev = developer.Developer.merge(df1, df2)
     # make sure index is unique
     assert dev.index.values[1] == 2
-
-
-def test_developer_index_not_found():
-    # need test to make sure indexes exist
-    pass
