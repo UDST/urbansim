@@ -7,7 +7,12 @@ class Developer:
     def __init__(self, feasibility):
         """
         Pass the dataframe that is returned by feasibility here
+
+        Can also be a dictionary where keys are building forms and values are
+        the individual data frames returned by the proforma lookup routine.
         """
+        if isinstance(feasibility, dict):
+            feasibility = pd.concat(feasibility.values(), keys=feasibility.keys(), axis=1)
         self.feasibility = feasibility
 
     @staticmethod
@@ -133,17 +138,23 @@ class Developer:
 
         # feasible buildings only for this building type
         df = df[df.max_profit_far > 0]
-        df["parcel_size"] = parcel_size
-        df = df[df.parcel_size < max_parcel_size]
         ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
+        df["ave_unit_size"] = ave_unit_size
+        df["parcel_size"] = parcel_size
         df['current_units'] = current_units
+        df = df[df.parcel_size < max_parcel_size]
+
         if residential:
-            df['residential_units'] = np.round(df.building_sqft / ave_unit_size)
+            df['residential_units'] = np.round(df.building_sqft / df.ave_unit_size)
             df['net_units'] = df.residential_units - df.current_units
         else:
-            df['non_residential_units'] = np.round(df.building_sqft / ave_unit_size)
+            df['non_residential_units'] = np.round(df.building_sqft / df.ave_unit_size)
             df['net_units'] = df.non_residential_units - df.current_units
         df = df[df.net_units > 0]
+
+        if len(df) == 0:
+            print "WARNING THERE ARE NO FEASIBLE BUILDING TO CHOOSE FROM"
+            return
 
         # print "Describe of net units\n", df.net_units.describe()
         print "Sum of net units that are profitable", df.net_units.sum()
@@ -155,7 +166,8 @@ class Developer:
                                    p=(df.max_profit.values / df.max_profit.sum()))
         net_units = df.net_units.loc[choices]
         tot_units = net_units.values.cumsum()
-        ind = np.searchsorted(tot_units, target_units, side="right")
+        ind = np.searchsorted(tot_units, target_units, side="right")+1
+        ind = min(ind, len(choices))
         build_idx = choices[:ind]
 
         if drop_after_build:
@@ -173,6 +185,7 @@ class Developer:
         (by the user) version of what is returned by the pick method.
         """
         maxind = np.max(old_df.index.values)
+        new_df = new_df.reset_index(drop=True)
         new_df.index = new_df.index + maxind + 1
         concat_df = pd.concat([old_df, new_df], verify_integrity=True)
         concat_df.index.name = 'building_id'
