@@ -5,6 +5,8 @@ Utilities used within the ``urbansim.models`` package.
 import collections
 import logging
 import numbers
+from StringIO import StringIO
+from tokenize import generate_tokens, NAME
 
 import numpy as np
 import pandas as pd
@@ -246,3 +248,34 @@ def sorted_groupby(df, groupby):
             start = i
     # need to send back the last group
     yield prev, df.iloc[start:]
+
+
+def columns_in_filters(filters):
+    """
+    Returns a list of the columns used in a set of query filters.
+
+    Parameters
+    ----------
+    filters : list of str or str
+        List of the filters as passed passed to ``apply_filter_query``.
+
+    Returns
+    -------
+    columns : list of str
+        List of all the strings mentioned in the filters.
+
+    """
+    if not filters:
+        return []
+
+    if not isinstance(filters, str):
+        filters = ' '.join(filters)
+
+    columns = []
+    reserved = {'and', 'or', 'in'}
+
+    for toknum, tokval, _, _, _ in generate_tokens(StringIO(filters).readline):
+        if toknum == NAME and tokval not in reserved:
+            columns.append(tokval)
+
+    return list(set(columns))
