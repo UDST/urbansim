@@ -107,3 +107,23 @@ def test_columns_and_tables(df, clear_sim):
             {'b': [2, 2.5, 3],
              'd': [4., 5., 6.]},
             index=['x', 'y', 'z']))
+
+
+def test_models(df, clear_sim):
+    sim.add_table('test_table', df)
+
+    @sim.model('test_model')
+    def test_model(test_table):
+        tt = test_table.to_frame()
+        test_table['a'] = tt['a'] + tt['b']
+
+    model = sim.get_model('test_model')
+    model()
+
+    table = sim.get_table('test_table')
+    pdt.assert_frame_equal(
+        table.to_frame(),
+        pd.DataFrame(
+            {'a': [5, 7, 9],
+             'b': [4, 5, 6]},
+            index=['x', 'y', 'z']))

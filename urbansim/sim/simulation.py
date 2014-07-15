@@ -6,6 +6,7 @@ import toolz
 
 _TABLES = {}
 _COLUMNS = {}
+_MODELS = {}
 
 
 def clear_sim():
@@ -15,6 +16,7 @@ def clear_sim():
     """
     _TABLES.clear()
     _COLUMNS.clear()
+    _MODELS.clear()
 
 
 class _DataFrameWrapper(object):
@@ -70,6 +72,23 @@ class _DataFrameWrapper(object):
             df[name] = col()
 
         return df
+
+    def update_col(self, column_name, series):
+        """
+        Add or replace a column in the underlying DataFrame.
+
+        Parameters
+        ----------
+        column_name : str
+            Column to add or replace.
+        series : pandas.Series or sequence
+            Column data.
+
+        """
+        self._frame[column_name] = series
+
+    def __setitem__(self, key, value):
+        return self.update_col(key, value)
 
 
 class _TableFuncWrapper(object):
@@ -170,6 +189,26 @@ class _SeriesWrapper(object):
         return self._column
 
 
+class _ModelFuncWrapper(object):
+    """
+    Wrap a model function for dependency injection.
+
+    Parameters
+    ----------
+    model_name : str
+    func : callable
+
+    """
+    def __init__(self, model_name, func):
+        self.name = model_name
+        self._func = func
+        self._arg_list = inspect.getargspec(func).args
+
+    def __call__(self):
+        kwargs = {t: get_table(t) for t in self._arg_list}
+        return self._func(**kwargs)
+
+
 def add_table(table_name, table):
     """
     Register a table with the simulation.
@@ -257,7 +296,7 @@ def add_column(table_name, column_name, column):
         column = \
             _ColumnFuncWrapper(table_name, column_name, column)
     else:
-        raise TypeError('Only Series or calleable allowed for column.')
+        raise TypeError('Only Series or callable allowed for column.')
 
     _COLUMNS[(table_name, column_name)] = column
 
@@ -310,3 +349,46 @@ def _columns_for_table(table_name):
     return {cname: col
             for (tname, cname), col in _COLUMNS.items()
             if tname == table_name}
+
+
+def add_model(model_name, func):
+    """
+    Add a model function to the simulation.
+
+    Parameters
+    ----------
+    model_name : str
+    func : callable
+
+    """
+    if isinstance(func, Callable):
+        _MODELS[model_name] = _ModelFuncWrapper(model_name, func)
+    else:
+        raise TypeError('func must be a callable')
+
+
+def model(model_name):
+    """
+    Decorator version of `add_model`, used to decorate a function that
+    will require injection of tables and that can be run by the
+    `run` function.
+
+    """
+    def decorator(func):
+        add_model(model_name, func)
+        return func
+    return decorator
+
+
+def get_model(model_name):
+    """
+    Get a wrapped model by name.
+
+    Parameters
+    ----------
+
+    """
+    if model_name in _MODELS:
+        return _MODELS[model_name]
+    else:
+        raise KeyError('no model named {}'.format(model_name))
