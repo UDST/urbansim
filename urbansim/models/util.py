@@ -11,6 +11,7 @@ from tokenize import generate_tokens, NAME
 import numpy as np
 import pandas as pd
 import patsy
+import toolz
 
 from ..utils.logutil import log_start_finish
 
@@ -277,5 +278,63 @@ def columns_in_filters(filters):
     for toknum, tokval, _, _, _ in generate_tokens(StringIO(filters).readline):
         if toknum == NAME and tokval not in reserved:
             columns.append(tokval)
+
+    return list(set(columns))
+
+
+def _tokens_from_patsy(node):
+    """
+    Yields all the individual tokens from within a patsy formula
+    as parsed by patsy.parse_formula.parse_formula.
+
+    Parameters
+    ----------
+    node : patsy.parse_formula.ParseNode
+
+    """
+    for n in node.args:
+        for t in _tokens_from_patsy(n):
+            yield t
+
+    if node.token:
+        yield node.token
+
+
+def columns_in_formula(formula):
+    """
+    Returns the names of all the columns used in a patsy formula.
+
+    Parameters
+    ----------
+    formula : str, iterable, or dict
+        Any formula construction supported by ``str_model_expression``.
+
+    Returns
+    -------
+    columns : list of str
+
+    """
+    formula = str_model_expression(formula, add_constant=False)
+    columns = []
+
+    tokens = map(
+        lambda x: x.extra,
+        toolz.remove(
+            lambda x: x.extra is None,
+            _tokens_from_patsy(patsy.parse_formula.parse_formula(formula))))
+
+    for tok in tokens:
+        # if there are parentheses in the expression we
+        # want to drop them and everything outside
+        # and start again from the top
+        if '(' in tok:
+            start = tok.find('(') + 1
+            fin = tok.rfind(')')
+            columns.extend(columns_in_formula(tok[start:fin]))
+        else:
+            for toknum, tokval, _, _, _ in generate_tokens(
+                    StringIO(tok).readline):
+                if toknum == NAME:
+                    columns.append(tokval)
 
     return list(set(columns))

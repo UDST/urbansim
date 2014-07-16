@@ -165,3 +165,14 @@ def test_columns_in_filters():
 
     filters = 'a > 5 and 10 < b < 20 and c == "x" and (d > 20 or e < 50)'
     assert set(util.columns_in_filters(filters)) == {'a', 'b', 'c', 'd', 'e'}
+
+
+def test_columns_in_formula():
+    formula = 'a ~ b + c - d * e:f'
+    assert set(util.columns_in_formula(formula)) == \
+        {'a', 'b', 'c', 'd', 'e', 'f'}
+
+    formula = ('np.log(x) + I(y > 9000) + C(z) + I(w - x < 0) + '
+               'np.exp((u * np.pow(v, 2)))')
+    assert set(util.columns_in_formula(formula)) == \
+        {'u', 'v', 'w', 'x', 'y', 'z'}
