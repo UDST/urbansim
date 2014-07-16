@@ -273,13 +273,13 @@ def columns_in_filters(filters):
         filters = ' '.join(filters)
 
     columns = []
-    reserved = {'and', 'or', 'in'}
+    reserved = {'and', 'or', 'in', 'not'}
 
     for toknum, tokval, _, _, _ in generate_tokens(StringIO(filters).readline):
         if toknum == NAME and tokval not in reserved:
             columns.append(tokval)
 
-    return list(set(columns))
+    return list(toolz.unique(columns))
 
 
 def _tokens_from_patsy(node):
@@ -337,4 +337,4 @@ def columns_in_formula(formula):
                 if toknum == NAME:
                     columns.append(tokval)
 
-    return list(set(columns))
+    return list(toolz.unique(columns))

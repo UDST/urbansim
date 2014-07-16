@@ -166,6 +166,9 @@ def test_columns_in_filters():
     filters = 'a > 5 and 10 < b < 20 and c == "x" and (d > 20 or e < 50)'
     assert set(util.columns_in_filters(filters)) == {'a', 'b', 'c', 'd', 'e'}
 
+    filters = 'a in [1, 2, 3] or b not in ["x", "y", "z"]'
+    assert set(util.columns_in_filters(filters)) == {'a', 'b'}
+
 
 def test_columns_in_formula():
     formula = 'a ~ b + c - d * e:f'
