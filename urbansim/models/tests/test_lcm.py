@@ -81,6 +81,11 @@ def test_mnl_lcm(choosers, alternatives):
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
+    assert model.choosers_columns_used() == ['var1']
+    assert set(model.alts_columns_used()) == {'var2', 'var3'}
+    assert set(model.interaction_columns_used()) == {'var1', 'var2', 'var3'}
+    assert set(model.columns_used()) == {'var1', 'var2', 'var3'}
+
     loglik = model.fit(choosers, alternatives, choosers.thing_id)
     model.report_fit()
 
@@ -147,6 +152,11 @@ def test_mnl_lcm_group(grouped_choosers, alternatives):
     group.add_model_from_params('x', model_exp, sample_size)
     group.add_model_from_params('y', model_exp, sample_size)
 
+    assert group.choosers_columns_used() == []
+    assert group.alts_columns_used() == []
+    assert set(group.interaction_columns_used()) == {'var1', 'var2', 'var3'}
+    assert set(group.columns_used()) == {'var1', 'var2', 'var3'}
+
     assert group.fitted is False
     logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
     assert group.fitted is True
@@ -175,6 +185,11 @@ def test_mnl_lcm_segmented(grouped_choosers, alternatives):
         'group', sample_size, default_model_expr=model_exp)
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
+
+    assert group.choosers_columns_used() == []
+    assert group.alts_columns_used() == []
+    assert set(group.interaction_columns_used()) == {'var1', 'var2', 'var3'}
+    assert set(group.columns_used()) == {'var1', 'var2', 'var3'}
 
     assert group.fitted is False
     logliks = group.fit(grouped_choosers, alternatives, 'thing_id')

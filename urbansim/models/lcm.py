@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
+import toolz
 
 from . import util
 from ..urbanchoice import interaction, mnl
@@ -404,6 +405,46 @@ class MNLLocationChoiceModel(object):
         logger.debug('serializing LCM model {} to YAML'.format(self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
+    def choosers_columns_used(self):
+        """
+        Columns from the choosers table that are used for filtering.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.choosers_predict_filters),
+            util.columns_in_filters(self.choosers_fit_filters))))
+
+    def alts_columns_used(self):
+        """
+        Columns from the alternatives table that are used for filtering.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.alts_predict_filters),
+            util.columns_in_filters(self.alts_fit_filters))))
+
+    def interaction_columns_used(self):
+        """
+        Columns from the interaction dataset used for filtering and in
+        the model. These may come originally from either the choosers or
+        alternatives tables.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.interaction_predict_filters),
+            util.columns_in_formula(self.model_expression))))
+
+    def columns_used(self):
+        """
+        Columns from any table used in the model. May come from either
+        the choosers or alternatives tables.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            self.choosers_columns_used(),
+            self.alts_columns_used(),
+            self.interaction_columns_used())))
+
 
 class MNLLocationChoiceModelGroup(object):
     """
@@ -586,6 +627,41 @@ class MNLLocationChoiceModelGroup(object):
         logger.debug(
             'finish: predict models in LCM group {}'.format(self.name))
         return pd.concat(results) if results else pd.Series()
+
+    def choosers_columns_used(self):
+        """
+        Columns from the choosers table that are used for filtering.
+
+        """
+        return list(toolz.unique(toolz.concat(
+            m.choosers_columns_used() for m in self.models.values())))
+
+    def alts_columns_used(self):
+        """
+        Columns from the alternatives table that are used for filtering.
+
+        """
+        return list(toolz.unique(toolz.concat(
+            m.alts_columns_used() for m in self.models.values())))
+
+    def interaction_columns_used(self):
+        """
+        Columns from the interaction dataset used for filtering and in
+        the model. These may come originally from either the choosers or
+        alternatives tables.
+
+        """
+        return list(toolz.unique(toolz.concat(
+            m.interaction_columns_used() for m in self.models.values())))
+
+    def columns_used(self):
+        """
+        Columns from any table used in the model. May come from either
+        the choosers or alternatives tables.
+
+        """
+        return list(toolz.unique(toolz.concat(
+            m.columns_used() for m in self.models.values())))
 
 
 class SegmentedMNLLocationChoiceModel(object):
@@ -920,3 +996,41 @@ class SegmentedMNLLocationChoiceModel(object):
         """
         logger.debug('serializing segmented LCM {} to YAML'.format(self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
+
+    def choosers_columns_used(self):
+        """
+        Columns from the choosers table that are used for filtering.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.choosers_predict_filters),
+            util.columns_in_filters(self.choosers_fit_filters))))
+
+    def alts_columns_used(self):
+        """
+        Columns from the alternatives table that are used for filtering.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.alts_predict_filters),
+            util.columns_in_filters(self.alts_fit_filters))))
+
+    def interaction_columns_used(self):
+        """
+        Columns from the interaction dataset used for filtering and in
+        the model. These may come originally from either the choosers or
+        alternatives tables.
+
+        """
+        return self._group.interaction_columns_used()
+
+    def columns_used(self):
+        """
+        Columns from any table used in the model. May come from either
+        the choosers or alternatives tables.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            self.choosers_columns_used(),
+            self.alts_columns_used(),
+            self.interaction_columns_used())))
