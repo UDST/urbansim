@@ -112,6 +112,7 @@ def test_RegressionModel(test_df):
     assert model.ytransform == ytransform
     assert model.name == name
     assert model.model_fit is None
+    assert set(model.columns_used()) == {'col1', 'col2'}
 
     # verify there's an error if there isn't a model fit yet
     with pytest.raises(RuntimeError):
@@ -141,6 +142,8 @@ def test_RegressionModelGroup(groupby_df):
     hmg.add_model_from_params('y', None, None, model_exp)
     assert isinstance(hmg.models['y'], regression.RegressionModel)
     assert hmg.models['y'].name == 'y'
+
+    assert set(hmg.columns_used()) == {'col1', 'col2'}
 
     assert hmg.fitted is False
     fits = hmg.fit(groupby_df)
@@ -302,8 +305,9 @@ def test_SegmentedRegressionModel_explicit(groupby_df):
         predict_filters=['group != "z"'])
     seg.add_segment('x', 'col1 ~ col2')
     seg.add_segment('y', 'np.exp(col2) ~ np.exp(col1)', np.log)
-    fits = seg.fit(groupby_df)
+    assert set(seg.columns_used()) == {'col1', 'col2', 'group'}
 
+    fits = seg.fit(groupby_df)
     assert 'x' in fits and 'y' in fits
     assert isinstance(fits['x'], RegressionResultsWrapper)
 

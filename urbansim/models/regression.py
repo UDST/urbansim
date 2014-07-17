@@ -8,6 +8,7 @@ import logging
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
+import toolz
 from patsy import dmatrix
 from prettytable import PrettyTable
 
@@ -444,6 +445,17 @@ class RegressionModel(object):
             'serializing regression model {} to YAML'.format(self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
+    def columns_used(self):
+        """
+        Returns all the columns used in this model for filtering
+        and in the model expression.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.fit_filters),
+            util.columns_in_filters(self.predict_filters),
+            util.columns_in_formula(self.model_expression))))
+
 
 class RegressionModelGroup(object):
     """
@@ -586,6 +598,15 @@ class RegressionModelGroup(object):
             results = [self.models[name].predict(df)
                        for name, df in self._iter_groups(data)]
         return pd.concat(results)
+
+    def columns_used(self):
+        """
+        Returns all the columns used across all models in the group
+        for filtering and in the model expression.
+
+        """
+        return list(toolz.unique(toolz.concat(
+            m.columns_used() for m in self.models.values())))
 
 
 class SegmentedRegressionModel(object):
@@ -865,3 +886,14 @@ class SegmentedRegressionModel(object):
             'serializing segmented regression model {} to yaml'.format(
                 self.name))
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
+
+    def columns_used(self):
+        """
+        Returns all the columns used across all models in the group
+        for filtering and in the model expression.
+
+        """
+        return list(toolz.unique(toolz.concatv(
+            util.columns_in_filters(self.fit_filters),
+            util.columns_in_filters(self.predict_filters),
+            self._group.columns_used())))
