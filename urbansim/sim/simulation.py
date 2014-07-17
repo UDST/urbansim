@@ -43,7 +43,7 @@ class _DataFrameWrapper(object):
         Columns in this table.
 
         """
-        return self._frame.columns + _list_columns_for_table(self.name)
+        return list(self._frame.columns) + _list_columns_for_table(self.name)
 
     @property
     def index(self):
@@ -139,6 +139,7 @@ class _TableFuncWrapper(object):
         self._func = func
         self._arg_list = set(inspect.getargspec(func).args)
         self._columns = []
+        self._index = None
 
     @property
     def columns(self):
@@ -146,7 +147,16 @@ class _TableFuncWrapper(object):
         Columns in this table. (May often be out of date.)
 
         """
-        return self._columns + _list_columns_for_table(self.table)
+        return self._columns + _list_columns_for_table(self.name)
+
+    @property
+    def index(self):
+        """
+        Index of the underlying table. Will be None if that index is
+        unknown.
+
+        """
+        return self._index
 
     def to_frame(self, columns=None):
         """
@@ -166,7 +176,29 @@ class _TableFuncWrapper(object):
         kwargs = {t: get_table(t) for t in self._arg_list}
         frame = self._func(**kwargs)
         self._columns = frame.columns
+        self._index = frame.index
         return _DataFrameWrapper(self.name, frame).to_frame(columns)
+
+    def get_column(self, column_name):
+        """
+        Returns a column as a Series.
+
+        Parameters
+        ----------
+        column_name : str
+
+        Returns
+        -------
+        column : pandas.Series
+
+        """
+        return self.to_frame(columns=[column_name])[column_name]
+
+    def __getitem__(self, key):
+        return self.get_column(key)
+
+    def __getattr__(self, key):
+        return self.get_column(key)
 
 
 class _ColumnFuncWrapper(object):
