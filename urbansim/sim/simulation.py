@@ -45,6 +45,14 @@ class _DataFrameWrapper(object):
         """
         return self._frame.columns + _list_columns_for_table(self.name)
 
+    @property
+    def index(self):
+        """
+        Table index.
+
+        """
+        return self._frame.index
+
     def to_frame(self, columns=None):
         """
         Make a DataFrame with the given columns.
@@ -91,6 +99,27 @@ class _DataFrameWrapper(object):
 
     def __setitem__(self, key, value):
         return self.update_col(key, value)
+
+    def get_column(self, column_name):
+        """
+        Returns a column as a Series.
+
+        Parameters
+        ----------
+        column_name : str
+
+        Returns
+        -------
+        column : pandas.Series
+
+        """
+        return self.to_frame(columns=[column_name])[column_name]
+
+    def __getitem__(self, key):
+        return self.get_column(key)
+
+    def __getattr__(self, key):
+        return self.get_column(key)
 
 
 class _TableFuncWrapper(object):

@@ -32,6 +32,12 @@ def test_tables(df, clear_sim):
 
     assert set(sim.list_tables()) == {'test_frame', 'test_func'}
 
+    table = sim.get_table('test_frame')
+    pdt.assert_index_equal(table.index, df.index)
+    pdt.assert_series_equal(table.get_column('a'), df.a)
+    pdt.assert_series_equal(table.a, df.a)
+    pdt.assert_series_equal(table['b'], df['b'])
+
     table = sim.get_table('test_func')
 
     pdt.assert_frame_equal(table.to_frame(), df / 2)
