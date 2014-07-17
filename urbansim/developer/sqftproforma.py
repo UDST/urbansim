@@ -482,6 +482,14 @@ class SqFtProForma:
             will not be built above these heights.  Will pick between the min of
             the far and height, will ignore on of them if one is nan, but will not
             build if both are nan.
+        max_dua : series, optional
+            A series representing the maximum dwelling units per acre allowed by
+            zoning.  If max_dua is passed, the average unit size should be passed
+            below to translate from dua to floor space.
+        ave_unit_size : series, optional
+            This is required if max_dua is passed above, otherwise it is optional.
+            This is the same as the parameter to Developer.pick() (it should be the
+            same series).
 
         Returns
         -------
@@ -523,7 +531,19 @@ class SqFtProForma:
         # min between max_fars and max_heights
         df['max_far_from_heights'] = df.max_height / c.height_per_story * \
             c.parcel_coverage
-        df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1).fillna(0)
+        df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
+
+        # now also minimize with max_dua from zoning - since this pro forma is really geared
+        # toward per sqft metrics, this is a bit tricky.  dua is converted to floorspace and
+        # everything just works (floor space will get covered back to units in developer.pick()
+        # but we need to test the profitability of the floorspace allowed by max_dua here.
+        if 'max_dua' in df.columns:
+            # if max_dua is in the data frame, ave_unit_size must also be present
+            assert 'ave_unit_size' in df.columns
+            df['max_far_from_dua'] = df.max_dua * df.ave_unit_size / self.config.building_efficiency
+            df['min_max_fars'] = df[['min_max_fars', 'max_far_from_dua']].min(axis=1)
+
+        df['min_max_fars'] = df.min_max_fars.fillna(0)
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
 

@@ -20,6 +20,14 @@ def simple_dev_inputs():
 
 
 @pytest.fixture
+def max_dua_dev_inputs():
+    sdi = simple_dev_inputs()
+    sdi['max_dua'] = [0, 0, 0]
+    sdi['ave_unit_size'] = [650, 650, 650]
+    return sdi
+
+
+@pytest.fixture
 def simple_dev_inputs_high_cost():
     sdi = simple_dev_inputs()
     sdi.land_cost *= 20
@@ -48,6 +56,18 @@ def test_sqftproforma_defaults(simple_dev_inputs):
             assert len(out) == 3
         if form == "office":
             assert len(out) == 2
+
+
+def test_sqftproforma_max_dua(simple_dev_inputs_low_cost, max_dua_dev_inputs):
+    pf = sqpf.SqFtProForma()
+
+    out = pf.lookup("residential", simple_dev_inputs_low_cost)
+    # normal run return 3
+    assert len(out) == 3
+
+    out = pf.lookup("residential", max_dua_dev_inputs)
+    # max_dua is set to 0
+    assert len(out) == 0
 
 
 def test_sqftproforma_low_cost(simple_dev_inputs_low_cost):
