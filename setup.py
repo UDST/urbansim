@@ -29,6 +29,7 @@ setup(
         'shapely>=1.3.0',
         'simplejson>=3.3.3',
         'statsmodels>=0.5.0',
-        'tables>=3.1.0'
+        'tables>=3.1.0',
+        'toolz>=0.7.0'
     ]
 )
