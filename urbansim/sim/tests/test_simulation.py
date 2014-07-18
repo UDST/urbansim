@@ -34,6 +34,7 @@ def test_tables(df, clear_sim):
 
     table = sim.get_table('test_frame')
     assert table.columns == ['a', 'b']
+    assert len(table) == 3
     pdt.assert_index_equal(table.index, df.index)
     pdt.assert_series_equal(table.get_column('a'), df.a)
     pdt.assert_series_equal(table.a, df.a)
@@ -42,12 +43,15 @@ def test_tables(df, clear_sim):
     table = sim.get_table('test_func')
     assert table.index is None
     assert table.columns == []
+    assert len(table) is 0
     pdt.assert_frame_equal(table.to_frame(), df / 2)
     pdt.assert_frame_equal(table.to_frame(columns=['a']), df[['a']] / 2)
     pdt.assert_index_equal(table.index, df.index)
     pdt.assert_series_equal(table.get_column('a'), df.a / 2)
     pdt.assert_series_equal(table.a, df.a / 2)
     pdt.assert_series_equal(table['b'], df['b'] / 2)
+    assert len(table) == 3
+    assert table.columns == ['a', 'b']
 
 
 def test_columns_for_table(clear_sim):
@@ -91,6 +95,7 @@ def test_columns_and_tables(df, clear_sim):
         return test_func.to_frame(columns=['b'])['b'] * 2
 
     test_frame = sim.get_table('test_frame')
+    assert test_frame.columns == ['a', 'b', 'c']
     pdt.assert_frame_equal(
         test_frame.to_frame(),
         pd.DataFrame(
@@ -106,6 +111,7 @@ def test_columns_and_tables(df, clear_sim):
             index=['x', 'y', 'z']))
 
     test_func_df = sim.get_table('test_func')
+    assert test_func_df.columns == ['d']
     pdt.assert_frame_equal(
         test_func_df.to_frame(),
         pd.DataFrame(
@@ -120,6 +126,7 @@ def test_columns_and_tables(df, clear_sim):
             {'b': [2, 2.5, 3],
              'd': [4., 5., 6.]},
             index=['x', 'y', 'z']))
+    assert test_func_df.columns == ['a', 'b', 'c', 'd']
 
 
 def test_models(df, clear_sim):
