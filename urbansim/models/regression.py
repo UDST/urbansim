@@ -195,7 +195,8 @@ def _model_fit_to_table(fit):
 
 
 YTRANSFORM_MAPPING = {
-    None: None,
+    None: '',
+    '': None,
     np.exp: 'np.exp',
     'np.exp': np.exp,
     np.log: 'np.log',
