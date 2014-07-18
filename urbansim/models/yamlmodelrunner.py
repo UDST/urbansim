@@ -1,7 +1,9 @@
 import numpy as np
 import yaml
 import pandas as pd
+from numpy import random
 from urbansim.utils import misc
+import urbansim.sim.simulation as sim
 from urbansim.models import RegressionModel, SegmentedRegressionModel, \
     MNLLocationChoiceModel, SegmentedMNLLocationChoiceModel, \
     GrowthRateTransition
@@ -58,7 +60,10 @@ def hedonic_simulate(df, cfgname, outdf, outfname):
         hm.min_segment_size = 10
     price_or_rent = hm.predict(df)
     print price_or_rent.describe()
-    outdf.loc[price_or_rent.index.values, outfname] = price_or_rent
+    print
+    s = outdf[outfname]
+    s.loc[price_or_rent.index.values] = price_or_rent
+    outdf[outfname] = s
 
 
 def lcm_estimate(choosers, chosen_fname, alternatives, cfgname):
@@ -140,7 +145,8 @@ def _print_number_unplaced(df, fieldname="building_id"):
     print "Total currently unplaced: %d" % count
 
 
-def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
+def lcm_simulate(choosers, locations, cfgname, outdf, output_fname,
+                 location_ratio=2.0):
     """
     Simulate the location choices for the specified choosers
 
@@ -158,6 +164,9 @@ def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
         The dataframe to write the simulated location to.
     outfname : string
         The column name to write the simulated location to.
+    location_ratio : float
+        Above the location ratio (default of 2.0) of locations to choosers, the
+        locations will be sampled to meet this ratio (for performance reasons).
     """
     print "Running location choice model simulation\n"
     cfg = misc.config(cfgname)
@@ -170,12 +179,22 @@ def lcm_simulate(choosers, locations, cfgname, outdf, output_fname):
 
     movers = choosers[choosers[output_fname].isnull()]
 
+    if len(locations) > len(movers) * location_ratio:
+        print "Location ratio exceeded: %d locations and only %d choosers" % \
+              (len(locations), len(movers))
+        idxes = random.choice(locations.index, size=len(movers) * location_ratio,
+                              replace=False)
+        locations = locations.loc[idxes]
+        print "  after sampling %d locations are available\n" % len(locations)
+
     new_units = lcm.predict(movers, locations, debug=True)
     print "Assigned %d choosers to new units" % len(new_units.index)
     if len(new_units) == 0:
         return
-    outdf[output_fname].loc[new_units.index] = \
+    s = outdf[output_fname]
+    s.loc[new_units.index] = \
         locations.loc[new_units.values][output_fname].values
+    outdf[output_fname] = s
     _print_number_unplaced(outdf, output_fname)
 
     if model_type == "locationchoice":
@@ -204,15 +223,18 @@ def simple_relocation(choosers, relocation_rate, fieldname='building_id'):
         The field name in the choosers dataframe to set to np.nan for those
         rows to mark for relocation.
     """
-    print "Running relocation\n"
+    print "Total agents: %d" % len(choosers)
     _print_number_unplaced(choosers, fieldname)
     chooser_ids = np.random.choice(choosers.index, size=int(relocation_rate *
                                    len(choosers)), replace=False)
-    choosers[fieldname].loc[chooser_ids] = np.nan
+    s = choosers[fieldname]
+    print "Assinging for relocation..."
+    s.loc[chooser_ids] = np.nan
+    choosers[fieldname] = s
     _print_number_unplaced(choosers, fieldname)
 
 
-def simple_transition(dset, dfname, rate):
+def simple_transition(dfname, rate):
     """
     Parameters
     ----------
@@ -227,8 +249,8 @@ def simple_transition(dset, dfname, rate):
         transition model.
     """
     transition = GrowthRateTransition(rate)
-    df = dset.fetch(dfname)
+    df = sim.get_table(dfname).to_frame()
     print "%d agents before transition" % len(df.index)
     df, added, copied, removed = transition.transition(df, None)
     print "%d agents after transition" % len(df.index)
-    dset.save_tmptbl(dfname, df)
+    sim.add_table(dfname, df)

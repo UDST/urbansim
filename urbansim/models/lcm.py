@@ -333,8 +333,12 @@ class MNLLocationChoiceModel(object):
             choosers.head(num_choosers), alternatives, len(alternatives))
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
+        print(merged.describe())
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
+        print (len(merged))
+        print (model_design.as_matrix().shape)
+        assert len(merged) == model_design.as_matrix().shape[0]
 
         coeffs = [self.fit_parameters['Coefficient'][x]
                   for x in model_design.columns]
@@ -619,6 +623,14 @@ class MNLLocationChoiceModelGroup(object):
         results = []
 
         for name, df in self._iter_groups(choosers):
+            print("name")
+            print(name)
+            print("df")
+            print(len(df))
+            print("alts")
+            print(len(alternatives))
+            assert len(df)
+            assert len(alternatives)
             choices = self.models[name].predict(df, alternatives, debug=debug)
             # remove chosen alternatives
             alternatives = alternatives.loc[~alternatives.index.isin(choices)]
