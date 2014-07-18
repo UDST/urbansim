@@ -121,6 +121,9 @@ class _DataFrameWrapper(object):
     def __getattr__(self, key):
         return self.get_column(key)
 
+    def __len__(self):
+        return len(self._frame)
+
 
 class _TableFuncWrapper(object):
     """
@@ -140,6 +143,7 @@ class _TableFuncWrapper(object):
         self._arg_list = set(inspect.getargspec(func).args)
         self._columns = []
         self._index = None
+        self._len = 0
 
     @property
     def columns(self):
@@ -175,8 +179,9 @@ class _TableFuncWrapper(object):
         """
         kwargs = {t: get_table(t) for t in self._arg_list}
         frame = self._func(**kwargs)
-        self._columns = frame.columns
+        self._columns = list(frame.columns)
         self._index = frame.index
+        self._len = len(frame)
         return _DataFrameWrapper(self.name, frame).to_frame(columns)
 
     def get_column(self, column_name):
@@ -199,6 +204,9 @@ class _TableFuncWrapper(object):
 
     def __getattr__(self, key):
         return self.get_column(key)
+
+    def __len__(self):
+        return self._len
 
 
 class _ColumnFuncWrapper(object):
