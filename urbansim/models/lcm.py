@@ -14,6 +14,7 @@ from prettytable import PrettyTable
 import toolz
 
 from . import util
+from ..exceptions import ModelEvaluationError
 from ..urbanchoice import interaction, mnl
 from ..utils import yamlio
 from ..utils.logutil import log_start_finish
@@ -238,6 +239,13 @@ class MNLLocationChoiceModel(object):
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
+
+        if len(merged) != model_design.as_matrix().shape[0]:
+            raise ModelEvaluationError(
+                'Estimated data does not have the same length as input.  '
+                'This suggests there are null values in one or more of '
+                'the input columns.')
+
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
         self.fit_parameters.index = model_design.columns
@@ -333,12 +341,14 @@ class MNLLocationChoiceModel(object):
             choosers.head(num_choosers), alternatives, len(alternatives))
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
-        print(merged.describe())
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
-        print (len(merged))
-        print (model_design.as_matrix().shape)
-        assert len(merged) == model_design.as_matrix().shape[0]
+
+        if len(merged) != model_design.as_matrix().shape[0]:
+            raise ModelEvaluationError(
+                'Simulated data does not have the same length as input.  '
+                'This suggests there are null values in one or more of '
+                'the input columns.')
 
         coeffs = [self.fit_parameters['Coefficient'][x]
                   for x in model_design.columns]
@@ -623,14 +633,6 @@ class MNLLocationChoiceModelGroup(object):
         results = []
 
         for name, df in self._iter_groups(choosers):
-            print("name")
-            print(name)
-            print("df")
-            print(len(df))
-            print("alts")
-            print(len(alternatives))
-            assert len(df)
-            assert len(alternatives)
             choices = self.models[name].predict(df, alternatives, debug=debug)
             # remove chosen alternatives
             alternatives = alternatives.loc[~alternatives.index.isin(choices)]

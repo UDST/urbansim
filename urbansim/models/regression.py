@@ -42,6 +42,13 @@ def fit_model(df, filters, model_expression):
     """
     df = util.apply_filter_query(df, filters)
     model = smf.ols(formula=model_expression, data=df)
+
+    if len(model.exog) != len(df):
+        raise ModelEvaluationError(
+            'Estimated data does not have the same length as input.  '
+            'This suggests there are null values in one or more of '
+            'the input columns.')
+
     with log_start_finish('statsmodels OLS fit', logger):
         return model.fit()
 
@@ -325,6 +332,7 @@ class RegressionModel(object):
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
             index = util.apply_filter_query(data, self.fit_filters).index
+            assert len(fit.model.exog) == len(index)
             df = pd.DataFrame(
                 fit.model.exog, columns=fit.model.exog_names, index=index)
             df[fit.model.endog_names] = fit.model.endog

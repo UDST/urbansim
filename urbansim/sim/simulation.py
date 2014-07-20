@@ -489,4 +489,7 @@ def run(models, years=None):
         for model_name in models:
             print('Running model {}'.format(model_name))
             model = get_model(model_name)
+            import time
+            t1 = time.time()
             model(year=year)
+            print("Time to execute model = %.3fs" % (time.time()-t1))
