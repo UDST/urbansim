@@ -285,7 +285,8 @@ def simple_transition(dfname, rate):
         transition model.
     """
     transition = GrowthRateTransition(rate)
-    df = sim.get_table(dfname).to_frame()
+    tbl = sim.get_table(dfname)
+    df = tbl.to_frame(tbl.local_columns)
     print "%d agents before transition" % len(df.index)
     df, added, copied, removed = transition.transition(df, None)
     print "%d agents after transition" % len(df.index)
