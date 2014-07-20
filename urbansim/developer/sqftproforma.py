@@ -543,7 +543,6 @@ class SqFtProForma:
             df['max_far_from_dua'] = df.max_dua * df.ave_unit_size / self.config.building_efficiency
             df['min_max_fars'] = df[['min_max_fars', 'max_far_from_dua']].min(axis=1)
 
-        df['min_max_fars'] = df.min_max_fars.fillna(0)
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
 

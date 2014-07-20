@@ -172,7 +172,7 @@ def _print_number_unplaced(df, fieldname="building_id"):
     Just an internal function to use to compute and print info on the number
     of unplaced agents.
     """
-    counts = df[fieldname].isnull().value_counts()
+    counts = (df[fieldname] == -1).value_counts()
     count = 0 if True not in counts else counts[True]
     print "Total currently unplaced: %d" % count
 
@@ -257,7 +257,7 @@ def simple_relocation(choosers, relocation_rate, fieldname='building_id'):
         A number less than one describing the percent of rows to mark for
         relocation.
     fieldname : string
-        The field name in the choosers dataframe to set to np.nan for those
+        The field name in the choosers dataframe to set to -1 for those
         rows to mark for relocation.
     """
     choosers_name = choosers
@@ -268,7 +268,7 @@ def simple_relocation(choosers, relocation_rate, fieldname='building_id'):
                                    len(choosers)), replace=False)
     s = choosers[fieldname]
     print "Assinging for relocation..."
-    s.loc[chooser_ids] = np.nan
+    s.loc[chooser_ids] = -1
     sim.add_column(choosers_name, fieldname, s)
     _print_number_unplaced(choosers, fieldname)
 
