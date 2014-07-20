@@ -47,6 +47,14 @@ class _DataFrameWrapper(object):
         return list(self._frame.columns) + _list_columns_for_table(self.name)
 
     @property
+    def local_columns(self):
+        """
+        Columns in this table.
+
+        """
+        return list(self._frame.columns)
+
+    @property
     def index(self):
         """
         Table index.
