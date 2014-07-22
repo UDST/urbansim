@@ -212,7 +212,9 @@ def lcm_simulate(choosers, locations, cfgname, outdf_name, output_fname,
 
     choosers = _to_frame_get_fields(model_type, lcm, output_fname, choosers)
 
-    movers = choosers[choosers[output_fname].isnull()]
+    movers = choosers[choosers[output_fname] == -1]
+
+    locations = deal_with_nas_for_est_or_sim(locations, lcm.columns_used()+[output_fname])
 
     if len(locations) > len(movers) * location_ratio:
         print "Location ratio exceeded: %d locations and only %d choosers" % \
@@ -221,8 +223,6 @@ def lcm_simulate(choosers, locations, cfgname, outdf_name, output_fname,
                               replace=False)
         locations = locations.loc[idxes]
         print "  after sampling %d locations are available\n" % len(locations)
-
-    locations = deal_with_nas_for_est_or_sim(locations, lcm.columns_used())
 
     new_units = lcm.predict(movers, locations, debug=True)
     print "Assigned %d choosers to new units" % len(new_units.index)
