@@ -2,15 +2,16 @@ import pandas as pd
 import numpy as np
 
 
-class Developer:
+class Developer(object):
+    """
+    Pass the dataframe that is returned by feasibility here
+
+    Can also be a dictionary where keys are building forms and values are
+    the individual data frames returned by the proforma lookup routine.
+
+    """
 
     def __init__(self, feasibility):
-        """
-        Pass the dataframe that is returned by feasibility here
-
-        Can also be a dictionary where keys are building forms and values are
-        the individual data frames returned by the proforma lookup routine.
-        """
         if isinstance(feasibility, dict):
             feasibility = pd.concat(feasibility.values(), keys=feasibility.keys(), axis=1)
         self.feasibility = feasibility
@@ -19,21 +20,23 @@ class Developer:
     def max_form(f, colname):
         """
         Assumes dataframe with hierarchical columns with first index equal to the
-        use and second index equal to the attribute
+        use and second index equal to the attribute.
 
-        e.g. f.columns equal to:
-        mixedoffice   building_cost
-                      building_revenue
-                      building_size
-                      max_profit
-                      max_profit_far
-                      total_cost
-        industrial    building_cost
-                      building_revenue
-                      building_size
-                      max_profit
-                      max_profit_far
-                      total_cost
+        e.g. f.columns equal to::
+
+            mixedoffice   building_cost
+                          building_revenue
+                          building_size
+                          max_profit
+                          max_profit_far
+                          total_cost
+            industrial    building_cost
+                          building_revenue
+                          building_size
+                          max_profit
+                          max_profit_far
+                          total_cost
+
         """
         df = f.stack(level=0)[[colname]].stack().unstack(level=1).reset_index(level=1, drop=True)
         return df.idxmax(axis=1)
@@ -48,6 +51,7 @@ class Developer:
         ----------
         forms: list of strings
             List of forms which compete which other.  Can leave some out.
+
         """
         f = self.feasibility
 
@@ -66,7 +70,8 @@ class Developer:
         """
         Compute number of units to build to match target vacancy.
 
-        Parameters:
+        Parameters
+        ----------
         num_agents : int
             number of agents that need units in the region
         num_units : int
@@ -74,7 +79,9 @@ class Developer:
         target_vacancy : float (0-1.0)
             target vacancy rate
 
-        Returns : int
+        Returns
+        -------
+        int
             the number of units that need to be built
         """
         print "Number of agents: %d" % num_agents
@@ -129,6 +136,7 @@ class Developer:
         residential: bool
             If creating non-residential buildings set this to false and developer
             will fill in non_residential_units rather than residential_units
+
         """
 
         if isinstance(form, list):
@@ -183,6 +191,7 @@ class Developer:
         Merge two dataframes of buildings.  The old dataframe is
         usually the buildings dataset and the new dataframe is a modified
         (by the user) version of what is returned by the pick method.
+
         """
         maxind = np.max(old_df.index.values)
         new_df = new_df.reset_index(drop=True)
