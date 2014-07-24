@@ -180,6 +180,7 @@ def test_config_params():
     c = sqpf.SqFtProFormaConfig()
     c.check_is_reasonable()
 
+
 class TestSqFtProFormaDebug(object):
     def teardown_method(self, method):
         if os.path.exists('even_rents.png'):
