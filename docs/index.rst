@@ -17,6 +17,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   sim/index
    models/index
    developer/index
    utils/index
