@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a><ul>
@@ -119,6 +128,9 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -134,27 +146,75 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="sim/index.html#urbansim.sim.simulation.add_column">add_column() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
   <dt><a href="urbanchoice/interaction.html#urbansim.urbanchoice.interaction.add_fnames">add_fnames() (in module urbansim.urbanchoice.interaction)</a>
   </dt>
 
       
-  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.add_model">add_model() (urbansim.models.regression.RegressionModelGroup method)</a>
+  <dt><a href="sim/index.html#urbansim.sim.simulation.add_model">add_model() (in module urbansim.sim.simulation)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.add_model">(urbansim.models.regression.RegressionModelGroup method)</a>
+  </dt>
+
+      </dl></dd>
       
-  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.add_model_from_params">add_model_from_params() (urbansim.models.regression.RegressionModelGroup method)</a>
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model_from_params">add_model_from_params() (urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.add_model_from_params">(urbansim.models.regression.RegressionModelGroup method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="models/transition.html#urbansim.models.transition.add_or_remove_rows">add_or_remove_rows() (in module urbansim.models.transition)</a>
+  </dt>
+
+      
+  <dt><a href="models/transition.html#urbansim.models.transition.add_rows">add_rows() (in module urbansim.models.transition)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="models/transition.html#urbansim.models.transition.add_rows">add_rows() (in module urbansim.models.transition)</a>
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.add_segment">add_segment() (urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.add_segment">(urbansim.models.regression.SegmentedRegressionModel method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.add_table">add_table() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.alts_columns_used">alts_columns_used() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.alts_columns_used">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.alts_columns_used">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="models/util.html#urbansim.models.util.apply_filter_query">apply_filter_query() (in module urbansim.models.util)</a>
   </dt>
@@ -184,6 +244,76 @@
   </dt>
 
       
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig.check_is_reasonable">check_is_reasonable() (urbansim.developer.sqftproforma.SqFtProFormaConfig method)</a>
+  </dt>
+
+      
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.choosers_columns_used">choosers_columns_used() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.choosers_columns_used">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.choosers_columns_used">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.clear_sim">clear_sim() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.column">column() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
+  <dt><a href="models/util.html#urbansim.models.util.columns_in_filters">columns_in_filters() (in module urbansim.models.util)</a>
+  </dt>
+
+      
+  <dt><a href="models/util.html#urbansim.models.util.columns_in_formula">columns_in_formula() (in module urbansim.models.util)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.columns_used">columns_used() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.columns_used">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.columns_used">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.columns_used">(urbansim.models.regression.RegressionModel method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.columns_used">(urbansim.models.regression.RegressionModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.columns_used">(urbansim.models.regression.SegmentedRegressionModel method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="utils/misc.html#urbansim.utils.misc.compute_range">compute_range() (in module urbansim.utils.misc)</a>
+  </dt>
+
+      
+  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.compute_units_to_build">compute_units_to_build() (urbansim.developer.developer.Developer static method)</a>
+  </dt>
+
+      
   <dt><a href="models/util.html#urbansim.models.util.concat_indexes">concat_indexes() (in module urbansim.models.util)</a>
   </dt>
 
@@ -191,8 +321,6 @@
   <dt><a href="utils/misc.html#urbansim.utils.misc.config">config() (in module urbansim.utils.misc)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.configs_dir">configs_dir() (in module urbansim.utils.misc)</a>
   </dt>
@@ -209,6 +337,10 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.data_dir">data_dir() (in module urbansim.utils.misc)</a>
+  </dt>
+
+      
+  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer">Developer (class in urbansim.developer.developer)</a>
   </dt>
 
   </dl></td>
@@ -253,11 +385,23 @@
 
       <dd><dl>
         
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.fit">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+        
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.fit">(urbansim.models.regression.RegressionModel method)</a>
   </dt>
 
         
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.fit">(urbansim.models.regression.RegressionModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.fit">(urbansim.models.regression.SegmentedRegressionModel method)</a>
   </dt>
 
       </dl></dd>
@@ -273,7 +417,23 @@
 
       <dd><dl>
         
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.fitted">(urbansim.models.lcm.MNLLocationChoiceModelGroup attribute)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fitted">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel attribute)</a>
+  </dt>
+
+        
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.fitted">(urbansim.models.regression.RegressionModel attribute)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.fitted">(urbansim.models.regression.RegressionModelGroup attribute)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.fitted">(urbansim.models.regression.SegmentedRegressionModel attribute)</a>
   </dt>
 
       </dl></dd>
@@ -287,7 +447,15 @@
 
       <dd><dl>
         
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.from_yaml">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel class method)</a>
+  </dt>
+
+        
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.from_yaml">(urbansim.models.regression.RegressionModel class method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.from_yaml">(urbansim.models.regression.SegmentedRegressionModel class method)</a>
   </dt>
 
       </dl></dd>
@@ -298,17 +466,33 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">get_ave_cost_sqft() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
+  </dt>
+
+      
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">get_debug_info() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
+  </dt>
+
+      
   <dt><a href="urbanchoice/mnl.html#urbansim.urbanchoice.mnl.get_hessian">get_hessian() (in module urbansim.urbanchoice.mnl)</a>
   </dt>
 
       
-  <dt><a href="utils/misc.html#urbansim.utils.misc.get_run_number">get_run_number() (in module urbansim.utils.misc)</a>
+  <dt><a href="sim/index.html#urbansim.sim.simulation.get_model">get_model() (in module urbansim.sim.simulation)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="utils/misc.html#urbansim.utils.misc.get_run_number">get_run_number() (in module urbansim.utils.misc)</a>
+  </dt>
+
+      
   <dt><a href="urbanchoice/mnl.html#urbansim.urbanchoice.mnl.get_standard_error">get_standard_error() (in module urbansim.urbanchoice.mnl)</a>
+  </dt>
+
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.get_table">get_table() (in module urbansim.sim.simulation)</a>
   </dt>
 
       
@@ -328,11 +512,65 @@
   </dl></td>
 </tr></table>
 
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.interaction_columns_used">interaction_columns_used() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.interaction_columns_used">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.interaction_columns_used">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.keep_form_with_max_profit">keep_form_with_max_profit() (urbansim.developer.developer.Developer method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.list_tables">list_tables() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">lookup() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.maps_dir">maps_dir() (in module urbansim.utils.misc)</a>
+  </dt>
+
+      
+  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.max_form">max_form() (urbansim.developer.developer.Developer static method)</a>
+  </dt>
+
+      
+  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.merge">merge() (urbansim.developer.developer.Developer static method)</a>
   </dt>
 
       
@@ -359,6 +597,14 @@
 
       
   <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel">MNLLocationChoiceModel (class in urbansim.models.lcm)</a>
+  </dt>
+
+      
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup">MNLLocationChoiceModelGroup (class in urbansim.models.lcm)</a>
+  </dt>
+
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.model">model() (in module urbansim.sim.simulation)</a>
   </dt>
 
   </dl></td>
@@ -401,6 +647,10 @@
   <dt><a href="utils/misc.html#urbansim.utils.misc.pandasdfsummarytojson">pandasdfsummarytojson() (in module urbansim.utils.misc)</a>
   </dt>
 
+      
+  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.pick">pick() (urbansim.developer.developer.Developer method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -413,11 +663,23 @@
   </dt>
 
         
+  <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.predict">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+        
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.predict">(urbansim.models.regression.RegressionModel method)</a>
   </dt>
 
         
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup.predict">(urbansim.models.regression.RegressionModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.predict">(urbansim.models.regression.SegmentedRegressionModel method)</a>
   </dt>
 
       </dl></dd>
@@ -433,6 +695,10 @@
 
       
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModelGroup">RegressionModelGroup (class in urbansim.models.regression)</a>
+  </dt>
+
+      
+  <dt><a href="utils/misc.html#urbansim.utils.misc.reindex">reindex() (in module urbansim.utils.misc)</a>
   </dt>
 
       
@@ -460,6 +726,10 @@
   </dt>
 
       
+  <dt><a href="sim/index.html#urbansim.sim.simulation.run">run() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
   <dt><a href="utils/misc.html#urbansim.utils.misc.runs_dir">runs_dir() (in module urbansim.utils.misc)</a>
   </dt>
 
@@ -469,6 +739,14 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel">SegmentedMNLLocationChoiceModel (class in urbansim.models.lcm)</a>
+  </dt>
+
+      
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel">SegmentedRegressionModel (class in urbansim.models.regression)</a>
+  </dt>
+
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.series64bitto32bit">series64bitto32bit() (in module urbansim.utils.misc)</a>
   </dt>
@@ -481,10 +759,22 @@
   <dt><a href="utils/misc.html#urbansim.utils.misc.signif">signif() (in module urbansim.utils.misc)</a>
   </dt>
 
+      
+  <dt><a href="utils/misc.html#urbansim.utils.misc.simulations_dir">simulations_dir() (in module urbansim.utils.misc)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/util.html#urbansim.models.util.sorted_groupby">sorted_groupby() (in module urbansim.models.util)</a>
+  </dt>
+
+      
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma">SqFtProForma (class in urbansim.developer.sqftproforma)</a>
+  </dt>
+
+      
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">SqFtProFormaConfig (class in urbansim.developer.sqftproforma)</a>
   </dt>
 
       
@@ -508,6 +798,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="sim/index.html#urbansim.sim.simulation.table">table() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
   <dt><a href="models/transition.html#urbansim.models.transition.TabularGrowthRateTransition">TabularGrowthRateTransition (class in urbansim.models.transition)</a>
   </dt>
 
@@ -516,24 +810,48 @@
   </dt>
 
       
+  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig.tiled_parcel_sizes">tiled_parcel_sizes (urbansim.developer.sqftproforma.SqFtProFormaConfig attribute)</a>
+  </dt>
+
+      
   <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.to_dict">to_dict() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
   </dt>
 
       <dd><dl>
         
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_dict">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+        
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.to_dict">(urbansim.models.regression.RegressionModel method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.to_dict">(urbansim.models.regression.SegmentedRegressionModel method)</a>
   </dt>
 
       </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="utils/yamlio.html#urbansim.utils.yamlio.to_scalar_safe">to_scalar_safe() (in module urbansim.utils.yamlio)</a>
+  </dt>
+
+      
   <dt><a href="models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.to_yaml">to_yaml() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
   </dt>
 
       <dd><dl>
         
+  <dt><a href="models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_yaml">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+        
   <dt><a href="models/regression.html#urbansim.models.regression.RegressionModel.to_yaml">(urbansim.models.regression.RegressionModel method)</a>
+  </dt>
+
+        
+  <dt><a href="models/regression.html#urbansim.models.regression.SegmentedRegressionModel.to_yaml">(urbansim.models.regression.SegmentedRegressionModel method)</a>
   </dt>
 
       </dl></dd>
@@ -570,6 +888,14 @@
   </dt>
 
       
+  <dt><a href="developer/developer.html#module-urbansim.developer.developer">urbansim.developer.developer (module)</a>
+  </dt>
+
+      
+  <dt><a href="developer/sqftproforma.html#module-urbansim.developer.sqftproforma">urbansim.developer.sqftproforma (module)</a>
+  </dt>
+
+      
   <dt><a href="models/lcm.html#module-urbansim.models.lcm">urbansim.models.lcm (module)</a>
   </dt>
 
@@ -585,12 +911,16 @@
   <dt><a href="models/transition.html#module-urbansim.models.transition">urbansim.models.transition (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/util.html#module-urbansim.models.util">urbansim.models.util (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="sim/index.html#module-urbansim.sim.simulation">urbansim.sim.simulation (module)</a>
+  </dt>
+
       
   <dt><a href="urbanchoice/interaction.html#module-urbansim.urbanchoice.interaction">urbansim.urbanchoice.interaction (module)</a>
   </dt>

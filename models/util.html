@@ -129,15 +129,61 @@ desired rows.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
-<p><strong>filters</strong> : list of str, optional</p>
+<p><strong>filters</strong> : list of str or str, optional</p>
 <blockquote>
 <div><p>List of filters to apply. Will be joined together with
-&#8216; and &#8216; and passed to DataFrame.query.
+&#8216; and &#8216; and passed to DataFrame.query. A string will be passed
+straight to DataFrame.query.
 If not supplied no filtering will be done.</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_df</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.util.columns_in_filters">
+<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">columns_in_filters</tt><big>(</big><em>filters</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the columns used in a set of query filters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filters</strong> : list of str or str</p>
+<blockquote>
+<div><p>List of the filters as passed passed to <tt class="docutils literal"><span class="pre">apply_filter_query</span></tt>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>columns</strong> : list of str</p>
+<blockquote class="last">
+<div><p>List of all the strings mentioned in the filters.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.util.columns_in_formula">
+<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">columns_in_formula</tt><big>(</big><em>formula</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the names of all the columns used in a patsy formula.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>formula</strong> : str, iterable, or dict</p>
+<blockquote>
+<div><p>Any formula construction supported by <tt class="docutils literal"><span class="pre">str_model_expression</span></tt>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>columns</strong> : list of str</p>
 </td>
 </tr>
 </tbody>

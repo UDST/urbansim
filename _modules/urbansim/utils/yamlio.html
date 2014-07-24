@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -117,6 +126,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 
@@ -159,6 +169,16 @@
             <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>
 
 </div>
+<div class="viewcode-block" id="to_scalar_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.to_scalar_safe">[docs]</a><span class="k">def</span> <span class="nf">to_scalar_safe</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a numpy data type to a standard python scalar.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+</div>
 <div class="viewcode-block" id="ordered_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.ordered_yaml">[docs]</a><span class="k">def</span> <span class="nf">ordered_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a dictionary to a YAML string with preferential ordering</span>
@@ -175,12 +195,14 @@
 <span class="sd">        Nicely formatted YAML string.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;model_type&#39;</span><span class="p">,</span> <span class="s">&#39;fit_filters&#39;</span><span class="p">,</span> <span class="s">&#39;predict_filters&#39;</span><span class="p">,</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;model_type&#39;</span><span class="p">,</span> <span class="s">&#39;segmentation_col&#39;</span><span class="p">,</span> <span class="s">&#39;fit_filters&#39;</span><span class="p">,</span>
+             <span class="s">&#39;predict_filters&#39;</span><span class="p">,</span>
              <span class="s">&#39;choosers_fit_filters&#39;</span><span class="p">,</span> <span class="s">&#39;choosers_predict_filters&#39;</span><span class="p">,</span>
              <span class="s">&#39;alts_fit_filters&#39;</span><span class="p">,</span> <span class="s">&#39;alts_predict_filters&#39;</span><span class="p">,</span>
              <span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">,</span>
              <span class="s">&#39;choice_column&#39;</span><span class="p">,</span> <span class="s">&#39;sample_size&#39;</span><span class="p">,</span> <span class="s">&#39;estimation_sample_size&#39;</span><span class="p">,</span>
-             <span class="s">&#39;model_expression&#39;</span><span class="p">,</span> <span class="s">&#39;ytransform&#39;</span><span class="p">,</span> <span class="s">&#39;coefficients&#39;</span><span class="p">,</span> <span class="s">&#39;fitted&#39;</span><span class="p">]</span>
+             <span class="s">&#39;model_expression&#39;</span><span class="p">,</span> <span class="s">&#39;ytransform&#39;</span><span class="p">,</span> <span class="s">&#39;default_config&#39;</span><span class="p">,</span> <span class="s">&#39;models&#39;</span><span class="p">,</span>
+             <span class="s">&#39;coefficients&#39;</span><span class="p">,</span> <span class="s">&#39;fitted&#39;</span><span class="p">]</span>
 
     <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>

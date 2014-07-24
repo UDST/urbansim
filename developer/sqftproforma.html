@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Square-Foot Proforma &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+        <link rel="up" title="Developer Models" href="index.html"/>
+        <link rel="next" title="UrbanSim Utilities" href="../utils/index.html"/>
+        <link rel="prev" title="Developer" href="developer.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../models/index.html">Real Estate Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../models/regression.html">Regression Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/lcm.html">Location Choice Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/transition.html">Transition Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/relocation.html">Relocation Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="developer.html">Developer</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Square-Foot Proforma</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Developer Models</a> &raquo;</li>
+      
+    <li>Square-Foot Proforma</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/developer/sqftproforma.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="square-foot-proforma">
+<h1>Square-Foot Proforma<a class="headerlink" href="#square-foot-proforma" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-urbansim.developer.sqftproforma">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.developer.sqftproforma" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="urbansim.developer.sqftproforma.SqFtProForma">
+<em class="property">class </em><tt class="descclassname">urbansim.developer.sqftproforma.</tt><tt class="descname">SqFtProForma</tt><big>(</big><em>config=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the square foot based pro forma.</p>
+<p>This pro forma has no representation of units - it does not
+differentiate between the rent attained by 1BR, 2BR, or 3BR and change
+the rents accordingly.  This is largely because it is difficult to get
+information on the unit mix in an existing building in order to compute
+its acquisition cost.  Thus rents and costs per sqft are used for new
+and current buildings which assumes there is a constant return on
+increasing and decreasing unit sizes, an extremely useful simplifying
+assumption above the project scale (i.e. city of regional scale)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>config</strong> : <cite>SqFtProFormaConfig</cite></p>
+<blockquote class="last">
+<div><p>The configuration object which should be an
+instance of <cite>SqFtProFormaConfig</cite>.  The configuration options for this
+pro forma are documented on the configuration object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
+<tt class="descname">get_ave_cost_sqft</tt><big>(</big><em>form</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the average cost per sqft for the pro forma for a given form</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<blockquote>
+<div><p>Get a series representing the average cost per sqft for each form in the
+config</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A series where the index is the far and the values are the average cost per</p>
+<p>sqft at which the building is &#8220;break even&#8221; given the configuration parameters</p>
+<p class="last">that were passed at run time.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">
+<tt class="descname">get_debug_info</tt><big>(</big><em>form</em>, <em>parking_config</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the debug info after running the pro forma for a given form and parking
+configuration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<blockquote>
+<div><p>The form to get debug info for</p>
+</div></blockquote>
+<p><strong>parking_config</strong> : string</p>
+<blockquote>
+<div><p>The parking configuration to get debug info for</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dataframe where the index is the far with many columns representing</p>
+<p>intermediate steps in the pro forma computation.  Additional documentation</p>
+<p>will be added at a later date, although many of the columns should be fairly</p>
+<p class="last">self-expanatory.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.developer.sqftproforma.SqFtProForma.lookup">
+<tt class="descname">lookup</tt><big>(</big><em>form</em>, <em>df</em>, <em>only_built=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function does the developer model lookups for all the actual input data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<blockquote>
+<div><p>One of the forms specified in the configuration file</p>
+</div></blockquote>
+<p><strong>df: dataframe</strong></p>
+<blockquote>
+<div><p>Pass in a single data frame which is indexed by parcel_id and has the
+following columns</p>
+</div></blockquote>
+<p><strong>only_built</strong> : bool</p>
+<blockquote>
+<div><p>Whether to return only those buildings that are profitable and allowed
+by zoning, or whether to return as much information as possible, even if
+unlikely to be built (can be used when development might be subsidized
+or when debugging)</p>
+</div></blockquote>
+<p><strong>Input Dataframe Columns</strong></p>
+<p><strong>&#8212;&#8212;-</strong></p>
+<p><strong>rent</strong> : dataframe</p>
+<blockquote>
+<div><p>A set of columns, one for each of the uses passed in the configuration.
+Values are yearly rents for that use.  Typical column names would be
+&#8220;residential&#8221;, &#8220;retail&#8221;, &#8220;industrial&#8221; and &#8220;office&#8221;</p>
+</div></blockquote>
+<p><strong>land_cost</strong> : series</p>
+<blockquote>
+<div><p>A series representing the CURRENT yearly rent for each parcel.  Used to
+compute acquisition costs for the parcel.</p>
+</div></blockquote>
+<p><strong>parcel_size</strong> : series</p>
+<blockquote>
+<div><p>A series representing the parcel size for each parcel.</p>
+</div></blockquote>
+<p><strong>max_far</strong> : series</p>
+<blockquote>
+<div><p>A series representing the maximum far allowed by zoning.  Buildings
+will not be built above these fars.</p>
+</div></blockquote>
+<p><strong>max_height</strong> : series</p>
+<blockquote>
+<div><p>A series representing the maxmium height allowed by zoning.  Buildings
+will not be built above these heights.  Will pick between the min of
+the far and height, will ignore on of them if one is nan, but will not
+build if both are nan.</p>
+</div></blockquote>
+<p><strong>max_dua</strong> : series, optional</p>
+<blockquote>
+<div><p>A series representing the maximum dwelling units per acre allowed by
+zoning.  If max_dua is passed, the average unit size should be passed
+below to translate from dua to floor space.</p>
+</div></blockquote>
+<p><strong>ave_unit_size</strong> : series, optional</p>
+<blockquote>
+<div><p>This is required if max_dua is passed above, otherwise it is optional.
+This is the same as the parameter to Developer.pick() (it should be the
+same series).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dataframe which is indexed by the parcel ids that were passed, with the</p>
+<p>following columns.</p>
+<p><strong>building_sqft</strong> : Series, float</p>
+<blockquote>
+<div><p>The number of square feet for the building to build.  Keep in mind
+this includes parking and common space.  Will need a helpful function
+to convert from gross square feet to actual usable square feet in
+residential units.</p>
+</div></blockquote>
+<p><strong>building_cost</strong> : Series, float</p>
+<blockquote>
+<div><p>The cost of constructing the building as given by the
+ave_cost_per_sqft from the cost model (for this FAR) and the number
+of square feet.</p>
+</div></blockquote>
+<p><strong>total_cost</strong> : Series, float</p>
+<blockquote>
+<div><p>The cost of constructing the building plus the cost of acquisition of
+the current parcel/building.</p>
+</div></blockquote>
+<p><strong>building_revenue</strong> : Series, float</p>
+<blockquote>
+<div><p>The NPV of the revenue for the building to be built, which is the
+number of square feet times the yearly rent divided by the cap
+rate (with a few adjustment factors including building efficiency).</p>
+</div></blockquote>
+<p><strong>max_profit_far</strong> : Series, float</p>
+<blockquote>
+<div><p>The FAR of the maximum profit building (constrained by the max_far and
+max_height from the input dataframe).</p>
+</div></blockquote>
+<p>max_profit :</p>
+<blockquote class="last">
+<div><p>The profit for the maximum profit building (constrained by the max_far
+and max_height from the input dataframe).</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.developer.sqftproforma.SqFtProFormaConfig">
+<em class="property">class </em><tt class="descclassname">urbansim.developer.sqftproforma.</tt><tt class="descname">SqFtProFormaConfig</tt><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class encapsulates the configuration options for the square
+foot based pro forma.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="4%" />
+<col width="96%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>parcel_sizes</td>
+<td>(list) A list of parcel sizes to test.  Interestingly, right now the parcel sizes cancel is this style of pro forma computation so you can set this to something reasonable for debugging purposes - e.g. [10000].  All sizes can be feet or meters as long as they are consistently used.</td>
+</tr>
+<tr class="row-even"><td>fars</td>
+<td>(list) A list of floor area ratios to use.  FAR is a multiple of the parcel size that is the total building bulk that is allowed by zoning on the site.  In this case, all of these ratios will be tested regardless of zoning and the zoning test will be performed later.</td>
+</tr>
+<tr class="row-odd"><td>uses</td>
+<td>(list) A list of space uses to use within a building.  These are mixed into forms.  Generally speaking, you should only have uses for which you have an estimate (or observed) values for rents in the building.  By default, uses are retail, industrial, office, and residential.</td>
+</tr>
+<tr class="row-even"><td>forms</td>
+<td>(dict) A dictionary where keys are names for the form and values are also dictionaries where keys are uses and values are the proportion of that use used in this form.  The values of the dictionary should sum to 1.0.  For instance, a form called &#8220;residential&#8221; might have a dict of space allocations equal to {&#8220;residential&#8221;: 1.0} while a form called &#8220;mixedresidential&#8221; might have a dictionary of space allocations equal to {&#8220;retail&#8221;: .1, &#8220;residential&#8221; .9] which is 90% residential and 10% retail.</td>
+</tr>
+<tr class="row-odd"><td>parking_rates</td>
+<td>(dict) A dict of rates per thousand square feet where keys are the uses from the list specified in the attribute above.  The ratios are typically in the range 0.5 - 3.0 or similar.  So for instance, a key-value pair of &#8220;retail&#8221;: 2.0 would be two parking spaces per 1,000 square feet of retail.  This is a per square foot pro forma, so the more typically parking ratio of spaces per residential unit must be converted to square feet for use in this pro forma.</td>
+</tr>
+<tr class="row-even"><td>sqft_per_rate</td>
+<td>(float) The number of square feet per unit for use in the parking_rates above.  By default this is set to 1,000 but can be overridden.</td>
+</tr>
+<tr class="row-odd"><td>parking_configs</td>
+<td>(list) An expert parameter and is usually unchanged.  By default it is set to [&#8216;surface&#8217;, &#8216;deck&#8217;, &#8216;underground&#8217;] and very semantic differences in the computation are performed for each of these parking configurations.  Generally speaking it will break things to change this array, but an item can be removed if that parking configuration should not be tested.</td>
+</tr>
+<tr class="row-even"><td>parking_sqft_d</td>
+<td>(dict) A dictionary where keys are the three parking configurations listed above and values are square foot uses of parking spaces in that configuration.  This is to capture the fact that surface parking is usually more space intensive than deck or underground parking.</td>
+</tr>
+<tr class="row-odd"><td>parking_cost_d</td>
+<td>(dict) The parking cost for each parking configuration.  Keys are the name of the three parking configurations listed above and values are dollars PER SQUARE FOOT for parking in that configuration. Used to capture the fact that underground and deck are far more expensive than surface parking.</td>
+</tr>
+<tr class="row-even"><td>height_for_costs</td>
+<td>(list) A list of &#8220;break points&#8221; as heights at which construction becomes more expensive.  Generally these are the heights at which construction materials change from wood, to concrete, to steel. Costs are also given as lists by use for each of these break points and are considered to be valid up to the break point.  A list would look something like [15, 55, 120, np.inf].</td>
+</tr>
+<tr class="row-odd"><td>costs</td>
+<td>(dict) The keys are uses from the attribute above and the values are a list of floating point numbers of same length as the height_for_costs attribute.  A key-value pair of &#8220;residential&#8221;: [160.0, 175.0, 200.0, 230.0] would say that the residential use if $160/sqft up to 15ft in total height for the building, $175/sqft up to 55ft, $200/sqft up to 120ft, and $230/sqft beyond.  A final value in the height_for_costs array of np.inf is typical.</td>
+</tr>
+<tr class="row-even"><td>height_per_story</td>
+<td>(float) The per-story height for the building used to turn an FAR into an actual height.</td>
+</tr>
+<tr class="row-odd"><td>max_retail_height</td>
+<td>(float) The maximum height of retail buildings to consider.</td>
+</tr>
+<tr class="row-even"><td>max_industrial_height</td>
+<td>(float) The maximum height of industrial buildings to consider.</td>
+</tr>
+<tr class="row-odd"><td>profit_factor</td>
+<td>(float) The ratio of profit a developer expects to make above the break even rent.  Should be greater than 1.0, e.g. a 10% profit would be a profit factor of 1.1.</td>
+</tr>
+<tr class="row-even"><td>building_efficiency</td>
+<td>(float) The efficiency of the building.  This turns total FAR into the amount of space which gets a square foot rent.  The entire building gets the cost of course.</td>
+</tr>
+<tr class="row-odd"><td>parcel_coverage</td>
+<td>(float) The ratio of the building footprint to the parcel size.  Also used to turn an FAR into a height to cost properly.</td>
+</tr>
+<tr class="row-even"><td>cap_rate</td>
+<td>(float) The rate an investor is willing to pay for a cash flow per year. This means $1/year is equivalent to 1/cap_rate present dollars. This is a macroeconomic input that is widely available on the internet.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.developer.sqftproforma.SqFtProFormaConfig.check_is_reasonable">
+<tt class="descname">check_is_reasonable</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig.check_is_reasonable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig.check_is_reasonable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.developer.sqftproforma.SqFtProFormaConfig.tiled_parcel_sizes">
+<tt class="descname">tiled_parcel_sizes</tt><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig.tiled_parcel_sizes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig.tiled_parcel_sizes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../utils/index.html" class="btn btn-neutral float-right" title="UrbanSim Utilities"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="developer.html" class="btn btn-neutral" title="Developer"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -116,11 +125,19 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">tokenize</span> <span class="kn">import</span> <span class="n">generate_tokens</span><span class="p">,</span> <span class="n">NAME</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">patsy</span>
+<span class="kn">import</span> <span class="nn">toolz</span>
+
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="apply_filter_query"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.apply_filter_query">[docs]</a><span class="k">def</span> <span class="nf">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -131,9 +148,10 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">    filters : list of str, optional</span>
+<span class="sd">    filters : list of str or str, optional</span>
 <span class="sd">        List of filters to apply. Will be joined together with</span>
-<span class="sd">        &#39; and &#39; and passed to DataFrame.query.</span>
+<span class="sd">        &#39; and &#39; and passed to DataFrame.query. A string will be passed</span>
+<span class="sd">        straight to DataFrame.query.</span>
 <span class="sd">        If not supplied no filtering will be done.</span>
 
 <span class="sd">    Returns</span>
@@ -141,11 +159,15 @@
 <span class="sd">    filtered_df : pandas.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="s">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">df</span>
+    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;apply filter query: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filters</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">filters</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span>
 
 </div>
 <span class="k">def</span> <span class="nf">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -179,7 +201,11 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;==&#39;</span>
 
-    <span class="k">return</span> <span class="s">&#39;{} {} {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="s">&#39;{} {} {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s">&#39;converted name={} and value={} to filter {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">result</span>
 
 
 <div class="viewcode-block" id="filter_table"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.filter_table">[docs]</a><span class="k">def</span> <span class="nf">filter_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filter_series</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -207,14 +233,16 @@
 <span class="sd">    filtered : pandas.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span> <span class="k">if</span> <span class="n">ignore</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;filter table&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span> <span class="k">if</span> <span class="n">ignore</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-               <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">filter_series</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
-               <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ignore</span> <span class="ow">or</span>
-                       <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">and</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="p">)))]</span>
-    <span class="k">return</span> <span class="n">apply_filter_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">filter_series</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+                   <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ignore</span> <span class="ow">or</span>
+                           <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">and</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="p">)))]</span>
+
+        <span class="k">return</span> <span class="n">apply_filter_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="concat_indexes"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.concat_indexes">[docs]</a><span class="k">def</span> <span class="nf">concat_indexes</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
@@ -312,6 +340,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">model_expression</span> <span class="o">+=</span> <span class="s">&#39; - 1&#39;</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s">&#39;converted expression: {!r} to model: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">expr</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">model_expression</span>
 
 </div>
@@ -340,7 +371,96 @@
             <span class="n">prev</span> <span class="o">=</span> <span class="n">x</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
     <span class="c"># need to send back the last group</span>
-    <span class="k">yield</span> <span class="n">prev</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span></div>
+    <span class="k">yield</span> <span class="n">prev</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span>
+
+</div>
+<div class="viewcode-block" id="columns_in_filters"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.columns_in_filters">[docs]</a><span class="k">def</span> <span class="nf">columns_in_filters</span><span class="p">(</span><span class="n">filters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of the columns used in a set of query filters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filters : list of str or str</span>
+<span class="sd">        List of the filters as passed passed to ``apply_filter_query``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    columns : list of str</span>
+<span class="sd">        List of all the strings mentioned in the filters.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">reserved</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;and&#39;</span><span class="p">,</span> <span class="s">&#39;or&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="s">&#39;not&#39;</span><span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">toknum</span><span class="p">,</span> <span class="n">tokval</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">generate_tokens</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">toknum</span> <span class="o">==</span> <span class="n">NAME</span> <span class="ow">and</span> <span class="n">tokval</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reserved</span><span class="p">:</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokval</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_tokens_from_patsy</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Yields all the individual tokens from within a patsy formula</span>
+<span class="sd">    as parsed by patsy.parse_formula.parse_formula.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    node : patsy.parse_formula.ParseNode</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_tokens_from_patsy</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">t</span>
+
+    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">node</span><span class="o">.</span><span class="n">token</span>
+
+
+<div class="viewcode-block" id="columns_in_formula"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.columns_in_formula">[docs]</a><span class="k">def</span> <span class="nf">columns_in_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the names of all the columns used in a patsy formula.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    formula : str, iterable, or dict</span>
+<span class="sd">        Any formula construction supported by ``str_model_expression``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    columns : list of str</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">formula</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">tokens</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span><span class="p">,</span>
+        <span class="n">toolz</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="n">_tokens_from_patsy</span><span class="p">(</span><span class="n">patsy</span><span class="o">.</span><span class="n">parse_formula</span><span class="o">.</span><span class="n">parse_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">))))</span>
+
+    <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="c"># if there are parentheses in the expression we</span>
+        <span class="c"># want to drop them and everything outside</span>
+        <span class="c"># and start again from the top</span>
+        <span class="k">if</span> <span class="s">&#39;(&#39;</span> <span class="ow">in</span> <span class="n">tok</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">fin</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">)</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="n">tok</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">fin</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">toknum</span><span class="p">,</span> <span class="n">tokval</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">generate_tokens</span><span class="p">(</span>
+                    <span class="n">StringIO</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">toknum</span> <span class="o">==</span> <span class="n">NAME</span><span class="p">:</span>
+                    <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokval</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span></div>
 </pre></div>
 
           </div>

@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -166,6 +175,14 @@
     <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/maps&quot;</span><span class="p">)</span>
 
 </div>
+<div class="viewcode-block" id="simulations_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.simulations_dir">[docs]</a><span class="k">def</span> <span class="nf">simulations_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the simulation configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/simulations&quot;</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="reports_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reports_dir">[docs]</a><span class="k">def</span> <span class="nf">reports_dir</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the directory for the report configuration files (used by the</span>
@@ -202,6 +219,61 @@
     <span class="k">return</span> <span class="n">num</span>
 
 </div>
+<div class="viewcode-block" id="compute_range"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.compute_range">[docs]</a><span class="k">def</span> <span class="nf">compute_range</span><span class="p">(</span><span class="n">travel_data</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">travel_time_attr</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute a zone-based accessibility query using the urbansim format</span>
+<span class="sd">    travel data dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    travel_data : dataframe</span>
+<span class="sd">        The dataframe of urbansim format travel data.  Has from_zone_id as</span>
+<span class="sd">        first index, to_zone_id as second index, and different impedances</span>
+<span class="sd">        between zones as columns.</span>
+<span class="sd">    attr : series</span>
+<span class="sd">        The attr to aggregate.  Should be indexed by zone_id and the values</span>
+<span class="sd">        will be aggregated.</span>
+<span class="sd">    travel_time_attr : string</span>
+<span class="sd">        The column name in travel_data to use as the impedance.</span>
+<span class="sd">    dist : float</span>
+<span class="sd">        The max distance to aggregate up to</span>
+<span class="sd">    agg : function, optional, np.sum by default</span>
+<span class="sd">        The numpy function to use for aggregation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">travel_data</span> <span class="o">=</span> <span class="n">travel_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">travel_data</span> <span class="o">=</span> <span class="n">travel_data</span><span class="p">[</span><span class="n">travel_data</span><span class="p">[</span><span class="n">travel_time_attr</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="p">]</span>
+    <span class="n">travel_data</span><span class="p">[</span><span class="s">&quot;attr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="n">travel_data</span><span class="o">.</span><span class="n">to_zone_id</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="n">travel_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="reindex"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reindex">[docs]</a><span class="k">def</span> <span class="nf">reindex</span><span class="p">(</span><span class="n">series1</span><span class="p">,</span> <span class="n">series2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This reindexes the first series by the second series.  This is an extremely</span>
+<span class="sd">    common operation that does not appear to  be in Pandas at this time.</span>
+<span class="sd">    If anyone knows of an easier way to do this in Pandas, please inform the</span>
+<span class="sd">    UrbanSim developers.</span>
+
+<span class="sd">    The canonical example would be a parcel series which has an index which is</span>
+<span class="sd">    parcel_ids and a value which you want to fetch, let&#39;s say it&#39;s land_area.</span>
+<span class="sd">    Another dataset, let&#39;s say of buildings has a series which indicate the</span>
+<span class="sd">    parcel_ids that the buildings are located on, but which does not have</span>
+<span class="sd">    land_area.  If you pass parcels.land_area as the first series and</span>
+<span class="sd">    buildings.parcel_id as the second series, this function returns a series</span>
+<span class="sd">    which is indexed by buildings and has land_area as values and can be</span>
+<span class="sd">    added to the buildings dataset.</span>
+
+<span class="sd">    In short, this is a join on to a different table using a foreign key</span>
+<span class="sd">    stored in the current table, but with only one attribute rather than</span>
+<span class="sd">    for a full dataset.</span>
+
+<span class="sd">    This is very similar to the pandas &quot;loc&quot; function or &quot;reindex&quot; function,</span>
+<span class="sd">    but neither of those functions return the series indexed on the current</span>
+<span class="sd">    table.  In both of those cases, the series would be indexed on the foreign</span>
+<span class="sd">    table and would require a second step to change the index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">series1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">series2</span><span class="o">.</span><span class="n">values</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">series2</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+</div>
 <div class="viewcode-block" id="signif"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.signif">[docs]</a><span class="k">def</span> <span class="nf">signif</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a statistical significance to its ascii representation - this</span>
@@ -224,12 +296,12 @@
     <span class="mi">21</span><span class="p">:</span> <span class="s">&#39;Mining&#39;</span><span class="p">,</span>
     <span class="mi">22</span><span class="p">:</span> <span class="s">&#39;Utilities&#39;</span><span class="p">,</span>
     <span class="mi">23</span><span class="p">:</span> <span class="s">&#39;Construction&#39;</span><span class="p">,</span>
-    <span class="mi">31</span><span class="p">:</span> <span class="s">&#39;Manufacturing&#39;</span><span class="p">,</span>
-    <span class="mi">32</span><span class="p">:</span> <span class="s">&#39;Manufacturing&#39;</span><span class="p">,</span>
-    <span class="mi">33</span><span class="p">:</span> <span class="s">&#39;Manufacturing&#39;</span><span class="p">,</span>
+    <span class="mi">31</span><span class="p">:</span> <span class="s">&#39;Manufacturing1&#39;</span><span class="p">,</span>
+    <span class="mi">32</span><span class="p">:</span> <span class="s">&#39;Manufacturing2&#39;</span><span class="p">,</span>
+    <span class="mi">33</span><span class="p">:</span> <span class="s">&#39;Manufacturing3&#39;</span><span class="p">,</span>
     <span class="mi">42</span><span class="p">:</span> <span class="s">&#39;Wholesale&#39;</span><span class="p">,</span>
-    <span class="mi">44</span><span class="p">:</span> <span class="s">&#39;Retail&#39;</span><span class="p">,</span>
-    <span class="mi">45</span><span class="p">:</span> <span class="s">&#39;Retail&#39;</span><span class="p">,</span>
+    <span class="mi">44</span><span class="p">:</span> <span class="s">&#39;Retail1&#39;</span><span class="p">,</span>
+    <span class="mi">45</span><span class="p">:</span> <span class="s">&#39;Retail2&#39;</span><span class="p">,</span>
     <span class="mi">48</span><span class="p">:</span> <span class="s">&#39;Transportation&#39;</span><span class="p">,</span>
     <span class="mi">49</span><span class="p">:</span> <span class="s">&#39;Warehousing&#39;</span><span class="p">,</span>
     <span class="mi">51</span><span class="p">:</span> <span class="s">&#39;Information&#39;</span><span class="p">,</span>

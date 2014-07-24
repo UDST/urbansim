@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -117,6 +126,7 @@
 <span class="sd">Used for location choice models.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -128,7 +138,8 @@
 <span class="kn">import</span> <span class="nn">nl</span>
 <span class="kn">import</span> <span class="nn">pmat</span>
 
-<span class="n">GPU</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">GPU</span> <span class="o">=</span> <span class="bp">False</span>
 
 
 <div class="viewcode-block" id="enable_gpu"><a class="viewcode-back" href="../../../urbanchoice/interaction.html#urbansim.urbanchoice.interaction.enable_gpu">[docs]</a><span class="k">def</span> <span class="nf">enable_gpu</span><span class="p">():</span>
@@ -151,16 +162,23 @@
 <span class="c"># and simulation.</span></div>
 <div class="viewcode-block" id="mnl_interaction_dataset"><a class="viewcode-back" href="../../../urbanchoice/interaction.html#urbansim.urbanchoice.interaction.mnl_interaction_dataset">[docs]</a><span class="k">def</span> <span class="nf">mnl_interaction_dataset</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">,</span>
                             <span class="n">chosenalts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span>
+        <span class="s">&#39;start: compute MNL interaction dataset with {} choosers, &#39;</span>
+        <span class="s">&#39;{} alternatives, and sample_size={}&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">),</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
     <span class="c"># filter choosers and their current choices if they point to</span>
     <span class="c"># something that isn&#39;t in the alternatives table</span>
     <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">isin</span> <span class="o">=</span> <span class="n">chosenalts</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="n">removing</span> <span class="o">=</span> <span class="n">isin</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[</span><span class="bp">False</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">removing</span> <span class="o">=</span> <span class="n">isin</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">False</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">removing</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="n">removing</span><span class="p">:</span>
-            <span class="k">print</span> <span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">((</span>
                 <span class="s">&quot;Removing {} choice situations because chosen &quot;</span>
                 <span class="s">&quot;alt doesn&#39;t exist&quot;</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">removing</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">removing</span><span class="p">))</span>
             <span class="n">choosers</span> <span class="o">=</span> <span class="n">choosers</span><span class="p">[</span><span class="n">isin</span><span class="p">]</span>
             <span class="n">chosenalts</span> <span class="o">=</span> <span class="n">chosenalts</span><span class="p">[</span><span class="n">isin</span><span class="p">]</span>
 
@@ -210,6 +228,7 @@
     <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numchoosers</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
     <span class="n">chosen</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: compute MNL interaction dataset&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">alts_sample</span><span class="p">,</span> <span class="n">chosen</span>
 
 </div>

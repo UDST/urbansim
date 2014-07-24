@@ -181,9 +181,28 @@ in output.</p>
 </tbody>
 </table>
 <dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.alts_columns_used">
+<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted">
 <tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raises <cite>RuntimeError</cite> if the model is not ready for prediction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.choosers_columns_used">
+<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the choosers table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from any table used in the model. May come from either
+the choosers or alternatives tables.</p>
 </dd></dl>
 
 <dl class="method">
@@ -203,25 +222,19 @@ in output.</p>
 <div><p>Table describing the things from which agents are choosing,
 e.g. buildings.</p>
 </div></blockquote>
-<p><strong>current_choice</strong> : pandas.Series</p>
+<p><strong>current_choice</strong> : pandas.Series or any</p>
 <blockquote>
 <div><p>A Series describing the <cite>alternatives</cite> currently chosen
 by the <cite>choosers</cite>. Should have an index matching <cite>choosers</cite>
 and values matching the index of <cite>alternatives</cite>.</p>
+<p>If a non-Series is given it should be a column in <cite>choosers</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>null_ll</strong> : float</p>
-<blockquote>
-<div><p>Null Log-liklihood</p>
-</div></blockquote>
-<p><strong>conv_ll</strong> : float</p>
-<blockquote>
-<div><p>Log-liklihood at convergence</p>
-</div></blockquote>
-<p><strong>ll_ratio</strong> : float</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict</p>
 <blockquote class="last">
-<div><p>Log-liklihood ratio</p>
+<div><p>Dict of log-liklihood values describing the quality of the
+model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8216;ratio&#8217;.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -262,8 +275,16 @@ Arguments are mutally exclusive.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.interaction_columns_used">
+<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the interaction dataset used for filtering and in
+the model. These may come originally from either the choosers or
+alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel.predict">
-<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose from among alternatives for a group of agents.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -278,6 +299,12 @@ agent probabilities of choosing alternatives.</p>
 <p><strong>alternatives</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, well set the variable &#8220;sim_pdf&#8221; on
+the object to store the probabilities for mapping of the
+outcome.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -315,6 +342,477 @@ instance.</p>
 <dl class="method">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel.to_yaml">
 <tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model respresentation to YAML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>By default a YAML string is returned. If a string is
+given here the YAML will be written to that file.
+If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+YAML will be written to that object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<blockquote class="last">
+<div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup">
+<em class="property">class </em><tt class="descclassname">urbansim.models.lcm.</tt><tt class="descname">MNLLocationChoiceModelGroup</tt><big>(</big><em>segmentation_col</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages a group of location choice models that refer to different
+segments of choosers.</p>
+<p>Model names must match the segment names after doing a pandas groupby.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
+<blockquote class="last">
+<div><p>Name of a column in the table of choosers. Will be used to perform
+a pandas groupby on the choosers table.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model">
+<tt class="descname">add_model</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an MNLLocationChoiceModel instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : MNLLocationChoiceModel</p>
+<blockquote class="last">
+<div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of the segments
+in the choosers table.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model_from_params">
+<tt class="descname">add_model_from_params</tt><big>(</big><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>choice_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a model by passing parameters through to MNLLocationChoiceModel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
+<blockquote>
+<div><p>Must match a segment in the choosers table.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str, iterable, or dict</p>
+<blockquote>
+<div><p>A patsy model expression. Should contain only a right-hand side.</p>
+</div></blockquote>
+<p><strong>sample_size</strong> : int</p>
+<blockquote>
+<div><p>Number of choices to sample for estimating the model.</p>
+</div></blockquote>
+<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to choosers table before fitting the model.</p>
+</div></blockquote>
+<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the choosers table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>alts_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before fitting the model.</p>
+</div></blockquote>
+<p><strong>alts_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the merged choosers/alternatives table
+before predicting agent choices.</p>
+</div></blockquote>
+<p><strong>estimation_sample_size</strong> : int, optional, whether to sample choosers</p>
+<blockquote>
+<div><p>during estimation (needs to be applied after choosers_fit_filters)</p>
+</div></blockquote>
+<p><strong>choice_column</strong> : optional</p>
+<blockquote class="last">
+<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+the alternatives index is used.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.alts_columns_used">
+<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.choosers_columns_used">
+<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the choosers table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from any table used in the model. May come from either
+the choosers or alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.fit">
+<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and save models based on given data after segmenting
+the <cite>choosers</cite> table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column with the same name as the .segmentation_col
+attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+<p><strong>current_choice</strong></p>
+<blockquote>
+<div><p>Name of column in <cite>choosers</cite> that indicates which alternative
+they have currently chosen.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
+<blockquote class="last">
+<div><p>Keys will be model names and values will be dictionaries of
+log-liklihood values as returned by MNLLocationChoiceModel.fit.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether all models in the group have been fitted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.interaction_columns_used">
+<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the interaction dataset used for filtering and in
+the model. These may come originally from either the choosers or
+alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.predict">
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose from among alternatives for a group of agents after
+segmenting the <cite>choosers</cite> table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in this table is used for determining
+agent probabilities of choosing alternatives.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, well set the variable &#8220;sim_pdf&#8221; on
+the object to store the probabilities for mapping of the
+outcome.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.lcm.</tt><tt class="descname">SegmentedMNLLocationChoiceModel</tt><big>(</big><em>segmentation_col</em>, <em>sample_size</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>An MNL LCM group that allows segments to have different model expressions
+but otherwise share configurations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
+<blockquote>
+<div><p>Name of column in the choosers table that will be used for groupby.</p>
+</div></blockquote>
+<p><strong>sample_size</strong> : int</p>
+<blockquote>
+<div><p>Number of choices to sample for estimating the model.</p>
+</div></blockquote>
+<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to choosers table before fitting the model.</p>
+</div></blockquote>
+<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the choosers table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>alts_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before fitting the model.</p>
+</div></blockquote>
+<p><strong>alts_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the merged choosers/alternatives table
+before predicting agent choices.</p>
+</div></blockquote>
+<p><strong>estimation_sample_size</strong> : int, optional, whether to sample choosers</p>
+<blockquote>
+<div><p>during estimation (needs to be applied after choosers_fit_filters)</p>
+</div></blockquote>
+<p><strong>choice_column</strong> : optional</p>
+<blockquote>
+<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+the alternatives index is used.</p>
+</div></blockquote>
+<p><strong>default_model_expr</strong> : str, iterable, or dict, optional</p>
+<blockquote>
+<div><p>A patsy model expression. Should contain only a right-hand side.</p>
+</div></blockquote>
+<p><strong>name</strong> : str, optional</p>
+<blockquote class="last">
+<div><p>An optional string used to identify the model in places.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.add_segment">
+<tt class="descname">add_segment</tt><big>(</big><em>name</em>, <em>model_expression=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new segment with its own model expression.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
+<blockquote>
+<div><p>Segment name. Must match a segment in the groupby of the data.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str or dict, optional</p>
+<blockquote class="last">
+<div><p>A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.
+If not given the default model will be used, which must not be
+None.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.alts_columns_used">
+<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.choosers_columns_used">
+<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the choosers table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from any table used in the model. May come from either
+the choosers or alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit">
+<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and save models based on given data after segmenting
+the <cite>choosers</cite> table. Segments that have not already been explicitly
+added will be automatically added with default model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column with the same name as the .segmentation_col
+attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+<p><strong>current_choice</strong></p>
+<blockquote>
+<div><p>Name of column in <cite>choosers</cite> that indicates which alternative
+they have currently chosen.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
+<blockquote class="last">
+<div><p>Keys will be model names and values will be dictionaries of
+log-liklihood values as returned by MNLLocationChoiceModel.fit.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether models for all segments have been fit.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.from_yaml">
+<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a SegmentedMNLLocationChoiceModel instance from a saved YAML
+configuration. Arguments are mutally exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<blockquote>
+<div><p>A YAML string from which to load model.</p>
+</div></blockquote>
+<p><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedMNLLocationChoiceModel</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.interaction_columns_used">
+<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the interaction dataset used for filtering and in
+the model. These may come originally from either the choosers or
+alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict">
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose from among alternatives for a group of agents after
+segmenting the <cite>choosers</cite> table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in this table is used for determining
+agent probabilities of choosing alternatives.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, well set the variable &#8220;sim_pdf&#8221; on
+the object to store the probabilities for mapping of the
+outcome.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict representation of this instance suitable for
+conversion to YAML.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_yaml">
+<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a model respresentation to YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

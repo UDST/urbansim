@@ -127,6 +127,44 @@ website).</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="urbansim.utils.misc.compute_range">
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">compute_range</tt><big>(</big><em>travel_data</em>, <em>attr</em>, <em>travel_time_attr</em>, <em>dist</em>, <em>agg=&lt;function sum at 0x1043d2a28&gt;</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#compute_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.compute_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a zone-based accessibility query using the urbansim format
+travel data dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>travel_data</strong> : dataframe</p>
+<blockquote>
+<div><p>The dataframe of urbansim format travel data.  Has from_zone_id as
+first index, to_zone_id as second index, and different impedances
+between zones as columns.</p>
+</div></blockquote>
+<p><strong>attr</strong> : series</p>
+<blockquote>
+<div><p>The attr to aggregate.  Should be indexed by zone_id and the values
+will be aggregated.</p>
+</div></blockquote>
+<p><strong>travel_time_attr</strong> : string</p>
+<blockquote>
+<div><p>The column name in travel_data to use as the impedance.</p>
+</div></blockquote>
+<p><strong>dist</strong> : float</p>
+<blockquote>
+<div><p>The max distance to aggregate up to</p>
+</div></blockquote>
+<p><strong>agg</strong> : function, optional, np.sum by default</p>
+<blockquote class="last">
+<div><p>The numpy function to use for aggregation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="urbansim.utils.misc.config">
 <tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">config</tt><big>(</big><em>fname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the config path for the file with the given filename.</p>
@@ -233,6 +271,30 @@ with default column headers.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="urbansim.utils.misc.reindex">
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">reindex</tt><big>(</big><em>series1</em>, <em>series2</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#reindex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.reindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>This reindexes the first series by the second series.  This is an extremely
+common operation that does not appear to  be in Pandas at this time.
+If anyone knows of an easier way to do this in Pandas, please inform the
+UrbanSim developers.</p>
+<p>The canonical example would be a parcel series which has an index which is
+parcel_ids and a value which you want to fetch, let&#8217;s say it&#8217;s land_area.
+Another dataset, let&#8217;s say of buildings has a series which indicate the
+parcel_ids that the buildings are located on, but which does not have
+land_area.  If you pass parcels.land_area as the first series and
+buildings.parcel_id as the second series, this function returns a series
+which is indexed by buildings and has land_area as values and can be
+added to the buildings dataset.</p>
+<p>In short, this is a join on to a different table using a foreign key
+stored in the current table, but with only one attribute rather than
+for a full dataset.</p>
+<p>This is very similar to the pandas &#8220;loc&#8221; function or &#8220;reindex&#8221; function,
+but neither of those functions return the series indexed on the current
+table.  In both of those cases, the series would be indexed on the foreign
+table and would require a second step to change the index.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="urbansim.utils.misc.reports_dir">
 <tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">reports_dir</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#reports_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.reports_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the directory for the report configuration files (used by the
@@ -267,6 +329,13 @@ memory or disk space.</p>
 <tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">signif</tt><big>(</big><em>val</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#signif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.signif" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a statistical significance to its ascii representation - this
 should be the same representation created in R.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.utils.misc.simulations_dir">
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">simulations_dir</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#simulations_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.simulations_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the directory for the simulation configuration files (used by the
+website).</p>
 </dd></dl>
 
 </div>

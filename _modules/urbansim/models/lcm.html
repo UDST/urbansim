@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -118,14 +127,20 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">patsy</span> <span class="kn">import</span> <span class="n">dmatrix</span>
 <span class="kn">from</span> <span class="nn">prettytable</span> <span class="kn">import</span> <span class="n">PrettyTable</span>
+<span class="kn">import</span> <span class="nn">toolz</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">..urbanchoice</span> <span class="kn">import</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">mnl</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">yamlio</span>
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="unit_choice"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.unit_choice">[docs]</a><span class="k">def</span> <span class="nf">unit_choice</span><span class="p">(</span><span class="n">chooser_ids</span><span class="p">,</span> <span class="n">alternative_ids</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">):</span>
@@ -157,6 +172,10 @@
     <span class="n">alternative_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">alternative_ids</span><span class="p">)</span>
     <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s">&#39;start: unit choice with {} choosers and {} alternatives&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">chooser_ids</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternative_ids</span><span class="p">)))</span>
+
     <span class="n">choices</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">chooser_ids</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">chooser_ids</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">probabilities</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -182,6 +201,7 @@
 
     <span class="n">choices</span><span class="p">[</span><span class="n">chooser_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosen</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: unit choice&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">choices</span>
 
 </div>
@@ -236,7 +256,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span> <span class="o">=</span> <span class="n">interaction_predict_filters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span> <span class="o">=</span> <span class="n">estimation_sample_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choice_column</span> <span class="o">=</span> <span class="n">choice_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;MNLLocationChoiceModel&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;MNLLocationChoiceModel&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_pdf</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihoods</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="bp">None</span>
@@ -275,11 +296,12 @@
             <span class="n">name</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;log_likelihoods&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;log_likelihoods&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
             <span class="n">model</span><span class="o">.</span><span class="n">log_likelihoods</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;log_likelihoods&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_parameters&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;fit_parameters&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
             <span class="n">model</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_parameters&#39;</span><span class="p">])</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;loaded LCM model {} from YAML&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">model</span>
 </div>
     <span class="nd">@property</span>
@@ -302,28 +324,38 @@
 <span class="sd">        alternatives : pandas.DataFrame</span>
 <span class="sd">            Table describing the things from which agents are choosing,</span>
 <span class="sd">            e.g. buildings.</span>
-<span class="sd">        current_choice : pandas.Series</span>
+<span class="sd">        current_choice : pandas.Series or any</span>
 <span class="sd">            A Series describing the `alternatives` currently chosen</span>
 <span class="sd">            by the `choosers`. Should have an index matching `choosers`</span>
 <span class="sd">            and values matching the index of `alternatives`.</span>
 
+<span class="sd">            If a non-Series is given it should be a column in `choosers`.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        null_ll : float</span>
-<span class="sd">            Null Log-liklihood</span>
-<span class="sd">        conv_ll : float</span>
-<span class="sd">            Log-liklihood at convergence</span>
-<span class="sd">        ll_ratio : float</span>
-<span class="sd">            Log-liklihood ratio</span>
+<span class="sd">        log_likelihoods : dict</span>
+<span class="sd">            Dict of log-liklihood values describing the quality of the</span>
+<span class="sd">            model fit. Will have keys &#39;null&#39;, &#39;convergence&#39;, and &#39;ratio&#39;.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit LCM model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_choice</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">current_choice</span> <span class="o">=</span> <span class="n">choosers</span><span class="p">[</span><span class="n">current_choice</span><span class="p">]</span>
+
         <span class="n">choosers</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choosers_fit_filters</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span><span class="p">:</span>
             <span class="n">choosers</span> <span class="o">=</span> <span class="n">choosers</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
-                <span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)]</span>
+                <span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">)),</span>
+                <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)]</span>
+
         <span class="n">current_choice</span> <span class="o">=</span> <span class="n">current_choice</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
         <span class="n">alternatives</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
             <span class="n">alternatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alts_fit_filters</span><span class="p">)</span>
+
         <span class="n">_</span><span class="p">,</span> <span class="n">merged</span><span class="p">,</span> <span class="n">chosen</span> <span class="o">=</span> <span class="n">interaction</span><span class="o">.</span><span class="n">mnl_interaction_dataset</span><span class="p">(</span>
             <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">current_choice</span><span class="p">)</span>
         <span class="n">model_design</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span>
@@ -331,6 +363,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihoods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">mnl</span><span class="o">.</span><span class="n">mnl_estimate</span><span class="p">(</span>
             <span class="n">model_design</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(),</span> <span class="n">chosen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">model_design</span><span class="o">.</span><span class="n">columns</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: fit LCM model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihoods</span>
 </div>
     <span class="nd">@property</span>
@@ -378,7 +412,7 @@
 
         <span class="k">print</span><span class="p">(</span><span class="n">tbl</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MNLLocationChoiceModel.predict"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">):</span>
+<div class="viewcode-block" id="MNLLocationChoiceModel.predict"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Choose from among alternatives for a group of agents.</span>
 
@@ -390,6 +424,10 @@
 <span class="sd">            agent probabilities of choosing alternatives.</span>
 <span class="sd">        alternatives : pandas.DataFrame</span>
 <span class="sd">            Table describing the things from which agents are choosing.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            If debug is set to true, well set the variable &quot;sim_pdf&quot; on</span>
+<span class="sd">            the object to store the probabilities for mapping of the</span>
+<span class="sd">            outcome.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -400,34 +438,49 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assert_fitted</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict LCM model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
         <span class="n">choosers</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
             <span class="n">choosers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choosers_predict_filters</span><span class="p">)</span>
         <span class="n">alternatives</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
             <span class="n">alternatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alts_predict_filters</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
+
         <span class="c"># TODO: only using 1st item in choosers for determining probabilities.</span>
         <span class="c"># Need to expand options around this.</span>
+        <span class="n">num_choosers</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">merged</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">interaction</span><span class="o">.</span><span class="n">mnl_interaction_dataset</span><span class="p">(</span>
-            <span class="n">choosers</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">alternatives</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">))</span>
+            <span class="n">choosers</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">num_choosers</span><span class="p">),</span> <span class="n">alternatives</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">))</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
             <span class="n">merged</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span><span class="p">)</span>
         <span class="n">model_design</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">merged</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s">&#39;dataframe&#39;</span><span class="p">)</span>
 
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;Coefficient&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+                  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model_design</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
         <span class="c"># probabilities are returned from mnl_simulate as a 2d array</span>
         <span class="c"># and need to be flatted for use in unit_choice.</span>
         <span class="n">probabilities</span> <span class="o">=</span> <span class="n">mnl</span><span class="o">.</span><span class="n">mnl_simulate</span><span class="p">(</span>
             <span class="n">model_design</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;Coefficient&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">coeffs</span><span class="p">,</span>
             <span class="n">numalts</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">merged</span><span class="p">),</span> <span class="n">returnprobs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="c"># when we&#39;re not doing 1st item of choosers, this will break!</span>
+            <span class="k">assert</span> <span class="n">num_choosers</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">merged</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
         <span class="c"># figure out exactly which things from which choices are drawn</span>
         <span class="n">alt_choices</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">merged</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_column</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_column</span> <span class="k">else</span> <span class="n">merged</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">unit_choice</span><span class="p">(</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">unit_choice</span><span class="p">(</span>
             <span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">alt_choices</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: predict LCM model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
 </div>
 <div class="viewcode-block" id="MNLLocationChoiceModel.to_dict"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -471,7 +524,638 @@
 <span class="sd">            YAML is string if `str_or_buffer` is not given.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">str_or_buffer</span><span class="p">)</span></div></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;serializing LCM model {} to YAML&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">str_or_buffer</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModel.choosers_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.choosers_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">choosers_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the choosers table that are used for filtering.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choosers_predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choosers_fit_filters</span><span class="p">))))</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModel.alts_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.alts_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">alts_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the alternatives table that are used for filtering.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alts_predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alts_fit_filters</span><span class="p">))))</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModel.interaction_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.interaction_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">interaction_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the interaction dataset used for filtering and in</span>
+<span class="sd">        the model. These may come originally from either the choosers or</span>
+<span class="sd">        alternatives tables.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">))))</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModel.columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from any table used in the model. May come from either</span>
+<span class="sd">        the choosers or alternatives tables.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">choosers_columns_used</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alts_columns_used</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">())))</span>
+
+</div></div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup">[docs]</a><span class="k">class</span> <span class="nc">MNLLocationChoiceModelGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages a group of location choice models that refer to different</span>
+<span class="sd">    segments of choosers.</span>
+
+<span class="sd">    Model names must match the segment names after doing a pandas groupby.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    segmentation_col</span>
+<span class="sd">        Name of a column in the table of choosers. Will be used to perform</span>
+<span class="sd">        a pandas groupby on the choosers table.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segmentation_col</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span> <span class="o">=</span> <span class="n">segmentation_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;MNLLocationChoiceModelGroup&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.add_model"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model">[docs]</a>    <span class="k">def</span> <span class="nf">add_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an MNLLocationChoiceModel instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model : MNLLocationChoiceModel</span>
+<span class="sd">            Should have a ``.name`` attribute matching one of the segments</span>
+<span class="sd">            in the choosers table.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;adding model {} to LCM group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.add_model_from_params"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.add_model_from_params">[docs]</a>    <span class="k">def</span> <span class="nf">add_model_from_params</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span>
+            <span class="n">choosers_fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">choosers_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">alts_fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">alts_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">interaction_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">estimation_sample_size</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">choice_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a model by passing parameters through to MNLLocationChoiceModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name</span>
+<span class="sd">            Must match a segment in the choosers table.</span>
+<span class="sd">        model_expression : str, iterable, or dict</span>
+<span class="sd">            A patsy model expression. Should contain only a right-hand side.</span>
+<span class="sd">        sample_size : int</span>
+<span class="sd">            Number of choices to sample for estimating the model.</span>
+<span class="sd">        choosers_fit_filters : list of str, optional</span>
+<span class="sd">            Filters applied to choosers table before fitting the model.</span>
+<span class="sd">        choosers_predict_filters : list of str, optional</span>
+<span class="sd">            Filters applied to the choosers table before calculating</span>
+<span class="sd">            new data points.</span>
+<span class="sd">        alts_fit_filters : list of str, optional</span>
+<span class="sd">            Filters applied to the alternatives table before fitting the model.</span>
+<span class="sd">        alts_predict_filters : list of str, optional</span>
+<span class="sd">            Filters applied to the alternatives table before calculating</span>
+<span class="sd">            new data points.</span>
+<span class="sd">        interaction_predict_filters : list of str, optional</span>
+<span class="sd">            Filters applied to the merged choosers/alternatives table</span>
+<span class="sd">            before predicting agent choices.</span>
+<span class="sd">        estimation_sample_size : int, optional, whether to sample choosers</span>
+<span class="sd">            during estimation (needs to be applied after choosers_fit_filters)</span>
+<span class="sd">        choice_column : optional</span>
+<span class="sd">            Name of the column in the `alternatives` table that choosers</span>
+<span class="sd">            should choose. e.g. the &#39;building_id&#39; column. If not provided</span>
+<span class="sd">            the alternatives index is used.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;adding model {} to LCM group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">MNLLocationChoiceModel</span><span class="p">(</span>
+            <span class="n">model_expression</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span>
+            <span class="n">choosers_fit_filters</span><span class="p">,</span> <span class="n">choosers_predict_filters</span><span class="p">,</span>
+            <span class="n">alts_fit_filters</span><span class="p">,</span> <span class="n">alts_predict_filters</span><span class="p">,</span>
+            <span class="n">interaction_predict_filters</span><span class="p">,</span> <span class="n">estimation_sample_size</span><span class="p">,</span>
+            <span class="n">choice_column</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_iter_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over the groups in `data` after grouping by</span>
+<span class="sd">        `segmentation_col`. Skips any groups for which there</span>
+<span class="sd">        is no model stored.</span>
+
+<span class="sd">        Yields tuples of (name, df) where name is the group key</span>
+<span class="sd">        and df is the group DataFrame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Must have a column with the same name as `segmentation_col`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s">&#39;returning group {} in LCM group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span>
+
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.fit"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">current_choice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit and save models based on given data after segmenting</span>
+<span class="sd">        the `choosers` table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choosers : pandas.DataFrame</span>
+<span class="sd">            Table describing the agents making choices, e.g. households.</span>
+<span class="sd">            Must have a column with the same name as the .segmentation_col</span>
+<span class="sd">            attribute.</span>
+<span class="sd">        alternatives : pandas.DataFrame</span>
+<span class="sd">            Table describing the things from which agents are choosing,</span>
+<span class="sd">            e.g. buildings.</span>
+<span class="sd">        current_choice</span>
+<span class="sd">            Name of column in `choosers` that indicates which alternative</span>
+<span class="sd">            they have currently chosen.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        log_likelihoods : dict of dict</span>
+<span class="sd">            Keys will be model names and values will be dictionaries of</span>
+<span class="sd">            log-liklihood values as returned by MNLLocationChoiceModel.fit.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;fit models in LCM group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">current_choice</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_groups</span><span class="p">(</span><span class="n">choosers</span><span class="p">)}</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.fitted"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether all models in the group have been fitted.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">fitted</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="k">else</span> <span class="bp">False</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.predict"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Choose from among alternatives for a group of agents after</span>
+<span class="sd">        segmenting the `choosers` table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choosers : pandas.DataFrame</span>
+<span class="sd">            Table describing the agents making choices, e.g. households.</span>
+<span class="sd">            Only the first item in this table is used for determining</span>
+<span class="sd">            agent probabilities of choosing alternatives.</span>
+<span class="sd">            Must have a column matching the .segmentation_col attribute.</span>
+<span class="sd">        alternatives : pandas.DataFrame</span>
+<span class="sd">            Table describing the things from which agents are choosing.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            If debug is set to true, well set the variable &quot;sim_pdf&quot; on</span>
+<span class="sd">            the object to store the probabilities for mapping of the</span>
+<span class="sd">            outcome.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        choices : pandas.Series</span>
+<span class="sd">            Mapping of chooser ID to alternative ID. Some choosers</span>
+<span class="sd">            will map to a nan value when there are not enough alternatives</span>
+<span class="sd">            for all the choosers.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict models in LCM group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_groups</span><span class="p">(</span><span class="n">choosers</span><span class="p">):</span>
+            <span class="n">choices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+            <span class="c"># remove chosen alternatives</span>
+            <span class="n">alternatives</span> <span class="o">=</span> <span class="n">alternatives</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">choices</span><span class="p">)]</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;finish: predict models in LCM group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="k">if</span> <span class="n">results</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.choosers_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.choosers_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">choosers_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the choosers table that are used for filtering.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">choosers_columns_used</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.alts_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.alts_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">alts_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the alternatives table that are used for filtering.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">alts_columns_used</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.interaction_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.interaction_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">interaction_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the interaction dataset used for filtering and in</span>
+<span class="sd">        the model. These may come originally from either the choosers or</span>
+<span class="sd">        alternatives tables.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+</div>
+<div class="viewcode-block" id="MNLLocationChoiceModelGroup.columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from any table used in the model. May come from either</span>
+<span class="sd">        the choosers or alternatives tables.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">columns_used</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+
+</div></div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel">[docs]</a><span class="k">class</span> <span class="nc">SegmentedMNLLocationChoiceModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An MNL LCM group that allows segments to have different model expressions</span>
+<span class="sd">    but otherwise share configurations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    segmentation_col</span>
+<span class="sd">        Name of column in the choosers table that will be used for groupby.</span>
+<span class="sd">    sample_size : int</span>
+<span class="sd">        Number of choices to sample for estimating the model.</span>
+<span class="sd">    choosers_fit_filters : list of str, optional</span>
+<span class="sd">        Filters applied to choosers table before fitting the model.</span>
+<span class="sd">    choosers_predict_filters : list of str, optional</span>
+<span class="sd">        Filters applied to the choosers table before calculating</span>
+<span class="sd">        new data points.</span>
+<span class="sd">    alts_fit_filters : list of str, optional</span>
+<span class="sd">        Filters applied to the alternatives table before fitting the model.</span>
+<span class="sd">    alts_predict_filters : list of str, optional</span>
+<span class="sd">        Filters applied to the alternatives table before calculating</span>
+<span class="sd">        new data points.</span>
+<span class="sd">    interaction_predict_filters : list of str, optional</span>
+<span class="sd">        Filters applied to the merged choosers/alternatives table</span>
+<span class="sd">        before predicting agent choices.</span>
+<span class="sd">    estimation_sample_size : int, optional, whether to sample choosers</span>
+<span class="sd">        during estimation (needs to be applied after choosers_fit_filters)</span>
+<span class="sd">    choice_column : optional</span>
+<span class="sd">        Name of the column in the `alternatives` table that choosers</span>
+<span class="sd">        should choose. e.g. the &#39;building_id&#39; column. If not provided</span>
+<span class="sd">        the alternatives index is used.</span>
+<span class="sd">    default_model_expr : str, iterable, or dict, optional</span>
+<span class="sd">        A patsy model expression. Should contain only a right-hand side.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        An optional string used to identify the model in places.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segmentation_col</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span>
+                 <span class="n">choosers_fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">choosers_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">alts_fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">alts_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">interaction_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">estimation_sample_size</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">choice_column</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">default_model_expr</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span> <span class="o">=</span> <span class="n">segmentation_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">=</span> <span class="n">sample_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choosers_fit_filters</span> <span class="o">=</span> <span class="n">choosers_fit_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choosers_predict_filters</span> <span class="o">=</span> <span class="n">choosers_predict_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alts_fit_filters</span> <span class="o">=</span> <span class="n">alts_fit_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alts_predict_filters</span> <span class="o">=</span> <span class="n">alts_predict_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span> <span class="o">=</span> <span class="n">interaction_predict_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span> <span class="o">=</span> <span class="n">estimation_sample_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choice_column</span> <span class="o">=</span> <span class="n">choice_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span> <span class="o">=</span> <span class="n">default_model_expr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="n">MNLLocationChoiceModelGroup</span><span class="p">(</span><span class="n">segmentation_col</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span>
+                     <span class="s">&#39;SegmentedMNLLocationChoiceModel&#39;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.from_yaml"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.from_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a SegmentedMNLLocationChoiceModel instance from a saved YAML</span>
+<span class="sd">        configuration. Arguments are mutally exclusive.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        yaml_str : str, optional</span>
+<span class="sd">            A YAML string from which to load model.</span>
+<span class="sd">        str_or_buffer : str or file like, optional</span>
+<span class="sd">            File name or buffer from which to load YAML.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SegmentedMNLLocationChoiceModel</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="p">)</span>
+
+        <span class="n">default_model_expr</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;default_config&#39;</span><span class="p">][</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span>
+
+        <span class="n">seg</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;segmentation_col&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;sample_size&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;choosers_fit_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;choosers_predict_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;alts_fit_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;alts_predict_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;estimation_sample_size&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;choice_column&#39;</span><span class="p">],</span>
+            <span class="n">default_model_expr</span><span class="p">,</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="s">&quot;models&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&quot;models&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;models&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;model_expression&#39;</span><span class="p">,</span> <span class="n">default_model_expr</span><span class="p">)</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;sample_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;sample_size&#39;</span><span class="p">]</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;choosers_fit_filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;choosers_predict_filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;alts_fit_filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;alts_predict_filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">]</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;estimation_sample_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;estimation_sample_size&#39;</span><span class="p">]</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;choice_column&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;choice_column&#39;</span><span class="p">]</span>
+
+            <span class="n">model</span> <span class="o">=</span> <span class="n">MNLLocationChoiceModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+                <span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+            <span class="n">seg</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;loaded segmented LCM model {} from YAML&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">seg</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.add_segment"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.add_segment">[docs]</a>    <span class="k">def</span> <span class="nf">add_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">model_expression</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new segment with its own model expression.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name</span>
+<span class="sd">            Segment name. Must match a segment in the groupby of the data.</span>
+<span class="sd">        model_expression : str or dict, optional</span>
+<span class="sd">            A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">            Should contain both the left- and right-hand sides.</span>
+<span class="sd">            If not given the default model will be used, which must not be</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;adding LCM model {} to segmented model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model_expression</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&#39;No default model available, &#39;</span>
+                    <span class="s">&#39;you must supply a model expression.&#39;</span><span class="p">)</span>
+            <span class="n">model_expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span>
+
+        <span class="c"># we&#39;ll take care of some of the filtering this side before</span>
+        <span class="c"># segmentation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add_model_from_params</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">model_expression</span><span class="o">=</span><span class="n">model_expression</span><span class="p">,</span>
+            <span class="n">sample_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span>
+            <span class="n">choosers_fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">choosers_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">alts_fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">alts_predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">interaction_predict_filters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span><span class="p">,</span>
+            <span class="n">estimation_sample_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span><span class="p">,</span>
+            <span class="n">choice_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">choice_column</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.fit"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">current_choice</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit and save models based on given data after segmenting</span>
+<span class="sd">        the `choosers` table. Segments that have not already been explicitly</span>
+<span class="sd">        added will be automatically added with default model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choosers : pandas.DataFrame</span>
+<span class="sd">            Table describing the agents making choices, e.g. households.</span>
+<span class="sd">            Must have a column with the same name as the .segmentation_col</span>
+<span class="sd">            attribute.</span>
+<span class="sd">        alternatives : pandas.DataFrame</span>
+<span class="sd">            Table describing the things from which agents are choosing,</span>
+<span class="sd">            e.g. buildings.</span>
+<span class="sd">        current_choice</span>
+<span class="sd">            Name of column in `choosers` that indicates which alternative</span>
+<span class="sd">            they have currently chosen.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        log_likelihoods : dict of dict</span>
+<span class="sd">            Keys will be model names and values will be dictionaries of</span>
+<span class="sd">            log-liklihood values as returned by MNLLocationChoiceModel.fit.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit models in segmented LCM {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">choosers</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choosers_fit_filters</span><span class="p">)</span>
+
+        <span class="n">unique</span> <span class="o">=</span> <span class="n">choosers</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+        <span class="c"># Remove any existing segments that may no longer have counterparts</span>
+        <span class="c"># in the data. This can happen when loading a saved model and then</span>
+        <span class="c"># calling this method with data that no longer has segments that</span>
+        <span class="c"># were there the last time this was called.</span>
+        <span class="n">gone</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gone</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">g</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unique</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_segment</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
+            <span class="n">alternatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alts_fit_filters</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">current_choice</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;finish: fit models in segmented LCM {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.fitted"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether models for all segments have been fit.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">fitted</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.predict"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Choose from among alternatives for a group of agents after</span>
+<span class="sd">        segmenting the `choosers` table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choosers : pandas.DataFrame</span>
+<span class="sd">            Table describing the agents making choices, e.g. households.</span>
+<span class="sd">            Only the first item in this table is used for determining</span>
+<span class="sd">            agent probabilities of choosing alternatives.</span>
+<span class="sd">            Must have a column matching the .segmentation_col attribute.</span>
+<span class="sd">        alternatives : pandas.DataFrame</span>
+<span class="sd">            Table describing the things from which agents are choosing.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            If debug is set to true, well set the variable &quot;sim_pdf&quot; on</span>
+<span class="sd">            the object to store the probabilities for mapping of the</span>
+<span class="sd">            outcome.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        choices : pandas.Series</span>
+<span class="sd">            Mapping of chooser ID to alternative ID. Some choosers</span>
+<span class="sd">            will map to a nan value when there are not enough alternatives</span>
+<span class="sd">            for all the choosers.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;start: predict models in segmented LCM {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">choosers</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
+            <span class="n">choosers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">choosers_predict_filters</span><span class="p">)</span>
+        <span class="n">alternatives</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span>
+            <span class="n">alternatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alts_predict_filters</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;finish: predict models in segmented LCM {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+</div>
+    <span class="k">def</span> <span class="nf">_process_model_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove redundant items from a model&#39;s configuration dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        d : dict</span>
+<span class="sd">            Modified in place.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Modified `d`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_type&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;sample_size&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;choosers_fit_filters&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;choosers_predict_filters&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;alts_fit_filters&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;alts_predict_filters&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;estimation_sample_size&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;choice_column&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">to_scalar_safe</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">d</span>
+
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.to_dict"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dict representation of this instance suitable for</span>
+<span class="sd">        conversion to YAML.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&#39;model_type&#39;</span><span class="p">:</span> <span class="s">&#39;segmented_locationchoice&#39;</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s">&#39;segmentation_col&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">,</span>
+            <span class="s">&#39;sample_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span>
+            <span class="s">&#39;choosers_fit_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">choosers_fit_filters</span><span class="p">,</span>
+            <span class="s">&#39;choosers_predict_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">choosers_predict_filters</span><span class="p">,</span>
+            <span class="s">&#39;alts_fit_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alts_fit_filters</span><span class="p">,</span>
+            <span class="s">&#39;alts_predict_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alts_predict_filters</span><span class="p">,</span>
+            <span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span><span class="p">,</span>
+            <span class="s">&#39;estimation_sample_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimation_sample_size</span><span class="p">,</span>
+            <span class="s">&#39;choice_column&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_column</span><span class="p">,</span>
+            <span class="s">&#39;default_config&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;model_expression&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s">&#39;fitted&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted</span><span class="p">,</span>
+            <span class="s">&#39;models&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">yamlio</span><span class="o">.</span><span class="n">to_scalar_safe</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_process_model_dict</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.to_yaml"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.to_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a model respresentation to YAML.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str_or_buffer : str or file like, optional</span>
+<span class="sd">            By default a YAML string is returned. If a string is</span>
+<span class="sd">            given here the YAML will be written to that file.</span>
+<span class="sd">            If an object with a ``.write`` method is given the</span>
+<span class="sd">            YAML will be written to that object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        j : str</span>
+<span class="sd">            YAML is string if `str_or_buffer` is not given.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;serializing segmented LCM {} to YAML&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">str_or_buffer</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.choosers_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.choosers_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">choosers_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the choosers table that are used for filtering.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choosers_predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choosers_fit_filters</span><span class="p">))))</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.alts_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.alts_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">alts_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the alternatives table that are used for filtering.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alts_predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alts_fit_filters</span><span class="p">))))</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.interaction_columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.interaction_columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">interaction_columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from the interaction dataset used for filtering and in</span>
+<span class="sd">        the model. These may come originally from either the choosers or</span>
+<span class="sd">        alternatives tables.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.columns_used"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns from any table used in the model. May come from either</span>
+<span class="sd">        the choosers or alternatives tables.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">choosers_columns_used</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alts_columns_used</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">())))</span></div></div>
 </pre></div>
 
           </div>

@@ -167,8 +167,15 @@ in output.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="urbansim.models.regression.RegressionModel.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the columns used in this model for filtering
+and in the model expression.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.fit">
-<tt class="descname">fit</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fit</tt><big>(</big><em>data</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model to data and store/return the results.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -178,6 +185,12 @@ in output.</p>
 <blockquote>
 <div><p>Data to use for fitting the model. Must contain all the
 columns referenced by the <cite>model_expression</cite>.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, this sets the attribute &#8220;est_data&#8221;
+to a dataframe with the actual data used for estimation of
+this model.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -202,7 +215,7 @@ class instance for use during prediction.</p>
 <dt id="urbansim.models.regression.RegressionModel.from_yaml">
 <em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a RegressionModel instance from a saved YAML configuration.
-Arguments are mutally exclusive.</p>
+Arguments are mutually exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -299,7 +312,7 @@ YAML will be written to that object.</p>
 
 <dl class="class">
 <dt id="urbansim.models.regression.RegressionModelGroup">
-<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">RegressionModelGroup</tt><big>(</big><em>segmentation_col</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">RegressionModelGroup</tt><big>(</big><em>segmentation_col</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages a group of regression models that refer to different segments
 within a single table.</p>
 <p>Model names must match the segment names after doing a Pandas groupby.</p>
@@ -307,9 +320,13 @@ within a single table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> : str</p>
-<blockquote class="last">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
+<blockquote>
 <div><p>Name of the column on which to segment.</p>
+</div></blockquote>
+<p><strong>name</strong></p>
+<blockquote class="last">
+<div><p>Optional name used to identify the model in places.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -374,8 +391,15 @@ the results reflect actual price.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="urbansim.models.regression.RegressionModelGroup.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the columns used across all models in the group
+for filtering and in the model expression.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.regression.RegressionModelGroup.fit">
-<tt class="descname">fit</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fit</tt><big>(</big><em>data</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit each of the models in the group.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -384,6 +408,11 @@ the results reflect actual price.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If set to true (default false) will pass the debug parameter
+to model estimation.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -395,6 +424,12 @@ the results reflect actual price.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.regression.RegressionModelGroup.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether all models in the group have been fitted.</p>
 </dd></dl>
 
 <dl class="method">
@@ -417,6 +452,226 @@ same name as <cite>segmentation_col</cite>.</p>
 <div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
 models.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.regression.SegmentedRegressionModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">SegmentedRegressionModel</tt><big>(</big><em>segmentation_col</em>, <em>fit_filters=None</em>, <em>predict_filters=None</em>, <em>default_model_expr=None</em>, <em>default_ytransform=None</em>, <em>min_segment_size=0</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A regression model group that allows segments to have different
+model expressions and ytransforms but all have the same filters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
+<blockquote>
+<div><p>Name of column in the data table on which to segment. Will be used
+with a pandas groupby on the data table.</p>
+</div></blockquote>
+<p><strong>fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied before fitting the model.</p>
+</div></blockquote>
+<p><strong>predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied before calculating new data points.</p>
+</div></blockquote>
+<p><strong>min_segment_size</strong> : int</p>
+<blockquote>
+<div><p>This model will add all segments that have at least this number of
+observations. A very small number of observations (e.g. 1) will
+cause an error with estimation.</p>
+</div></blockquote>
+<p><strong>default_model_expr</strong> : str or dict, optional</p>
+<blockquote>
+<div><p>A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.</p>
+</div></blockquote>
+<p><strong>default_ytransform</strong> : callable, optional</p>
+<blockquote>
+<div><p>A function to call on the array of predicted output.
+For example, if the model relation is predicting the log
+of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+the results reflect actual price.</p>
+<p>By default no transformation is applied.</p>
+</div></blockquote>
+<p><strong>min_segment_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Segments with less than this many members will be skipped.</p>
+</div></blockquote>
+<p><strong>name</strong> : str, optional</p>
+<blockquote class="last">
+<div><p>A name used in places to identify the model.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.add_segment">
+<tt class="descname">add_segment</tt><big>(</big><em>name</em>, <em>model_expression=None</em>, <em>ytransform='default'</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Add a new segment with its own model expression and ytransform.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
+<blockquote>
+<div><blockquote>
+<div><p>Segment name. Must match a segment in the groupby of the data.</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>model_expression <span class="classifier-delimiter">:</span> <span class="classifier">str or dict, optional</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.
+If not given the default model will be used, which must not be
+None.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>ytransform</strong> : callable, optional</p>
+<blockquote class="last">
+<div><p>A function to call on the array of predicted output.
+For example, if the model relation is predicting the log
+of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+the results reflect actual price.</p>
+<p>If not given the default ytransform will be used.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all the columns used across all models in the group
+for filtering and in the model expression.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.fit">
+<tt class="descname">fit</tt><big>(</big><em>data</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit each segment. Segments that have not already been explicitly
+added will be automatically added with default model and ytransform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If set to true will pass debug to the fit method of each model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
+<blockquote class="last">
+<div><p>Keys are the segment names.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether models for all segments have been fit.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.from_yaml">
+<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a SegmentedRegressionModel instance from a saved YAML
+configuration. Arguments are mutally exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<blockquote>
+<div><p>A YAML string from which to load model.</p>
+</div></blockquote>
+<p><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedRegressionModel</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.predict">
+<tt class="descname">predict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict new data for each group in the segmentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Data to use for prediction. Must have a column with the
+same name as <cite>segmentation_col</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+after applying filters.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict representation of this instance suitable for
+conversion to YAML.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.to_yaml">
+<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model respresentation to YAML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>By default a YAML string is returned. If a string is
+given here the YAML will be written to that file.
+If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+YAML will be written to that object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<blockquote class="last">
+<div><p>YAML string if <cite>str_or_buffer</cite> is not given.</p>
 </div></blockquote>
 </td>
 </tr>

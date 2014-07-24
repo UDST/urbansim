@@ -57,12 +57,21 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -118,12 +127,15 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_empty_index</span><span class="p">():</span>
@@ -156,6 +168,7 @@
 <span class="sd">        will have multiple entries.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: adding {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
 
@@ -168,6 +181,8 @@
         <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
     <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">added_index</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s">&#39;finish: added {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">]),</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">i_to_copy</span><span class="p">)</span>
 
 </div>
@@ -189,6 +204,7 @@
 <span class="sd">        Indexes of the rows removed from the table.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: removing {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
     <span class="n">nrows</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span>  <span class="c"># in case a negative number came in</span>
     <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">()</span>
@@ -198,6 +214,7 @@
     <span class="n">i_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
         <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: removed {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i_to_keep</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">i_to_keep</span><span class="p">)</span>
 
 </div>
@@ -283,7 +300,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;adding {} rows via growth rate ({}) transition&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">nrows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -366,27 +387,37 @@
 <span class="sd">            Index of rows that were removed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: tabular transition&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_table</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No targets for given year: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
 
         <span class="c"># want this to be a DataFrame</span>
         <span class="n">year_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">year</span><span class="p">]]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;transitioning {} segments&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">year_config</span><span class="p">)))</span>
 
         <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">added_indexes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">copied_indexes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">removed_indexes</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c"># since we&#39;re looping over descrete segments we need to track</span>
+        <span class="c"># since we&#39;re looping over discrete segments we need to track</span>
         <span class="c"># out here where their new indexes will begin</span>
         <span class="n">starting_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
 
         <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">year_config</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
             <span class="n">subset</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">})</span>
+
+            <span class="c"># Do not run on segment if it is empty</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;empty segment encountered&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
             <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
             <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> \
                 <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">)</span>
-            <span class="n">starting_index</span> <span class="o">=</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># only update the starting index if rows were added</span>
+                <span class="n">starting_index</span> <span class="o">=</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span>
             <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
             <span class="n">added_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">added</span><span class="p">)</span>
             <span class="n">copied_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
@@ -397,6 +428,7 @@
         <span class="n">copied_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">copied_indexes</span><span class="p">)</span>
         <span class="n">removed_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">removed_indexes</span><span class="p">)</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: tabular transition&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added_indexes</span><span class="p">,</span> <span class="n">copied_indexes</span><span class="p">,</span> <span class="n">removed_indexes</span>
 </div>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
@@ -479,7 +511,8 @@
 <span class="sd">            Index of rows that were removed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TabularTotalsTransition</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;tabular totals transition&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TabularTotalsTransition</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
 
 </div></div>
 <span class="k">def</span> <span class="nf">_update_linked_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span><span class="p">):</span>
@@ -506,9 +539,11 @@
 <span class="sd">    updated : pandas.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: update linked table after transition&#39;</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">removed</span><span class="p">))]</span>
     <span class="n">sub_table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">copied</span><span class="p">))]</span>
 
+    <span class="c"># map new IDs to the IDs from which they were copied</span>
     <span class="n">id_map</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
     <span class="n">new_rows</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -532,6 +567,7 @@
     <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
         <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
 
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: update linked table after transition&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">table</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
 
 
@@ -576,15 +612,19 @@
 <span class="sd">        updated_links : dict of pandas.DataFrame</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: transition&#39;</span><span class="p">)</span>
         <span class="n">linked_tables</span> <span class="o">=</span> <span class="n">linked_tables</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">updated_links</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;add/remove rows&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="n">linked_tables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;updating linked table {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
             <span class="n">updated_links</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="n">_update_linked_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span><span class="p">)</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: transition&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">updated_links</span></div></div>
 </pre></div>
 
