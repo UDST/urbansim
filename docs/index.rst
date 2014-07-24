@@ -18,6 +18,7 @@ Contents
    :maxdepth: 2
 
    models/index
+   developer/index
    utils/index
    urbanchoice/index
 
