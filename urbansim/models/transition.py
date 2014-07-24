@@ -284,6 +284,12 @@ class TabularGrowthRateTransition(object):
 
         for _, row in year_config.iterrows():
             subset = util.filter_table(data, row, ignore={self._config_column})
+
+            # Do not run on segment if it is empty
+            if len(subset) == 0:
+                logger.debug('empty segment encountered')
+                continue
+
             nrows = self._calc_nrows(len(subset), row[self._config_column])
             updated, added, copied, removed = \
                 add_or_remove_rows(subset, nrows, starting_index)

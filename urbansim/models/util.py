@@ -119,6 +119,7 @@ def filter_table(table, filter_series, ignore=None):
                    if not (name in ignore or
                            (isinstance(val, numbers.Number) and
                             np.isnan(val)))]
+
         return apply_filter_query(table, filters)
 
 
