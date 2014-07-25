@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import inspect
-from collections import Callable
+from collections import Callable, namedtuple
 
 import pandas as pd
 import toolz
@@ -9,6 +9,7 @@ import toolz
 _TABLES = {}
 _COLUMNS = {}
 _MODELS = {}
+_BROADCASTS = {}
 
 
 def clear_sim():
@@ -19,6 +20,7 @@ def clear_sim():
     _TABLES.clear()
     _COLUMNS.clear()
     _MODELS.clear()
+    _BROADCASTS.clear()
 
 
 class _DataFrameWrapper(object):
@@ -490,3 +492,53 @@ def run(models, years=None):
             print('Running model {}'.format(model_name))
             model = get_model(model_name)
             model(year=year)
+
+
+_Broadcast = namedtuple(
+    '_Broadcast',
+    ['cast', 'onto', 'cast_on', 'onto_on', 'cast_index', 'onto_index'])
+
+
+def broadcast(cast, onto, cast_on=None, onto_on=None,
+              cast_index=False, onto_index=False):
+    """
+    Register a rule for merging two tables by broadcasting one onto
+    the other.
+
+    Parameters
+    ----------
+    cast, onto : str
+        Names of registered tables.
+    cast_on, onto_on : str, optional
+        Column names used for merge, equivalent of ``left_on``/``right_on``
+        parameters of pandas.merge.
+    cast_index, onto_index : bool, optional
+        Whether to use table indexes for merge. Equivalent of
+        ``left_index``/``right_index`` parameters of pandas.merge.
+
+    """
+    _BROADCASTS[(cast, onto)] = \
+        _Broadcast(cast, onto, cast_on, onto_on, cast_index, onto_index)
+
+
+def _get_broadcasts(tables):
+    """
+    Get the broadcasts associated with a set of tables.
+
+    Parameters
+    ----------
+    tables : sequence of str
+        Table names for which broadcasts have been registered.
+
+    Returns
+    -------
+    casts : dict of `_Broadcast`
+        Keys are tuples of strings like (cast_name, onto_name).
+
+    """
+    tables = set(tables)
+    casts = toolz.keyfilter(
+        lambda x: x[0] in tables and x[1] in tables, _BROADCASTS)
+    if tables - set(toolz.concat(casts.keys())):
+        raise ValueError('Not enough links to merge all tables.')
+    return casts
