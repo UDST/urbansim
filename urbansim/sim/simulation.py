@@ -6,6 +6,8 @@ from collections import Callable, namedtuple
 import pandas as pd
 import toolz
 
+from ..utils.misc import column_map
+
 _TABLES = {}
 _COLUMNS = {}
 _MODELS = {}
@@ -542,3 +544,96 @@ def _get_broadcasts(tables):
     if tables - set(toolz.concat(casts.keys())):
         raise ValueError('Not enough links to merge all tables.')
     return casts
+
+
+# utilities for merge_tables
+def _all_reachable_tables(t):
+    for k, v in t.items():
+        for tname in _all_reachable_tables(v):
+            yield tname
+        yield k
+
+
+def _is_leaf_node(merge_node):
+    return not any(merge for merge in merge_node.values())
+
+
+def _next_merge(merge_node):
+    if all(_is_leaf_node(merge) for merge in merge_node.values()):
+        return merge_node
+    else:
+        for merge in merge_node.values():
+            if merge:
+                return _next_merge(merge)
+
+
+def merge_tables(target, tables, columns=None):
+    """
+    Merge a number of tables onto a target table. Tables must have
+    registered merge rules via the `broadcast` function.
+
+    Parameters
+    ----------
+    target : str
+        Name of the table onto which tables will be merged.
+    tables : list of _DataFrameWrapper or _TableFuncWrapper
+        All of the tables to merge. Should include the target table.
+    columns : list of str, optional
+        If given, columns will be mapped to `tables` and only those columns
+        will be requested from each table. The final merged table will have
+        only these columns. By default all columns are used from every
+        table.
+
+    Returns
+    -------
+    merged : pandas.DataFrame
+
+    """
+    merges = {t.name: {} for t in tables}
+    tables = {t.name: t for t in tables}
+    casts = _get_broadcasts(tables.keys())
+
+    # relate all the tables by registered broadcasts
+    for table, onto in casts:
+        merges[onto][table] = merges[table]
+    merges = {target: merges[target]}
+
+    # verify that all the tables can be merged to the target
+    all_tables = set(_all_reachable_tables(merges))
+
+    if all_tables != set(tables.keys()):
+        raise RuntimeError(
+            ('Not all tables can be merged to target "{}". Unlinked tables: {}'
+             ).format(target, list(set(tables.keys()) - all_tables)))
+
+    # add any columns necessary for indexing into columns
+    if columns:
+        columns = list(columns)
+        for c in casts.values():
+            if c.onto_on:
+                columns.append(c.onto_on)
+            if c.cast_on:
+                columns.append(c.cast_on)
+
+    # get column map for which columns go with which table
+    colmap = column_map(tables.values(), columns)
+
+    # get frames
+    frames = {name: t.to_frame(columns=colmap[name])
+              for name, t in tables.items()}
+
+    while merges[target]:
+        nm = _next_merge(merges)
+        onto = nm.keys()[0]
+        onto_table = frames[onto]
+        for cast in nm[onto].keys():
+            cast_table = frames[cast]
+            bc = casts[(cast, onto)]
+            onto_table = pd.merge(
+                onto_table, cast_table,
+                left_on=bc.onto_on, right_on=bc.cast_on,
+                left_index=bc.onto_index, right_index=bc.cast_index)
+        frames[onto] = onto_table
+        nm[onto] = {}
+
+    return frames[target]
