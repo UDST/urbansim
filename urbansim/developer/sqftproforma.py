@@ -6,7 +6,117 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class SqFtProFormaConfig:
+class SqFtProFormaConfig(object):
+    """
+    This class encapsulates the configuration options for the square
+    foot based pro forma.
+
+    Attributes
+    ----------
+    parcel_sizes : list
+        A list of parcel sizes to test.  Interestingly, right now
+        the parcel sizes cancel is this style of pro forma computation so
+        you can set this to something reasonable for debugging purposes -
+        e.g. [10000].  All sizes can be feet or meters as long as they are
+        consistently used.
+    fars : list
+        A list of floor area ratios to use.  FAR is a multiple of
+        the parcel size that is the total building bulk that is allowed by
+        zoning on the site.  In this case, all of these ratios will be
+        tested regardless of zoning and the zoning test will be performed
+        later.
+    uses : list
+        A list of space uses to use within a building.  These are
+        mixed into forms.  Generally speaking, you should only have uses
+        for which you have an estimate (or observed) values for rents in
+        the building.  By default, uses are retail, industrial, office,
+        and residential.
+    forms : dict
+        A dictionary where keys are names for the form and values
+        are also dictionaries where keys are uses and values are the
+        proportion of that use used in this form.  The values of the
+        dictionary should sum to 1.0.  For instance, a form called
+        "residential" might have a dict of space allocations equal to
+        {"residential": 1.0} while a form called "mixedresidential"
+        might have a dictionary of space allocations equal to
+        {"retail": .1, "residential" .9] which is 90% residential and
+        10% retail.
+    parking_rates : dict
+        A dict of rates per thousand square feet where keys are the uses
+        from the list specified in the attribute above.  The ratios
+        are typically in the range 0.5 - 3.0 or similar.  So for
+        instance, a key-value pair of "retail": 2.0 would be two parking
+        spaces per 1,000 square feet of retail.  This is a per square
+        foot pro forma, so the more typically parking ratio of spaces
+        per residential unit must be converted to square feet for use in
+        this pro forma.
+    sqft_per_rate : float
+        The number of square feet per unit for use in the
+        parking_rates above.  By default this is set to 1,000 but can be
+        overridden.
+    parking_configs : list
+        An expert parameter and is usually unchanged.  By default
+        it is set to ['surface', 'deck', 'underground'] and very semantic
+        differences in the computation are performed for each of these
+        parking configurations.  Generally speaking it will break things
+        to change this array, but an item can be removed if that parking
+        configuration should not be tested.
+    parking_sqft_d : dict
+        A dictionary where keys are the three parking
+        configurations listed above and values are square foot uses of
+        parking spaces in that configuration.  This is to capture the
+        fact that surface parking is usually more space intensive
+        than deck or underground parking.
+    parking_cost_d : dict
+        The parking cost for each parking configuration.  Keys are the
+        name of the three parking configurations listed above and values
+        are dollars PER SQUARE FOOT for parking in that configuration.
+        Used to capture the fact that underground and deck are far more
+        expensive than surface parking.
+    height_for_costs : list
+        A list of "break points" as heights at which construction becomes
+        more expensive.  Generally these are the heights at which
+        construction materials change from wood, to concrete, to steel.
+        Costs are also given as lists by use for each of these break
+        points and are considered to be valid up to the break point.  A
+        list would look something like [15, 55, 120, np.inf].
+    costs : dict
+        The keys are uses from the attribute above and the values are a
+        list of floating point numbers of same length as the
+        height_for_costs attribute.  A key-value pair of
+        "residential": [160.0, 175.0, 200.0, 230.0] would say that the
+        residential use if $160/sqft up to 15ft in total height for the
+        building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
+        $230/sqft beyond.  A final value in the height_for_costs
+        array of np.inf is typical.
+    height_per_story : float
+        The per-story height for the building used to turn an
+        FAR into an actual height.
+    max_retail_height : float
+        The maximum height of retail buildings to consider.
+    max_industrial_height : float
+        The maximum height of industrial buildings to consider.
+    profit_factor : float
+        The ratio of profit a developer expects to make above the break
+        even rent.  Should be greater than 1.0, e.g. a 10% profit would be
+        a profit factor of 1.1.
+    building_efficiency : float
+        The efficiency of the building.  This turns total FAR into the
+        amount of space which gets a square foot rent.  The entire building
+        gets the cost of course.
+    parcel_coverage : float
+        The ratio of the building footprint to the parcel size.  Also used
+        to turn an FAR into a height to cost properly.
+    cap_rate : float
+        The rate an investor is willing to pay for a cash flow per year.
+        This means $1/year is equivalent to 1/cap_rate present dollars.
+        This is a macroeconomic input that is widely available on the
+        internet.
+
+    """
+
+    def __init__(self):
+        self._reset_defaults()
 
     def _reset_defaults(self):
         self.parcel_sizes = [10000.0]
@@ -75,118 +185,11 @@ class SqFtProFormaConfig:
         self.max_retail_height = 2.0
         self.max_industrial_height = 2.0
 
-    def __init__(self):
-        """
-        This class encapsulates the configuration options for the square
-        foot based pro forma.
-
-        Attributes
-        parcel_sizes : list
-            A list of parcel sizes to test.  Interestingly, right now
-            the parcel sizes cancel is this style of pro forma computation so
-            you can set this to something reasonable for debugging purposes -
-            e.g. [10000].  All sizes can be feet or meters as long as they are
-            consistently used.
-        fars : list
-            A list of floor area ratios to use.  FAR is a multiple of
-            the parcel size that is the total building bulk that is allowed by
-            zoning on the site.  In this case, all of these ratios will be
-            tested regardless of zoning and the zoning test will be performed
-            later.
-        uses : list
-            A list of space uses to use within a building.  These are
-            mixed into forms.  Generally speaking, you should only have uses
-            for which you have an estimate (or observed) values for rents in
-            the building.  By default, uses are retail, industrial, office,
-            and residential.
-        forms : dict
-            A dictionary where keys are names for the form and values
-            are also dictionaries where keys are uses and values are the
-            proportion of that use used in this form.  The values of the
-            dictionary should sum to 1.0.  For instance, a form called
-            "residential" might have a dict of space allocations equal to
-            {"residential": 1.0} while a form called "mixedresidential"
-            might have a dictionary of space allocations equal to
-            {"retail": .1, "residential" .9] which is 90% residential and
-            10% retail.
-        parking_rates : dict
-            A dict of rates per thousand square feet where keys are the uses
-            from the list specified in the attribute above.  The ratios
-            are typically in the range 0.5 - 3.0 or similar.  So for
-            instance, a key-value pair of "retail": 2.0 would be two parking
-            spaces per 1,000 square feet of retail.  This is a per square
-            foot pro forma, so the more typically parking ratio of spaces
-            per residential unit must be converted to square feet for use in
-            this pro forma.
-        sqft_per_rate : float
-            The number of square feet per unit for use in the
-            parking_rates above.  By default this is set to 1,000 but can be
-            overridden.
-        parking_configs : list
-            An expert parameter and is usually unchanged.  By default
-            it is set to ['surface', 'deck', 'underground'] and very semantic
-            differences in the computation are performed for each of these
-            parking configurations.  Generally speaking it will break things
-            to change this array, but an item can be removed if that parking
-            configuration should not be tested.
-        parking_sqft_d : dict
-            A dictionary where keys are the three parking
-            configurations listed above and values are square foot uses of
-            parking spaces in that configuration.  This is to capture the
-            fact that surface parking is usually more space intensive
-            than deck or underground parking.
-        parking_cost_d : dict
-            The parking cost for each parking configuration.  Keys are the
-            name of the three parking configurations listed above and values
-            are dollars PER SQUARE FOOT for parking in that configuration.
-            Used to capture the fact that underground and deck are far more
-            expensive than surface parking.
-        height_for_costs : list
-            A list of "break points" as heights at which construction becomes
-            more expensive.  Generally these are the heights at which
-            construction materials change from wood, to concrete, to steel.
-            Costs are also given as lists by use for each of these break
-            points and are considered to be valid up to the break point.  A
-            list would look something like [15, 55, 120, np.inf].
-        costs : dict
-            The keys are uses from the attribute above and the values are a
-            list of floating point numbers of same length as the
-            height_for_costs attribute.  A key-value pair of
-            "residential": [160.0, 175.0, 200.0, 230.0] would say that the
-            residential use if $160/sqft up to 15ft in total height for the
-            building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
-            $230/sqft beyond.  A final value in the height_for_costs
-            array of np.inf is typical.
-        height_per_story : float
-            The per-story height for the building used to turn an
-            FAR into an actual height.
-        max_retail_height : float
-            The maximum height of retail buildings to consider.
-        max_industrial_height : float
-            The maximum height of industrial buildings to consider.
-        profit_factor : float
-            The ratio of profit a developer expects to make above the break
-            even rent.  Should be greater than 1.0, e.g. a 10% profit would be
-            a profit factor of 1.1.
-        building_efficiency : float
-            The efficiency of the building.  This turns total FAR into the
-            amount of space which gets a square foot rent.  The entire building
-            gets the cost of course.
-        parcel_coverage : float
-            The ratio of the building footprint to the parcel size.  Also used
-            to turn an FAR into a height to cost properly.
-        cap_rate : float
-            The rate an investor is willing to pay for a cash flow per year.
-            This means $1/year is equivalent to 1/cap_rate present dollars.
-            This is a macroeconomic input that is widely available on the
-            internet.
-        """
-        self._reset_defaults()
-
     def _convert_types(self):
         """
         convert lists and dictionaries that are useful for users to
         np vectors that are usable by machines
+
         """
         self.fars = np.array(self.fars)
         self.parking_rates = np.array([self.parking_rates[use] for use in self.uses])
@@ -239,27 +242,29 @@ class SqFtProFormaConfig:
                 assert 10 < i < 1000
 
 
-class SqFtProForma:
+class SqFtProForma(object):
+    """
+    Initialize the square foot based pro forma.
+
+    This pro forma has no representation of units - it does not
+    differentiate between the rent attained by 1BR, 2BR, or 3BR and change
+    the rents accordingly.  This is largely because it is difficult to get
+    information on the unit mix in an existing building in order to compute
+    its acquisition cost.  Thus rents and costs per sqft are used for new
+    and current buildings which assumes there is a constant return on
+    increasing and decreasing unit sizes, an extremely useful simplifying
+    assumption above the project scale (i.e. city of regional scale)
+
+    Parameters
+    ----------
+    config : `SqFtProFormaConfig`
+        The configuration object which should be an
+        instance of `SqFtProFormaConfig`.  The configuration options for this
+        pro forma are documented on the configuration object.
+
+    """
 
     def __init__(self, config=None):
-        """
-        Initialize the square foot based pro forma.
-
-        This pro forma has no representation of units - it does not
-        differentiate between the rent attained by 1BR, 2BR, or 3BR and change
-        the rents accordingly.  This is largely because it is difficult to get
-        information on the unit mix in an existing building in order to compute
-        its acquisition cost.  Thus rents and costs per sqft are used for new
-        and current buildings which assumes there is a constant return on
-        increasing and decreasing unit sizes, an extremely useful simplifying
-        assumption above the project scale (i.e. city of regional scale)
-
-        Parameters:
-        -----------
-        config : The [optional] configuration object which should be an
-        instance of SqftProFormaConfig.  The configuration options for this
-        pro forma are documented on the configuration object.
-        """
         if config is None:
             config = SqFtProFormaConfig()
         config.check_is_reasonable()
@@ -280,7 +285,9 @@ class SqFtProForma:
 
         Returns
         -------
-        The cost per sqft for this unit mix and height
+        array
+            The cost per sqft for this unit mix and height.
+
         """
         c = self.config
         # stories to heights
@@ -302,6 +309,7 @@ class SqFtProForma:
         computes the final cost per sqft of the building to construct and
         then turns it into the yearly rent necessary to make break even on
         that cost.
+
         """
         c = self.config
 
@@ -425,6 +433,7 @@ class SqFtProForma:
         intermediate steps in the pro forma computation.  Additional documentation
         will be added at a later date, although many of the columns should be fairly
         self-expanatory.
+
         """
         return self.dev_d[(form, parking_config)]
 
@@ -443,6 +452,7 @@ class SqFtProForma:
         A series where the index is the far and the values are the average cost per
         sqft at which the building is "break even" given the configuration parameters
         that were passed at run time.
+
         """
         return self.min_ave_cost_d[form]
 
@@ -518,6 +528,7 @@ class SqFtProForma:
         max_profit :
             The profit for the maximum profit building (constrained by the max_far
             and max_height from the input dataframe).
+
         """
         c = self.config
 
@@ -599,6 +610,7 @@ class SqFtProForma:
         """
         this code creates the debugging plots to understand
         the behavior of the hypothetical building model
+
         """
         import matplotlib
         matplotlib.use('Agg')

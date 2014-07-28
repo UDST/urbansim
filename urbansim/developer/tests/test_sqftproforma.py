@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 import pytest
@@ -179,6 +181,11 @@ def test_config_params():
     c.check_is_reasonable()
 
 
-def test_sqftproforma_debug():
-    pf = sqpf.SqFtProForma()
-    pf._debug_output()
+class TestSqFtProFormaDebug(object):
+    def teardown_method(self, method):
+        if os.path.exists('even_rents.png'):
+            os.remove('even_rents.png')
+
+    def test_sqftproforma_debug(self):
+        pf = sqpf.SqFtProForma()
+        pf._debug_output()
