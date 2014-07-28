@@ -153,10 +153,10 @@ class Developer(object):
         df = df[df.parcel_size < max_parcel_size]
 
         if residential:
-            df['residential_units'] = np.round(df.building_sqft / df.ave_unit_size)
+            df['residential_units'] = np.round(df.residential_sqft / df.ave_unit_size)
             df['net_units'] = df.residential_units - df.current_units
         else:
-            df['non_residential_units'] = np.round(df.building_sqft / df.ave_unit_size)
+            df['non_residential_units'] = np.round(df.non_residential_sqft / df.ave_unit_size)
             df['net_units'] = df.non_residential_units - df.current_units
         df = df[df.net_units > 0]
 
