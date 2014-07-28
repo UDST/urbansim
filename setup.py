@@ -18,7 +18,6 @@ setup(
     ],
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'Django>=1.6.2',
         'matplotlib>=1.3.1',
         'numpy>=1.8.0',
         'pandas>=0.13.1',
@@ -26,7 +25,6 @@ setup(
         'prettytable>=0.7.2',
         'pyyaml>=3.10',
         'scipy>=0.13.3',
-        'shapely>=1.3.0',
         'simplejson>=3.3.3',
         'statsmodels>=0.5.0',
         'tables>=3.1.0',
