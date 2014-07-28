@@ -144,8 +144,6 @@ class Developer:
         df['current_units'] = current_units
         df = df[df.parcel_size < max_parcel_size]
 
-        print df.residential_sqft
-
         if residential:
             df['residential_units'] = np.round(df.residential_sqft / df.ave_unit_size)
             df['net_units'] = df.residential_units - df.current_units
