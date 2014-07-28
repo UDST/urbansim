@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 
 import mnl
-import nl
 import pmat
 
 logger = logging.getLogger(__name__)
