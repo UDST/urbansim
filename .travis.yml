@@ -7,7 +7,7 @@ install:
 - |
   conda create -p $HOME/py --yes pip jinja2 matplotlib numpy pandas patsy scipy statsmodels pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
-- pip install Django shapely simplejson
+- pip install simplejson
 - pip install pytest-cov coveralls pep8
 - pip install .
 script:

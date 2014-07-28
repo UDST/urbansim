@@ -144,18 +144,12 @@ class Networks:
         return pd.Series(
             np.concatenate(res), index=pd.MultiIndex.from_tuples(self.nodeids))
 
-    def addnodeid(self, df, tosrid=0):
+    def addnodeid(self, df):
 
         try:
             xys = np.array(df[['x', 'y']], dtype="float32")
         except:
             xys = np.array(df[['X', 'Y']], dtype="float32")
-
-        if tosrid:  # convert coordinate system
-            from urbansim.utils import geomisc
-            print "Converting srids (potentially takes a long time)"
-            xys = geomisc.np_coord_convert_all(xys)
-            print "Finished conversion"
 
         for gno in range(self.pya.numgraphs):
             df['_node_id%d' % gno] = pd.Series(
