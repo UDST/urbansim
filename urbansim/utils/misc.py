@@ -39,6 +39,14 @@ def runs_dir():
     return _mkifnotexists("runs")
 
 
+def models_dir():
+    """
+    Return the directory for the model configuration files (used by the
+    website).
+    """
+    return _mkifnotexists("configs")
+
+
 def charts_dir():
     """
     Return the directory for the chart configuration files (used by the
