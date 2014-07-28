@@ -26,16 +26,6 @@ def enable_gpu():
     pmat.initialize_gpu()
 
 
-# if nested logit, add the field names for the additional nesting params
-
-
-def add_fnames(fnames, est_params):
-    if est_params[0] == 'nl':
-        fnames = ['mu%d' % (i + 1)
-                  for i in range(est_params[2].numnests())] + fnames
-    return fnames
-
-
 # TODO: split this out into separate functions for estimation
 # and simulation.
 def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
@@ -108,63 +98,3 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
 
     logger.debug('finish: compute MNL interaction dataset')
     return sample, alts_sample, chosen
-
-
-def nl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE, nestcol,
-                           chosenalts=None, left_on='nodeid', presample=None,
-                           nestcounts=None):
-    nests = alternatives[nestcol].value_counts()
-    print "Alternatives in each nest\n", nests
-    sample_size_per_nest = SAMPLE_SIZE / len(nests)
-    print "Sample size per nest", sample_size_per_nest
-    assert SAMPLE_SIZE % len(nests) == 0  # divides evenly
-
-    if presample is None:
-        sample = None
-        for m in np.sort(nests.keys().values):
-            # full sampled set
-            nsample = np.random.choice(
-                alternatives[alternatives[nestcol] == m].index.values,
-                sample_size_per_nest * choosers.shape[0])
-            nsample = np.reshape(
-                nsample, (nsample.size / sample_size_per_nest,
-                          sample_size_per_nest))
-            if sample is None:
-                sample = nsample
-            else:
-                sample = np.concatenate((sample, nsample), axis=1)
-    else:
-        sample = presample
-
-    # means we're estimating, not simulating
-    if chosenalts is not None:
-        chosen = np.zeros((choosers.shape[0], SAMPLE_SIZE))
-        if isinstance(left_on, str):
-            assert left_on in choosers.columns
-        chosennest = pd.merge(
-            choosers, alternatives, left_on=left_on, right_index=True,
-            how="left"
-        ).set_index(choosers.index)[nestcol]  # need to maintain same index
-        print "Chosen alternatives by nest\n", chosennest.value_counts()
-        assert sample.shape == chosen.shape
-        # this restriction should be removed in the future - for now nestids
-        # have to count from 0 to numnests-1
-        assert min(nests.keys()) == 0 and max(nests.keys()) == len(nests) - 1
-        # replace with chosen alternative
-        sample[range(sample.shape[0]), chosennest *
-               sample_size_per_nest] = chosenalts
-        chosen[range(chosen.shape[0]), chosennest * sample_size_per_nest] = 1
-
-    sample = sample.flatten().astype('object')
-    alts_sample = alternatives.ix[sample]
-    alts_sample['join_index'] = np.repeat(choosers.index, SAMPLE_SIZE)
-
-    print "Merging sample (takes a while)"
-    t1 = time.time()
-    alts_sample = pd.merge(
-        alts_sample, choosers, left_on='join_index', right_index=True)
-    print "Done merging sample in %f" % (time.time() - t1)
-
-    nestinfo = nl.NestInfo(nests, sample_size_per_nest, chosennest, nestcounts)
-
-    return sample, alts_sample, ('nl', chosen, nestinfo)
