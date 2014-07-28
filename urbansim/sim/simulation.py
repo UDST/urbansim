@@ -12,6 +12,7 @@ _TABLES = {}
 _COLUMNS = {}
 _MODELS = {}
 _BROADCASTS = {}
+_INJECTABLES = {}
 
 
 def clear_sim():
@@ -23,6 +24,12 @@ def clear_sim():
     _COLUMNS.clear()
     _MODELS.clear()
     _BROADCASTS.clear()
+    _INJECTABLES.clear()
+
+
+# for errors that occur during simulation runs
+class SimulationError(Exception):
+    pass
 
 
 class _DataFrameWrapper(object):
@@ -181,7 +188,7 @@ class _TableFuncWrapper(object):
         frame : pandas.DataFrame
 
         """
-        kwargs = {t: get_table(t) for t in self._arg_list}
+        kwargs = _collect_injectables(self._arg_list)
         frame = self._func(**kwargs)
         self._columns = list(frame.columns)
         self._index = frame.index
@@ -235,7 +242,7 @@ class _ColumnFuncWrapper(object):
         self._arg_list = set(inspect.getargspec(func).args)
 
     def __call__(self):
-        kwargs = {t: get_table(t) for t in self._arg_list}
+        kwargs = _collect_injectables(self._arg_list)
         return self._func(**kwargs)
 
 
@@ -264,6 +271,27 @@ class _SeriesWrapper(object):
         return self._column
 
 
+class _InjectableFuncWrapper(object):
+    """
+    Wraps a function that will be called (with injection) to provide
+    an injectable value elsewhere.
+
+    Parameters
+    ----------
+    name : str
+    func : callable
+
+    """
+    def __init__(self, name, func):
+        self.name = name
+        self._func = func
+        self._arg_list = set(inspect.getargspec(func).args)
+
+    def __call__(self):
+        kwargs = _collect_injectables(self._arg_list)
+        return self._func(**kwargs)
+
+
 class _ModelFuncWrapper(object):
     """
     Wrap a model function for dependency injection.
@@ -279,11 +307,40 @@ class _ModelFuncWrapper(object):
         self._func = func
         self._arg_list = set(inspect.getargspec(func).args)
 
-    def __call__(self, year=None):
-        kwargs = {t: get_table(t) for t in self._arg_list if t != 'year'}
-        if 'year' in self._arg_list:
-            kwargs['year'] = year
+    def __call__(self):
+        kwargs = _collect_injectables(self._arg_list)
         return self._func(**kwargs)
+
+
+def _collect_injectables(names):
+    """
+    Find all the injectables specified in `names`.
+
+    Parameters
+    ----------
+    names : list of str
+
+    Returns
+    -------
+    injectables : dict
+        Keys are the names, values are wrappers if the injectable
+        is a table. If it's a plain injectable the value itself is given
+        or the injectable function is evaluated.
+
+    """
+    names = set(names)
+    dicts = toolz.keyfilter(
+        lambda x: x in names, toolz.merge(_INJECTABLES, _TABLES))
+
+    if set(dicts.keys()) != names:
+        raise KeyError(
+            'not all injectables found. '
+            'missing: {}'.format(names - set(dicts.keys())))
+
+    return {
+        name: thing
+        if not isinstance(thing, _InjectableFuncWrapper) else thing()
+        for name, thing in dicts.items()}
 
 
 def add_table(table_name, table):
@@ -428,6 +485,61 @@ def _columns_for_table(table_name):
             if tname == table_name}
 
 
+def add_injectable(name, value, autocall=True):
+    """
+    Add a value that will be injected into other functions that
+    are part of the simulation.
+
+    Parameters
+    ----------
+    name : str
+    value
+        If a callable and `autocall` is True then the function will be
+        evaluated using dependency injection and the return value will
+        be passed to any functions using this injectable. In all other
+        cases `value` will be passed through untouched.
+    autocall : bool, optional
+        Set to True to have injectable functions automatically called
+        (with dependency injection) and the result injected instead of
+        the function itself.
+
+    """
+    if isinstance(value, Callable) and autocall:
+        value = _InjectableFuncWrapper(name, value)
+    _INJECTABLES[name] = value
+
+
+def injectable(name, autocall=True):
+    """
+    Decorator version of `add_injectable`.
+
+    """
+    def decorator(func):
+        add_injectable(name, func, autocall=autocall)
+        return func
+    return decorator
+
+
+def get_injectable(name):
+    """
+    Get an injectable by name. *Does not* evaluate wrapped functions.
+
+    Parameters
+    ----------
+    name : str
+
+    Returns
+    -------
+    injectable
+        Original value or _InjectableFuncWrapper if autocall was True.
+
+    """
+    if name in _INJECTABLES:
+        return _INJECTABLES[name]
+    else:
+        raise KeyError('injectable not found: {}'.format(name))
+
+
 def add_model(model_name, func):
     """
     Add a model function to the simulation.
@@ -478,6 +590,7 @@ def get_model(model_name):
 def run(models, years=None):
     """
     Run models in series, optionally repeatedly over some years.
+    The current year is set as a global injectable.
 
     Parameters
     ----------
@@ -488,12 +601,13 @@ def run(models, years=None):
     years = years or [None]
 
     for year in years:
+        add_injectable('year', year)
         if year:
             print('Running year {}'.format(year))
         for model_name in models:
             print('Running model {}'.format(model_name))
             model = get_model(model_name)
-            model(year=year)
+            model()
 
 
 _Broadcast = namedtuple(
