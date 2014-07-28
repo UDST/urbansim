@@ -6,6 +6,9 @@ from collections import Callable
 import pandas as pd
 import toolz
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 _TABLES = {}
 _COLUMNS = {}
@@ -500,4 +503,4 @@ def run(models, years=None):
             model = get_model(model_name)
             t1 = time.time()
             model(year=year)
-            print("Time to execute model = %.3fs" % (time.time()-t1))
+            logger.debug("Time to execute model = %.3fs" % (time.time()-t1))

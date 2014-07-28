@@ -332,7 +332,8 @@ class RegressionModel(object):
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
             index = util.apply_filter_query(data, self.fit_filters).index
-            assert len(fit.model.exog) == len(index)
+            assert len(fit.model.exog) == len(index), "The estimate data is"
+            "unequal in length to the original dataframe, usually caused by nans"
             df = pd.DataFrame(
                 fit.model.exog, columns=fit.model.exog_names, index=index)
             df[fit.model.endog_names] = fit.model.endog
