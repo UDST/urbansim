@@ -185,3 +185,20 @@ def test_model_run(df, clear_sim):
              2000: [2012, 2015, 2018],
              3000: [3012, 3017, 3024]},
             index=['x', 'y', 'z']))
+
+
+def test_get_broadcasts(clear_sim):
+    sim.broadcast('a', 'b')
+    sim.broadcast('b', 'c')
+    sim.broadcast('z', 'b')
+    sim.broadcast('f', 'g')
+
+    with pytest.raises(ValueError):
+        sim._get_broadcasts(['a', 'b', 'g'])
+
+    assert set(sim._get_broadcasts(['a', 'b', 'c', 'z']).keys()) == \
+        {('a', 'b'), ('b', 'c'), ('z', 'b')}
+    assert set(sim._get_broadcasts(['a', 'b', 'z']).keys()) == \
+        {('a', 'b'), ('z', 'b')}
+    assert set(sim._get_broadcasts(['a', 'b', 'c']).keys()) == \
+        {('a', 'b'), ('b', 'c')}
