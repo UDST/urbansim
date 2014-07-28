@@ -16,6 +16,9 @@ setup(
         'Programming Language :: Python :: 2.7',
         'License :: OSI Approved :: GNU Affero General Public License v3'
     ],
+    package_data = {
+        '': ['*.html'],
+    },
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
         'bottle>=0.12.5',
