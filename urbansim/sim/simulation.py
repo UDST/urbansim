@@ -54,7 +54,15 @@ class _DataFrameWrapper(object):
         Columns in this table.
 
         """
-        return list(self._frame.columns) + _list_columns_for_table(self.name)
+        return self.local_columns + _list_columns_for_table(self.name)
+
+    @property
+    def local_columns(self):
+        """
+        Columns that are part of the wrapped DataFrame.
+
+        """
+        return list(self._frame.columns)
 
     @property
     def index(self):
@@ -159,10 +167,24 @@ class _TableFuncWrapper(object):
     @property
     def columns(self):
         """
-        Columns in this table. (May often be out of date.)
+        Columns in this table. (May contain only computed columns
+        if the wrapped function has not been called yet.)
 
         """
         return self._columns + _list_columns_for_table(self.name)
+
+    @property
+    def local_columns(self):
+        """
+        Only the columns contained in the DataFrame returned by the
+        wrapped function. (No registered columns included.)
+
+        """
+        if self._columns:
+            return self._columns
+        else:
+            self._call_func()
+            return self._columns
 
     @property
     def index(self):
@@ -172,6 +194,19 @@ class _TableFuncWrapper(object):
 
         """
         return self._index
+
+    def _call_func(self):
+        """
+        Call the wrapped function and return the result. Also updates
+        attributes like columns, index, and length.
+
+        """
+        kwargs = _collect_injectables(self._arg_list)
+        frame = self._func(**kwargs)
+        self._columns = list(frame.columns)
+        self._index = frame.index
+        self._len = len(frame)
+        return frame
 
     def to_frame(self, columns=None):
         """
@@ -188,11 +223,7 @@ class _TableFuncWrapper(object):
         frame : pandas.DataFrame
 
         """
-        kwargs = _collect_injectables(self._arg_list)
-        frame = self._func(**kwargs)
-        self._columns = list(frame.columns)
-        self._index = frame.index
-        self._len = len(frame)
+        frame = self._call_func()
         return _DataFrameWrapper(self.name, frame).to_frame(columns)
 
     def get_column(self, column_name):
@@ -249,8 +280,7 @@ class _TableSourceWrapper(_TableFuncWrapper):
         frame : pandas.DataFrame
 
         """
-        kwargs = _collect_injectables(self._arg_list)
-        frame = self._func(**kwargs)
+        frame = self._call_func()
         add_table(self.name, frame)
         return _DataFrameWrapper(self.name, frame).to_frame(columns)
 

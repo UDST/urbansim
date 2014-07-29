@@ -34,6 +34,7 @@ def test_tables(df, clear_sim):
 
     table = sim.get_table('test_frame')
     assert table.columns == ['a', 'b']
+    assert table.local_columns == ['a', 'b']
     assert len(table) == 3
     pdt.assert_index_equal(table.index, df.index)
     pdt.assert_series_equal(table.get_column('a'), df.a)
@@ -289,9 +290,30 @@ def test_table_source(clear_sim, df):
 
     test_df = table.to_frame()
     pdt.assert_frame_equal(test_df, df)
+    assert table.columns == list(df.columns)
+    assert len(table) == len(df)
+    pdt.assert_index_equal(table.index, df.index)
 
     table = sim.get_table('source')
     assert isinstance(table, sim._DataFrameWrapper)
 
     test_df = table.to_frame()
     pdt.assert_frame_equal(test_df, df)
+
+
+def test_table_func_local_cols(clear_sim, df):
+    @sim.table('table')
+    def table():
+        return df
+    sim.add_column('table', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
+
+    assert sim.get_table('table').local_columns == ['a', 'b']
+
+
+def test_table_source_local_cols(clear_sim, df):
+    @sim.table_source('source')
+    def source():
+        return df
+    sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
+
+    assert sim.get_table('source').local_columns == ['a', 'b']
