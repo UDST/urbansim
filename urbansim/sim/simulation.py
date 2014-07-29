@@ -270,8 +270,7 @@ class _TableSourceWrapper(_TableFuncWrapper):
 
         """
         frame = self._call_func()
-        add_table(self.name, frame)
-        return get_table(self.name)
+        return add_table(self.name, frame)
 
     def to_frame(self, columns=None):
         """
@@ -429,6 +428,10 @@ def add_table(table_name, table):
         names will be matched to known tables, which will be injected
         when this function is called.
 
+    Returns
+    -------
+    wrapped : `_DataFrameWrapper` or `_TableFuncWrapper`
+
     """
     if isinstance(table, pd.DataFrame):
         table = _DataFrameWrapper(table_name, table)
@@ -438,6 +441,8 @@ def add_table(table_name, table):
         raise TypeError('table must be DataFrame or function.')
 
     _TABLES[table_name] = table
+
+    return table
 
 
 def table(table_name):
@@ -468,8 +473,14 @@ def add_table_source(table_name, func):
         Function argument names will be matched to known injectables,
         which will be injected when this function is called.
 
+    Returns
+    -------
+    wrapped : `_TableSourceWrapper`
+
     """
-    _TABLES[table_name] = _TableSourceWrapper(table_name, func)
+    wrapped = _TableSourceWrapper(table_name, func)
+    _TABLES[table_name] = wrapped
+    return wrapped
 
 
 def table_source(table_name):

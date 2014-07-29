@@ -24,7 +24,7 @@ def df():
 
 
 def test_tables(df, clear_sim):
-    sim.add_table('test_frame', df)
+    wrapped_df = sim.add_table('test_frame', df)
 
     @sim.table('test_func')
     def test_func(test_frame):
@@ -33,6 +33,7 @@ def test_tables(df, clear_sim):
     assert set(sim.list_tables()) == {'test_frame', 'test_func'}
 
     table = sim.get_table('test_frame')
+    assert table is wrapped_df
     assert table.columns == ['a', 'b']
     assert table.local_columns == ['a', 'b']
     assert len(table) == 3
