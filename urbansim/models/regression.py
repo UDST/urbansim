@@ -16,6 +16,7 @@ from . import util
 from ..exceptions import ModelEvaluationError
 from ..utils import yamlio
 from ..utils.logutil import log_start_finish
+from ..utils import misc
 
 logger = logging.getLogger(__name__)
 
@@ -464,6 +465,24 @@ class RegressionModel(object):
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.model_expression))))
+
+    @classmethod
+    def run_fit_from_cfg(self, df, cfgname):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            The dataframe which contains the columns to use for the estimation.
+        cfgname : string
+            The name of the yaml config file which describes the hedonic model.
+        """
+        print "Running hedonic estimation\n"
+        hm = self.from_yaml(str_or_buffer=cfg)
+        df = df[hm.columns_used()]
+        print hm.fit(df, debug=True).summary()
+        est_data = {"est_data": hm.est_data}
+        hm.to_yaml(str_or_buffer=cfg)
+        return est_data
 
 
 class RegressionModelGroup(object):
