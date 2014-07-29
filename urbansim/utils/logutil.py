@@ -51,8 +51,9 @@ def log_to_stream(level=None):
     if level is not None:
         handler.setLevel(level)
 
-    logger = logging.getLogger()
+    logger = logging.getLogger('urbansim')
     logger.addHandler(handler)
+    logger.propagate = False
 
 
 def log_to_file(filename, level=None):
@@ -72,5 +73,5 @@ def log_to_file(filename, level=None):
     if level is not None:
         handler.setLevel(level)
 
-    logger = logging.getLogger()
+    logger = logging.getLogger('urbansim')
     logger.addHandler(handler)
