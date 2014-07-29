@@ -686,7 +686,7 @@ def run(models, years=None):
             model = get_model(model_name)
             t1 = time.time()
             model()
-            logger.debug("Time to execute model = %.3fs" % (time.time()-t1))
+            logger.info("Time to execute model = %.3fs" % (time.time()-t1))
 
 
 _Broadcast = namedtuple(
@@ -830,3 +830,9 @@ def merge_tables(target, tables, columns=None):
         nm[onto] = {}
 
     return frames[target]
+
+
+def partial_update(update, outdf_name, outfname):
+    s = get_table(outdf_name).get_column(outfname)
+    s.loc[update.index.values] = update
+    add_column(outdf_name, outfname, s)
