@@ -384,6 +384,46 @@ class _ModelFuncWrapper(object):
         return self._func(**kwargs)
 
 
+def list_tables():
+    """
+    List of table names.
+
+    """
+    return list(_TABLES.keys())
+
+
+def list_columns():
+    """
+    List of (table name, registered column name) pairs.
+
+    """
+    return list(_COLUMNS.keys())
+
+
+def list_models():
+    """
+    List of registered model names.
+
+    """
+    return list(_MODELS.keys())
+
+
+def list_injectables():
+    """
+    List of registered injectables.
+
+    """
+    return list(_INJECTABLES.keys())
+
+
+def list_broadcasts():
+    """
+    List of registered broadcasts as (cast table name, onto table name).
+
+    """
+    return list(_BROADCASTS.keys())
+
+
 def _collect_injectables(names):
     """
     Find all the injectables specified in `names`.
@@ -513,14 +553,6 @@ def get_table(table_name):
         return _TABLES[table_name]
     else:
         raise KeyError('table not found: {}'.format(table_name))
-
-
-def list_tables():
-    """
-    List of table names.
-
-    """
-    return list(_TABLES.keys())
 
 
 def add_column(table_name, column_name, column):

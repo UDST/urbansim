@@ -130,6 +130,8 @@ def test_columns_and_tables(df, clear_sim):
             index=['x', 'y', 'z']))
     assert test_func_df.columns == ['a', 'b', 'c', 'd']
 
+    assert set(sim.list_columns()) == {('test_frame', 'c'), ('test_func', 'd')}
+
 
 def test_models(df, clear_sim):
     sim.add_table('test_table', df)
@@ -149,6 +151,8 @@ def test_models(df, clear_sim):
             {'a': [5, 7, 9],
              'b': [4, 5, 6]},
             index=['x', 'y', 'z']))
+
+    assert sim.list_models() == ['test_model']
 
 
 def test_model_run(df, clear_sim):
@@ -205,6 +209,9 @@ def test_get_broadcasts(clear_sim):
     assert set(sim._get_broadcasts(['a', 'b', 'c']).keys()) == \
         {('a', 'b'), ('b', 'c')}
 
+    assert set(sim.list_broadcasts()) == \
+        {('a', 'b'), ('b', 'c'), ('z', 'b'), ('f', 'g')}
+
 
 def test_collect_injectables(clear_sim, df):
     sim.add_table('df', df)
@@ -256,6 +263,9 @@ def test_injectables(clear_sim):
     assert sim.get_injectable('func2')(4) == 2
     assert sim.get_injectable('func3')() == 2
     assert sim.get_injectable('func4')() == 42
+
+    assert set(sim.list_injectables()) == \
+        {'answer', 'func1', 'func2', 'func3', 'func4'}
 
 
 def test_injectables_combined(clear_sim, df):
