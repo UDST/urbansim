@@ -32,7 +32,7 @@ class SimulationError(Exception):
     pass
 
 
-class _DataFrameWrapper(object):
+class DataFrameWrapper(object):
     """
     Wraps a DataFrame so it can provide certain columns and handle
     computed columns.
@@ -144,7 +144,7 @@ class _DataFrameWrapper(object):
         return len(self._frame)
 
 
-class _TableFuncWrapper(object):
+class TableFuncWrapper(object):
     """
     Wrap a function that provides a DataFrame.
 
@@ -224,7 +224,7 @@ class _TableFuncWrapper(object):
 
         """
         frame = self._call_func()
-        return _DataFrameWrapper(self.name, frame).to_frame(columns)
+        return DataFrameWrapper(self.name, frame).to_frame(columns)
 
     def get_column(self, column_name):
         """
@@ -251,7 +251,7 @@ class _TableFuncWrapper(object):
         return self._len
 
 
-class _TableSourceWrapper(_TableFuncWrapper):
+class TableSourceWrapper(TableFuncWrapper):
     """
     Wraps a function that returns a DataFrame. After the function
     is evaluated the returned DataFrame replaces the function in the
@@ -266,7 +266,7 @@ class _TableSourceWrapper(_TableFuncWrapper):
     def convert(self):
         """
         Evaluate the wrapped function, store the returned DataFrame as a
-        table, and return the new _DataFrameWrapper instance created.
+        table, and return the new DataFrameWrapper instance created.
 
         """
         frame = self._call_func()
@@ -430,13 +430,13 @@ def add_table(table_name, table):
 
     Returns
     -------
-    wrapped : `_DataFrameWrapper` or `_TableFuncWrapper`
+    wrapped : `DataFrameWrapper` or `TableFuncWrapper`
 
     """
     if isinstance(table, pd.DataFrame):
-        table = _DataFrameWrapper(table_name, table)
+        table = DataFrameWrapper(table_name, table)
     elif isinstance(table, Callable):
-        table = _TableFuncWrapper(table_name, table)
+        table = TableFuncWrapper(table_name, table)
     else:
         raise TypeError('table must be DataFrame or function.')
 
@@ -475,10 +475,10 @@ def add_table_source(table_name, func):
 
     Returns
     -------
-    wrapped : `_TableSourceWrapper`
+    wrapped : `TableSourceWrapper`
 
     """
-    wrapped = _TableSourceWrapper(table_name, func)
+    wrapped = TableSourceWrapper(table_name, func)
     _TABLES[table_name] = wrapped
     return wrapped
 
@@ -506,7 +506,7 @@ def get_table(table_name):
 
     Returns
     -------
-    table : _DataFrameWrapper or _TableFuncWrapper
+    table : `DataFrameWrapper`, `TableFuncWrapper`, or `TableSourceWrapper`
 
     """
     if table_name in _TABLES:
@@ -804,7 +804,7 @@ def merge_tables(target, tables, columns=None):
     ----------
     target : str
         Name of the table onto which tables will be merged.
-    tables : list of _DataFrameWrapper or _TableFuncWrapper
+    tables : list of `DataFrameWrapper` or `TableFuncWrapper`
         All of the tables to merge. Should include the target table.
     columns : list of str, optional
         If given, columns will be mapped to `tables` and only those columns

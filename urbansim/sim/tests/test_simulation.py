@@ -287,7 +287,7 @@ def test_table_source(clear_sim, df):
         return df
 
     table = sim.get_table('source')
-    assert isinstance(table, sim._TableSourceWrapper)
+    assert isinstance(table, sim.TableSourceWrapper)
 
     test_df = table.to_frame()
     pdt.assert_frame_equal(test_df, df)
@@ -296,7 +296,7 @@ def test_table_source(clear_sim, df):
     pdt.assert_index_equal(table.index, df.index)
 
     table = sim.get_table('source')
-    assert isinstance(table, sim._DataFrameWrapper)
+    assert isinstance(table, sim.DataFrameWrapper)
 
     test_df = table.to_frame()
     pdt.assert_frame_equal(test_df, df)
@@ -308,10 +308,10 @@ def test_table_source_convert(clear_sim, df):
         return df
 
     table = sim.get_table('source')
-    assert isinstance(table, sim._TableSourceWrapper)
+    assert isinstance(table, sim.TableSourceWrapper)
 
     table = table.convert()
-    assert isinstance(table, sim._DataFrameWrapper)
+    assert isinstance(table, sim.DataFrameWrapper)
     pdt.assert_frame_equal(table.to_frame(), df)
 
     table2 = sim.get_table('source')
