@@ -202,3 +202,96 @@ def test_get_broadcasts(clear_sim):
         {('a', 'b'), ('z', 'b')}
     assert set(sim._get_broadcasts(['a', 'b', 'c']).keys()) == \
         {('a', 'b'), ('b', 'c')}
+
+
+def test_collect_injectables(clear_sim, df):
+    sim.add_table('df', df)
+
+    @sim.table('df_func')
+    def test_df():
+        return df
+
+    @sim.column('df', 'zzz')
+    def zzz():
+        return df['a'] / 2
+
+    sim.add_injectable('answer', 42)
+
+    @sim.injectable('injected')
+    def injected():
+        return 'injected'
+
+    with pytest.raises(KeyError):
+        sim._collect_injectables(['asdf'])
+
+    names = ['df', 'df_func', 'answer', 'injected']
+    things = sim._collect_injectables(names)
+
+    assert set(things.keys()) == set(names)
+
+
+def test_injectables(clear_sim):
+    sim.add_injectable('answer', 42)
+
+    @sim.injectable('func1')
+    def inj_func1(answer):
+        return answer * 2
+
+    @sim.injectable('func2', autocall=False)
+    def inj_func2(x):
+        return x / 2
+
+    @sim.injectable('func3')
+    def inj_func3(func2):
+        return func2(4)
+
+    @sim.injectable('func4')
+    def inj_func4(func1):
+        return func1 / 2
+
+    assert sim.get_injectable('answer') == 42
+    assert sim.get_injectable('func1')() == 42 * 2
+    assert sim.get_injectable('func2')(4) == 2
+    assert sim.get_injectable('func3')() == 2
+    assert sim.get_injectable('func4')() == 42
+
+
+def test_injectables_combined(clear_sim, df):
+    @sim.injectable('column')
+    def column():
+        return pd.Series(['a', 'b', 'c'], index=df.index)
+
+    @sim.table('table')
+    def table():
+        return df
+
+    @sim.model('model')
+    def model(table, column):
+        df = table.to_frame()
+        df['new'] = column
+        sim.add_table('table', df)
+
+    sim.run(models=['model'])
+
+    table = sim.get_table('table').to_frame()
+
+    pdt.assert_frame_equal(table[['a', 'b']], df)
+    pdt.assert_series_equal(table['new'], column())
+
+
+def test_table_source(clear_sim, df):
+    @sim.table_source('source')
+    def source():
+        return df
+
+    table = sim.get_table('source')
+    assert isinstance(table, sim._TableSourceWrapper)
+
+    test_df = table.to_frame()
+    pdt.assert_frame_equal(test_df, df)
+
+    table = sim.get_table('source')
+    assert isinstance(table, sim._DataFrameWrapper)
+
+    test_df = table.to_frame()
+    pdt.assert_frame_equal(test_df, df)
