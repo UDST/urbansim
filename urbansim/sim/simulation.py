@@ -220,6 +220,41 @@ class _TableFuncWrapper(object):
         return self._len
 
 
+class _TableSourceWrapper(_TableFuncWrapper):
+    """
+    Wraps a function that returns a DataFrame. After the function
+    is evaluated the returned DataFrame replaces the function in the
+    table registry.
+
+    Parameters
+    ----------
+    name : str
+    func : callable
+
+    """
+    def to_frame(self, columns=None):
+        """
+        Make a DataFrame with the given columns. The first time this
+        is called the registered table will be replaced with the DataFrame
+        returned by the wrapped function.
+
+        Parameters
+        ----------
+        columns : sequence, optional
+            Sequence of the column names desired in the DataFrame.
+            If None all columns are returned.
+
+        Returns
+        -------
+        frame : pandas.DataFrame
+
+        """
+        kwargs = _collect_injectables(self._arg_list)
+        frame = self._func(**kwargs)
+        add_table(self.name, frame)
+        return _DataFrameWrapper(self.name, frame).to_frame(columns)
+
+
 class _ColumnFuncWrapper(object):
     """
     Wrap a function that returns a Series.
@@ -378,6 +413,36 @@ def table(table_name):
     """
     def decorator(func):
         add_table(table_name, func)
+        return func
+    return decorator
+
+
+def add_table_source(table_name, func):
+    """
+    Add a DataFrame source function to the simulation. This function is
+    evaluated only once, after which the returned DataFrame replaces
+    `func` as the injected table.
+
+    Parameters
+    ----------
+    table_name : str
+    func : callable
+        Function argument names will be matched to known injectables,
+        which will be injected when this function is called.
+
+    """
+    _TABLES[table_name] = _TableSourceWrapper(table_name, func)
+
+
+def table_source(table_name):
+    """
+    Decorator version of `add_table_source`. Use it to decorate a function
+    that returns a DataFrame. The function will be evaluated only once
+    and the DataFrame will replace it.
+
+    """
+    def decorator(func):
+        add_table_source(table_name, func)
         return func
     return decorator
 

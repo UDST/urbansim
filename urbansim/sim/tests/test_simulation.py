@@ -277,3 +277,21 @@ def test_injectables_combined(clear_sim, df):
 
     pdt.assert_frame_equal(table[['a', 'b']], df)
     pdt.assert_series_equal(table['new'], column())
+
+
+def test_table_source(clear_sim, df):
+    @sim.table_source('source')
+    def source():
+        return df
+
+    table = sim.get_table('source')
+    assert isinstance(table, sim._TableSourceWrapper)
+
+    test_df = table.to_frame()
+    pdt.assert_frame_equal(test_df, df)
+
+    table = sim.get_table('source')
+    assert isinstance(table, sim._DataFrameWrapper)
+
+    test_df = table.to_frame()
+    pdt.assert_frame_equal(test_df, df)
