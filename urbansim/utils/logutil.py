@@ -40,23 +40,68 @@ def set_log_level(level):
     logging.getLogger('urbansim').setLevel(level)
 
 
-def log_to_stream(level=None):
+def _add_urbansim_handler(handler, level=None, fmt=None, datefmt=None,
+                          propagate=None):
     """
-    Send log messages to the console.
+    Add a logging handler to urbansim.
+
+    Parameters
+    ----------
+    handler : logging.Handler subclass
+    level : int, optional
+        An optional logging level that will apply only to this stream
+        handler.
+    fmt : str, optional
+        An optional format string that will be used for the log
+        messages.
+    datefmt : str, optional
+        An optional format string for formatting dates in the log
+        messages.
+    propagate : bool, optional
+        Whether the urbansim logger should propagate. If None the
+        propagation will not be modified, otherwise it will be set
+        to this value.
 
     """
-    handler = logging.StreamHandler()
-    handler.setFormatter(US_FMT)
+    if not fmt:
+        fmt = US_LOG_FMT
+    if not datefmt:
+        datefmt = US_LOG_DATE_FMT
+
+    handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
 
     if level is not None:
         handler.setLevel(level)
 
     logger = logging.getLogger('urbansim')
     logger.addHandler(handler)
-    logger.propagate = False
+
+    if propagate is not None:
+        logger.propagate = propagate
 
 
-def log_to_file(filename, level=None):
+def log_to_stream(level=None, fmt=None, datefmt=None):
+    """
+    Send log messages to the console.
+
+    Parameters
+    ----------
+    level : int, optional
+        An optional logging level that will apply only to this stream
+        handler.
+    fmt : str, optional
+        An optional format string that will be used for the log
+        messages.
+    datefmt : str, optional
+        An optional format string for formatting dates in the log
+        messages.
+
+    """
+    _add_urbansim_handler(
+        logging.StreamHandler(), fmt=fmt, datefmt=datefmt, propagate=False)
+
+
+def log_to_file(filename, level=None, fmt=None, datefmt=None):
     """
     Send log output to the given file.
 
@@ -64,14 +109,15 @@ def log_to_file(filename, level=None):
     ----------
     filename : str
     level : int, optional
-        Optional logging level for the file handler.
+        An optional logging level that will apply only to this stream
+        handler.
+    fmt : str, optional
+        An optional format string that will be used for the log
+        messages.
+    datefmt : str, optional
+        An optional format string for formatting dates in the log
+        messages.
 
     """
-    handler = logging.FileHandler(filename)
-    handler.setFormatter(US_FMT)
-
-    if level is not None:
-        handler.setLevel(level)
-
-    logger = logging.getLogger('urbansim')
-    logger.addHandler(handler)
+    _add_urbansim_handler(
+        logging.FileHandler(filename), fmt=fmt, datefmt=datefmt)
