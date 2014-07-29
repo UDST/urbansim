@@ -263,6 +263,16 @@ class _TableSourceWrapper(_TableFuncWrapper):
     func : callable
 
     """
+    def convert(self):
+        """
+        Evaluate the wrapped function, store the returned DataFrame as a
+        table, and return the new _DataFrameWrapper instance created.
+
+        """
+        frame = self._call_func()
+        add_table(self.name, frame)
+        return get_table(self.name)
+
     def to_frame(self, columns=None):
         """
         Make a DataFrame with the given columns. The first time this
@@ -280,9 +290,7 @@ class _TableSourceWrapper(_TableFuncWrapper):
         frame : pandas.DataFrame
 
         """
-        frame = self._call_func()
-        add_table(self.name, frame)
-        return _DataFrameWrapper(self.name, frame).to_frame(columns)
+        return self.convert().to_frame(columns)
 
 
 class _ColumnFuncWrapper(object):

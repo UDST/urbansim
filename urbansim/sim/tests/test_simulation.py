@@ -301,6 +301,22 @@ def test_table_source(clear_sim, df):
     pdt.assert_frame_equal(test_df, df)
 
 
+def test_table_source_convert(clear_sim, df):
+    @sim.table_source('source')
+    def source():
+        return df
+
+    table = sim.get_table('source')
+    assert isinstance(table, sim._TableSourceWrapper)
+
+    table = table.convert()
+    assert isinstance(table, sim._DataFrameWrapper)
+    pdt.assert_frame_equal(table.to_frame(), df)
+
+    table2 = sim.get_table('source')
+    assert table2 is table
+
+
 def test_table_func_local_cols(clear_sim, df):
     @sim.table('table')
     def table():
