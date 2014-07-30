@@ -8,6 +8,7 @@ from __future__ import print_function, division
 import logging
 
 import numpy as np
+from numpy import random
 import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
@@ -458,6 +459,31 @@ class MNLLocationChoiceModel(object):
             self.choosers_columns_used(),
             self.alts_columns_used(),
             self.interaction_columns_used())))
+
+    @classmethod
+    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname):
+        """
+        Parameters
+        ----------
+        choosers : DataFrame
+            A dataframe of rows of agents which have locations assigned.
+        chosen_fname : string
+            A string indicating the column in the choosers dataframe which
+            gives which location the choosers have chosen.
+        alternatives : DataFrame
+            A dataframe of locations which should include the chosen locations
+            from the choosers dataframe as well as some other locations from
+            which to sample.  Values in choosers[chosen_fname] should index
+            into the alternatives dataframe.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+        """
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        lcm.report_fit()
+        lcm.to_yaml(str_or_buffer=cfgname)
+        return lcm
 
 
 class MNLLocationChoiceModelGroup(object):
@@ -1047,4 +1073,67 @@ class SegmentedMNLLocationChoiceModel(object):
         return list(toolz.unique(toolz.concatv(
             self.choosers_columns_used(),
             self.alts_columns_used(),
-            self.interaction_columns_used())))
+            self.interaction_columns_used(),
+            [self.segmentation_col])))
+
+    @classmethod
+    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname):
+        """
+        Parameters
+        ----------
+        choosers : DataFrame
+            A dataframe of rows of agents which have locations assigned.
+        chosen_fname : string
+            A string indicating the column in the choosers dataframe which
+            gives which location the choosers have chosen.
+        alternatives : DataFrame
+            A dataframe of locations which should include the chosen locations
+            from the choosers dataframe as well as some other locations from
+            which to sample.  Values in choosers[chosen_fname] should index
+            into the alternatives dataframe.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+        """
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        for k, v in lcm._group.models.items():
+            print("LCM RESULTS FOR SEGMENT %s\n" % str(k))
+            v.report_fit()
+        lcm.to_yaml(str_or_buffer=cfgname)
+        return lcm
+
+    @classmethod
+    def predict_from_cfg(cls, movers, locations, cfgname,
+                         location_ratio=2.0):
+        """
+        Simulate the location choices for the specified choosers
+
+        Parameters
+        ----------
+        choosers : DataFrame
+            A dataframe of agents doing the choosing.
+        locations : DataFrame
+            A dataframe of locations which the choosers are location in and which
+            have a supply.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+        location_ratio : float
+            Above the location ratio (default of 2.0) of locations to choosers, the
+            locations will be sampled to meet this ratio (for performance reasons).
+        """
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+
+        if len(locations) > len(movers) * location_ratio:
+            print("Location ratio exceeded: %d locations and only %d choosers" %
+                  (len(locations), len(movers)))
+            idxes = random.choice(locations.index, size=len(movers) * location_ratio,
+                                  replace=False)
+            locations = locations.loc[idxes]
+            print("  after sampling %d locations are available\n" % len(locations))
+
+        new_units = lcm.predict(movers, locations, debug=True)
+        print("Assigned %d choosers to new units" % len(new_units.index))
+        return new_units
+

@@ -833,6 +833,8 @@ def merge_tables(target, tables, columns=None):
 
 
 def partial_update(update, outdf_name, outfname):
+    if not len(update):
+        return
     s = get_table(outdf_name).get_column(outfname)
-    s.loc[update.index.values] = update
+    s.loc[update.index] = update
     add_column(outdf_name, outfname, s)

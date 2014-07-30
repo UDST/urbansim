@@ -14,7 +14,7 @@ import toolz
 def _mkifnotexists(folder):
     d = os.path.join(os.getenv('DATA_HOME', "."), folder)
     if not os.path.exists(d):
-        os.mkdir(d)
+        os.mkdir
     return d
 
 
@@ -297,7 +297,7 @@ def pandasdfsummarytojson(df, ndigits=3):
     return {k: _pandassummarytojson(v, ndigits) for k, v in df.iterrows()}
 
 
-def column_map(tables, columns):
+def column_map(tables, columns, onlyfound=False):
     """
     Take a list of tables and a list of column names and resolve which
     columns come from which table.
@@ -309,6 +309,8 @@ def column_map(tables, columns):
         thing is that they have ``.name`` and ``.columns`` attributes.
     columns : sequence of str
         The column names of interest.
+    onlyfound: boolean, optional (default False)
+        If True, return a list of the columns that are found.
 
     Returns
     -------
@@ -322,6 +324,8 @@ def column_map(tables, columns):
     columns = set(columns)
     colmap = {t.name: list(set(t.columns).intersection(columns)) for t in tables}
     foundcols = toolz.reduce(lambda x, y: x.union(y), (set(v) for v in colmap.values()))
+    if onlyfound:
+        return list(foundcols)
     if foundcols != columns:
         raise RuntimeError('Not all required columns were found. '
                            'Missing: {}'.format(list(columns - foundcols)))

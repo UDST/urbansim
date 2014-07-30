@@ -467,26 +467,6 @@ class RegressionModel(object):
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.model_expression))))
 
-    def fit_columns_used(self):
-        """
-        Returns all the columns used in this model for filtering
-        and in the model expression (during the fit process).
-
-        """
-        return list(toolz.unique(toolz.concatv(
-            util.columns_in_filters(self.fit_filters),
-            util.columns_in_formula(self.model_expression))))
-
-    def predict_columns_used(self):
-        """
-        Returns all the columns used in this model for filtering
-        and in the model expression (during the prediction process).
-
-        """
-        return list(toolz.unique(toolz.concatv(
-            util.columns_in_filters(self.predict_filters),
-            util.columns_in_formula(_rhs(self.model_expression)))))
-
     @classmethod
     def fit_from_cfg(cls, df, cfgname, debug=False):
         """
@@ -501,7 +481,7 @@ class RegressionModel(object):
         """
         hm = cls.from_yaml(str_or_buffer=cfgname)
         ret = hm.fit(df, debug=debug)
-        logger.info(ret.summary())
+        print ret.summary()
         hm.to_yaml(str_or_buffer=cfgname)
         return hm
 
@@ -518,7 +498,7 @@ class RegressionModel(object):
         hm = cls.from_yaml(str_or_buffer=cfgname)
 
         price_or_rent = hm.predict(df)
-        logger.info(price_or_rent.describe())
+        print price_or_rent.describe()
 
         return price_or_rent
 
@@ -673,24 +653,6 @@ class RegressionModelGroup(object):
         """
         return list(toolz.unique(toolz.concat(
             m.columns_used() for m in self.models.values())))
-
-    def fit_columns_used(self):
-        """
-        Returns all the columns used across all models in the group
-        for filtering and in the model expression.
-
-        """
-        return list(toolz.unique(toolz.concat(
-            m.fit_columns_used() for m in self.models.values())))
-
-    def predict_columns_used(self):
-        """
-        Returns all the columns used across all models in the group
-        for filtering and in the model expression.
-
-        """
-        return list(toolz.unique(toolz.concat(
-            m.predict_columns_used() for m in self.models.values())))
 
 
 class SegmentedRegressionModel(object):
@@ -982,28 +944,6 @@ class SegmentedRegressionModel(object):
             self._group.columns_used(),
             [self.segmentation_col])))
 
-    def fit_columns_used(self):
-        """
-        Returns all the columns used in this model for filtering
-        and in the model expression (during the fit process).
-
-        """
-        return list(toolz.unique(toolz.concatv(
-            util.columns_in_filters(self.fit_filters),
-            self._group.fit_columns_used(),
-            [self.segmentation_col])))
-
-    def predict_columns_used(self):
-        """
-        Returns all the columns used in this model for filtering
-        and in the model expression (during the prediction process).
-
-        """
-        return list(toolz.unique(toolz.concatv(
-            util.columns_in_filters(self.predict_filters),
-            self._group.predict_columns_used(),
-            [self.segmentation_col])))
-
     @classmethod
     def fit_from_cfg(cls, df, cfgname, debug=False, min_segment_size=None):
         """
@@ -1023,8 +963,8 @@ class SegmentedRegressionModel(object):
             hm.min_segment_size = min_segment_size
 
         for k, v in hm.fit(df, debug=debug).items():
-            logger.info("REGRESSION RESULTS FOR SEGMENT %s\n" % str(k))
-            logger.info(v.summary())
+            print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
+            print v.summary()
         hm.to_yaml(str_or_buffer=cfgname)
         return hm
 
@@ -1045,6 +985,6 @@ class SegmentedRegressionModel(object):
             hm.min_segment_size = min_segment_size
 
         price_or_rent = hm.predict(df)
-        logger.info(price_or_rent.describe())
+        print price_or_rent.describe()
 
         return price_or_rent
