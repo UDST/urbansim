@@ -438,6 +438,6 @@ def test_fit_from_cfg_segmented(groupby_df):
     misc._mkifnotexists("fake_data_home")
     cfgname = os.path.join("fake_data_home", "test.yaml")
     seg.to_yaml(cfgname)
-    regression.SegmentedRegressionModel.fit_from_cfg(groupby_df, cfgname, debug=True, min_segment_size=5000)
+    regression.SegmentedRegressionModel.fit_from_cfg(groupby_df, cfgname, debug=True,
+                                                     min_segment_size=5000)
     regression.SegmentedRegressionModel.predict_from_cfg(groupby_df, cfgname, min_segment_size=5000)
-
