@@ -16,7 +16,6 @@ from . import util
 from ..exceptions import ModelEvaluationError
 from ..utils import yamlio
 from ..utils.logutil import log_start_finish
-from ..utils import misc
 
 logger = logging.getLogger(__name__)
 
