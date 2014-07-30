@@ -24,7 +24,7 @@ def df():
 
 
 def test_tables(df, clear_sim):
-    sim.add_table('test_frame', df)
+    wrapped_df = sim.add_table('test_frame', df)
 
     @sim.table('test_func')
     def test_func(test_frame):
@@ -33,7 +33,9 @@ def test_tables(df, clear_sim):
     assert set(sim.list_tables()) == {'test_frame', 'test_func'}
 
     table = sim.get_table('test_frame')
+    assert table is wrapped_df
     assert table.columns == ['a', 'b']
+    assert table.local_columns == ['a', 'b']
     assert len(table) == 3
     pdt.assert_index_equal(table.index, df.index)
     pdt.assert_series_equal(table.get_column('a'), df.a)
@@ -128,6 +130,8 @@ def test_columns_and_tables(df, clear_sim):
             index=['x', 'y', 'z']))
     assert test_func_df.columns == ['a', 'b', 'c', 'd']
 
+    assert set(sim.list_columns()) == {('test_frame', 'c'), ('test_func', 'd')}
+
 
 def test_models(df, clear_sim):
     sim.add_table('test_table', df)
@@ -147,6 +151,8 @@ def test_models(df, clear_sim):
             {'a': [5, 7, 9],
              'b': [4, 5, 6]},
             index=['x', 'y', 'z']))
+
+    assert sim.list_models() == ['test_model']
 
 
 def test_model_run(df, clear_sim):
@@ -203,6 +209,9 @@ def test_get_broadcasts(clear_sim):
     assert set(sim._get_broadcasts(['a', 'b', 'c']).keys()) == \
         {('a', 'b'), ('b', 'c')}
 
+    assert set(sim.list_broadcasts()) == \
+        {('a', 'b'), ('b', 'c'), ('z', 'b'), ('f', 'g')}
+
 
 def test_collect_injectables(clear_sim, df):
     sim.add_table('df', df)
@@ -255,6 +264,9 @@ def test_injectables(clear_sim):
     assert sim.get_injectable('func3')() == 2
     assert sim.get_injectable('func4')() == 42
 
+    assert set(sim.list_injectables()) == \
+        {'answer', 'func1', 'func2', 'func3', 'func4'}
+
 
 def test_injectables_combined(clear_sim, df):
     @sim.injectable('column')
@@ -285,13 +297,50 @@ def test_table_source(clear_sim, df):
         return df
 
     table = sim.get_table('source')
-    assert isinstance(table, sim._TableSourceWrapper)
+    assert isinstance(table, sim.TableSourceWrapper)
 
     test_df = table.to_frame()
     pdt.assert_frame_equal(test_df, df)
+    assert table.columns == list(df.columns)
+    assert len(table) == len(df)
+    pdt.assert_index_equal(table.index, df.index)
 
     table = sim.get_table('source')
-    assert isinstance(table, sim._DataFrameWrapper)
+    assert isinstance(table, sim.DataFrameWrapper)
 
     test_df = table.to_frame()
     pdt.assert_frame_equal(test_df, df)
+
+
+def test_table_source_convert(clear_sim, df):
+    @sim.table_source('source')
+    def source():
+        return df
+
+    table = sim.get_table('source')
+    assert isinstance(table, sim.TableSourceWrapper)
+
+    table = table.convert()
+    assert isinstance(table, sim.DataFrameWrapper)
+    pdt.assert_frame_equal(table.to_frame(), df)
+
+    table2 = sim.get_table('source')
+    assert table2 is table
+
+
+def test_table_func_local_cols(clear_sim, df):
+    @sim.table('table')
+    def table():
+        return df
+    sim.add_column('table', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
+
+    assert sim.get_table('table').local_columns == ['a', 'b']
+
+
+def test_table_source_local_cols(clear_sim, df):
+    @sim.table_source('source')
+    def source():
+        return df
+    sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
+
+    assert sim.get_table('source').local_columns == ['a', 'b']

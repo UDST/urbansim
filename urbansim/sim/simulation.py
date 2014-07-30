@@ -36,7 +36,7 @@ class SimulationError(Exception):
     pass
 
 
-class _DataFrameWrapper(object):
+class DataFrameWrapper(object):
     """
     Wraps a DataFrame so it can provide certain columns and handle
     computed columns.
@@ -58,7 +58,15 @@ class _DataFrameWrapper(object):
         Columns in this table.
 
         """
-        return list(self._frame.columns) + _list_columns_for_table(self.name)
+        return self.local_columns + _list_columns_for_table(self.name)
+
+    @property
+    def local_columns(self):
+        """
+        Columns that are part of the wrapped DataFrame.
+
+        """
+        return list(self._frame.columns)
 
     @property
     def local_columns(self):
@@ -148,7 +156,7 @@ class _DataFrameWrapper(object):
         return len(self._frame)
 
 
-class _TableFuncWrapper(object):
+class TableFuncWrapper(object):
     """
     Wrap a function that provides a DataFrame.
 
@@ -171,10 +179,24 @@ class _TableFuncWrapper(object):
     @property
     def columns(self):
         """
-        Columns in this table. (May often be out of date.)
+        Columns in this table. (May contain only computed columns
+        if the wrapped function has not been called yet.)
 
         """
         return self._columns + _list_columns_for_table(self.name)
+
+    @property
+    def local_columns(self):
+        """
+        Only the columns contained in the DataFrame returned by the
+        wrapped function. (No registered columns included.)
+
+        """
+        if self._columns:
+            return self._columns
+        else:
+            self._call_func()
+            return self._columns
 
     @property
     def index(self):
@@ -184,6 +206,19 @@ class _TableFuncWrapper(object):
 
         """
         return self._index
+
+    def _call_func(self):
+        """
+        Call the wrapped function and return the result. Also updates
+        attributes like columns, index, and length.
+
+        """
+        kwargs = _collect_injectables(self._arg_list)
+        frame = self._func(**kwargs)
+        self._columns = list(frame.columns)
+        self._index = frame.index
+        self._len = len(frame)
+        return frame
 
     def to_frame(self, columns=None):
         """
@@ -200,12 +235,8 @@ class _TableFuncWrapper(object):
         frame : pandas.DataFrame
 
         """
-        kwargs = _collect_injectables(self._arg_list)
-        frame = self._func(**kwargs)
-        self._columns = list(frame.columns)
-        self._index = frame.index
-        self._len = len(frame)
-        return _DataFrameWrapper(self.name, frame).to_frame(columns)
+        frame = self._call_func()
+        return DataFrameWrapper(self.name, frame).to_frame(columns)
 
     def get_column(self, column_name):
         """
@@ -232,7 +263,7 @@ class _TableFuncWrapper(object):
         return self._len
 
 
-class _TableSourceWrapper(_TableFuncWrapper):
+class TableSourceWrapper(TableFuncWrapper):
     """
     Wraps a function that returns a DataFrame. After the function
     is evaluated the returned DataFrame replaces the function in the
@@ -244,6 +275,15 @@ class _TableSourceWrapper(_TableFuncWrapper):
     func : callable
 
     """
+    def convert(self):
+        """
+        Evaluate the wrapped function, store the returned DataFrame as a
+        table, and return the new DataFrameWrapper instance created.
+
+        """
+        frame = self._call_func()
+        return add_table(self.name, frame)
+
     def to_frame(self, columns=None):
         """
         Make a DataFrame with the given columns. The first time this
@@ -261,10 +301,7 @@ class _TableSourceWrapper(_TableFuncWrapper):
         frame : pandas.DataFrame
 
         """
-        kwargs = _collect_injectables(self._arg_list)
-        frame = self._func(**kwargs)
-        add_table(self.name, frame)
-        return _DataFrameWrapper(self.name, frame).to_frame(columns)
+        return self.convert().to_frame(columns)
 
 
 class _ColumnFuncWrapper(object):
@@ -359,6 +396,46 @@ class _ModelFuncWrapper(object):
         return self._func(**kwargs)
 
 
+def list_tables():
+    """
+    List of table names.
+
+    """
+    return list(_TABLES.keys())
+
+
+def list_columns():
+    """
+    List of (table name, registered column name) pairs.
+
+    """
+    return list(_COLUMNS.keys())
+
+
+def list_models():
+    """
+    List of registered model names.
+
+    """
+    return list(_MODELS.keys())
+
+
+def list_injectables():
+    """
+    List of registered injectables.
+
+    """
+    return list(_INJECTABLES.keys())
+
+
+def list_broadcasts():
+    """
+    List of registered broadcasts as (cast table name, onto table name).
+
+    """
+    return list(_BROADCASTS.keys())
+
+
 def _collect_injectables(names):
     """
     Find all the injectables specified in `names`.
@@ -403,15 +480,21 @@ def add_table(table_name, table):
         names will be matched to known tables, which will be injected
         when this function is called.
 
+    Returns
+    -------
+    wrapped : `DataFrameWrapper` or `TableFuncWrapper`
+
     """
     if isinstance(table, pd.DataFrame):
-        table = _DataFrameWrapper(table_name, table)
+        table = DataFrameWrapper(table_name, table)
     elif isinstance(table, Callable):
-        table = _TableFuncWrapper(table_name, table)
+        table = TableFuncWrapper(table_name, table)
     else:
         raise TypeError('table must be DataFrame or function.')
 
     _TABLES[table_name] = table
+
+    return table
 
 
 def table(table_name):
@@ -442,8 +525,14 @@ def add_table_source(table_name, func):
         Function argument names will be matched to known injectables,
         which will be injected when this function is called.
 
+    Returns
+    -------
+    wrapped : `TableSourceWrapper`
+
     """
-    _TABLES[table_name] = _TableSourceWrapper(table_name, func)
+    wrapped = TableSourceWrapper(table_name, func)
+    _TABLES[table_name] = wrapped
+    return wrapped
 
 
 def table_source(table_name):
@@ -469,21 +558,13 @@ def get_table(table_name):
 
     Returns
     -------
-    table : _DataFrameWrapper or _TableFuncWrapper
+    table : `DataFrameWrapper`, `TableFuncWrapper`, or `TableSourceWrapper`
 
     """
     if table_name in _TABLES:
         return _TABLES[table_name]
     else:
         raise KeyError('table not found: {}'.format(table_name))
-
-
-def list_tables():
-    """
-    List of table names.
-
-    """
-    return list(_TABLES.keys())
 
 
 def add_column(table_name, column_name, column):
@@ -769,7 +850,7 @@ def merge_tables(target, tables, columns=None):
     ----------
     target : str
         Name of the table onto which tables will be merged.
-    tables : list of _DataFrameWrapper or _TableFuncWrapper
+    tables : list of `DataFrameWrapper` or `TableFuncWrapper`
         All of the tables to merge. Should include the target table.
     columns : list of str, optional
         If given, columns will be mapped to `tables` and only those columns
