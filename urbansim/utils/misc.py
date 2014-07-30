@@ -14,7 +14,7 @@ import toolz
 def _mkifnotexists(folder):
     d = os.path.join(os.getenv('DATA_HOME', "."), folder)
     if not os.path.exists(d):
-        os.mkdir(d)
+        os.makedirs(d)
     return d
 
 
@@ -326,3 +326,27 @@ def column_map(tables, columns):
         raise RuntimeError('Not all required columns were found. '
                            'Missing: {}'.format(list(columns - foundcols)))
     return colmap
+
+
+def column_list(tables, columns):
+    """
+    Take a list of tables and a list of column names and return the columns
+    that are present in the tables.
+
+    Parameters
+    ----------
+    tables : sequence of _DataFrameWrapper or _TableFuncWrapper
+        Could also be sequence of modified pandas.DataFrames, the important
+        thing is that they have ``.name`` and ``.columns`` attributes.
+    columns : sequence of str
+        The column names of interest.
+
+    Returns
+    -------
+    cols : list
+        Lists of column names available in the tables.
+
+    """
+    columns = set(columns)
+    foundcols = toolz.reduce(lambda x, y: x.union(y), (set(t.columns) for t in tables))
+    return list(columns.intersection(foundcols))

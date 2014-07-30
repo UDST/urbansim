@@ -1,7 +1,4 @@
 import cPickle
-import os
-import sys
-import time
 import yaml
 
 import numpy as np
@@ -9,11 +6,12 @@ import pandas as pd
 
 from . import misc
 from ..models import util
+import urbansim.sim.simulation as sim
 
 NETWORKS = None
 
 
-def from_yaml(dset, cfgname):
+def from_yaml(cfgname):
     print "Computing accessibility variables"
     cfg = yaml.load(open(misc.config(cfgname)))
 
@@ -51,7 +49,7 @@ def from_yaml(dset, cfgname):
             flds.append(node_col)
         print "    Fields available to accvar =", ', '.join(flds)
 
-        df = dset.view(dfname).build_df(flds)
+        df = sim.get_table(dfname).to_frame(flds)
 
         if "filters" in variable:
             df = util.apply_filter_query(df, variable["filters"])

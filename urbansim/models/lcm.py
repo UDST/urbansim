@@ -14,6 +14,7 @@ from prettytable import PrettyTable
 import toolz
 
 from . import util
+from ..exceptions import ModelEvaluationError
 from ..urbanchoice import interaction, mnl
 from ..utils import yamlio
 from ..utils.logutil import log_start_finish
@@ -238,6 +239,13 @@ class MNLLocationChoiceModel(object):
             choosers, alternatives, self.sample_size, current_choice)
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
+
+        if len(merged) != model_design.as_matrix().shape[0]:
+            raise ModelEvaluationError(
+                'Estimated data does not have the same length as input.  '
+                'This suggests there are null values in one or more of '
+                'the input columns.')
+
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size)
         self.fit_parameters.index = model_design.columns
@@ -335,6 +343,12 @@ class MNLLocationChoiceModel(object):
             merged, self.interaction_predict_filters)
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
+
+        if len(merged) != model_design.as_matrix().shape[0]:
+            raise ModelEvaluationError(
+                'Simulated data does not have the same length as input.  '
+                'This suggests there are null values in one or more of '
+                'the input columns.')
 
         coeffs = [self.fit_parameters['Coefficient'][x]
                   for x in model_design.columns]
@@ -444,6 +458,83 @@ class MNLLocationChoiceModel(object):
             self.choosers_columns_used(),
             self.alts_columns_used(),
             self.interaction_columns_used())))
+
+    @classmethod
+    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname):
+        """
+        Parameters
+        ----------
+        choosers : DataFrame
+            A dataframe of rows of agents which have locations assigned.
+        chosen_fname : string
+            A string indicating the column in the choosers dataframe which
+            gives which location the choosers have chosen.
+        alternatives : DataFrame
+            A dataframe of locations which should include the chosen locations
+            from the choosers dataframe as well as some other locations from
+            which to sample.  Values in choosers[chosen_fname] should index
+            into the alternatives dataframe.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+
+        Returns
+        -------
+        lcm : MNLLocationChoiceModel which was used to fit
+        """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        lcm.report_fit()
+        lcm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('finish: fit from configuration {}'.format(cfgname))
+        return lcm
+
+    @classmethod
+    def predict_from_cfg(cls, movers, locations, cfgname,
+                         location_ratio=2.0, debug=False):
+        """
+        Simulate the location choices for the specified choosers
+
+        Parameters
+        ----------
+        movers : DataFrame
+            A dataframe of agents doing the choosing.
+        locations : DataFrame
+            A dataframe of locations which the choosers are location in and which
+            have a supply.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+        location_ratio : float
+            Above the location ratio (default of 2.0) of locations to choosers, the
+            locations will be sampled to meet this ratio (for performance reasons).
+        debug : boolean, optional (default False)
+            Whether to generate debug information on the model.
+
+        Returns
+        -------
+        choices : pandas.Series
+            Mapping of chooser ID to alternative ID. Some choosers
+            will map to a nan value when there are not enough alternatives
+            for all the choosers.
+        lcm : MNLLocationChoiceModel which was used to predict
+        """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+
+        if len(locations) > len(movers) * location_ratio:
+            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
+                        (len(locations), len(movers)))
+            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
+                                     replace=False)
+            locations = locations.loc[idxes]
+            logger.info("  after sampling %d locations are available\n" % len(locations))
+
+        new_units = lcm.predict(movers, locations, debug=debug)
+        print("Assigned %d choosers to new units" % len(new_units.index))
+        logger.debug('finish: predict from configuration {}'.format(cfgname))
+        return new_units, lcm
 
 
 class MNLLocationChoiceModelGroup(object):
@@ -1033,4 +1124,82 @@ class SegmentedMNLLocationChoiceModel(object):
         return list(toolz.unique(toolz.concatv(
             self.choosers_columns_used(),
             self.alts_columns_used(),
-            self.interaction_columns_used())))
+            self.interaction_columns_used(),
+            [self.segmentation_col])))
+
+    @classmethod
+    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname):
+        """
+        Parameters
+        ----------
+        choosers : DataFrame
+            A dataframe of rows of agents which have locations assigned.
+        chosen_fname : string
+            A string indicating the column in the choosers dataframe which
+            gives which location the choosers have chosen.
+        alternatives : DataFrame
+            A dataframe of locations which should include the chosen locations
+            from the choosers dataframe as well as some other locations from
+            which to sample.  Values in choosers[chosen_fname] should index
+            into the alternatives dataframe.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+
+        Returns
+        -------
+        lcm : SegmentedMNLLocationChoiceModel which was used to fit
+        """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+        lcm.fit(choosers, alternatives, choosers[chosen_fname])
+        for k, v in lcm._group.models.items():
+            print("LCM RESULTS FOR SEGMENT %s\n" % str(k))
+            v.report_fit()
+        lcm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('finish: fit from configuration {}'.format(cfgname))
+        return lcm
+
+    @classmethod
+    def predict_from_cfg(cls, movers, locations, cfgname,
+                         location_ratio=2.0, debug=False):
+        """
+        Simulate the location choices for the specified choosers
+
+        Parameters
+        ----------
+        movers : DataFrame
+            A dataframe of agents doing the choosing.
+        locations : DataFrame
+            A dataframe of locations which the choosers are location in and which
+            have a supply.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+        location_ratio : float
+            Above the location ratio (default of 2.0) of locations to choosers, the
+            locations will be sampled to meet this ratio (for performance reasons).
+
+        Returns
+        -------
+        choices : pandas.Series
+            Mapping of chooser ID to alternative ID. Some choosers
+            will map to a nan value when there are not enough alternatives
+            for all the choosers.
+        lcm : SegmentedMNLLocationChoiceModel which was used to predict
+        """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+
+        if len(locations) > len(movers) * location_ratio:
+            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
+                        (len(locations), len(movers)))
+            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
+                                     replace=False)
+            locations = locations.loc[idxes]
+            logger.info("  after sampling %d locations are available\n" % len(locations))
+
+        new_units = lcm.predict(movers, locations, debug=debug)
+        print("Assigned %d choosers to new units" % len(new_units.index))
+        logger.debug('finish: predict from configuration {}'.format(cfgname))
+        return new_units, lcm

@@ -6,6 +6,10 @@ from collections import Callable, namedtuple
 
 import pandas as pd
 import toolz
+import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ..utils.misc import column_map
 from ..utils.logutil import log_start_finish
@@ -813,7 +817,9 @@ def run(models, years=None):
             with log_start_finish(
                     'run model {!r}'.format(model_name), logger, logging.INFO):
                 model = get_model(model_name)
+                t1 = time.time()
                 model()
+                logger.info("Time to execute model = %.3fs" % (time.time()-t1))
 
 
 _Broadcast = namedtuple(
