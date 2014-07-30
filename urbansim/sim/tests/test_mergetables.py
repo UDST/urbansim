@@ -9,7 +9,7 @@ from ...utils.testing import assert_frames_equal
 
 @pytest.fixture
 def dfa():
-    return sim._DataFrameWrapper('a', pd.DataFrame(
+    return sim.DataFrameWrapper('a', pd.DataFrame(
         {'a1': [1, 2, 3],
          'a2': [4, 5, 6],
          'a3': [7, 8, 9]},
@@ -18,7 +18,7 @@ def dfa():
 
 @pytest.fixture
 def dfz():
-    return sim._DataFrameWrapper('z', pd.DataFrame(
+    return sim.DataFrameWrapper('z', pd.DataFrame(
         {'z1': [90, 91],
          'z2': [92, 93],
          'z3': [94, 95],
@@ -29,7 +29,7 @@ def dfz():
 
 @pytest.fixture
 def dfb():
-    return sim._DataFrameWrapper('b', pd.DataFrame(
+    return sim.DataFrameWrapper('b', pd.DataFrame(
         {'b1': range(10, 15),
          'b2': range(15, 20),
          'a_id': ['ac', 'ac', 'ab', 'aa', 'ab'],
@@ -39,7 +39,7 @@ def dfb():
 
 @pytest.fixture
 def dfc():
-    return sim._DataFrameWrapper('c', pd.DataFrame(
+    return sim.DataFrameWrapper('c', pd.DataFrame(
         {'c1': range(20, 30),
          'c2': range(30, 40),
          'b_id': ['ba', 'bd', 'bb', 'bc', 'bb', 'ba', 'bb', 'bc', 'bd', 'bb']},
@@ -48,14 +48,14 @@ def dfc():
 
 @pytest.fixture
 def dfg():
-    return sim._DataFrameWrapper('g', pd.DataFrame(
+    return sim.DataFrameWrapper('g', pd.DataFrame(
         {'g1': [1, 2, 3]},
         index=['ga', 'gb', 'gc']))
 
 
 @pytest.fixture
 def dfh():
-    return sim._DataFrameWrapper('h', pd.DataFrame(
+    return sim.DataFrameWrapper('h', pd.DataFrame(
         {'h1': range(10, 15),
          'g_id': ['ga', 'gb', 'gc', 'ga', 'gb']},
         index=['ha', 'hb', 'hc', 'hd', 'he']))

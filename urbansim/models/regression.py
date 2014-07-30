@@ -332,8 +332,9 @@ class RegressionModel(object):
         self.fit_parameters = _model_fit_to_table(fit)
         if debug:
             index = util.apply_filter_query(data, self.fit_filters).index
-            assert len(fit.model.exog) == len(index), "The estimate data is"
-            "unequal in length to the original dataframe, usually caused by nans"
+            assert len(fit.model.exog) == len(index), (
+                "The estimate data is unequal in length to the original "
+                "dataframe, usually caused by nans")
             df = pd.DataFrame(
                 fit.model.exog, columns=fit.model.exog_names, index=index)
             df[fit.model.endog_names] = fit.model.endog
@@ -464,6 +465,57 @@ class RegressionModel(object):
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.model_expression))))
+
+    @classmethod
+    def fit_from_cfg(cls, df, cfgname, debug=False):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            The dataframe which contains the columns to use for the estimation.
+        cfgname : string
+            The name of the yaml config file which describes the hedonic model.
+        debug : boolean, optional (default False)
+            Whether to generate debug information on the model.
+
+        Returns
+        -------
+        RegressionModel which was used to fit
+        """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
+        hm = cls.from_yaml(str_or_buffer=cfgname)
+        ret = hm.fit(df, debug=debug)
+        print ret.summary()
+        hm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('start: fit from configuration {}'.format(cfgname))
+        return hm
+
+    @classmethod
+    def predict_from_cfg(cls, df, cfgname):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            The dataframe which contains the columns to use for the estimation.
+        cfgname : string
+            The name of the yaml config file which describes the hedonic model.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters and minus any groups that do not have
+            models.
+        hm : RegressionModel which was used to predict
+        """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
+        hm = cls.from_yaml(str_or_buffer=cfgname)
+
+        price_or_rent = hm.predict(df)
+        print price_or_rent.describe()
+
+        logger.debug('start: predict from configuration {}'.format(cfgname))
+        return price_or_rent, hm
 
 
 class RegressionModelGroup(object):
@@ -905,4 +957,66 @@ class SegmentedRegressionModel(object):
         return list(toolz.unique(toolz.concatv(
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
-            self._group.columns_used())))
+            self._group.columns_used(),
+            [self.segmentation_col])))
+
+    @classmethod
+    def fit_from_cfg(cls, df, cfgname, debug=False, min_segment_size=None):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            The dataframe which contains the columns to use for the estimation.
+        cfgname : string
+            The name of the yaml config file which describes the hedonic model.
+        debug : boolean, optional (default False)
+            Whether to generate debug information on the model.
+        min_segment_size : int, optional
+            Set attribute on the model.
+
+        Returns
+        -------
+        hm : SegmentedRegressionModel which was used to fit
+        """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
+        hm = cls.from_yaml(str_or_buffer=cfgname)
+        if min_segment_size:
+            hm.min_segment_size = min_segment_size
+
+        for k, v in hm.fit(df, debug=debug).items():
+            print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
+            print v.summary()
+        hm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('finish: fit from configuration {}'.format(cfgname))
+        return hm
+
+    @classmethod
+    def predict_from_cfg(cls, df, cfgname, min_segment_size=None):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            The dataframe which contains the columns to use for the estimation.
+        cfgname : string
+            The name of the yaml config file which describes the hedonic model.
+        min_segment_size : int, optional
+            Set attribute on the model.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters and minus any groups that do not have
+            models.
+        hm : SegmentedRegressionModel which was used to predict
+        """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
+        hm = cls.from_yaml(str_or_buffer=cfgname)
+        if min_segment_size:
+            hm.min_segment_size = min_segment_size
+
+        price_or_rent = hm.predict(df)
+        print price_or_rent.describe()
+        logger.debug('finish: predict from configuration {}'.format(cfgname))
+
+        return price_or_rent, hm

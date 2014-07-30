@@ -1,6 +1,8 @@
 import numpy.testing as npt
 import pandas as pd
 import pytest
+import os
+import tempfile
 import yaml
 from pandas.util import testing as pdt
 
@@ -189,7 +191,7 @@ def test_mnl_lcm_segmented(grouped_choosers, alternatives):
     assert group.choosers_columns_used() == []
     assert group.alts_columns_used() == []
     assert set(group.interaction_columns_used()) == {'var1', 'var2', 'var3'}
-    assert set(group.columns_used()) == {'var1', 'var2', 'var3'}
+    assert set(group.columns_used()) == {'group', 'var1', 'var2', 'var3'}
 
     assert group.fitted is False
     logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
@@ -286,3 +288,59 @@ def test_segmented_lcm_removes_old_models(grouped_choosers, alternatives):
     group.fit(grouped_choosers, alternatives, 'thing_id')
 
     assert sorted(group._group.models.keys()) == ['x', 'y']
+
+
+def test_fit_from_cfg(choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 5
+    choosers_fit_filters = ['var1 != 5']
+    choosers_predict_filters = ['var1 != 7']
+    alts_fit_filters = ['var3 != 15']
+    alts_predict_filters = ['var2 != 14']
+    interaction_predict_filters = None
+    estimation_sample_size = None
+    choice_column = None
+    name = 'Test LCM'
+
+    model = lcm.MNLLocationChoiceModel(
+        model_exp, sample_size,
+        choosers_fit_filters, choosers_predict_filters,
+        alts_fit_filters, alts_predict_filters,
+        interaction_predict_filters, estimation_sample_size,
+        choice_column, name)
+
+    cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
+    model.to_yaml(cfgname)
+    lcm.MNLLocationChoiceModel.fit_from_cfg(choosers, "thing_id", alternatives,
+                                            cfgname)
+    lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives, cfgname)
+
+    lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives,
+                                                cfgname, .2)
+    os.remove(cfgname)
+
+
+def test_fit_from_cfg_segmented(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('x')
+    group.add_segment('y', 'var3 + var1:var2')
+
+    cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
+    group.to_yaml(cfgname)
+    lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg(grouped_choosers,
+                                                     "thing_id",
+                                                     alternatives,
+                                                     cfgname)
+    lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg(grouped_choosers,
+                                                         alternatives,
+                                                         cfgname)
+
+    lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg(grouped_choosers,
+                                                         alternatives,
+                                                         cfgname,
+                                                         .8)
+    os.remove(cfgname)

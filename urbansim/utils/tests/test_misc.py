@@ -109,3 +109,8 @@ def test_misc_dffunctions(simple_dev_inputs):
     misc.df64bitto32bit(simple_dev_inputs)
     misc.pandasdfsummarytojson(simple_dev_inputs[['land_cost', 'parcel_size']])
     misc.numpymat2df(np.array([[1, 2], [3, 4]]))
+
+
+def test_column_list(fta, ftb):
+    assert misc.column_list([fta, ftb], ['aa', 'by', 'bz', 'c']) == \
+        ['aa', 'by', 'bz']
