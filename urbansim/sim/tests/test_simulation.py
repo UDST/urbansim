@@ -133,6 +133,20 @@ def test_columns_and_tables(df, clear_sim):
     assert set(sim.list_columns()) == {('test_frame', 'c'), ('test_func', 'd')}
 
 
+def test_update_col(clear_sim, df):
+    wrapped = sim.add_table('table', df)
+
+    wrapped.update_col('b', pd.Series([7, 8, 9], index=df.index))
+    pdt.assert_series_equal(wrapped['b'], pd.Series([7, 8, 9], index=df.index))
+
+    wrapped.update_col_from_series('a', pd.Series([]))
+    pdt.assert_series_equal(wrapped['a'], df['a'])
+
+    wrapped.update_col_from_series('a', pd.Series([99], index=['y']))
+    pdt.assert_series_equal(
+        wrapped['a'], pd.Series([1, 99, 3], index=df.index))
+
+
 def test_models(df, clear_sim):
     sim.add_table('test_table', df)
 
