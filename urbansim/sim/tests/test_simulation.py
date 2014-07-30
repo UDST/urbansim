@@ -351,4 +351,3 @@ def test_tables(df):
     s = pd.Series([1], index=['x'])
     sim.partial_update(pd.Series(), "test_frame", "a")
     sim.partial_update(s, "test_frame", 'a')
-
