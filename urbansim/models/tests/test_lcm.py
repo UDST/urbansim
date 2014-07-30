@@ -189,7 +189,7 @@ def test_mnl_lcm_segmented(grouped_choosers, alternatives):
     assert group.choosers_columns_used() == []
     assert group.alts_columns_used() == []
     assert set(group.interaction_columns_used()) == {'var1', 'var2', 'var3'}
-    assert set(group.columns_used()) == {'var1', 'var2', 'var3'}
+    assert set(group.columns_used()) == {'group', 'var1', 'var2', 'var3'}
 
     assert group.fitted is False
     logliks = group.fit(grouped_choosers, alternatives, 'thing_id')
