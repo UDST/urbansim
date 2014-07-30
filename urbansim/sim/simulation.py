@@ -453,10 +453,13 @@ def _collect_injectables(names):
             'not all injectables found. '
             'missing: {}'.format(names - set(dicts.keys())))
 
-    return {
-        name: thing
-        if not isinstance(thing, _InjectableFuncWrapper) else thing()
-        for name, thing in dicts.items()}
+    for name, thing in dicts.items():
+        if isinstance(thing, _InjectableFuncWrapper):
+            dicts[name] = thing()
+        elif isinstance(thing, TableSourceWrapper):
+            dicts[name] = thing.convert()
+
+    return dicts
 
 
 def add_table(table_name, table):
