@@ -2,8 +2,10 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 import yaml
+import os
 from pandas.util import testing as pdt
 
+from ...utils import misc
 from ...utils import testing
 
 from .. import lcm
@@ -286,3 +288,59 @@ def test_segmented_lcm_removes_old_models(grouped_choosers, alternatives):
     group.fit(grouped_choosers, alternatives, 'thing_id')
 
     assert sorted(group._group.models.keys()) == ['x', 'y']
+
+
+def test_fit_from_cfg(choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 5
+    choosers_fit_filters = ['var1 != 5']
+    choosers_predict_filters = ['var1 != 7']
+    alts_fit_filters = ['var3 != 15']
+    alts_predict_filters = ['var2 != 14']
+    interaction_predict_filters = None
+    estimation_sample_size = None
+    choice_column = None
+    name = 'Test LCM'
+
+    model = lcm.MNLLocationChoiceModel(
+        model_exp, sample_size,
+        choosers_fit_filters, choosers_predict_filters,
+        alts_fit_filters, alts_predict_filters,
+        interaction_predict_filters, estimation_sample_size,
+        choice_column, name)
+
+    misc._mkifnotexists("fake_data_home")
+    cfgname = os.path.join("fake_data_home", "test.yaml")
+    model.to_yaml(cfgname)
+    lcm.MNLLocationChoiceModel.fit_from_cfg(choosers, "thing_id", alternatives,
+                                            cfgname)
+    lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives, cfgname)
+
+    lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives,
+                                                cfgname, .2)
+
+
+def test_fit_from_cfg_segmented(grouped_choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 4
+
+    group = lcm.SegmentedMNLLocationChoiceModel(
+        'group', sample_size, default_model_expr=model_exp)
+    group.add_segment('x')
+    group.add_segment('y', 'var3 + var1:var2')
+
+    misc._mkifnotexists("fake_data_home")
+    cfgname = os.path.join("fake_data_home", "test.yaml")
+    group.to_yaml(cfgname)
+    lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg(grouped_choosers,
+                                                     "thing_id",
+                                                     alternatives,
+                                                     cfgname)
+    lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg(grouped_choosers,
+                                                         alternatives,
+                                                         cfgname)
+
+    lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg(grouped_choosers,
+                                                         alternatives,
+                                                         cfgname,
+                                                         .8)
