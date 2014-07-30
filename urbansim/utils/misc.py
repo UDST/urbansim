@@ -14,7 +14,7 @@ import toolz
 def _mkifnotexists(folder):
     d = os.path.join(os.getenv('DATA_HOME', "."), folder)
     if not os.path.exists(d):
-        os.mkdirs(d)
+        os.makedirs(d)
     return d
 
 

@@ -15,6 +15,7 @@ from statsmodels.regression.linear_model import RegressionResultsWrapper
 from .. import regression
 from ...exceptions import ModelEvaluationError
 from ...utils import testing
+from urbansim.utils import misc
 
 
 @pytest.fixture
@@ -64,6 +65,10 @@ def test_predict_with_nans():
         {'col1': range(5),
          'col2': [5, 6, pd.np.nan, 8, 9]},
         index=['a', 'b', 'c', 'd', 'e'])
+
+    with pytest.raises(ModelEvaluationError):
+        regression.fit_model(df, None, 'col1 ~ col2')
+
     fit = regression.fit_model(df.loc[['a', 'b', 'e']], None, 'col1 ~ col2')
 
     with pytest.raises(ModelEvaluationError):
@@ -404,3 +409,35 @@ def test_SegmentedRegressionModel_removes_gone_segments(groupby_df):
     seg.fit(groupby_df)
 
     assert sorted(seg._group.models.keys()) == ['x', 'y']
+
+
+def test_fit_from_cfg(test_df):
+    fit_filters = ['col1 in [0, 2, 4]']
+    predict_filters = ['col1 in [1, 3]']
+    model_exp = 'col1 ~ col2'
+    ytransform = np.log
+    name = 'test hedonic'
+
+    model = regression.RegressionModel(
+        fit_filters, predict_filters, model_exp, ytransform, name)
+
+    misc._mkifnotexists("fake_data_home")
+    cfgname = os.path.join("fake_data_home", "test.yaml")
+    model.to_yaml(cfgname)
+    regression.RegressionModel.fit_from_cfg(test_df, cfgname, debug=True)
+    regression.RegressionModel.predict_from_cfg(test_df, cfgname)
+
+
+def test_fit_from_cfg_segmented(groupby_df):
+    seg = regression.SegmentedRegressionModel(
+        'group', fit_filters=['col1 not in [2]'],
+        predict_filters=['group != "z"'], default_model_expr='col1 ~ col2',
+        min_segment_size=5000, name='test_seg')
+    seg.add_segment('x')
+
+    misc._mkifnotexists("fake_data_home")
+    cfgname = os.path.join("fake_data_home", "test.yaml")
+    seg.to_yaml(cfgname)
+    regression.SegmentedRegressionModel.fit_from_cfg(groupby_df, cfgname, debug=True, min_segment_size=5000)
+    regression.SegmentedRegressionModel.predict_from_cfg(groupby_df, cfgname, min_segment_size=5000)
+
