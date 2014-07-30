@@ -140,6 +140,19 @@ class DataFrameWrapper(object):
     def __getattr__(self, key):
         return self.get_column(key)
 
+    def update_col_from_series(self, column_name, series):
+        """
+        Update existing values in a column from another series.
+        Index values must match in both column and series.
+
+        Parameters
+        ---------------
+        column_name : str
+        series : panas.Series
+
+        """
+        self._frame[column_name].loc[series.index] = series
+
     def __len__(self):
         return len(self._frame)
 
