@@ -350,4 +350,3 @@ def column_list(tables, columns):
     columns = set(columns)
     foundcols = toolz.reduce(lambda x, y: x.union(y), (set(t.columns) for t in tables))
     return list(columns.intersection(foundcols))
-
