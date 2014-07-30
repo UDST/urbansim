@@ -297,7 +297,7 @@ def pandasdfsummarytojson(df, ndigits=3):
     return {k: _pandassummarytojson(v, ndigits) for k, v in df.iterrows()}
 
 
-def column_map(tables, columns, onlyfound=False):
+def column_map(tables, columns):
     """
     Take a list of tables and a list of column names and resolve which
     columns come from which table.
@@ -309,8 +309,6 @@ def column_map(tables, columns, onlyfound=False):
         thing is that they have ``.name`` and ``.columns`` attributes.
     columns : sequence of str
         The column names of interest.
-    onlyfound: boolean, optional (default False)
-        If True, return a list of the columns that are found.
 
     Returns
     -------
@@ -324,9 +322,32 @@ def column_map(tables, columns, onlyfound=False):
     columns = set(columns)
     colmap = {t.name: list(set(t.columns).intersection(columns)) for t in tables}
     foundcols = toolz.reduce(lambda x, y: x.union(y), (set(v) for v in colmap.values()))
-    if onlyfound:
-        return list(foundcols)
     if foundcols != columns:
         raise RuntimeError('Not all required columns were found. '
                            'Missing: {}'.format(list(columns - foundcols)))
     return colmap
+
+
+def column_list(tables, columns):
+    """
+    Take a list of tables and a list of column names and return the columns
+    that are present in the tables.
+
+    Parameters
+    ----------
+    tables : sequence of _DataFrameWrapper or _TableFuncWrapper
+        Could also be sequence of modified pandas.DataFrames, the important
+        thing is that they have ``.name`` and ``.columns`` attributes.
+    columns : sequence of str
+        The column names of interest.
+
+    Returns
+    -------
+    cols : list
+        Lists of column names available in the tables.
+
+    """
+    columns = set(columns)
+    foundcols = toolz.reduce(lambda x, y: x.union(y), (set(t.columns) for t in tables))
+    return list(columns.intersection(foundcols))
+

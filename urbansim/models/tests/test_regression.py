@@ -15,7 +15,6 @@ from statsmodels.regression.linear_model import RegressionResultsWrapper
 from .. import regression
 from ...exceptions import ModelEvaluationError
 from ...utils import testing
-from urbansim.utils import misc
 
 
 @pytest.fixture
@@ -421,11 +420,11 @@ def test_fit_from_cfg(test_df):
     model = regression.RegressionModel(
         fit_filters, predict_filters, model_exp, ytransform, name)
 
-    misc._mkifnotexists("fake_data_home")
-    cfgname = os.path.join("fake_data_home", "test.yaml")
+    cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     model.to_yaml(cfgname)
     regression.RegressionModel.fit_from_cfg(test_df, cfgname, debug=True)
     regression.RegressionModel.predict_from_cfg(test_df, cfgname)
+    os.remove(cfgname)
 
 
 def test_fit_from_cfg_segmented(groupby_df):
@@ -435,9 +434,9 @@ def test_fit_from_cfg_segmented(groupby_df):
         min_segment_size=5000, name='test_seg')
     seg.add_segment('x')
 
-    misc._mkifnotexists("fake_data_home")
-    cfgname = os.path.join("fake_data_home", "test.yaml")
+    cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     seg.to_yaml(cfgname)
     regression.SegmentedRegressionModel.fit_from_cfg(groupby_df, cfgname, debug=True,
                                                      min_segment_size=5000)
     regression.SegmentedRegressionModel.predict_from_cfg(groupby_df, cfgname, min_segment_size=5000)
+    os.remove(cfgname)

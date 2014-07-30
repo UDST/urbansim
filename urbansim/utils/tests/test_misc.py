@@ -33,3 +33,8 @@ def test_column_map(fta, ftb):
         {'a': ['aa'], 'b': ['by', 'bz']}
     assert misc.column_map([fta, ftb], ['by', 'bz']) == \
         {'a': [], 'b': ['by', 'bz']}
+
+
+def test_column_list(fta, ftb):
+    assert misc.column_list([fta, ftb], ['aa', 'by', 'bz', 'c']) == \
+        ['aa', 'by', 'bz']

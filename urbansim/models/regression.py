@@ -477,11 +477,17 @@ class RegressionModel(object):
             The name of the yaml config file which describes the hedonic model.
         debug : boolean, optional (default False)
             Whether to generate debug information on the model.
+
+        Returns
+        -------
+        RegressionModel which was used to fit
         """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
         hm = cls.from_yaml(str_or_buffer=cfgname)
         ret = hm.fit(df, debug=debug)
         print ret.summary()
         hm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('start: fit from configuration {}'.format(cfgname))
         return hm
 
     @classmethod
@@ -493,13 +499,23 @@ class RegressionModel(object):
             The dataframe which contains the columns to use for the estimation.
         cfgname : string
             The name of the yaml config file which describes the hedonic model.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters and minus any groups that do not have
+            models.
+        hm : RegressionModel which was used to predict
         """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
         hm = cls.from_yaml(str_or_buffer=cfgname)
 
         price_or_rent = hm.predict(df)
         print price_or_rent.describe()
 
-        return price_or_rent
+        logger.debug('start: predict from configuration {}'.format(cfgname))
+        return price_or_rent, hm
 
 
 class RegressionModelGroup(object):
@@ -957,7 +973,12 @@ class SegmentedRegressionModel(object):
             Whether to generate debug information on the model.
         min_segment_size : int, optional
             Set attribute on the model.
+
+        Returns
+        -------
+        hm : SegmentedRegressionModel which was used to fit
         """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
         hm = cls.from_yaml(str_or_buffer=cfgname)
         if min_segment_size:
             hm.min_segment_size = min_segment_size
@@ -966,6 +987,7 @@ class SegmentedRegressionModel(object):
             print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
             print v.summary()
         hm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('finish: fit from configuration {}'.format(cfgname))
         return hm
 
     @classmethod
@@ -979,12 +1001,22 @@ class SegmentedRegressionModel(object):
             The name of the yaml config file which describes the hedonic model.
         min_segment_size : int, optional
             Set attribute on the model.
+
+        Returns
+        -------
+        predicted : pandas.Series
+            Predicted data in a pandas Series. Will have the index of `data`
+            after applying filters and minus any groups that do not have
+            models.
+        hm : SegmentedRegressionModel which was used to predict
         """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
         hm = cls.from_yaml(str_or_buffer=cfgname)
         if min_segment_size:
             hm.min_segment_size = min_segment_size
 
         price_or_rent = hm.predict(df)
         print price_or_rent.describe()
+        logger.debug('finish: predict from configuration {}'.format(cfgname))
 
-        return price_or_rent
+        return price_or_rent, hm

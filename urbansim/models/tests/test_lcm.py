@@ -1,11 +1,11 @@
 import numpy.testing as npt
 import pandas as pd
 import pytest
-import yaml
 import os
+import tempfile
+import yaml
 from pandas.util import testing as pdt
 
-from ...utils import misc
 from ...utils import testing
 
 from .. import lcm
@@ -309,8 +309,7 @@ def test_fit_from_cfg(choosers, alternatives):
         interaction_predict_filters, estimation_sample_size,
         choice_column, name)
 
-    misc._mkifnotexists("fake_data_home")
-    cfgname = os.path.join("fake_data_home", "test.yaml")
+    cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     model.to_yaml(cfgname)
     lcm.MNLLocationChoiceModel.fit_from_cfg(choosers, "thing_id", alternatives,
                                             cfgname)
@@ -318,6 +317,7 @@ def test_fit_from_cfg(choosers, alternatives):
 
     lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives,
                                                 cfgname, .2)
+    os.remove(cfgname)
 
 
 def test_fit_from_cfg_segmented(grouped_choosers, alternatives):
@@ -329,8 +329,7 @@ def test_fit_from_cfg_segmented(grouped_choosers, alternatives):
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
 
-    misc._mkifnotexists("fake_data_home")
-    cfgname = os.path.join("fake_data_home", "test.yaml")
+    cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     group.to_yaml(cfgname)
     lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg(grouped_choosers,
                                                      "thing_id",
@@ -344,3 +343,4 @@ def test_fit_from_cfg_segmented(grouped_choosers, alternatives):
                                                          alternatives,
                                                          cfgname,
                                                          .8)
+    os.remove(cfgname)

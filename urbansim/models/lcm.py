@@ -8,7 +8,6 @@ from __future__ import print_function, division
 import logging
 
 import numpy as np
-from numpy import random
 import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
@@ -478,16 +477,22 @@ class MNLLocationChoiceModel(object):
         cfgname : string
             The name of the yaml config file from which to read the location
             choice model.
+
+        Returns
+        -------
+        lcm : MNLLocationChoiceModel which was used to fit
         """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
         lcm.fit(choosers, alternatives, choosers[chosen_fname])
         lcm.report_fit()
         lcm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('finish: fit from configuration {}'.format(cfgname))
         return lcm
 
     @classmethod
     def predict_from_cfg(cls, movers, locations, cfgname,
-                         location_ratio=2.0):
+                         location_ratio=2.0, debug=False):
         """
         Simulate the location choices for the specified choosers
 
@@ -504,20 +509,32 @@ class MNLLocationChoiceModel(object):
         location_ratio : float
             Above the location ratio (default of 2.0) of locations to choosers, the
             locations will be sampled to meet this ratio (for performance reasons).
+        debug : boolean, optional (default False)
+            Whether to generate debug information on the model.
+
+        Returns
+        -------
+        choices : pandas.Series
+            Mapping of chooser ID to alternative ID. Some choosers
+            will map to a nan value when there are not enough alternatives
+            for all the choosers.
+        lcm : MNLLocationChoiceModel which was used to predict
         """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
         if len(locations) > len(movers) * location_ratio:
-            print("Location ratio exceeded: %d locations and only %d choosers" %
-                  (len(locations), len(movers)))
-            idxes = random.choice(locations.index, size=len(movers) * location_ratio,
-                                  replace=False)
+            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
+                        (len(locations), len(movers)))
+            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
+                                     replace=False)
             locations = locations.loc[idxes]
-            print("  after sampling %d locations are available\n" % len(locations))
+            logger.info("  after sampling %d locations are available\n" % len(locations))
 
-        new_units = lcm.predict(movers, locations, debug=True)
+        new_units = lcm.predict(movers, locations, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.index))
-        return new_units
+        logger.debug('finish: predict from configuration {}'.format(cfgname))
+        return new_units, lcm
 
 
 class MNLLocationChoiceModelGroup(object):
@@ -1128,18 +1145,24 @@ class SegmentedMNLLocationChoiceModel(object):
         cfgname : string
             The name of the yaml config file from which to read the location
             choice model.
+
+        Returns
+        -------
+        lcm : SegmentedMNLLocationChoiceModel which was used to fit
         """
+        logger.debug('start: fit from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
         lcm.fit(choosers, alternatives, choosers[chosen_fname])
         for k, v in lcm._group.models.items():
             print("LCM RESULTS FOR SEGMENT %s\n" % str(k))
             v.report_fit()
         lcm.to_yaml(str_or_buffer=cfgname)
+        logger.debug('finish: fit from configuration {}'.format(cfgname))
         return lcm
 
     @classmethod
     def predict_from_cfg(cls, movers, locations, cfgname,
-                         location_ratio=2.0):
+                         location_ratio=2.0, debug=False):
         """
         Simulate the location choices for the specified choosers
 
@@ -1156,17 +1179,27 @@ class SegmentedMNLLocationChoiceModel(object):
         location_ratio : float
             Above the location ratio (default of 2.0) of locations to choosers, the
             locations will be sampled to meet this ratio (for performance reasons).
+
+        Returns
+        -------
+        choices : pandas.Series
+            Mapping of chooser ID to alternative ID. Some choosers
+            will map to a nan value when there are not enough alternatives
+            for all the choosers.
+        lcm : SegmentedMNLLocationChoiceModel which was used to predict
         """
+        logger.debug('start: predict from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
         if len(locations) > len(movers) * location_ratio:
-            print("Location ratio exceeded: %d locations and only %d choosers" %
-                  (len(locations), len(movers)))
-            idxes = random.choice(locations.index, size=len(movers) * location_ratio,
-                                  replace=False)
+            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
+                        (len(locations), len(movers)))
+            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
+                                     replace=False)
             locations = locations.loc[idxes]
-            print("  after sampling %d locations are available\n" % len(locations))
+            logger.info("  after sampling %d locations are available\n" % len(locations))
 
-        new_units = lcm.predict(movers, locations, debug=True)
+        new_units = lcm.predict(movers, locations, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.index))
-        return new_units
+        logger.debug('finish: predict from configuration {}'.format(cfgname))
+        return new_units, lcm

@@ -350,10 +350,3 @@ def test_table_source_local_cols(clear_sim, df):
     sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
 
     assert sim.get_table('source').local_columns == ['a', 'b']
-
-
-def test_tables(df):
-    sim.add_table('test_frame', df)
-    s = pd.Series([1], index=['x'])
-    sim.partial_update(pd.Series(), "test_frame", "a")
-    sim.partial_update(s, "test_frame", 'a')
