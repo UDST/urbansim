@@ -230,13 +230,19 @@ def test_collect_injectables(clear_sim, df):
     def injected():
         return 'injected'
 
+    @sim.table_source('source')
+    def source():
+        return df
+
     with pytest.raises(KeyError):
         sim._collect_injectables(['asdf'])
 
-    names = ['df', 'df_func', 'answer', 'injected']
+    names = ['df', 'df_func', 'answer', 'injected', 'source']
     things = sim._collect_injectables(names)
 
     assert set(things.keys()) == set(names)
+    assert isinstance(things['source'], sim.DataFrameWrapper)
+    pdt.assert_frame_equal(things['source']._frame, df)
 
 
 def test_injectables(clear_sim):
