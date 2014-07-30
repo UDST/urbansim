@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import logging
 import inspect
 from collections import Callable, namedtuple
 
@@ -7,6 +8,9 @@ import pandas as pd
 import toolz
 
 from ..utils.misc import column_map
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 _TABLES = {}
 _COLUMNS = {}
@@ -97,8 +101,16 @@ class DataFrameWrapper(object):
         else:
             df = self._frame.copy()
 
-        for name, col in extra_cols.items():
-            df[name] = col()
+        with log_start_finish(
+                'computing {!r} columns for table {!r}'.format(
+                    len(extra_cols), self.name),
+                logger):
+            for name, col in extra_cols.items():
+                with log_start_finish(
+                        'computing column {!r} for table {!r}'.format(
+                            name, self.name),
+                        logger):
+                    df[name] = col()
 
         return df
 
@@ -114,6 +126,8 @@ class DataFrameWrapper(object):
             Column data.
 
         """
+        logger.debug('updating column {!r} in table {!r}'.format(
+            column_name, self.name))
         self._frame[column_name] = series
 
     def __setitem__(self, key, value):
@@ -132,7 +146,11 @@ class DataFrameWrapper(object):
         column : pandas.Series
 
         """
-        return self.to_frame(columns=[column_name])[column_name]
+        with log_start_finish(
+                'getting single column {!r} from table {!r}'.format(
+                    column_name, self.name),
+                logger):
+            return self.to_frame(columns=[column_name])[column_name]
 
     def __getitem__(self, key):
         return self.get_column(key)
@@ -151,6 +169,8 @@ class DataFrameWrapper(object):
         series : panas.Series
 
         """
+        logger.debug('updating column {!r} in table {!r}'.format(
+            column_name, self.name))
         self._frame[column_name].loc[series.index] = series
 
     def __len__(self):
@@ -214,12 +234,16 @@ class TableFuncWrapper(object):
         attributes like columns, index, and length.
 
         """
-        kwargs = _collect_injectables(self._arg_list)
-        frame = self._func(**kwargs)
-        self._columns = list(frame.columns)
-        self._index = frame.index
-        self._len = len(frame)
-        return frame
+        with log_start_finish(
+                'call function to get frame for table {!r}'.format(
+                    self.name),
+                logger):
+            kwargs = _collect_injectables(self._arg_list)
+            frame = self._func(**kwargs)
+            self._columns = list(frame.columns)
+            self._index = frame.index
+            self._len = len(frame)
+            return frame
 
     def to_frame(self, columns=None):
         """
@@ -252,7 +276,11 @@ class TableFuncWrapper(object):
         column : pandas.Series
 
         """
-        return self.to_frame(columns=[column_name])[column_name]
+        with log_start_finish(
+                'getting single column {!r} from table {!r}'.format(
+                    column_name, self.name),
+                logger):
+            return self.to_frame(columns=[column_name])[column_name]
 
     def __getitem__(self, key):
         return self.get_column(key)
@@ -327,8 +355,11 @@ class _ColumnFuncWrapper(object):
         self._arg_list = set(inspect.getargspec(func).args)
 
     def __call__(self):
-        kwargs = _collect_injectables(self._arg_list)
-        return self._func(**kwargs)
+        with log_start_finish(
+                ('call function to provide column {!r} for table {!r}'
+                 ).format(self.name, self.table_name), logger):
+            kwargs = _collect_injectables(self._arg_list)
+            return self._func(**kwargs)
 
 
 class _SeriesWrapper(object):
@@ -373,8 +404,11 @@ class _InjectableFuncWrapper(object):
         self._arg_list = set(inspect.getargspec(func).args)
 
     def __call__(self):
-        kwargs = _collect_injectables(self._arg_list)
-        return self._func(**kwargs)
+        with log_start_finish(
+                'call function to provide injectable {!r}'.format(self.name),
+                logger):
+            kwargs = _collect_injectables(self._arg_list)
+            return self._func(**kwargs)
 
 
 class _ModelFuncWrapper(object):
@@ -393,8 +427,9 @@ class _ModelFuncWrapper(object):
         self._arg_list = set(inspect.getargspec(func).args)
 
     def __call__(self):
-        kwargs = _collect_injectables(self._arg_list)
-        return self._func(**kwargs)
+        with log_start_finish('calling model {!r}'.format(self.name), logger):
+            kwargs = _collect_injectables(self._arg_list)
+            return self._func(**kwargs)
 
 
 def list_tables():
@@ -496,6 +531,7 @@ def add_table(table_name, table):
     else:
         raise TypeError('table must be DataFrame or function.')
 
+    logger.debug('registering table {!r}'.format(table_name))
     _TABLES[table_name] = table
 
     return table
@@ -535,6 +571,7 @@ def add_table_source(table_name, func):
 
     """
     wrapped = TableSourceWrapper(table_name, func)
+    logger.debug('registering table source {}'.format(table_name))
     _TABLES[table_name] = wrapped
     return wrapped
 
@@ -594,6 +631,8 @@ def add_column(table_name, column_name, column):
     else:
         raise TypeError('Only Series or callable allowed for column.')
 
+    logger.debug('registering column {!r} on table {!r}'.format(
+        column_name, table_name))
     _COLUMNS[(table_name, column_name)] = column
 
 
@@ -668,6 +707,7 @@ def add_injectable(name, value, autocall=True):
     """
     if isinstance(value, Callable) and autocall:
         value = _InjectableFuncWrapper(name, value)
+    logger.debug('registering injectable {!r}'.format(name))
     _INJECTABLES[name] = value
 
 
@@ -717,6 +757,7 @@ def add_model(model_name, func):
 
     """
     if isinstance(func, Callable):
+        logger.debug('registering model {!r}'.format(model_name))
         _MODELS[model_name] = _ModelFuncWrapper(model_name, func)
     else:
         raise TypeError('func must be a callable')
@@ -766,10 +807,13 @@ def run(models, years=None):
         add_injectable('year', year)
         if year:
             print('Running year {}'.format(year))
+            logger.debug('running year {}'.format(year))
         for model_name in models:
-            print('Running model {}'.format(model_name))
-            model = get_model(model_name)
-            model()
+            print('Running model {!r}'.format(model_name))
+            with log_start_finish(
+                    'run model {!r}'.format(model_name), logger, logging.INFO):
+                model = get_model(model_name)
+                model()
 
 
 _Broadcast = namedtuple(
@@ -795,6 +839,8 @@ def broadcast(cast, onto, cast_on=None, onto_on=None,
         ``left_index``/``right_index`` parameters of pandas.merge.
 
     """
+    logger.debug(
+        'registering broadcast of table {!r} onto {!r}'.format(cast, onto))
     _BROADCASTS[(cast, onto)] = \
         _Broadcast(cast, onto, cast_on, onto_on, cast_index, onto_index)
 
@@ -824,6 +870,11 @@ def _get_broadcasts(tables):
 
 # utilities for merge_tables
 def _all_reachable_tables(t):
+    """
+    A generator that provides all the names of tables that can be
+    reached via merges starting at the given target table.
+
+    """
     for k, v in t.items():
         for tname in _all_reachable_tables(v):
             yield tname
@@ -835,6 +886,11 @@ def _is_leaf_node(merge_node):
 
 
 def _next_merge(merge_node):
+    """
+    Gets a node that has only leaf nodes below it. This table and
+    the ones below are ready to be merged to make a new leaf node.
+
+    """
     if all(_is_leaf_node(merge) for merge in merge_node.values()):
         return merge_node
     else:
@@ -868,6 +924,9 @@ def merge_tables(target, tables, columns=None):
     merges = {t.name: {} for t in tables}
     tables = {t.name: t for t in tables}
     casts = _get_broadcasts(tables.keys())
+    logger.debug(
+        'attempting to merge tables {} to target table {}'.format(
+            tables.keys(), target))
 
     # relate all the tables by registered broadcasts
     for table, onto in casts:
@@ -882,7 +941,8 @@ def merge_tables(target, tables, columns=None):
             ('Not all tables can be merged to target "{}". Unlinked tables: {}'
              ).format(target, list(set(tables.keys()) - all_tables)))
 
-    # add any columns necessary for indexing into columns
+    # add any columns necessary for indexing into other tables
+    # during merges
     if columns:
         columns = list(columns)
         for c in casts.values():
@@ -905,11 +965,14 @@ def merge_tables(target, tables, columns=None):
         for cast in nm[onto].keys():
             cast_table = frames[cast]
             bc = casts[(cast, onto)]
-            onto_table = pd.merge(
-                onto_table, cast_table,
-                left_on=bc.onto_on, right_on=bc.cast_on,
-                left_index=bc.onto_index, right_index=bc.cast_index)
+            with log_start_finish(
+                    'merge tables {} and {}'.format(onto, cast), logger):
+                onto_table = pd.merge(
+                    onto_table, cast_table,
+                    left_on=bc.onto_on, right_on=bc.cast_on,
+                    left_index=bc.onto_index, right_index=bc.cast_index)
         frames[onto] = onto_table
         nm[onto] = {}
 
+    logger.debug('finished merge')
     return frames[target]
