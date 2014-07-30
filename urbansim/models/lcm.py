@@ -485,6 +485,40 @@ class MNLLocationChoiceModel(object):
         lcm.to_yaml(str_or_buffer=cfgname)
         return lcm
 
+    @classmethod
+    def predict_from_cfg(cls, movers, locations, cfgname,
+                         location_ratio=2.0):
+        """
+        Simulate the location choices for the specified choosers
+
+        Parameters
+        ----------
+        movers : DataFrame
+            A dataframe of agents doing the choosing.
+        locations : DataFrame
+            A dataframe of locations which the choosers are location in and which
+            have a supply.
+        cfgname : string
+            The name of the yaml config file from which to read the location
+            choice model.
+        location_ratio : float
+            Above the location ratio (default of 2.0) of locations to choosers, the
+            locations will be sampled to meet this ratio (for performance reasons).
+        """
+        lcm = cls.from_yaml(str_or_buffer=cfgname)
+
+        if len(locations) > len(movers) * location_ratio:
+            print("Location ratio exceeded: %d locations and only %d choosers" %
+                  (len(locations), len(movers)))
+            idxes = random.choice(locations.index, size=len(movers) * location_ratio,
+                                  replace=False)
+            locations = locations.loc[idxes]
+            print("  after sampling %d locations are available\n" % len(locations))
+
+        new_units = lcm.predict(movers, locations, debug=True)
+        print("Assigned %d choosers to new units" % len(new_units.index))
+        return new_units
+
 
 class MNLLocationChoiceModelGroup(object):
     """
@@ -1111,7 +1145,7 @@ class SegmentedMNLLocationChoiceModel(object):
 
         Parameters
         ----------
-        choosers : DataFrame
+        movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
             A dataframe of locations which the choosers are location in and which

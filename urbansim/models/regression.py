@@ -905,7 +905,8 @@ class SegmentedRegressionModel(object):
             },
             'fitted': self.fitted,
             'models': {
-                yamlio.to_scalar_safe(name): self._process_model_dict(m.to_dict())
+                yamlio.to_scalar_safe(name):
+                    self._process_model_dict(m.to_dict())
                 for name, m in self._group.models.items()}
         }
 
