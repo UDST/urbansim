@@ -1136,4 +1136,3 @@ class SegmentedMNLLocationChoiceModel(object):
         new_units = lcm.predict(movers, locations, debug=True)
         print("Assigned %d choosers to new units" % len(new_units.index))
         return new_units
-
