@@ -6,15 +6,6 @@ from .. import simulation as sim
 from ...utils.testing import assert_frames_equal
 
 
-# @pytest.fixture
-# def clear_sim(request):
-#     sim.clear_sim()
-
-#     def fin():
-#         sim.clear_sim()
-#     request.addfinalizer(fin)
-
-
 def setup_function(func):
     sim.clear_sim()
 
