@@ -648,6 +648,9 @@ def add_table(table_name, table, cache=False):
     else:
         raise TypeError('table must be DataFrame or function.')
 
+    # clear any cached data from a previously registered table
+    table.clear_cached()
+
     logger.debug('registering table {!r}'.format(table_name))
     _TABLES[table_name] = table
 
@@ -751,9 +754,14 @@ def add_column(table_name, column_name, column, cache=False):
     else:
         raise TypeError('Only Series or callable allowed for column.')
 
+    # clear any cached data from a previously registered column
+    column.clear_cached()
+
     logger.debug('registering column {!r} on table {!r}'.format(
         column_name, table_name))
     _COLUMNS[(table_name, column_name)] = column
+
+    return column
 
 
 def column(table_name, column_name, cache=False):
@@ -830,6 +838,8 @@ def add_injectable(name, value, autocall=True, cache=False):
     """
     if isinstance(value, Callable) and autocall:
         value = _InjectableFuncWrapper(name, value, cache=cache)
+        # clear any cached data from a previously registered value
+        value.clear_cached()
     logger.debug('registering injectable {!r}'.format(name))
     _INJECTABLES[name] = value
 

@@ -55,7 +55,7 @@ def test_tables(df):
     assert table.columns == ['a', 'b']
 
 
-def test_table_func_cached(df):
+def test_table_func_cache(df):
     sim.add_injectable('x', 2)
 
     @sim.table('table', cache=True)
@@ -71,6 +71,10 @@ def test_table_func_cached(df):
     pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 3)
     sim.clear_cache()
     pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 4)
+    sim.add_injectable('x', 5)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 4)
+    sim.add_table('table', table)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 5)
 
 
 def test_columns_for_table():
@@ -178,6 +182,10 @@ def test_column_cache(df):
     pdt.assert_series_equal(c()(), series * 4)
     sim.get_table('table').clear_cached()
     pdt.assert_series_equal(c()(), series * 5)
+    sim.add_injectable('x', 6)
+    pdt.assert_series_equal(c()(), series * 5)
+    sim.add_column(*key, column=col, cache=True)
+    pdt.assert_series_equal(c()(), series * 6)
 
 
 def test_update_col(df):
@@ -376,6 +384,10 @@ def test_injectables_cache():
     assert i()() == 9
     sim.clear_cache()
     assert i()() == 16
+    x = 5
+    assert i()() == 16
+    sim.add_injectable('inj', inj, autocall=True, cache=True)
+    assert i()() == 25
 
 
 def test_table_source(df):
