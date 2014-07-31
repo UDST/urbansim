@@ -1,4 +1,4 @@
 [run]
 omit =
-    urbansim/utils/texttable.py
+    urbansim/urbanchoice/pmat.py
     urbansim/**/tests/*
