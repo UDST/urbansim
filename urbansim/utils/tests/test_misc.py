@@ -1,8 +1,10 @@
+import os
+import shutil
+
+import numpy as np
+import pandas as pd
 import pytest
 
-import pandas as pd
-import numpy as np
-import os
 from .. import misc
 
 
@@ -22,6 +24,14 @@ def ftb():
     return _FakeTable('b', ['bx', 'by', 'bz'])
 
 
+@pytest.fixture
+def clean_fake_data_home(request):
+    def fin():
+        if os.path.isdir('fake_data_home'):
+            shutil.rmtree('fake_data_home')
+    request.addfinalizer(fin)
+
+
 def test_column_map_raises(fta, ftb):
     with pytest.raises(RuntimeError):
         misc.column_map([fta, ftb], ['aa', 'by', 'bz', 'cw'])
@@ -38,7 +48,7 @@ def test_column_map(fta, ftb):
         {'a': [], 'b': ['by', 'bz']}
 
 
-def test_dirs():
+def test_dirs(clean_fake_data_home):
     misc._mkifnotexists("fake_data_home")
     os.environ["DATA_HOME"] = "fake_data_home"
     misc.get_run_number()
