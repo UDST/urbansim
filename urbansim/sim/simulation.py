@@ -22,6 +22,10 @@ _MODELS = {}
 _BROADCASTS = {}
 _INJECTABLES = {}
 
+_TABLE_CACHE = {}
+_COLUMN_CACHE = {}
+_INJECTABLE_CACHE = {}
+
 
 def clear_sim():
     """
@@ -33,6 +37,21 @@ def clear_sim():
     _MODELS.clear()
     _BROADCASTS.clear()
     _INJECTABLES.clear()
+    _TABLE_CACHE.clear()
+    _COLUMN_CACHE.clear()
+    _INJECTABLE_CACHE.clear()
+    logger.debug('simulation state cleared')
+
+
+def clear_cache():
+    """
+    Clear all cached data.
+
+    """
+    _TABLE_CACHE.clear()
+    _COLUMN_CACHE.clear()
+    _INJECTABLE_CACHE.clear()
+    logger.debug('simulation cache cleared')
 
 
 # for errors that occur during simulation runs
@@ -180,6 +199,15 @@ class DataFrameWrapper(object):
     def __len__(self):
         return len(self._frame)
 
+    def clear_cached(self):
+        """
+        Remove cached results from this table's computed columns.
+
+        """
+        for col in _columns_for_table(self.name).values():
+            col.clear_cached()
+        logger.debug('cleared cached columns for table {!r}'.format(self.name))
+
 
 class TableFuncWrapper(object):
     """
@@ -191,12 +219,15 @@ class TableFuncWrapper(object):
         Name for the table.
     func : callable
         Callable that returns a DataFrame.
+    cache : bool, optional
+        Whether to cache the results of calling the wrapped function.
 
     """
-    def __init__(self, name, func):
+    def __init__(self, name, func, cache=False):
         self.name = name
         self._func = func
         self._arg_list = set(inspect.getargspec(func).args)
+        self.cache = cache
         self._columns = []
         self._index = None
         self._len = 0
@@ -238,16 +269,24 @@ class TableFuncWrapper(object):
         attributes like columns, index, and length.
 
         """
+        if self.cache and self.name in _TABLE_CACHE:
+            logger.debug('returning table {!r} from cache'.format(self.name))
+            return _TABLE_CACHE[self.name]
+
         with log_start_finish(
                 'call function to get frame for table {!r}'.format(
                     self.name),
                 logger):
             kwargs = _collect_injectables(self._arg_list)
             frame = self._func(**kwargs)
-            self._columns = list(frame.columns)
-            self._index = frame.index
-            self._len = len(frame)
-            return frame
+
+        if self.cache:
+            _TABLE_CACHE[self.name] = frame
+
+        self._columns = list(frame.columns)
+        self._index = frame.index
+        self._len = len(frame)
+        return frame
 
     def to_frame(self, columns=None):
         """
@@ -294,6 +333,18 @@ class TableFuncWrapper(object):
 
     def __len__(self):
         return self._len
+
+    def clear_cached(self):
+        """
+        Remove this table's cached result and that of associated columns.
+
+        """
+        _TABLE_CACHE.pop(self.name, None)
+        for col in _columns_for_table(self.name).values():
+            col.clear_cached()
+        logger.debug(
+            'cleared cached result and cached columns for table {!r}'.format(
+                self.name))
 
 
 class TableSourceWrapper(TableFuncWrapper):
@@ -350,20 +401,49 @@ class _ColumnFuncWrapper(object):
     func : callable
         Should return a Series that has an
         index matching the table to which it is being added.
+    cache : bool, optional
+        Whether to cache the result of calling the wrapped function.
 
     """
-    def __init__(self, table_name, column_name, func):
+    def __init__(self, table_name, column_name, func, cache=False):
         self.table_name = table_name
         self.name = column_name
         self._func = func
         self._arg_list = set(inspect.getargspec(func).args)
+        self.cache = cache
 
     def __call__(self):
+        """
+        Evaluate the wrapped function and return the result.
+
+        """
+        if self.cache and (self.table_name, self.name) in _COLUMN_CACHE:
+            logger.debug(
+                'returning column {!r} for table {!r} from cache'.format(
+                    self.name, self.table_name))
+            return _COLUMN_CACHE[(self.table_name, self.name)]
+
         with log_start_finish(
                 ('call function to provide column {!r} for table {!r}'
                  ).format(self.name, self.table_name), logger):
             kwargs = _collect_injectables(self._arg_list)
-            return self._func(**kwargs)
+            col = self._func(**kwargs)
+
+        if self.cache:
+            _COLUMN_CACHE[(self.table_name, self.name)] = col
+
+        return col
+
+    def clear_cached(self):
+        """
+        Remove any cached result of this column.
+
+        """
+        x = _COLUMN_CACHE.pop((self.table_name, self.name), None)
+        if x is not None:
+            logger.debug(
+                'cleared cached value for column {!r} in table {!r}'.format(
+                    self.name, self.table_name))
 
 
 class _SeriesWrapper(object):
@@ -390,6 +470,13 @@ class _SeriesWrapper(object):
     def __call__(self):
         return self._column
 
+    def clear_cached(self):
+        """
+        Here for compatibility with `_ColumnFuncWrapper`.
+
+        """
+        pass
+
 
 class _InjectableFuncWrapper(object):
     """
@@ -400,19 +487,42 @@ class _InjectableFuncWrapper(object):
     ----------
     name : str
     func : callable
+    cache : bool, optional
+        Whether to cache the result of calling the wrapped function.
 
     """
-    def __init__(self, name, func):
+    def __init__(self, name, func, cache=False):
         self.name = name
         self._func = func
         self._arg_list = set(inspect.getargspec(func).args)
+        self.cache = cache
 
     def __call__(self):
+        if self.cache and self.name in _INJECTABLE_CACHE:
+            logger.debug(
+                'returning injectable {!r} from cache'.format(self.name))
+            return _INJECTABLE_CACHE[self.name]
+
         with log_start_finish(
                 'call function to provide injectable {!r}'.format(self.name),
                 logger):
             kwargs = _collect_injectables(self._arg_list)
-            return self._func(**kwargs)
+            result = self._func(**kwargs)
+
+        if self.cache:
+            _INJECTABLE_CACHE[self.name] = result
+
+        return result
+
+    def clear_cached(self):
+        """
+        Clear a cached result for this injectable.
+
+        """
+        x = _INJECTABLE_CACHE.pop(self.name, None)
+        if x:
+            logger.debug(
+                'injectable {!r} removed from cache'.format(self.name))
 
 
 class _ModelFuncWrapper(object):
@@ -510,7 +620,7 @@ def _collect_injectables(names):
     return dicts
 
 
-def add_table(table_name, table):
+def add_table(table_name, table, cache=False):
     """
     Register a table with the simulation.
 
@@ -522,6 +632,9 @@ def add_table(table_name, table):
         If a function it should return a DataFrame. Function argument
         names will be matched to known tables, which will be injected
         when this function is called.
+    cache : bool, optional
+        Whether to cache the results of a provided callable. Does not
+        apply if `table` is a DataFrame.
 
     Returns
     -------
@@ -531,7 +644,7 @@ def add_table(table_name, table):
     if isinstance(table, pd.DataFrame):
         table = DataFrameWrapper(table_name, table)
     elif isinstance(table, Callable):
-        table = TableFuncWrapper(table_name, table)
+        table = TableFuncWrapper(table_name, table, cache)
     else:
         raise TypeError('table must be DataFrame or function.')
 
@@ -541,7 +654,7 @@ def add_table(table_name, table):
     return table
 
 
-def table(table_name):
+def table(table_name, cache=False):
     """
     Decorator version of `add_table` used for decorating functions
     that return DataFrames.
@@ -551,7 +664,7 @@ def table(table_name):
 
     """
     def decorator(func):
-        add_table(table_name, func)
+        add_table(table_name, func, cache=cache)
         return func
     return decorator
 
@@ -612,7 +725,7 @@ def get_table(table_name):
         raise KeyError('table not found: {}'.format(table_name))
 
 
-def add_column(table_name, column_name, column):
+def add_column(table_name, column_name, column, cache=False):
     """
     Add a new column to a table from a Series or callable.
 
@@ -625,13 +738,16 @@ def add_column(table_name, column_name, column):
     column : pandas.Series or callable
         If a callable it should return a Series. Any Series should have an
         index matching the table to which it is being added.
+    cache : bool, optional
+        Whether to cache the results of a provided callable. Does not
+        apply if `column` is a Series.
 
     """
     if isinstance(column, pd.Series):
         column = _SeriesWrapper(table_name, column_name, column)
     elif isinstance(column, Callable):
         column = \
-            _ColumnFuncWrapper(table_name, column_name, column)
+            _ColumnFuncWrapper(table_name, column_name, column, cache=cache)
     else:
         raise TypeError('Only Series or callable allowed for column.')
 
@@ -640,7 +756,7 @@ def add_column(table_name, column_name, column):
     _COLUMNS[(table_name, column_name)] = column
 
 
-def column(table_name, column_name):
+def column(table_name, column_name, cache=False):
     """
     Decorator version of `add_column` used for decorating functions
     that return a Series with an index matching the named table.
@@ -650,7 +766,7 @@ def column(table_name, column_name):
 
     """
     def decorator(func):
-        add_column(table_name, column_name, func)
+        add_column(table_name, column_name, func, cache=cache)
         return func
     return decorator
 
@@ -690,7 +806,7 @@ def _columns_for_table(table_name):
             if tname == table_name}
 
 
-def add_injectable(name, value, autocall=True):
+def add_injectable(name, value, autocall=True, cache=False):
     """
     Add a value that will be injected into other functions that
     are part of the simulation.
@@ -707,21 +823,24 @@ def add_injectable(name, value, autocall=True):
         Set to True to have injectable functions automatically called
         (with dependency injection) and the result injected instead of
         the function itself.
+    cache : bool, optional
+        Whether to cache the return value of an injectable function.
+        Only applies when `value` is a callable and `autocall` is True.
 
     """
     if isinstance(value, Callable) and autocall:
-        value = _InjectableFuncWrapper(name, value)
+        value = _InjectableFuncWrapper(name, value, cache=cache)
     logger.debug('registering injectable {!r}'.format(name))
     _INJECTABLES[name] = value
 
 
-def injectable(name, autocall=True):
+def injectable(name, autocall=True, cache=False):
     """
     Decorator version of `add_injectable`.
 
     """
     def decorator(func):
-        add_injectable(name, func, autocall=autocall)
+        add_injectable(name, func, autocall=autocall, cache=cache)
         return func
     return decorator
 
