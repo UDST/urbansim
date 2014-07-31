@@ -3,8 +3,15 @@ import pytest
 from pandas.util import testing as pdt
 
 from .. import simulation as sim
-from .test_simulation import clear_sim
 from ...utils.testing import assert_frames_equal
+
+
+def setup_function(func):
+    sim.clear_sim()
+
+
+def teardown_function(func):
+    sim.clear_sim()
 
 
 @pytest.fixture
@@ -68,14 +75,14 @@ def all_broadcasts():
     sim.broadcast('g', 'h', cast_index=True, onto_on='g_id')
 
 
-def test_merge_tables_raises(clear_sim, dfa, dfz, dfb, dfg, dfh):
+def test_merge_tables_raises(dfa, dfz, dfb, dfg, dfh):
     all_broadcasts()
 
     with pytest.raises(RuntimeError):
         sim.merge_tables('b', [dfa, dfb, dfz, dfg, dfh])
 
 
-def test_merge_tables1(clear_sim, dfa, dfz, dfb):
+def test_merge_tables1(dfa, dfz, dfb):
     all_broadcasts()
 
     merged = sim.merge_tables('b', [dfa, dfz, dfb])
@@ -88,7 +95,7 @@ def test_merge_tables1(clear_sim, dfa, dfz, dfb):
     assert_frames_equal(merged, expected)
 
 
-def test_merge_tables2(clear_sim, dfa, dfz, dfb, dfc):
+def test_merge_tables2(dfa, dfz, dfb, dfc):
     all_broadcasts()
 
     merged = sim.merge_tables('c', [dfa, dfz, dfb, dfc])
@@ -103,7 +110,7 @@ def test_merge_tables2(clear_sim, dfa, dfz, dfb, dfc):
     assert_frames_equal(merged, expected)
 
 
-def test_merge_tables_cols(clear_sim, dfa, dfz, dfb, dfc):
+def test_merge_tables_cols(dfa, dfz, dfb, dfc):
     all_broadcasts()
 
     merged = sim.merge_tables(
