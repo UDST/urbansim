@@ -7,9 +7,6 @@ from collections import Callable, namedtuple
 import pandas as pd
 import toolz
 import time
-import logging
-
-logger = logging.getLogger(__name__)
 
 from ..utils.misc import column_map
 from ..utils.logutil import log_start_finish
@@ -545,6 +542,25 @@ class _ModelFuncWrapper(object):
             kwargs = _collect_injectables(self._arg_list)
             return self._func(**kwargs)
 
+    def _tables_used(self):
+        """
+        Tables injected into the model.
+
+        Returns
+        -------
+        tables : list of str
+
+        """
+        return [x for x in self._arg_list if _is_table(x)]
+
+
+def _is_table(name):
+    """
+    Returns whether a given name refers to a registered table.
+
+    """
+    return name in _TABLES
+
 
 def list_tables():
     """
@@ -923,34 +939,6 @@ def get_model(model_name):
         raise KeyError('no model named {}'.format(model_name))
 
 
-def run(models, years=None):
-    """
-    Run models in series, optionally repeatedly over some years.
-    The current year is set as a global injectable.
-
-    Parameters
-    ----------
-    models : list of str
-        List of models to run identified by their name.
-
-    """
-    years = years or [None]
-
-    for year in years:
-        add_injectable('year', year)
-        if year:
-            print('Running year {}'.format(year))
-            logger.debug('running year {}'.format(year))
-        for model_name in models:
-            print('Running model {!r}'.format(model_name))
-            with log_start_finish(
-                    'run model {!r}'.format(model_name), logger, logging.INFO):
-                model = get_model(model_name)
-                t1 = time.time()
-                model()
-                logger.info("Time to execute model = %.3fs" % (time.time()-t1))
-
-
 _Broadcast = namedtuple(
     '_Broadcast',
     ['cast', 'onto', 'cast_on', 'onto_on', 'cast_index', 'onto_index'])
@@ -1111,3 +1099,84 @@ def merge_tables(target, tables, columns=None):
 
     logger.debug('finished merge')
     return frames[target]
+
+
+def write_tables(fname, models, year):
+    """
+    Write all tables injected into `models` to a pandas.HDFStore file.
+    If year is not None it will be used to prefix the table names so that
+    multiple years can go in the same file.
+
+    Parameters
+    ----------
+    fname : str
+        File name for HDFStore. Will be opened in append mode and closed
+        at the end of this function.
+    models : list of str
+        Models from which to gather injected tables for saving.
+    year : int or None
+        If an integer, used as a prefix along with table names for
+        labeling DataFrames in the HDFStore.
+
+    """
+    models = (get_model(m) for m in toolz.unique(models))
+    table_names = toolz.unique(toolz.concat(m._tables_used() for m in models))
+    tables = (get_table(t) for t in table_names)
+
+    key_template = '{}/{{}}'.format(year) if year is not None else '{}'
+
+    with pd.get_store(fname, mode='a') as store:
+        for t in tables:
+            store[key_template.format(t.name)] = t.to_frame()
+
+
+def run(models, years=None, data_out=None, out_interval=1):
+    """
+    Run models in series, optionally repeatedly over some years.
+    The current year is set as a global injectable.
+
+    Parameters
+    ----------
+    models : list of str
+        List of models to run identified by their name.
+    years : sequence of int, optional
+        Years over which to run the models. `year` is provided as
+        an injectable throughout the simulation. If not given the models
+        are run once with year set to None.
+    data_out : str, optional
+        An optional filename to which all tables injected into any model
+        in `models` will be saved every `out_interval` years.
+        File will be a pandas HDF data store.
+    out_interval : int, optional
+        Year interval on which to save data to `data_out`. For example,
+        2 will save out every 2 years, 5 every 5 years. Default is every
+        year. The first and last years are always included.
+
+    """
+    years = years or [None]
+    year_counter = out_interval
+
+    for year in years:
+        add_injectable('year', year)
+
+        if data_out and year_counter == out_interval:
+            write_tables(data_out, models, year)
+            year_counter = 0
+
+        if year is not None:
+            print('Running year {}'.format(year))
+            logger.debug('running year {}'.format(year))
+
+        for model_name in models:
+            print('Running model {!r}'.format(model_name))
+            with log_start_finish(
+                    'run model {!r}'.format(model_name), logger, logging.INFO):
+                model = get_model(model_name)
+                t1 = time.time()
+                model()
+                logger.info("Time to execute model = %.3fs" % (time.time()-t1))
+
+        year_counter += 1
+
+    if data_out:
+        write_tables(data_out, models, year)
