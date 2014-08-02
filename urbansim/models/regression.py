@@ -957,6 +957,7 @@ class SegmentedRegressionModel(object):
         return list(toolz.unique(toolz.concatv(
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
+            util.columns_in_formula(self.default_model_expr),
             self._group.columns_used(),
             [self.segmentation_col])))
 

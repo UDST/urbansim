@@ -542,7 +542,6 @@ class SqFtProForma(object):
         # min between max_fars and max_heights
         df['max_far_from_heights'] = df.max_height / c.height_per_story * \
             c.parcel_coverage
-        df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
 
         # now also minimize with max_dua from zoning - since this pro forma is really geared
         # toward per sqft metrics, this is a bit tricky.  dua is converted to floorspace and
@@ -552,7 +551,9 @@ class SqFtProForma(object):
             # if max_dua is in the data frame, ave_unit_size must also be present
             assert 'ave_unit_size' in df.columns
             df['max_far_from_dua'] = df.max_dua * df.ave_unit_size / self.config.building_efficiency
-            df['min_max_fars'] = df[['min_max_fars', 'max_far_from_dua']].min(axis=1)
+            df['min_max_fars'] = df[['max_far_from_heights', 'max_far', 'max_far_from_dua']].min(axis=1)
+        else:
+            df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
 
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
