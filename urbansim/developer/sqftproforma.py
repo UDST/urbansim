@@ -551,7 +551,8 @@ class SqFtProForma(object):
             # if max_dua is in the data frame, ave_unit_size must also be present
             assert 'ave_unit_size' in df.columns
             df['max_far_from_dua'] = df.max_dua * df.ave_unit_size / self.config.building_efficiency
-            df['min_max_fars'] = df[['max_far_from_heights', 'max_far', 'max_far_from_dua']].min(axis=1)
+            df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
+                                     'max_far_from_dua']].min(axis=1)
         else:
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
 
