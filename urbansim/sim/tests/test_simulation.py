@@ -11,10 +11,12 @@ from ...utils.testing import assert_frames_equal
 
 def setup_function(func):
     sim.clear_sim()
+    sim.enable_cache()
 
 
 def teardown_function(func):
     sim.clear_sim()
+    sim.enable_cache()
 
 
 @pytest.fixture
@@ -78,6 +80,25 @@ def test_table_func_cache(df):
     pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 4)
     sim.add_table('table', table)
     pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 5)
+
+
+def test_table_func_cache_disabled(df):
+    sim.add_injectable('x', 2)
+
+    @sim.table('table', cache=True)
+    def table(x):
+        return df * x
+
+    sim.disable_cache()
+
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 2)
+    sim.add_injectable('x', 3)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 3)
+
+    sim.enable_cache()
+
+    sim.add_injectable('x', 4)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 3)
 
 
 def test_columns_for_table():
@@ -189,6 +210,33 @@ def test_column_cache(df):
     pdt.assert_series_equal(c()(), series * 5)
     sim.add_column(*key, column=col, cache=True)
     pdt.assert_series_equal(c()(), series * 6)
+
+
+def test_column_cache_disabled(df):
+    sim.add_injectable('x', 2)
+    series = pd.Series([1, 2, 3], index=['x', 'y', 'z'])
+    key = ('table', 'col')
+
+    @sim.table('table')
+    def table():
+        return df
+
+    @sim.column(*key, cache=True)
+    def col(x):
+        return series * x
+
+    c = lambda: sim._COLUMNS[key]
+
+    sim.disable_cache()
+
+    pdt.assert_series_equal(c()(), series * 2)
+    sim.add_injectable('x', 3)
+    pdt.assert_series_equal(c()(), series * 3)
+
+    sim.enable_cache()
+
+    sim.add_injectable('x', 4)
+    pdt.assert_series_equal(c()(), series * 3)
 
 
 def test_update_col(df):
@@ -395,6 +443,31 @@ def test_injectables_cache():
     assert i()() == 16
     sim.add_injectable('inj', inj, autocall=True, cache=True)
     assert i()() == 25
+
+
+def test_injectables_cache_disabled():
+    x = 2
+
+    @sim.injectable('inj', autocall=True, cache=True)
+    def inj():
+        return x * x
+
+    i = lambda: sim.get_injectable('inj')
+
+    sim.disable_cache()
+
+    assert i()() == 4
+    x = 3
+    assert i()() == 9
+
+    sim.enable_cache()
+
+    assert i()() == 9
+    x = 4
+    assert i()() == 9
+
+    sim.disable_cache()
+    assert i()() == 16
 
 
 def test_table_source(df):

@@ -22,6 +22,7 @@ _MODELS = {}
 _BROADCASTS = {}
 _INJECTABLES = {}
 
+_CACHING = True
 _TABLE_CACHE = {}
 _COLUMN_CACHE = {}
 _INJECTABLE_CACHE = {}
@@ -52,6 +53,39 @@ def clear_cache():
     _COLUMN_CACHE.clear()
     _INJECTABLE_CACHE.clear()
     logger.debug('simulation cache cleared')
+
+
+def enable_cache():
+    """
+    Allow caching of computed tables, columns, and injectables that
+    explicitly have caching enabled.
+
+    """
+    global _CACHING
+    _CACHING = True
+
+
+def disable_cache():
+    """
+    Turn off caching across the simulation, even for computed tables,
+    columns, and injectables that have caching enabled.
+
+    """
+    global _CACHING
+    _CACHING = False
+
+
+def cache_on():
+    """
+    Whether caching is currently enabled or disabled.
+
+    Returns
+    -------
+    on : bool
+        True if caching is enabled.
+
+    """
+    return _CACHING
 
 
 # for errors that occur during simulation runs
@@ -269,7 +303,7 @@ class TableFuncWrapper(object):
         attributes like columns, index, and length.
 
         """
-        if self.cache and self.name in _TABLE_CACHE:
+        if _CACHING and self.cache and self.name in _TABLE_CACHE:
             logger.debug('returning table {!r} from cache'.format(self.name))
             return _TABLE_CACHE[self.name]
 
@@ -417,7 +451,9 @@ class _ColumnFuncWrapper(object):
         Evaluate the wrapped function and return the result.
 
         """
-        if self.cache and (self.table_name, self.name) in _COLUMN_CACHE:
+        if (_CACHING and
+                self.cache and
+                (self.table_name, self.name) in _COLUMN_CACHE):
             logger.debug(
                 'returning column {!r} for table {!r} from cache'.format(
                     self.name, self.table_name))
@@ -498,7 +534,7 @@ class _InjectableFuncWrapper(object):
         self.cache = cache
 
     def __call__(self):
-        if self.cache and self.name in _INJECTABLE_CACHE:
+        if _CACHING and self.cache and self.name in _INJECTABLE_CACHE:
             logger.debug(
                 'returning injectable {!r} from cache'.format(self.name))
             return _INJECTABLE_CACHE[self.name]
