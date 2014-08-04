@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 import pandas as pd
 import pytest
 from pandas.util import testing as pdt
@@ -211,6 +214,7 @@ def test_models(df):
         test_table['a'] = tt['a'] + tt['b']
 
     model = sim.get_model('test_model')
+    assert model._tables_used() == ['test_table']
     model()
 
     table = sim.get_table('test_table')
@@ -260,6 +264,9 @@ def test_model_run(df):
              2000: [2012, 2015, 2018],
              3000: [3012, 3017, 3024]},
             index=['x', 'y', 'z']))
+
+    m = sim.get_model('test_model1')
+    assert set(m._tables_used()) == {'test_table', 'table_func'}
 
 
 def test_get_broadcasts():
@@ -360,10 +367,10 @@ def test_injectables_combined(df):
 
     sim.run(models=['model'])
 
-    table = sim.get_table('table').to_frame()
+    table_wr = sim.get_table('table').to_frame()
 
-    pdt.assert_frame_equal(table[['a', 'b']], df)
-    pdt.assert_series_equal(table['new'], column())
+    pdt.assert_frame_equal(table_wr[['a', 'b']], df)
+    pdt.assert_series_equal(table_wr['new'], column())
 
 
 def test_injectables_cache():
@@ -443,3 +450,63 @@ def test_table_source_local_cols(df):
     sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
 
     assert sim.get_table('source').local_columns == ['a', 'b']
+
+
+def test_is_table(df):
+    sim.add_table('table', df)
+    assert sim._is_table('table') is True
+    assert sim._is_table('asdf') is False
+
+
+@pytest.fixture
+def store_name(request):
+    fname = tempfile.NamedTemporaryFile(suffix='.h5').name
+
+    def fin():
+        if os.path.isfile(fname):
+            os.remove(fname)
+    request.addfinalizer(fin)
+
+    return fname
+
+
+def test_write_tables(df, store_name):
+    sim.add_table('table', df)
+
+    @sim.model('model')
+    def model(table):
+        pass
+
+    sim.write_tables(store_name, ['model'], None)
+
+    with pd.get_store(store_name, mode='r') as store:
+        assert 'table' in store
+        pdt.assert_frame_equal(store['table'], df)
+
+    sim.write_tables(store_name, ['model'], 1969)
+
+    with pd.get_store(store_name, mode='r') as store:
+        assert '1969/table' in store
+        pdt.assert_frame_equal(store['1969/table'], df)
+
+
+def test_run_and_write_tables(df, store_name):
+    sim.add_table('table', df)
+
+    year_key = lambda y: '{}'.format(y)
+    series_year = lambda y: pd.Series([y] * 3, index=df.index)
+
+    @sim.model('model')
+    def model(year, table):
+        table[year_key(year)] = series_year(year)
+
+    sim.run(['model'], years=range(11), data_out=store_name, out_interval=3)
+
+    with pd.get_store(store_name, mode='r') as store:
+        for year in range(0, 11, 3) + [10]:
+            key = '{}/table'.format(year)
+            assert key in store
+
+            for x in range(year):
+                pdt.assert_series_equal(
+                    store[key][year_key(x)], series_year(x))
