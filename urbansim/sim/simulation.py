@@ -1,16 +1,19 @@
 from __future__ import print_function
 
-import logging
 import inspect
+import logging
+import warnings
 from collections import Callable, namedtuple
 
 import pandas as pd
+import tables
 import toolz
 import time
 
 from ..utils.misc import column_map
 from ..utils.logutil import log_start_finish
 
+warnings.filterwarnings('ignore', category=tables.NaturalNameWarning)
 logger = logging.getLogger(__name__)
 
 _TABLES = {}

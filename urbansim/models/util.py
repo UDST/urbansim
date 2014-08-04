@@ -315,6 +315,9 @@ def columns_in_formula(formula):
     columns : list of str
 
     """
+    if formula is None:
+        return []
+
     formula = str_model_expression(formula, add_constant=False)
     columns = []
 
