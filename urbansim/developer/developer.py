@@ -135,7 +135,7 @@ class Developer(object):
             to not develop the same parcel twice.
         residential: bool
             If creating non-residential buildings set this to false and developer
-            will fill in non_residential_units rather than residential_units
+            will fill in job_spaces rather than residential_units
 
         """
 
@@ -156,8 +156,8 @@ class Developer(object):
             df['residential_units'] = np.round(df.residential_sqft / df.ave_unit_size)
             df['net_units'] = df.residential_units - df.current_units
         else:
-            df['non_residential_units'] = np.round(df.non_residential_sqft / df.ave_unit_size)
-            df['net_units'] = df.non_residential_units - df.current_units
+            df['job_spaces'] = np.round(df.non_residential_sqft / df.ave_unit_size)
+            df['net_units'] = df.job_spaces - df.current_units
         df = df[df.net_units > 0]
 
         if len(df) == 0:
