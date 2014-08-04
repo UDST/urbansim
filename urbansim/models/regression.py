@@ -3,6 +3,8 @@ Use the ``RegressionModel`` class to fit a model using statsmodels'
 OLS capability and then do subsequent prediction.
 
 """
+from __future__ import print_function
+
 import logging
 
 import numpy as np
@@ -485,7 +487,7 @@ class RegressionModel(object):
         logger.debug('start: fit from configuration {}'.format(cfgname))
         hm = cls.from_yaml(str_or_buffer=cfgname)
         ret = hm.fit(df, debug=debug)
-        print ret.summary()
+        print(ret.summary())
         hm.to_yaml(str_or_buffer=cfgname)
         logger.debug('start: fit from configuration {}'.format(cfgname))
         return hm
@@ -512,7 +514,7 @@ class RegressionModel(object):
         hm = cls.from_yaml(str_or_buffer=cfgname)
 
         price_or_rent = hm.predict(df)
-        print price_or_rent.describe()
+        print(price_or_rent.describe())
 
         logger.debug('start: predict from configuration {}'.format(cfgname))
         return price_or_rent, hm
@@ -768,14 +770,14 @@ class SegmentedRegressionModel(object):
 
         Parameters
         ----------
-        name
+        name :
             Segment name. Must match a segment in the groupby of the data.
         model_expression : str or dict, optional
             A patsy model expression that can be used with statsmodels.
             Should contain both the left- and right-hand sides.
             If not given the default model will be used, which must not be
             None.
-       ytransform : callable, optional
+        ytransform : callable, optional
             A function to call on the array of predicted output.
             For example, if the model relation is predicting the log
             of price, you might pass ``ytransform=np.exp`` so that
@@ -985,8 +987,8 @@ class SegmentedRegressionModel(object):
             hm.min_segment_size = min_segment_size
 
         for k, v in hm.fit(df, debug=debug).items():
-            print "REGRESSION RESULTS FOR SEGMENT %s\n" % str(k)
-            print v.summary()
+            print("REGRESSION RESULTS FOR SEGMENT %s\n" % str(k))
+            print(v.summary())
         hm.to_yaml(str_or_buffer=cfgname)
         logger.debug('finish: fit from configuration {}'.format(cfgname))
         return hm
@@ -1017,7 +1019,7 @@ class SegmentedRegressionModel(object):
             hm.min_segment_size = min_segment_size
 
         price_or_rent = hm.predict(df)
-        print price_or_rent.describe()
+        print(price_or_rent.describe())
         logger.debug('finish: predict from configuration {}'.format(cfgname))
 
         return price_or_rent, hm
