@@ -58,6 +58,12 @@
         
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -123,14 +129,31 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">namedtuple</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">tables</span>
 <span class="kn">import</span> <span class="nn">toolz</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">..utils.misc</span> <span class="kn">import</span> <span class="n">column_map</span>
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">tables</span><span class="o">.</span><span class="n">NaturalNameWarning</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 <span class="n">_TABLES</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">_COLUMNS</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">_MODELS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_BROADCASTS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_INJECTABLES</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">_CACHING</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">_TABLE_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_COLUMN_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_INJECTABLE_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
 
 
 <div class="viewcode-block" id="clear_sim"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.clear_sim">[docs]</a><span class="k">def</span> <span class="nf">clear_sim</span><span class="p">():</span>
@@ -141,9 +164,64 @@
     <span class="n">_TABLES</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
     <span class="n">_COLUMNS</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
     <span class="n">_MODELS</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_BROADCASTS</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_INJECTABLES</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_TABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_COLUMN_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_INJECTABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;simulation state cleared&#39;</span><span class="p">)</span>
 
 </div>
-<span class="k">class</span> <span class="nc">_DataFrameWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="clear_cache"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.clear_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_cache</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clear all cached data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_TABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_COLUMN_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">_INJECTABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;simulation cache cleared&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="enable_cache"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.enable_cache">[docs]</a><span class="k">def</span> <span class="nf">enable_cache</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Allow caching of computed tables, columns, and injectables that</span>
+<span class="sd">    explicitly have caching enabled.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_CACHING</span>
+    <span class="n">_CACHING</span> <span class="o">=</span> <span class="bp">True</span>
+
+</div>
+<div class="viewcode-block" id="disable_cache"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.disable_cache">[docs]</a><span class="k">def</span> <span class="nf">disable_cache</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn off caching across the simulation, even for computed tables,</span>
+<span class="sd">    columns, and injectables that have caching enabled.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_CACHING</span>
+    <span class="n">_CACHING</span> <span class="o">=</span> <span class="bp">False</span>
+
+</div>
+<div class="viewcode-block" id="cache_on"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.cache_on">[docs]</a><span class="k">def</span> <span class="nf">cache_on</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Whether caching is currently enabled or disabled.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    on : bool</span>
+<span class="sd">        True if caching is enabled.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_CACHING</span>
+
+
+<span class="c"># for errors that occur during simulation runs</span></div>
+<span class="k">class</span> <span class="nc">SimulationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="DataFrameWrapper"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper">[docs]</a><span class="k">class</span> <span class="nc">DataFrameWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wraps a DataFrame so it can provide certain columns and handle</span>
 <span class="sd">    computed columns.</span>
@@ -154,28 +232,41 @@
 <span class="sd">        Name for the table.</span>
 <span class="sd">    frame : pandas.DataFrame</span>
 
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Table name.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="n">frame</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataFrameWrapper.columns"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.columns">[docs]</a>    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Columns in this table.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">+</span> <span class="n">_list_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_columns</span> <span class="o">+</span> <span class="n">_list_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DataFrameWrapper.local_columns"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.local_columns">[docs]</a>    <span class="k">def</span> <span class="nf">local_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Columns that are part of the wrapped DataFrame.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DataFrameWrapper.index"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Table index.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">index</span>
-
-    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="DataFrameWrapper.to_frame"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame">[docs]</a>    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a DataFrame with the given columns.</span>
 
@@ -200,12 +291,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">extra_cols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;computing {!r} columns for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">extra_cols</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">extra_cols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                        <span class="s">&#39;computing column {!r} for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                        <span class="n">logger</span><span class="p">):</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">df</span>
-
-    <span class="k">def</span> <span class="nf">update_col</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="DataFrameWrapper.update_col"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.update_col">[docs]</a>    <span class="k">def</span> <span class="nf">update_col</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add or replace a column in the underlying DataFrame.</span>
 
@@ -217,12 +316,14 @@
 <span class="sd">            Column data.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;updating column {!r} in table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
-
+</div>
     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_col</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+<div class="viewcode-block" id="DataFrameWrapper.get_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.get_column">[docs]</a>    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a column as a Series.</span>
 
@@ -235,19 +336,47 @@
 <span class="sd">        column : pandas.Series</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">])[</span><span class="n">column_name</span><span class="p">]</span>
-
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;getting single column {!r} from table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">])[</span><span class="n">column_name</span><span class="p">]</span>
+</div>
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
+<div class="viewcode-block" id="DataFrameWrapper.update_col_from_series"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.update_col_from_series">[docs]</a>    <span class="k">def</span> <span class="nf">update_col_from_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update existing values in a column from another series.</span>
+<span class="sd">        Index values must match in both column and series.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---------------</span>
+<span class="sd">        column_name : str</span>
+<span class="sd">        series : panas.Series</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;updating column {!r} in table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
+</div>
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">)</span>
 
+<div class="viewcode-block" id="DataFrameWrapper.clear_cached"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.clear_cached">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove cached results from this table&#39;s computed columns.</span>
 
-<span class="k">class</span> <span class="nc">_TableFuncWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">col</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;cleared cached columns for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="TableFuncWrapper"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper">[docs]</a><span class="k">class</span> <span class="nc">TableFuncWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrap a function that provides a DataFrame.</span>
 
@@ -257,34 +386,83 @@
 <span class="sd">        Name for the table.</span>
 <span class="sd">    func : callable</span>
 <span class="sd">        Callable that returns a DataFrame.</span>
+<span class="sd">    cache : bool, optional</span>
+<span class="sd">        Whether to cache the results of calling the wrapped function.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    __________</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Table name.</span>
+<span class="sd">    cache : bool</span>
+<span class="sd">        Whether caching is enabled for this table.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TableFuncWrapper.columns"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.columns">[docs]</a>    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Columns in this table. (May often be out of date.)</span>
+<span class="sd">        Columns in this table. (May contain only computed columns</span>
+<span class="sd">        if the wrapped function has not been called yet.)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">+</span> <span class="n">_list_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-
+</div>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TableFuncWrapper.local_columns"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.local_columns">[docs]</a>    <span class="k">def</span> <span class="nf">local_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Only the columns contained in the DataFrame returned by the</span>
+<span class="sd">        wrapped function. (No registered columns included.)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="TableFuncWrapper.index"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Index of the underlying table. Will be None if that index is</span>
 <span class="sd">        unknown.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span>
+</div>
+    <span class="k">def</span> <span class="nf">_call_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call the wrapped function and return the result. Also updates</span>
+<span class="sd">        attributes like columns, index, and length.</span>
 
-    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_CACHING</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_TABLE_CACHE</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;returning table {!r} from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">_TABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;call function to get frame for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_collect_injectables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">)</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">_TABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame</span>
+
+<div class="viewcode-block" id="TableFuncWrapper.to_frame"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.to_frame">[docs]</a>    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a DataFrame with the given columns.</span>
 
@@ -299,14 +477,10 @@
 <span class="sd">        frame : pandas.DataFrame</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="n">get_table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">}</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">index</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TableFuncWrapper.get_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.get_column">[docs]</a>    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a column as a Series.</span>
 
@@ -319,8 +493,12 @@
 <span class="sd">        column : pandas.Series</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">])[</span><span class="n">column_name</span><span class="p">]</span>
-
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;getting single column {!r} from table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">])[</span><span class="n">column_name</span><span class="p">]</span>
+</div>
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
@@ -329,6 +507,64 @@
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span>
+
+<div class="viewcode-block" id="TableFuncWrapper.clear_cached"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.clear_cached">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove this table&#39;s cached result and that of associated columns.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_TABLE_CACHE</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">col</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;cleared cached result and cached columns for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">_TableSourceWrapper</span><span class="p">(</span><span class="n">TableFuncWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps a function that returns a DataFrame. After the function</span>
+<span class="sd">    is evaluated the returned DataFrame replaces the function in the</span>
+<span class="sd">    table registry.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">    func : callable</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Table name.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the wrapped function, store the returned DataFrame as a</span>
+<span class="sd">        table, and return the new DataFrameWrapper instance created.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a DataFrame with the given columns. The first time this</span>
+<span class="sd">        is called the registered table will be replaced with the DataFrame</span>
+<span class="sd">        returned by the wrapped function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        columns : sequence, optional</span>
+<span class="sd">            Sequence of the column names desired in the DataFrame.</span>
+<span class="sd">            If None all columns are returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        frame : pandas.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_ColumnFuncWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -344,17 +580,60 @@
 <span class="sd">    func : callable</span>
 <span class="sd">        Should return a Series that has an</span>
 <span class="sd">        index matching the table to which it is being added.</span>
+<span class="sd">    cache : bool, optional</span>
+<span class="sd">        Whether to cache the result of calling the wrapped function.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Column name.</span>
+<span class="sd">    table_name : str</span>
+<span class="sd">        Name of table this column is associated with.</span>
+<span class="sd">    cache : bool</span>
+<span class="sd">        Whether caching is enabled for this column.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">column_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="n">get_table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the wrapped function and return the result.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_CACHING</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_COLUMN_CACHE</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s">&#39;returning column {!r} for table {!r} from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">_COLUMN_CACHE</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span>
+
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="p">(</span><span class="s">&#39;call function to provide column {!r} for table {!r}&#39;</span>
+                 <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_collect_injectables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">)</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">_COLUMN_CACHE</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">col</span>
+
+        <span class="k">return</span> <span class="n">col</span>
+
+    <span class="k">def</span> <span class="nf">clear_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove any cached result of this column.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">_COLUMN_CACHE</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s">&#39;cleared cached value for column {!r} in table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">_SeriesWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -372,6 +651,13 @@
 <span class="sd">        Should return a Series that has an</span>
 <span class="sd">        index matching the table to which it is being added.</span>
 
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Column name.</span>
+<span class="sd">    table_name : str</span>
+<span class="sd">        Name of table this column is associated with.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span>
@@ -380,6 +666,67 @@
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column</span>
+
+    <span class="k">def</span> <span class="nf">clear_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Here for compatibility with `_ColumnFuncWrapper`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">_InjectableFuncWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps a function that will be called (with injection) to provide</span>
+<span class="sd">    an injectable value elsewhere.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">    func : callable</span>
+<span class="sd">    cache : bool, optional</span>
+<span class="sd">        Whether to cache the result of calling the wrapped function.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of this injectable.</span>
+<span class="sd">    cache : bool</span>
+<span class="sd">        Whether caching is enabled for this injectable function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_CACHING</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_INJECTABLE_CACHE</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s">&#39;returning injectable {!r} from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">_INJECTABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;call function to provide injectable {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_collect_injectables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">_INJECTABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">clear_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear a cached result for this injectable.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">_INJECTABLE_CACHE</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s">&#39;injectable {!r} removed from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">_ModelFuncWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -391,20 +738,117 @@
 <span class="sd">    model_name : str</span>
 <span class="sd">    func : callable</span>
 
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of model.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">model_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="n">get_table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="s">&#39;year&#39;</span><span class="p">}</span>
-        <span class="k">if</span> <span class="s">&#39;year&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;calling model {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_collect_injectables</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_tables_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tables injected into the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tables : list of str</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg_list</span> <span class="k">if</span> <span class="n">_is_table</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span>
 
 
-<div class="viewcode-block" id="add_table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table">[docs]</a><span class="k">def</span> <span class="nf">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_is_table</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns whether a given name refers to a registered table.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_TABLES</span>
+
+
+<div class="viewcode-block" id="list_tables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.list_tables">[docs]</a><span class="k">def</span> <span class="nf">list_tables</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of table names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_TABLES</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+</div>
+<div class="viewcode-block" id="list_columns"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.list_columns">[docs]</a><span class="k">def</span> <span class="nf">list_columns</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of (table name, registered column name) pairs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_COLUMNS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+</div>
+<div class="viewcode-block" id="list_models"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.list_models">[docs]</a><span class="k">def</span> <span class="nf">list_models</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of registered model names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_MODELS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+</div>
+<div class="viewcode-block" id="list_injectables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.list_injectables">[docs]</a><span class="k">def</span> <span class="nf">list_injectables</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of registered injectables.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_INJECTABLES</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+</div>
+<div class="viewcode-block" id="list_broadcasts"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.list_broadcasts">[docs]</a><span class="k">def</span> <span class="nf">list_broadcasts</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    List of registered broadcasts as (cast table name, onto table name).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BROADCASTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_collect_injectables</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all the injectables specified in `names`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    names : list of str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    injectables : dict</span>
+<span class="sd">        Keys are the names, values are wrappers if the injectable</span>
+<span class="sd">        is a table. If it&#39;s a plain injectable the value itself is given</span>
+<span class="sd">        or the injectable function is evaluated.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+    <span class="n">dicts</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">keyfilter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">names</span><span class="p">,</span> <span class="n">toolz</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">_INJECTABLES</span><span class="p">,</span> <span class="n">_TABLES</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">dicts</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="s">&#39;not all injectables found. &#39;</span>
+            <span class="s">&#39;missing: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">names</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">dicts</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">thing</span> <span class="ow">in</span> <span class="n">dicts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">_InjectableFuncWrapper</span><span class="p">):</span>
+            <span class="n">dicts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">_TableSourceWrapper</span><span class="p">):</span>
+            <span class="n">dicts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">dicts</span>
+
+
+<div class="viewcode-block" id="add_table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table">[docs]</a><span class="k">def</span> <span class="nf">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Register a table with the simulation.</span>
 
@@ -416,19 +860,32 @@
 <span class="sd">        If a function it should return a DataFrame. Function argument</span>
 <span class="sd">        names will be matched to known tables, which will be injected</span>
 <span class="sd">        when this function is called.</span>
+<span class="sd">    cache : bool, optional</span>
+<span class="sd">        Whether to cache the results of a provided callable. Does not</span>
+<span class="sd">        apply if `table` is a DataFrame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wrapped : `DataFrameWrapper` or `TableFuncWrapper`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">_DataFrameWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">_TableFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">TableFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;table must be DataFrame or function.&#39;</span><span class="p">)</span>
 
+    <span class="c"># clear any cached data from a previously registered table</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
     <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span>
 
+    <span class="k">return</span> <span class="n">table</span>
+
 </div>
-<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="n">table_name</span><span class="p">):</span>
+<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator version of `add_table` used for decorating functions</span>
 <span class="sd">    that return DataFrames.</span>
@@ -438,7 +895,44 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="n">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+        <span class="n">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+</div>
+<div class="viewcode-block" id="add_table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table_source">[docs]</a><span class="k">def</span> <span class="nf">add_table_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a DataFrame source function to the simulation. This function is</span>
+<span class="sd">    evaluated only once, after which the returned DataFrame replaces</span>
+<span class="sd">    `func` as the injected table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    table_name : str</span>
+<span class="sd">    func : callable</span>
+<span class="sd">        Function argument names will be matched to known injectables,</span>
+<span class="sd">        which will be injected when this function is called.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    wrapped : `_TableSourceWrapper`</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_TableSourceWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering table source {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
+    <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapped</span>
+    <span class="k">return</span> <span class="n">wrapped</span>
+
+</div>
+<div class="viewcode-block" id="table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table_source">[docs]</a><span class="k">def</span> <span class="nf">table_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator version of `add_table_source`. Use it to decorate a function</span>
+<span class="sd">    that returns a DataFrame. The function will be evaluated only once</span>
+<span class="sd">    and the DataFrame will replace it.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">add_table_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
@@ -453,7 +947,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    table : _DataFrameWrapper or _TableFuncWrapper</span>
+<span class="sd">    table : `DataFrameWrapper`, `TableFuncWrapper`, or `_TableSourceWrapper`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">_TABLES</span><span class="p">:</span>
@@ -462,15 +956,7 @@
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;table not found: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="list_tables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.list_tables">[docs]</a><span class="k">def</span> <span class="nf">list_tables</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    List of table names.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_TABLES</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-
-</div>
-<div class="viewcode-block" id="add_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_column">[docs]</a><span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+<div class="viewcode-block" id="add_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_column">[docs]</a><span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a new column to a table from a Series or callable.</span>
 
@@ -483,20 +969,30 @@
 <span class="sd">    column : pandas.Series or callable</span>
 <span class="sd">        If a callable it should return a Series. Any Series should have an</span>
 <span class="sd">        index matching the table to which it is being added.</span>
+<span class="sd">    cache : bool, optional</span>
+<span class="sd">        Whether to cache the results of a provided callable. Does not</span>
+<span class="sd">        apply if `column` is a Series.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
         <span class="n">column</span> <span class="o">=</span> <span class="n">_SeriesWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="n">column</span> <span class="o">=</span> \
-            <span class="n">_ColumnFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+            <span class="n">_ColumnFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Only Series or callable allowed for column.&#39;</span><span class="p">)</span>
 
+    <span class="c"># clear any cached data from a previously registered column</span>
+    <span class="n">column</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering column {!r} on table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">column_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">))</span>
     <span class="n">_COLUMNS</span><span class="p">[(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">column</span>
 
+    <span class="k">return</span> <span class="n">column</span>
+
 </div>
-<div class="viewcode-block" id="column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.column">[docs]</a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+<div class="viewcode-block" id="column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.column">[docs]</a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator version of `add_column` used for decorating functions</span>
 <span class="sd">    that return a Series with an index matching the named table.</span>
@@ -506,7 +1002,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="n">add_column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+        <span class="n">add_column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
@@ -546,6 +1042,67 @@
             <span class="k">if</span> <span class="n">tname</span> <span class="o">==</span> <span class="n">table_name</span><span class="p">}</span>
 
 
+<div class="viewcode-block" id="add_injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_injectable">[docs]</a><span class="k">def</span> <span class="nf">add_injectable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a value that will be injected into other functions that</span>
+<span class="sd">    are part of the simulation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">    value</span>
+<span class="sd">        If a callable and `autocall` is True then the function will be</span>
+<span class="sd">        evaluated using dependency injection and the return value will</span>
+<span class="sd">        be passed to any functions using this injectable. In all other</span>
+<span class="sd">        cases `value` will be passed through untouched.</span>
+<span class="sd">    autocall : bool, optional</span>
+<span class="sd">        Set to True to have injectable functions automatically called</span>
+<span class="sd">        (with dependency injection) and the result injected instead of</span>
+<span class="sd">        the function itself.</span>
+<span class="sd">    cache : bool, optional</span>
+<span class="sd">        Whether to cache the return value of an injectable function.</span>
+<span class="sd">        Only applies when `value` is a callable and `autocall` is True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">autocall</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">_InjectableFuncWrapper</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="c"># clear any cached data from a previously registered value</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering injectable {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">_INJECTABLES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+</div>
+<div class="viewcode-block" id="injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.injectable">[docs]</a><span class="k">def</span> <span class="nf">injectable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator version of `add_injectable`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="n">add_injectable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="n">autocall</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+</div>
+<div class="viewcode-block" id="get_injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.get_injectable">[docs]</a><span class="k">def</span> <span class="nf">get_injectable</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get an injectable by name. *Does not* evaluate wrapped functions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    injectable</span>
+<span class="sd">        Original value or _InjectableFuncWrapper if autocall was True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_INJECTABLES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_INJECTABLES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;injectable not found: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+</div>
 <div class="viewcode-block" id="add_model"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_model">[docs]</a><span class="k">def</span> <span class="nf">add_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a model function to the simulation.</span>
@@ -561,6 +1118,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering model {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
         <span class="n">_MODELS</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_ModelFuncWrapper</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;func must be a callable&#39;</span><span class="p">)</span>
@@ -593,25 +1151,247 @@
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;no model named {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">years</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="n">_Broadcast</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s">&#39;_Broadcast&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s">&#39;cast&#39;</span><span class="p">,</span> <span class="s">&#39;onto&#39;</span><span class="p">,</span> <span class="s">&#39;cast_on&#39;</span><span class="p">,</span> <span class="s">&#39;onto_on&#39;</span><span class="p">,</span> <span class="s">&#39;cast_index&#39;</span><span class="p">,</span> <span class="s">&#39;onto_index&#39;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="broadcast"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.broadcast">[docs]</a><span class="k">def</span> <span class="nf">broadcast</span><span class="p">(</span><span class="n">cast</span><span class="p">,</span> <span class="n">onto</span><span class="p">,</span> <span class="n">cast_on</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">onto_on</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+              <span class="n">cast_index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">onto_index</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Register a rule for merging two tables by broadcasting one onto</span>
+<span class="sd">    the other.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cast, onto : str</span>
+<span class="sd">        Names of registered tables.</span>
+<span class="sd">    cast_on, onto_on : str, optional</span>
+<span class="sd">        Column names used for merge, equivalent of ``left_on``/``right_on``</span>
+<span class="sd">        parameters of pandas.merge.</span>
+<span class="sd">    cast_index, onto_index : bool, optional</span>
+<span class="sd">        Whether to use table indexes for merge. Equivalent of</span>
+<span class="sd">        ``left_index``/``right_index`` parameters of pandas.merge.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s">&#39;registering broadcast of table {!r} onto {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cast</span><span class="p">,</span> <span class="n">onto</span><span class="p">))</span>
+    <span class="n">_BROADCASTS</span><span class="p">[(</span><span class="n">cast</span><span class="p">,</span> <span class="n">onto</span><span class="p">)]</span> <span class="o">=</span> \
+        <span class="n">_Broadcast</span><span class="p">(</span><span class="n">cast</span><span class="p">,</span> <span class="n">onto</span><span class="p">,</span> <span class="n">cast_on</span><span class="p">,</span> <span class="n">onto_on</span><span class="p">,</span> <span class="n">cast_index</span><span class="p">,</span> <span class="n">onto_index</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_get_broadcasts</span><span class="p">(</span><span class="n">tables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the broadcasts associated with a set of tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tables : sequence of str</span>
+<span class="sd">        Table names for which broadcasts have been registered.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    casts : dict of `_Broadcast`</span>
+<span class="sd">        Keys are tuples of strings like (cast_name, onto_name).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span>
+    <span class="n">casts</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">keyfilter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">tables</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">,</span> <span class="n">_BROADCASTS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tables</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">casts</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Not enough links to merge all tables.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">casts</span>
+
+
+<span class="c"># utilities for merge_tables</span>
+<span class="k">def</span> <span class="nf">_all_reachable_tables</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A generator that provides all the names of tables that can be</span>
+<span class="sd">    reached via merges starting at the given target table.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">tname</span> <span class="ow">in</span> <span class="n">_all_reachable_tables</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">tname</span>
+        <span class="k">yield</span> <span class="n">k</span>
+
+
+<span class="k">def</span> <span class="nf">_is_leaf_node</span><span class="p">(</span><span class="n">merge_node</span><span class="p">):</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">merge</span> <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">_next_merge</span><span class="p">(</span><span class="n">merge_node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets a node that has only leaf nodes below it. This table and</span>
+<span class="sd">    the ones below are ready to be merged to make a new leaf node.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">_is_leaf_node</span><span class="p">(</span><span class="n">merge</span><span class="p">)</span> <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">merge_node</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">merge</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_next_merge</span><span class="p">(</span><span class="n">merge</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="merge_tables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.merge_tables">[docs]</a><span class="k">def</span> <span class="nf">merge_tables</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">tables</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge a number of tables onto a target table. Tables must have</span>
+<span class="sd">    registered merge rules via the `broadcast` function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target : str</span>
+<span class="sd">        Name of the table onto which tables will be merged.</span>
+<span class="sd">    tables : list of `DataFrameWrapper` or `TableFuncWrapper`</span>
+<span class="sd">        All of the tables to merge. Should include the target table.</span>
+<span class="sd">    columns : list of str, optional</span>
+<span class="sd">        If given, columns will be mapped to `tables` and only those columns</span>
+<span class="sd">        will be requested from each table. The final merged table will have</span>
+<span class="sd">        only these columns. By default all columns are used from every</span>
+<span class="sd">        table.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    merged : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">merges</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
+    <span class="n">casts</span> <span class="o">=</span> <span class="n">_get_broadcasts</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="s">&#39;attempting to merge tables {} to target table {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">target</span><span class="p">))</span>
+
+    <span class="c"># relate all the tables by registered broadcasts</span>
+    <span class="k">for</span> <span class="n">table</span><span class="p">,</span> <span class="n">onto</span> <span class="ow">in</span> <span class="n">casts</span><span class="p">:</span>
+        <span class="n">merges</span><span class="p">[</span><span class="n">onto</span><span class="p">][</span><span class="n">table</span><span class="p">]</span> <span class="o">=</span> <span class="n">merges</span><span class="p">[</span><span class="n">table</span><span class="p">]</span>
+    <span class="n">merges</span> <span class="o">=</span> <span class="p">{</span><span class="n">target</span><span class="p">:</span> <span class="n">merges</span><span class="p">[</span><span class="n">target</span><span class="p">]}</span>
+
+    <span class="c"># verify that all the tables can be merged to the target</span>
+    <span class="n">all_tables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_all_reachable_tables</span><span class="p">(</span><span class="n">merges</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">all_tables</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="p">(</span><span class="s">&#39;Not all tables can be merged to target &quot;{}&quot;. Unlinked tables: {}&#39;</span>
+             <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="n">all_tables</span><span class="p">)))</span>
+
+    <span class="c"># add any columns necessary for indexing into other tables</span>
+    <span class="c"># during merges</span>
+    <span class="k">if</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">casts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">onto_on</span><span class="p">:</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">onto_on</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">cast_on</span><span class="p">:</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">cast_on</span><span class="p">)</span>
+
+    <span class="c"># get column map for which columns go with which table</span>
+    <span class="n">colmap</span> <span class="o">=</span> <span class="n">column_map</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">columns</span><span class="p">)</span>
+
+    <span class="c"># get frames</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">colmap</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+              <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="k">while</span> <span class="n">merges</span><span class="p">[</span><span class="n">target</span><span class="p">]:</span>
+        <span class="n">nm</span> <span class="o">=</span> <span class="n">_next_merge</span><span class="p">(</span><span class="n">merges</span><span class="p">)</span>
+        <span class="n">onto</span> <span class="o">=</span> <span class="n">nm</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">onto_table</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">cast</span> <span class="ow">in</span> <span class="n">nm</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">cast_table</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="n">cast</span><span class="p">]</span>
+            <span class="n">bc</span> <span class="o">=</span> <span class="n">casts</span><span class="p">[(</span><span class="n">cast</span><span class="p">,</span> <span class="n">onto</span><span class="p">)]</span>
+            <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                    <span class="s">&#39;merge tables {} and {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">onto</span><span class="p">,</span> <span class="n">cast</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+                <span class="n">onto_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">onto_table</span><span class="p">,</span> <span class="n">cast_table</span><span class="p">,</span>
+                    <span class="n">left_on</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">onto_on</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">cast_on</span><span class="p">,</span>
+                    <span class="n">left_index</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">onto_index</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">cast_index</span><span class="p">)</span>
+        <span class="n">frames</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span> <span class="o">=</span> <span class="n">onto_table</span>
+        <span class="n">nm</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finished merge&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frames</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="write_tables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.write_tables">[docs]</a><span class="k">def</span> <span class="nf">write_tables</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write all tables injected into `models` to a pandas.HDFStore file.</span>
+<span class="sd">    If year is not None it will be used to prefix the table names so that</span>
+<span class="sd">    multiple years can go in the same file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fname : str</span>
+<span class="sd">        File name for HDFStore. Will be opened in append mode and closed</span>
+<span class="sd">        at the end of this function.</span>
+<span class="sd">    models : list of str</span>
+<span class="sd">        Models from which to gather injected tables for saving.</span>
+<span class="sd">    year : int or None</span>
+<span class="sd">        If an integer, used as a prefix along with table names for</span>
+<span class="sd">        labeling DataFrames in the HDFStore.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="p">(</span><span class="n">get_model</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">models</span><span class="p">))</span>
+    <span class="n">table_names</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">_tables_used</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">))</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">(</span><span class="n">get_table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">table_names</span><span class="p">)</span>
+
+    <span class="n">key_template</span> <span class="o">=</span> <span class="s">&#39;{}/{{}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;{}&#39;</span>
+
+    <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_store</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">store</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+            <span class="n">store</span><span class="p">[</span><span class="n">key_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">years</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data_out</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">out_interval</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run models in series, optionally repeatedly over some years.</span>
+<span class="sd">    The current year is set as a global injectable.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    models : list of str</span>
 <span class="sd">        List of models to run identified by their name.</span>
+<span class="sd">    years : sequence of int, optional</span>
+<span class="sd">        Years over which to run the models. `year` is provided as</span>
+<span class="sd">        an injectable throughout the simulation. If not given the models</span>
+<span class="sd">        are run once with year set to None.</span>
+<span class="sd">    data_out : str, optional</span>
+<span class="sd">        An optional filename to which all tables injected into any model</span>
+<span class="sd">        in `models` will be saved every `out_interval` years.</span>
+<span class="sd">        File will be a pandas HDF data store.</span>
+<span class="sd">    out_interval : int, optional</span>
+<span class="sd">        Year interval on which to save data to `data_out`. For example,</span>
+<span class="sd">        2 will save out every 2 years, 5 every 5 years. Default is every</span>
+<span class="sd">        year. The first and last years are always included.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">years</span> <span class="o">=</span> <span class="n">years</span> <span class="ow">or</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span>
+    <span class="n">year_counter</span> <span class="o">=</span> <span class="n">out_interval</span>
 
     <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">year</span><span class="p">:</span>
+        <span class="n">add_injectable</span><span class="p">(</span><span class="s">&#39;year&#39;</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data_out</span> <span class="ow">and</span> <span class="n">year_counter</span> <span class="o">==</span> <span class="n">out_interval</span><span class="p">:</span>
+            <span class="n">write_tables</span><span class="p">(</span><span class="n">data_out</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+            <span class="n">year_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&#39;Running year {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;running year {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+
         <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Running model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-            <span class="n">model</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span></div>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Running model {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
+            <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                    <span class="s">&#39;run model {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">),</span> <span class="n">logger</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+                <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">model</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Time to execute model = </span><span class="si">%.3f</span><span class="s">s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">))</span>
+
+        <span class="n">year_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">data_out</span><span class="p">:</span>
+        <span class="n">write_tables</span><span class="p">(</span><span class="n">data_out</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="s">&#39;final&#39;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

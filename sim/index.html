@@ -59,6 +59,12 @@
         
             <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -122,11 +128,574 @@
             
   <div class="section" id="simulation-framework">
 <h1>Simulation Framework<a class="headerlink" href="#simulation-framework" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>UrbanSim&#8217;s simulation framework allows you to register data and functions
+that operate on that data. The main components of a simulation include:</p>
+<ul class="simple">
+<li>Tables<ul>
+<li>Most of the modeling functionality in UrbanSim works with pandas
+<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a>. Tables can be registered as plain DataFrames or as
+functions that return DataFrames.</li>
+</ul>
+</li>
+<li>Columns<ul>
+<li>Columns can be dynamically added to tables by registering
+individual pandas <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">Series</a> instances or by registering functions
+that return Series.</li>
+</ul>
+</li>
+<li>Models<ul>
+<li>Models are Python functions registered with the simulation.
+Most models will update the simulation somehow, maybe by updating
+a column in a table or adding rows to a table, but they can theoretically
+do anything.</li>
+</ul>
+</li>
+<li>Injectables<ul>
+<li>Models may need to make use of data that are not in a table/column.
+For these you can register any object/any function as an injectable
+to make it available to models.</li>
+</ul>
+</li>
+</ul>
+<p>The framework offers some conveniences for streamlining
+the simulation process:</p>
+<ul class="simple">
+<li>Dependency injection<ul>
+<li>When you register any function UrbanSim inspects the argument list
+and stores the argument names. Then, when the function needs to be
+evaluated, UrbanSim matches those argument names to registered tables
+and injectables, and calls the function with those things (in turn
+calling any other functions necessary and injecting other things).</li>
+</ul>
+</li>
+<li>Functions as data<ul>
+<li>If something needs to be recomputed on-demand you can register
+a function that returns your table/column/injectable. That function
+will be evaluated anytime the variable is used in the simulation so
+that the value is always current.</li>
+</ul>
+</li>
+<li>Caching<ul>
+<li>Have some data that needs to be computed, but not very frequently?
+You can enable caching on individual items to save time, then later clear
+the cache on just that item or clear the entire cache in one call.</li>
+</ul>
+</li>
+<li>Data archives<ul>
+<li>After a simulation it can be useful to look out how the data changed
+as the simulation progressed. UrbanSim can save registered tables out
+to an HDF5 file every simulation iteration or on set intervals.</li>
+</ul>
+</li>
+</ul>
+<div class="section" id="note">
+<h3>Note<a class="headerlink" href="#note" title="Permalink to this headline">¶</a></h3>
+<p>In the documentation below the following imports are implied:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">urbansim.sim.simulation</span> <span class="kn">as</span> <span class="nn">sim</span>
+</pre></div>
+</div>
+<p>The code samples are shown as if they are</p>
+</div>
+</div>
+<div class="section" id="tables">
+<h2>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h2>
+<p>Tables are pandas <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a>.
+Use the <a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-func docutils literal"><span class="pre">add_table()</span></tt></a> function to register
+a DataFrame under a given name:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or you can use the decorator <a class="reference internal" href="#urbansim.sim.simulation.table" title="urbansim.sim.simulation.table"><tt class="xref py py-func docutils literal"><span class="pre">table()</span></tt></a>
+to register a function that returns a DataFrame:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table</span><span class="p">(</span><span class="s">&#39;halve_my_table&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">halve_my_table</span><span class="p">(</span><span class="n">my_table</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>By registering <tt class="docutils literal"><span class="pre">halve_my_table</span></tt> as a function its values will always be
+half those in <tt class="docutils literal"><span class="pre">my_table</span></tt>, even if <tt class="docutils literal"><span class="pre">my_table</span></tt> is later changed.
+If you&#8217;d like a function to <em>not</em> be evaluated every time it
+is used, pass the <tt class="docutils literal"><span class="pre">cache=True</span></tt> keyword when registering it.</p>
+<p>Note that the names given to tables (and other registered things) should be
+<a class="reference external" href="http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types">valid Python variable names</a>
+so that they can be used in dependency injection.</p>
+<p>Here&#8217;s a demo of the above table definitions shown in IPython:</p>
+<div class="highlight-python"><div class="highlight"><pre>In [19]: wrapped = sim.get_table(&#39;halve_my_table&#39;)
+
+In [20]: wrapped.to_frame()
+Out[20]:
+     a
+0  0.5
+1  1.0
+2  1.5
+</pre></div>
+</div>
+<div class="section" id="table-wrappers">
+<h3>Table Wrappers<a class="headerlink" href="#table-wrappers" title="Permalink to this headline">¶</a></h3>
+<p>Notice in the table function above that we had to call a
+<a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper.to_frame" title="urbansim.sim.simulation.DataFrameWrapper.to_frame"><tt class="xref py py-meth docutils literal"><span class="pre">to_frame()</span></tt></a> method
+before using the table in a math operation. The values injected into
+functions are not DataFrames, but specialized wrappers.
+The wrappers facilitate caching, <a class="reference external" href="#columns">computed columns</a>,
+and lazy evaluation of table functions. Learn more in the API documentation:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a></li>
+<li><a class="reference internal" href="#urbansim.sim.simulation.TableFuncWrapper" title="urbansim.sim.simulation.TableFuncWrapper"><tt class="xref py py-class docutils literal"><span class="pre">TableFuncWrapper</span></tt></a></li>
+</ul>
+</div>
+<div class="section" id="table-sources">
+<h3>Table Sources<a class="headerlink" href="#table-sources" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes you may want to set up a function that returns a DataFrame but
+only have it evaluated once and thereafter have access to the DataFrame itself
+as if you had used <a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-func docutils literal"><span class="pre">add_table()</span></tt></a> to
+register it. For that you can use the
+<a class="reference internal" href="#urbansim.sim.simulation.table_source" title="urbansim.sim.simulation.table_source"><tt class="xref py py-func docutils literal"><span class="pre">table_source()</span></tt></a> decorator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_table</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+</pre></div>
+</div>
+<p>When <tt class="docutils literal"><span class="pre">my_table</span></tt> is first injected somewhere it will be converted to a
+<a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>.</p>
+</div>
+</div>
+<div class="section" id="columns">
+<h2>Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h2>
+<p>Often, not all the columns you need for a simulation are preexisting
+on your tables. You may need to collect information from other tables
+or perform a calculation to generate a column. UrbanSim allows you to
+register a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">Series</a> or function as a column on a registered table.
+Use the <a class="reference internal" href="#urbansim.sim.simulation.add_column" title="urbansim.sim.simulation.add_column"><tt class="xref py py-func docutils literal"><span class="pre">add_column()</span></tt></a> function or
+the <tt class="xref py py-func docutils literal"><span class="pre">_urbansim.sim.simulation.column()</span></tt> decorator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">])</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">,</span> <span class="s">&#39;my_col&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+<span class="nd">@sim.column</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">,</span> <span class="s">&#39;my_col_x2&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">my_col_x2</span><span class="p">(</span><span class="n">my_table</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;my_col&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;my_col&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>In the <tt class="docutils literal"><span class="pre">my_col_x2</span></tt> function we use the <tt class="docutils literal"><span class="pre">columns=</span></tt> keyword on
+<a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper.to_frame" title="urbansim.sim.simulation.DataFrameWrapper.to_frame"><tt class="xref py py-meth docutils literal"><span class="pre">to_frame()</span></tt></a> to get only
+the one column necessary for our calculation. This can be useful for
+avoiding unnecessary computation or to avoid recursion (as would happen
+in this case if we called <tt class="docutils literal"><span class="pre">to_frame()</span></tt> with no arguments).</p>
+<p>A demonstration in IPython using the table definitions from above:</p>
+<div class="highlight-python"><div class="highlight"><pre>In [29]: wrapped = sim.get_table(&#39;my_table&#39;)
+
+In [30]: wrapped.columns
+Out[30]: [&#39;a&#39;, &#39;my_col&#39;, &#39;my_col_x2&#39;]
+
+In [31]: wrapped.local_columns
+Out[31]: [&#39;a&#39;]
+
+In [32]: wrapped.to_frame()
+Out[32]:
+   a my_col_x2 my_col
+0  1        aa      a
+1  2        bb      b
+2  3        cc      c
+</pre></div>
+</div>
+<p><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a> has
+<a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper.columns" title="urbansim.sim.simulation.DataFrameWrapper.columns"><tt class="xref py py-attr docutils literal"><span class="pre">columns</span></tt></a>
+and <a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper.local_columns" title="urbansim.sim.simulation.DataFrameWrapper.local_columns"><tt class="xref py py-attr docutils literal"><span class="pre">local_columns</span></tt></a>
+attributes that, respectively, list all the columns on a table and
+only those columns that are part of the underlying DataFrame.</p>
+<p>Columns are stored separate from tables so it is safe to define a column
+on a table and then replace that table with something else. The column
+will remain associated with the table.</p>
+</div>
+<div class="section" id="injectables">
+<h2>Injectables<a class="headerlink" href="#injectables" title="Permalink to this headline">¶</a></h2>
+<p>You will probably want to have things besides tables injected into functions,
+for which UrbanSim has &#8220;injectables&#8221;. You can register <em>anything</em> and have
+it injected into functions.
+Use the <a class="reference internal" href="#urbansim.sim.simulation.add_injectable" title="urbansim.sim.simulation.add_injectable"><tt class="xref py py-func docutils literal"><span class="pre">add_injectable()</span></tt></a> function or the
+<a class="reference internal" href="#urbansim.sim.simulation.injectable" title="urbansim.sim.simulation.injectable"><tt class="xref py py-func docutils literal"><span class="pre">injectable()</span></tt></a> decorator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sim</span><span class="o">.</span><span class="n">add_injectable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="nd">@sim.injectable</span><span class="p">(</span><span class="s">&#39;pow&#39;</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="n">y</span>
+
+<span class="nd">@sim.injectable</span><span class="p">(</span><span class="s">&#39;zsquared&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">zsquared</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="nb">pow</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">pow</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="nd">@sim.table</span><span class="p">(</span><span class="s">&#39;ztable&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ztable</span><span class="p">(</span><span class="n">my_table</span><span class="p">,</span> <span class="n">zsquared</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span> <span class="o">*</span> <span class="n">zsquared</span>
+</pre></div>
+</div>
+<p>Be default injectable functions are evaluated before injection and the return
+value is passed into other functions. Use <tt class="docutils literal"><span class="pre">autocall=False</span></tt> to disable this
+behavior and instead inject the wrapped function itself.
+Like tables and columns, injectable functions can have their results
+cached with <tt class="docutils literal"><span class="pre">cache=True</span></tt>.</p>
+<p>An example of the above injectables in IPython:</p>
+<div class="highlight-python"><div class="highlight"><pre>In [38]: wrapped = sim.get_table(&#39;ztable&#39;)
+
+In [39]: wrapped.to_frame()
+Out[39]:
+    a
+0  25
+1  50
+2  75
+</pre></div>
+</div>
+</div>
+<div class="section" id="models">
+<h2>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
+<p>In UrbanSim a model is a function run by the simulation framework with
+dependency injection. Use the <a class="reference internal" href="#urbansim.sim.simulation.model" title="urbansim.sim.simulation.model"><tt class="xref py py-func docutils literal"><span class="pre">model()</span></tt></a>
+decorator to register a model function.
+Models are important for their side-effects, their
+return values are discarded. For example, a model might replace a column
+in a table (a new table, though similar to <tt class="docutils literal"><span class="pre">my_table</span></tt> above):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;new_table&#39;</span><span class="p">)</span>
+
+<span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;replace_col&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">replace_col</span><span class="p">(</span><span class="n">new_table</span><span class="p">):</span>
+    <span class="n">new_table</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Or update some values in a column:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;update_col&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">update_col</span><span class="p">(</span><span class="n">new_table</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">99</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">new_table</span><span class="o">.</span><span class="n">update_col_from_series</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or add rows to a table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;add_rows&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">new_table</span><span class="p">):</span>
+    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">]},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">new_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;new_table&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first two of the above examples update <tt class="docutils literal"><span class="pre">my_tables</span></tt>&#8216;s underlying DataFrame and
+so require it to be a <a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>.
+If your table is a wrapped function, not a DataFrame, you can update
+columns by replacing them entirely with a new <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">Series</a> using the
+<a class="reference internal" href="#urbansim.sim.simulation.add_column" title="urbansim.sim.simulation.add_column"><tt class="xref py py-func docutils literal"><span class="pre">add_column()</span></tt></a> function.</p>
+<p>A demonstration of running the above models:</p>
+<div class="highlight-python"><div class="highlight"><pre>In [68]: sim.run([&#39;replace_col&#39;, &#39;update_col&#39;, &#39;add_rows&#39;])
+Running model &#39;replace_col&#39;
+Running model &#39;update_col&#39;
+Running model &#39;add_rows&#39;
+
+In [69]: sim.get_table(&#39;new_table&#39;).to_frame()
+Out[69]:
+     a
+0    4
+1   99
+2    6
+3  100
+4  101
+</pre></div>
+</div>
+<p>Though updating tables is generally how models will advance the simulation
+they can do anything you like, so feel free to insert models with any
+arbitrary purpose (for example, with logging messages) into the simulation.</p>
+</div>
+<div class="section" id="running-simulations">
+<h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline">¶</a></h2>
+<p>You start simulations by calling the <a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a>
+function and listing which models you want to run.
+Calling <a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a> with just a list of models,
+as in the above example, will run through the models once.
+To run the simulation over some years provide those years as a sequence
+to <a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a>.
+The variable <tt class="docutils literal"><span class="pre">year</span></tt> is provided as an injectable to model functions:</p>
+<div class="highlight-python"><div class="highlight"><pre>In [77]: @sim.model(&#39;print_year&#39;)
+   ....: def print_year(year):
+   ....:         print &#39;*** the year is {} ***&#39;.format(year)
+   ....:
+
+In [78]: sim.run([&#39;print_year&#39;], years=range(2010, 2015))
+Running year 2010
+Running model &#39;print_year&#39;
+*** the year is 2010 ***
+Running year 2011
+Running model &#39;print_year&#39;
+*** the year is 2011 ***
+Running year 2012
+Running model &#39;print_year&#39;
+*** the year is 2012 ***
+Running year 2013
+Running model &#39;print_year&#39;
+*** the year is 2013 ***
+Running year 2014
+Running model &#39;print_year&#39;
+*** the year is 2014 ***
+</pre></div>
+</div>
+<div class="section" id="archiving-data">
+<h3>Archiving Data<a class="headerlink" href="#archiving-data" title="Permalink to this headline">¶</a></h3>
+<p>An option to the <a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a> function is to have
+it save simulation data at set intervals.
+Only tables are saved, as <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a> to an HDF5 file via pandas&#8217;
+<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/io.html#hdf5-pytables">HDFStore</a>
+feature. If the simulation is running only one loop the tables are stored
+under their registered names. If it is running multiple years the tables are
+stored under names like <tt class="docutils literal"><span class="pre">'&lt;year&gt;/&lt;table</span> <span class="pre">name&gt;'</span></tt>. For example, in the year 2020
+the &#8220;buildings&#8221; table would be stored as <tt class="docutils literal"><span class="pre">'2020/buildings'</span></tt>.
+The <tt class="docutils literal"><span class="pre">out_interval</span></tt> keyword to <a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a>
+controls how often the tables are saved out. For example, <tt class="docutils literal"><span class="pre">out_interval=5</span></tt>
+saves tables every fifth year. In addition, the final data is always saved
+under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</span> <span class="pre">name&gt;'</span></tt>.</p>
+</div>
+</div>
 <div class="section" id="module-urbansim.sim.simulation">
 <span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.sim.simulation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="urbansim.sim.simulation.DataFrameWrapper">
+<em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">DataFrameWrapper</tt><big>(</big><em>name</em>, <em>frame</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps a DataFrame so it can provide certain columns and handle
+computed columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote>
+<div><p>Name for the table.</p>
+</div></blockquote>
+<p class="last"><strong>frame</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="81%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Table name.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.clear_cached">
+<tt class="descname">clear_cached</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.clear_cached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.clear_cached" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove cached results from this table&#8217;s computed columns.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.columns">
+<tt class="descname">columns</tt><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns in this table.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.get_column">
+<tt class="descname">get_column</tt><big>(</big><em>column_name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.get_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.get_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a column as a Series.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>column_name</strong> : str</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>column</strong> : pandas.Series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.index">
+<tt class="descname">index</tt><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Table index.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.local_columns">
+<tt class="descname">local_columns</tt><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.local_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.local_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns that are part of the wrapped DataFrame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.to_frame">
+<tt class="descname">to_frame</tt><big>(</big><em>columns=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.to_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.to_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a DataFrame with the given columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : sequence, optional</p>
+<blockquote>
+<div><p>Sequence of the column names desired in the DataFrame.
+If None all columns are returned, including registered columns.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>frame</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.update_col">
+<tt class="descname">update_col</tt><big>(</big><em>column_name</em>, <em>series</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.update_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.update_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or replace a column in the underlying DataFrame.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column_name</strong> : str</p>
+<blockquote>
+<div><p>Column to add or replace.</p>
+</div></blockquote>
+<p><strong>series</strong> : pandas.Series or sequence</p>
+<blockquote class="last">
+<div><p>Column data.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.sim.simulation.DataFrameWrapper.update_col_from_series">
+<tt class="descname">update_col_from_series</tt><big>(</big><em>column_name</em>, <em>series</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.update_col_from_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.update_col_from_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update existing values in a column from another series.
+Index values must match in both column and series.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column_name</strong> : str</p>
+<p class="last"><strong>series</strong> : panas.Series</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.sim.simulation.TableFuncWrapper">
+<em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">TableFuncWrapper</tt><big>(</big><em>name</em>, <em>func</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap a function that provides a DataFrame.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote>
+<div><p>Name for the table.</p>
+</div></blockquote>
+<p><strong>func</strong> : callable</p>
+<blockquote>
+<div><p>Callable that returns a DataFrame.</p>
+</div></blockquote>
+<p><strong>cache</strong> : bool, optional</p>
+<blockquote>
+<div><p>Whether to cache the results of calling the wrapped function.</p>
+</div></blockquote>
+<p><strong>Attributes</strong></p>
+<p><strong>__________</strong></p>
+<p><strong>name</strong> : str</p>
+<blockquote>
+<div><p>Table name.</p>
+</div></blockquote>
+<p><strong>cache</strong> : bool</p>
+<blockquote class="last">
+<div><p>Whether caching is enabled for this table.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.sim.simulation.TableFuncWrapper.clear_cached">
+<tt class="descname">clear_cached</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.clear_cached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.clear_cached" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove this table&#8217;s cached result and that of associated columns.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.sim.simulation.TableFuncWrapper.columns">
+<tt class="descname">columns</tt><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns in this table. (May contain only computed columns
+if the wrapped function has not been called yet.)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.sim.simulation.TableFuncWrapper.get_column">
+<tt class="descname">get_column</tt><big>(</big><em>column_name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.get_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.get_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a column as a Series.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>column_name</strong> : str</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>column</strong> : pandas.Series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.sim.simulation.TableFuncWrapper.index">
+<tt class="descname">index</tt><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index of the underlying table. Will be None if that index is
+unknown.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.sim.simulation.TableFuncWrapper.local_columns">
+<tt class="descname">local_columns</tt><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.local_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.local_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only the columns contained in the DataFrame returned by the
+wrapped function. (No registered columns included.)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.sim.simulation.TableFuncWrapper.to_frame">
+<tt class="descname">to_frame</tt><big>(</big><em>columns=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.to_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.to_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a DataFrame with the given columns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : sequence, optional</p>
+<blockquote>
+<div><p>Sequence of the column names desired in the DataFrame.
+If None all columns are returned.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>frame</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="urbansim.sim.simulation.add_column">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_column</tt><big>(</big><em>table_name</em>, <em>column_name</em>, <em>column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_column" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_column</tt><big>(</big><em>table_name</em>, <em>column_name</em>, <em>column</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_column" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new column to a table from a Series or callable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -141,9 +710,48 @@
 <div><p>Name for the column.</p>
 </div></blockquote>
 <p><strong>column</strong> : pandas.Series or callable</p>
-<blockquote class="last">
+<blockquote>
 <div><p>If a callable it should return a Series. Any Series should have an
 index matching the table to which it is being added.</p>
+</div></blockquote>
+<p><strong>cache</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Whether to cache the results of a provided callable. Does not
+apply if <cite>column</cite> is a Series.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.add_injectable">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_injectable</tt><big>(</big><em>name</em>, <em>value</em>, <em>autocall=True</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_injectable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a value that will be injected into other functions that
+are part of the simulation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<p><strong>value</strong></p>
+<blockquote>
+<div><p>If a callable and <cite>autocall</cite> is True then the function will be
+evaluated using dependency injection and the return value will
+be passed to any functions using this injectable. In all other
+cases <cite>value</cite> will be passed through untouched.</p>
+</div></blockquote>
+<p><strong>autocall</strong> : bool, optional</p>
+<blockquote>
+<div><p>Set to True to have injectable functions automatically called
+(with dependency injection) and the result injected instead of
+the function itself.</p>
+</div></blockquote>
+<p><strong>cache</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Whether to cache the return value of an injectable function.
+Only applies when <cite>value</cite> is a callable and <cite>autocall</cite> is True.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -172,7 +780,7 @@ year injected.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.add_table">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table</tt><big>(</big><em>table_name</em>, <em>table</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table</tt><big>(</big><em>table_name</em>, <em>table</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a table with the simulation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -183,15 +791,101 @@ year injected.</p>
 <div><p>Should be globally unique to this table.</p>
 </div></blockquote>
 <p><strong>table</strong> : pandas.DataFrame or function</p>
-<blockquote class="last">
+<blockquote>
 <div><p>If a function it should return a DataFrame. Function argument
 names will be matched to known tables, which will be injected
 when this function is called.</p>
+</div></blockquote>
+<p><strong>cache</strong> : bool, optional</p>
+<blockquote>
+<div><p>Whether to cache the results of a provided callable. Does not
+apply if <cite>table</cite> is a DataFrame.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.add_table_source">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table_source</tt><big>(</big><em>table_name</em>, <em>func</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a DataFrame source function to the simulation. This function is
+evaluated only once, after which the returned DataFrame replaces
+<cite>func</cite> as the injected table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
+<p><strong>func</strong> : callable</p>
+<blockquote>
+<div><p>Function argument names will be matched to known injectables,
+which will be injected when this function is called.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>_TableSourceWrapper</cite></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.broadcast">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">broadcast</tt><big>(</big><em>cast</em>, <em>onto</em>, <em>cast_on=None</em>, <em>onto_on=None</em>, <em>cast_index=False</em>, <em>onto_index=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#broadcast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.broadcast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a rule for merging two tables by broadcasting one onto
+the other.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cast, onto</strong> : str</p>
+<blockquote>
+<div><p>Names of registered tables.</p>
+</div></blockquote>
+<p><strong>cast_on, onto_on</strong> : str, optional</p>
+<blockquote>
+<div><p>Column names used for merge, equivalent of <tt class="docutils literal"><span class="pre">left_on</span></tt>/<tt class="docutils literal"><span class="pre">right_on</span></tt>
+parameters of pandas.merge.</p>
+</div></blockquote>
+<p><strong>cast_index, onto_index</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Whether to use table indexes for merge. Equivalent of
+<tt class="docutils literal"><span class="pre">left_index</span></tt>/<tt class="docutils literal"><span class="pre">right_index</span></tt> parameters of pandas.merge.</p>
 </div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.cache_on">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">cache_on</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#cache_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.cache_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether caching is currently enabled or disabled.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>on</strong> : bool</p>
+<blockquote class="last">
+<div><p>True if caching is enabled.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.clear_cache">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">clear_cache</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#clear_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.clear_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all cached data.</p>
 </dd></dl>
 
 <dl class="function">
@@ -202,11 +896,46 @@ when this function is called.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.column">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">column</tt><big>(</big><em>table_name</em>, <em>column_name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.column" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">column</tt><big>(</big><em>table_name</em>, <em>column_name</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.column" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator version of <cite>add_column</cite> used for decorating functions
 that return a Series with an index matching the named table.</p>
 <p>The argument names of the function should match known tables, which
 will be injected.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.disable_cache">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">disable_cache</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#disable_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.disable_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn off caching across the simulation, even for computed tables,
+columns, and injectables that have caching enabled.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.enable_cache">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">enable_cache</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#enable_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.enable_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow caching of computed tables, columns, and injectables that
+explicitly have caching enabled.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.get_injectable">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">get_injectable</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#get_injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.get_injectable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an injectable by name. <em>Does not</em> evaluate wrapped functions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">injectable</p>
+<blockquote class="last">
+<div><p>Original value or _InjectableFuncWrapper if autocall was True.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -225,16 +954,79 @@ will be injected.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> : str</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>table</strong> : _DataFrameWrapper or _TableFuncWrapper</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>table</strong> : <cite>DataFrameWrapper</cite>, <cite>TableFuncWrapper</cite>, or <cite>_TableSourceWrapper</cite></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="function">
+<dt id="urbansim.sim.simulation.injectable">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">injectable</tt><big>(</big><em>name</em>, <em>autocall=True</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.injectable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator version of <cite>add_injectable</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.list_broadcasts">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">list_broadcasts</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#list_broadcasts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.list_broadcasts" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of registered broadcasts as (cast table name, onto table name).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.list_columns">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">list_columns</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#list_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.list_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of (table name, registered column name) pairs.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.list_injectables">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">list_injectables</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#list_injectables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.list_injectables" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of registered injectables.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.list_models">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">list_models</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#list_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.list_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of registered model names.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="urbansim.sim.simulation.list_tables">
 <tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">list_tables</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#list_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.list_tables" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of table names.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.merge_tables">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">merge_tables</tt><big>(</big><em>target</em>, <em>tables</em>, <em>columns=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#merge_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.merge_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge a number of tables onto a target table. Tables must have
+registered merge rules via the <cite>broadcast</cite> function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target</strong> : str</p>
+<blockquote>
+<div><p>Name of the table onto which tables will be merged.</p>
+</div></blockquote>
+<p><strong>tables</strong> : list of <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></p>
+<blockquote>
+<div><p>All of the tables to merge. Should include the target table.</p>
+</div></blockquote>
+<p><strong>columns</strong> : list of str, optional</p>
+<blockquote>
+<div><p>If given, columns will be mapped to <cite>tables</cite> and only those columns
+will be requested from each table. The final merged table will have
+only these columns. By default all columns are used from every
+table.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>merged</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -247,15 +1039,34 @@ will require injection of tables and that can be run by the
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.run">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">run</tt><big>(</big><em>models</em>, <em>years=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run models in series, optionally repeatedly over some years.</p>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">run</tt><big>(</big><em>models</em>, <em>years=None</em>, <em>data_out=None</em>, <em>out_interval=1</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run models in series, optionally repeatedly over some years.
+The current year is set as a global injectable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>models</strong> : list of str</p>
-<blockquote class="last">
+<blockquote>
 <div><p>List of models to run identified by their name.</p>
+</div></blockquote>
+<p><strong>years</strong> : sequence of int, optional</p>
+<blockquote>
+<div><p>Years over which to run the models. <cite>year</cite> is provided as
+an injectable throughout the simulation. If not given the models
+are run once with year set to None.</p>
+</div></blockquote>
+<p><strong>data_out</strong> : str, optional</p>
+<blockquote>
+<div><p>An optional filename to which all tables injected into any model
+in <cite>models</cite> will be saved every <cite>out_interval</cite> years.
+File will be a pandas HDF data store.</p>
+</div></blockquote>
+<p><strong>out_interval</strong> : int, optional</p>
+<blockquote class="last">
+<div><p>Year interval on which to save data to <cite>data_out</cite>. For example,
+2 will save out every 2 years, 5 every 5 years. Default is every
+year. The first and last years are always included.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -265,11 +1076,49 @@ will require injection of tables and that can be run by the
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.table">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table</tt><big>(</big><em>table_name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table</tt><big>(</big><em>table_name</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator version of <cite>add_table</cite> used for decorating functions
 that return DataFrames.</p>
 <p>Decorated function argument names will be matched to known tables,
 which will be injected when this function is called.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.table_source">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table_source</tt><big>(</big><em>table_name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator version of <cite>add_table_source</cite>. Use it to decorate a function
+that returns a DataFrame. The function will be evaluated only once
+and the DataFrame will replace it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.sim.simulation.write_tables">
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">write_tables</tt><big>(</big><em>fname</em>, <em>models</em>, <em>year</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#write_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.write_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write all tables injected into <cite>models</cite> to a pandas.HDFStore file.
+If year is not None it will be used to prefix the table names so that
+multiple years can go in the same file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>File name for HDFStore. Will be opened in append mode and closed
+at the end of this function.</p>
+</div></blockquote>
+<p><strong>models</strong> : list of str</p>
+<blockquote>
+<div><p>Models from which to gather injected tables for saving.</p>
+</div></blockquote>
+<p><strong>year</strong> : int or None</p>
+<blockquote class="last">
+<div><p>If an integer, used as a prefix along with table names for
+labeling DataFrames in the HDFStore.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

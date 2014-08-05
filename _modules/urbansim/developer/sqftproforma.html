@@ -58,6 +58,12 @@
         
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -664,7 +670,6 @@
         <span class="c"># min between max_fars and max_heights</span>
         <span class="n">df</span><span class="p">[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_height</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">height_per_story</span> <span class="o">*</span> \
             <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
-        <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">,</span> <span class="s">&#39;max_far&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c"># now also minimize with max_dua from zoning - since this pro forma is really geared</span>
         <span class="c"># toward per sqft metrics, this is a bit tricky.  dua is converted to floorspace and</span>
@@ -674,9 +679,11 @@
             <span class="c"># if max_dua is in the data frame, ave_unit_size must also be present</span>
             <span class="k">assert</span> <span class="s">&#39;ave_unit_size&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
             <span class="n">df</span><span class="p">[</span><span class="s">&#39;max_far_from_dua&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_dua</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">building_efficiency</span>
-            <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">,</span> <span class="s">&#39;max_far_from_dua&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">,</span> <span class="s">&#39;max_far&#39;</span><span class="p">,</span>
+                                     <span class="s">&#39;max_far_from_dua&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">,</span> <span class="s">&#39;max_far&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">min_max_fars</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">only_built</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;min_max_fars &gt; 0 and parcel_size &gt; 0&#39;</span><span class="p">)</span>
 

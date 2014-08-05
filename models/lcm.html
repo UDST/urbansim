@@ -59,12 +59,27 @@
         
         
             <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="regression.html">Regression Models</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
@@ -242,6 +257,43 @@ model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8
 </table>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.fit_from_cfg">
+<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of rows of agents which have locations assigned.</p>
+</div></blockquote>
+<p><strong>chosen_fname</strong> : string</p>
+<blockquote>
+<div><p>A string indicating the column in the choosers dataframe which
+gives which location the choosers have chosen.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of locations which should include the chosen locations
+from the choosers dataframe as well as some other locations from
+which to sample.  Values in choosers[chosen_fname] should index
+into the alternatives dataframe.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the location
+choice model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : MNLLocationChoiceModel which was used to fit</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel.fitted">
 <tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
@@ -314,6 +366,52 @@ outcome.</p>
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
 </div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.predict_from_cfg">
+<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>movers</em>, <em>locations</em>, <em>cfgname</em>, <em>location_ratio=2.0</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate the location choices for the specified choosers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>movers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of agents doing the choosing.</p>
+</div></blockquote>
+<p><strong>locations</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of locations which the choosers are location in and which
+have a supply.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the location
+choice model.</p>
+</div></blockquote>
+<p><strong>location_ratio</strong> : float</p>
+<blockquote>
+<div><p>Above the location ratio (default of 2.0) of locations to choosers, the
+locations will be sampled to meet this ratio (for performance reasons).</p>
+</div></blockquote>
+<p><strong>debug</strong> : boolean, optional (default False)</p>
+<blockquote>
+<div><p>Whether to generate debug information on the model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+<p class="last"><strong>lcm</strong> : MNLLocationChoiceModel which was used to predict</p>
 </td>
 </tr>
 </tbody>
@@ -723,6 +821,43 @@ log-liklihood values as returned by MNLLocationChoiceModel.fit.</p>
 </table>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg">
+<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of rows of agents which have locations assigned.</p>
+</div></blockquote>
+<p><strong>chosen_fname</strong> : string</p>
+<blockquote>
+<div><p>A string indicating the column in the choosers dataframe which
+gives which location the choosers have chosen.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of locations which should include the chosen locations
+from the choosers dataframe as well as some other locations from
+which to sample.  Values in choosers[chosen_fname] should index
+into the alternatives dataframe.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the location
+choice model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : SegmentedMNLLocationChoiceModel which was used to fit</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fitted">
 <tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
@@ -797,6 +932,48 @@ outcome.</p>
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
 </div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg">
+<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>movers</em>, <em>locations</em>, <em>cfgname</em>, <em>location_ratio=2.0</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate the location choices for the specified choosers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>movers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of agents doing the choosing.</p>
+</div></blockquote>
+<p><strong>locations</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of locations which the choosers are location in and which
+have a supply.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the location
+choice model.</p>
+</div></blockquote>
+<p><strong>location_ratio</strong> : float</p>
+<blockquote>
+<div><p>Above the location ratio (default of 2.0) of locations to choosers, the
+locations will be sampled to meet this ratio (for performance reasons).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+<p class="last"><strong>lcm</strong> : SegmentedMNLLocationChoiceModel which was used to predict</p>
 </td>
 </tr>
 </tbody>

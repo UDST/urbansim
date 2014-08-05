@@ -60,6 +60,12 @@
         
             <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -217,7 +223,7 @@ usually the buildings dataset and the new dataframe is a modified
 
 <dl class="method">
 <dt id="urbansim.developer.developer.Developer.pick">
-<tt class="descname">pick</tt><big>(</big><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pick</tt><big>(</big><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em>, <em>bldg_sqft_per_job=400.0</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose the buildings from the list that are feasible to build in
 order to match the specified demand.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -244,9 +250,13 @@ but should be passed here as well.  Index should be parcel_ids.</p>
 </div></blockquote>
 <p><strong>ave_unit_size</strong> : series</p>
 <blockquote>
-<div><p>The average unit size around each parcel - this is indexed
-by parcel, but is usually a disaggregated version of a zonal or
-accessibility aggregation.</p>
+<div><p>The average residential unit size around each parcel - this is
+indexed by parcel, but is usually a disaggregated version of a
+zonal or accessibility aggregation.</p>
+</div></blockquote>
+<p><strong>bldg_sqft_per_job</strong> : float (default 400.0)</p>
+<blockquote>
+<div><p>The average square feet per job for this building form.</p>
 </div></blockquote>
 <p><strong>min_unit_size</strong> : float</p>
 <blockquote>
@@ -275,7 +285,7 @@ to not develop the same parcel twice.</p>
 <p><strong>residential: bool</strong></p>
 <blockquote class="last">
 <div><p>If creating non-residential buildings set this to false and developer
-will fill in non_residential_units rather than residential_units</p>
+will fill in job_spaces rather than residential_units</p>
 </div></blockquote>
 </td>
 </tr>

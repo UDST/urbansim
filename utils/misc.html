@@ -59,12 +59,27 @@
         
         
             <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../models/index.html">Real Estate Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../models/regression.html">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">UrbanSim Utilities</a><ul class="current">
@@ -127,8 +142,68 @@ website).</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="urbansim.utils.misc.column_list">
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">column_list</tt><big>(</big><em>tables</em>, <em>columns</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#column_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.column_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a list of tables and a list of column names and return the columns
+that are present in the tables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tables</strong> : sequence of _DataFrameWrapper or _TableFuncWrapper</p>
+<blockquote>
+<div><p>Could also be sequence of modified pandas.DataFrames, the important
+thing is that they have <tt class="docutils literal"><span class="pre">.name</span></tt> and <tt class="docutils literal"><span class="pre">.columns</span></tt> attributes.</p>
+</div></blockquote>
+<p><strong>columns</strong> : sequence of str</p>
+<blockquote>
+<div><p>The column names of interest.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cols</strong> : list</p>
+<blockquote class="last">
+<div><p>Lists of column names available in the tables.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.utils.misc.column_map">
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">column_map</tt><big>(</big><em>tables</em>, <em>columns</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#column_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.column_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a list of tables and a list of column names and resolve which
+columns come from which table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tables</strong> : sequence of _DataFrameWrapper or _TableFuncWrapper</p>
+<blockquote>
+<div><p>Could also be sequence of modified pandas.DataFrames, the important
+thing is that they have <tt class="docutils literal"><span class="pre">.name</span></tt> and <tt class="docutils literal"><span class="pre">.columns</span></tt> attributes.</p>
+</div></blockquote>
+<p><strong>columns</strong> : sequence of str</p>
+<blockquote>
+<div><p>The column names of interest.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>col_map</strong> : dict</p>
+<blockquote class="last">
+<div><p>Maps table names to lists of column names.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="urbansim.utils.misc.compute_range">
-<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">compute_range</tt><big>(</big><em>travel_data</em>, <em>attr</em>, <em>travel_time_attr</em>, <em>dist</em>, <em>agg=&lt;function sum at 0x1043d2a28&gt;</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#compute_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.compute_range" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">compute_range</tt><big>(</big><em>travel_data</em>, <em>attr</em>, <em>travel_time_attr</em>, <em>dist</em>, <em>agg=&lt;function sum at 0x1042dd2a8&gt;</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#compute_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.compute_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a zone-based accessibility query using the urbansim format
 travel data dataframe.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -218,6 +293,13 @@ identifying the output hdf5 files).</p>
 <dt id="urbansim.utils.misc.maps_dir">
 <tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">maps_dir</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#maps_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.maps_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the directory for the map configuration files (used by the
+website).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.utils.misc.models_dir">
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">models_dir</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#models_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.models_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the directory for the model configuration files (used by the
 website).</p>
 </dd></dl>
 

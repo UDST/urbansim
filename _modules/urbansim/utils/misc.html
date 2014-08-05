@@ -58,6 +58,12 @@
         
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -127,14 +133,16 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">toolz</span>
 
 
 <span class="k">def</span> <span class="nf">_mkifnotexists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="n">folder</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">d</span>
 
 
@@ -157,6 +165,14 @@
 <span class="sd">    Return the directory for the run output.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;runs&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="models_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.models_dir">[docs]</a><span class="k">def</span> <span class="nf">models_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the model configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;configs&quot;</span><span class="p">)</span>
 
 </div>
 <div class="viewcode-block" id="charts_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.charts_dir">[docs]</a><span class="k">def</span> <span class="nf">charts_dir</span><span class="p">():</span>
@@ -406,7 +422,62 @@
 <span class="sd">    describe.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span>
+
+</div>
+<div class="viewcode-block" id="column_map"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.column_map">[docs]</a><span class="k">def</span> <span class="nf">column_map</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take a list of tables and a list of column names and resolve which</span>
+<span class="sd">    columns come from which table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tables : sequence of _DataFrameWrapper or _TableFuncWrapper</span>
+<span class="sd">        Could also be sequence of modified pandas.DataFrames, the important</span>
+<span class="sd">        thing is that they have ``.name`` and ``.columns`` attributes.</span>
+<span class="sd">    columns : sequence of str</span>
+<span class="sd">        The column names of interest.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    col_map : dict</span>
+<span class="sd">        Maps table names to lists of column names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">None</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">colmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
+    <span class="n">foundcols</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">colmap</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="n">foundcols</span> <span class="o">!=</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Not all required columns were found. &#39;</span>
+                           <span class="s">&#39;Missing: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">columns</span> <span class="o">-</span> <span class="n">foundcols</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">colmap</span>
+
+</div>
+<div class="viewcode-block" id="column_list"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.column_list">[docs]</a><span class="k">def</span> <span class="nf">column_list</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take a list of tables and a list of column names and return the columns</span>
+<span class="sd">    that are present in the tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tables : sequence of _DataFrameWrapper or _TableFuncWrapper</span>
+<span class="sd">        Could also be sequence of modified pandas.DataFrames, the important</span>
+<span class="sd">        thing is that they have ``.name`` and ``.columns`` attributes.</span>
+<span class="sd">    columns : sequence of str</span>
+<span class="sd">        The column names of interest.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cols : list</span>
+<span class="sd">        Lists of column names available in the tables.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">foundcols</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">foundcols</span><span class="p">))</span></div>
 </pre></div>
 
           </div>

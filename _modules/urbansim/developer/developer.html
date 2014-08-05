@@ -58,6 +58,12 @@
         
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -216,7 +222,7 @@
 </div>
 <div class="viewcode-block" id="Developer.pick"><a class="viewcode-back" href="../../../developer/developer.html#urbansim.developer.developer.Developer.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">parcel_size</span><span class="p">,</span> <span class="n">ave_unit_size</span><span class="p">,</span>
              <span class="n">current_units</span><span class="p">,</span> <span class="n">max_parcel_size</span><span class="o">=</span><span class="mi">200000</span><span class="p">,</span> <span class="n">min_unit_size</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
-             <span class="n">drop_after_build</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">residential</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+             <span class="n">drop_after_build</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">residential</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">bldg_sqft_per_job</span><span class="o">=</span><span class="mf">400.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Choose the buildings from the list that are feasible to build in</span>
 <span class="sd">        order to match the specified demand.</span>
@@ -236,9 +242,11 @@
 <span class="sd">            The size of the parcels.  This was passed to feasibility as well,</span>
 <span class="sd">            but should be passed here as well.  Index should be parcel_ids.</span>
 <span class="sd">        ave_unit_size : series</span>
-<span class="sd">            The average unit size around each parcel - this is indexed</span>
-<span class="sd">            by parcel, but is usually a disaggregated version of a zonal or</span>
-<span class="sd">            accessibility aggregation.</span>
+<span class="sd">            The average residential unit size around each parcel - this is</span>
+<span class="sd">            indexed by parcel, but is usually a disaggregated version of a</span>
+<span class="sd">            zonal or accessibility aggregation.</span>
+<span class="sd">        bldg_sqft_per_job : float (default 400.0)</span>
+<span class="sd">            The average square feet per job for this building form.</span>
 <span class="sd">        min_unit_size : float</span>
 <span class="sd">            Values less than this number in ave_unit_size will be set to this</span>
 <span class="sd">            number.  Deals with cases where units are currently not built.</span>
@@ -257,7 +265,7 @@
 <span class="sd">            to not develop the same parcel twice.</span>
 <span class="sd">        residential: bool</span>
 <span class="sd">            If creating non-residential buildings set this to false and developer</span>
-<span class="sd">            will fill in non_residential_units rather than residential_units</span>
+<span class="sd">            will fill in job_spaces rather than residential_units</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -274,12 +282,13 @@
         <span class="n">df</span><span class="p">[</span><span class="s">&#39;current_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_units</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span> <span class="o">&lt;</span> <span class="n">max_parcel_size</span><span class="p">]</span>
 
+        <span class="n">df</span><span class="p">[</span><span class="s">&#39;residential_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">residential_sqft</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s">&#39;job_spaces&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">non_residential_sqft</span> <span class="o">/</span> <span class="n">bldg_sqft_per_job</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">residential</span><span class="p">:</span>
-            <span class="n">df</span><span class="p">[</span><span class="s">&#39;residential_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span><span class="p">)</span>
             <span class="n">df</span><span class="p">[</span><span class="s">&#39;net_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">residential_units</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">current_units</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span><span class="p">[</span><span class="s">&#39;non_residential_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span><span class="p">)</span>
-            <span class="n">df</span><span class="p">[</span><span class="s">&#39;net_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">non_residential_units</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">current_units</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;net_units&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">job_spaces</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">current_units</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">net_units</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>

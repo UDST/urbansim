@@ -58,6 +58,12 @@
         
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -136,6 +142,7 @@
 <span class="kn">import</span> <span class="nn">toolz</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ModelEvaluationError</span>
 <span class="kn">from</span> <span class="nn">..urbanchoice</span> <span class="kn">import</span> <span class="n">interaction</span><span class="p">,</span> <span class="n">mnl</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">yamlio</span>
 <span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
@@ -360,6 +367,13 @@
             <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">current_choice</span><span class="p">)</span>
         <span class="n">model_design</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">merged</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s">&#39;dataframe&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">merged</span><span class="p">)</span> <span class="o">!=</span> <span class="n">model_design</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">ModelEvaluationError</span><span class="p">(</span>
+                <span class="s">&#39;Estimated data does not have the same length as input.  &#39;</span>
+                <span class="s">&#39;This suggests there are null values in one or more of &#39;</span>
+                <span class="s">&#39;the input columns.&#39;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihoods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">mnl</span><span class="o">.</span><span class="n">mnl_estimate</span><span class="p">(</span>
             <span class="n">model_design</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">(),</span> <span class="n">chosen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">model_design</span><span class="o">.</span><span class="n">columns</span>
@@ -457,6 +471,12 @@
             <span class="n">merged</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interaction_predict_filters</span><span class="p">)</span>
         <span class="n">model_design</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">merged</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s">&#39;dataframe&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">merged</span><span class="p">)</span> <span class="o">!=</span> <span class="n">model_design</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">ModelEvaluationError</span><span class="p">(</span>
+                <span class="s">&#39;Simulated data does not have the same length as input.  &#39;</span>
+                <span class="s">&#39;This suggests there are null values in one or more of &#39;</span>
+                <span class="s">&#39;the input columns.&#39;</span><span class="p">)</span>
 
         <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;Coefficient&#39;</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
                   <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model_design</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
@@ -566,6 +586,83 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">choosers_columns_used</span><span class="p">(),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alts_columns_used</span><span class="p">(),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">())))</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MNLLocationChoiceModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">chosen_fname</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choosers : DataFrame</span>
+<span class="sd">            A dataframe of rows of agents which have locations assigned.</span>
+<span class="sd">        chosen_fname : string</span>
+<span class="sd">            A string indicating the column in the choosers dataframe which</span>
+<span class="sd">            gives which location the choosers have chosen.</span>
+<span class="sd">        alternatives : DataFrame</span>
+<span class="sd">            A dataframe of locations which should include the chosen locations</span>
+<span class="sd">            from the choosers dataframe as well as some other locations from</span>
+<span class="sd">            which to sample.  Values in choosers[chosen_fname] should index</span>
+<span class="sd">            into the alternatives dataframe.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file from which to read the location</span>
+<span class="sd">            choice model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lcm : MNLLocationChoiceModel which was used to fit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">choosers</span><span class="p">[</span><span class="n">chosen_fname</span><span class="p">])</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">report_fit</span><span class="p">()</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">lcm</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MNLLocationChoiceModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">movers</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span>
+                         <span class="n">location_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simulate the location choices for the specified choosers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        movers : DataFrame</span>
+<span class="sd">            A dataframe of agents doing the choosing.</span>
+<span class="sd">        locations : DataFrame</span>
+<span class="sd">            A dataframe of locations which the choosers are location in and which</span>
+<span class="sd">            have a supply.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file from which to read the location</span>
+<span class="sd">            choice model.</span>
+<span class="sd">        location_ratio : float</span>
+<span class="sd">            Above the location ratio (default of 2.0) of locations to choosers, the</span>
+<span class="sd">            locations will be sampled to meet this ratio (for performance reasons).</span>
+<span class="sd">        debug : boolean, optional (default False)</span>
+<span class="sd">            Whether to generate debug information on the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        choices : pandas.Series</span>
+<span class="sd">            Mapping of chooser ID to alternative ID. Some choosers</span>
+<span class="sd">            will map to a nan value when there are not enough alternatives</span>
+<span class="sd">            for all the choosers.</span>
+<span class="sd">        lcm : MNLLocationChoiceModel which was used to predict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)</span> <span class="o">*</span> <span class="n">location_ratio</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Location ratio exceeded: </span><span class="si">%d</span><span class="s"> locations and only </span><span class="si">%d</span><span class="s"> choosers&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)))</span>
+            <span class="n">idxes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">locations</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)</span> <span class="o">*</span> <span class="n">location_ratio</span><span class="p">,</span>
+                                     <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">locations</span> <span class="o">=</span> <span class="n">locations</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxes</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;  after sampling </span><span class="si">%d</span><span class="s"> locations are available</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">))</span>
+
+        <span class="n">new_units</span> <span class="o">=</span> <span class="n">lcm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">movers</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Assigned </span><span class="si">%d</span><span class="s"> choosers to new units&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_units</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new_units</span><span class="p">,</span> <span class="n">lcm</span>
 
 </div></div>
 <div class="viewcode-block" id="MNLLocationChoiceModelGroup"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.MNLLocationChoiceModelGroup">[docs]</a><span class="k">class</span> <span class="nc">MNLLocationChoiceModelGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1155,7 +1252,86 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">choosers_columns_used</span><span class="p">(),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alts_columns_used</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">())))</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">(),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">),</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">])))</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">chosen_fname</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choosers : DataFrame</span>
+<span class="sd">            A dataframe of rows of agents which have locations assigned.</span>
+<span class="sd">        chosen_fname : string</span>
+<span class="sd">            A string indicating the column in the choosers dataframe which</span>
+<span class="sd">            gives which location the choosers have chosen.</span>
+<span class="sd">        alternatives : DataFrame</span>
+<span class="sd">            A dataframe of locations which should include the chosen locations</span>
+<span class="sd">            from the choosers dataframe as well as some other locations from</span>
+<span class="sd">            which to sample.  Values in choosers[chosen_fname] should index</span>
+<span class="sd">            into the alternatives dataframe.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file from which to read the location</span>
+<span class="sd">            choice model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lcm : SegmentedMNLLocationChoiceModel which was used to fit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">choosers</span><span class="p">[</span><span class="n">chosen_fname</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lcm</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;LCM RESULTS FOR SEGMENT </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">report_fit</span><span class="p">()</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">lcm</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SegmentedMNLLocationChoiceModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/lcm.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">movers</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span>
+                         <span class="n">location_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simulate the location choices for the specified choosers</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        movers : DataFrame</span>
+<span class="sd">            A dataframe of agents doing the choosing.</span>
+<span class="sd">        locations : DataFrame</span>
+<span class="sd">            A dataframe of locations which the choosers are location in and which</span>
+<span class="sd">            have a supply.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file from which to read the location</span>
+<span class="sd">            choice model.</span>
+<span class="sd">        location_ratio : float</span>
+<span class="sd">            Above the location ratio (default of 2.0) of locations to choosers, the</span>
+<span class="sd">            locations will be sampled to meet this ratio (for performance reasons).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        choices : pandas.Series</span>
+<span class="sd">            Mapping of chooser ID to alternative ID. Some choosers</span>
+<span class="sd">            will map to a nan value when there are not enough alternatives</span>
+<span class="sd">            for all the choosers.</span>
+<span class="sd">        lcm : SegmentedMNLLocationChoiceModel which was used to predict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)</span> <span class="o">*</span> <span class="n">location_ratio</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Location ratio exceeded: </span><span class="si">%d</span><span class="s"> locations and only </span><span class="si">%d</span><span class="s"> choosers&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)))</span>
+            <span class="n">idxes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">locations</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)</span> <span class="o">*</span> <span class="n">location_ratio</span><span class="p">,</span>
+                                     <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">locations</span> <span class="o">=</span> <span class="n">locations</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxes</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;  after sampling </span><span class="si">%d</span><span class="s"> locations are available</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">))</span>
+
+        <span class="n">new_units</span> <span class="o">=</span> <span class="n">lcm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">movers</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Assigned </span><span class="si">%d</span><span class="s"> choosers to new units&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_units</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new_units</span><span class="p">,</span> <span class="n">lcm</span></div></div>
 </pre></div>
 
           </div>

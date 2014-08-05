@@ -58,6 +58,12 @@
         
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
 </ul>
 </li>
@@ -135,7 +141,6 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">mnl</span>
-<span class="kn">import</span> <span class="nn">nl</span>
 <span class="kn">import</span> <span class="nn">pmat</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
@@ -146,16 +151,6 @@
     <span class="k">global</span> <span class="n">GPU</span>
     <span class="n">GPU</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">pmat</span><span class="o">.</span><span class="n">initialize_gpu</span><span class="p">()</span>
-
-
-<span class="c"># if nested logit, add the field names for the additional nesting params</span>
-
-</div>
-<div class="viewcode-block" id="add_fnames"><a class="viewcode-back" href="../../../urbanchoice/interaction.html#urbansim.urbanchoice.interaction.add_fnames">[docs]</a><span class="k">def</span> <span class="nf">add_fnames</span><span class="p">(</span><span class="n">fnames</span><span class="p">,</span> <span class="n">est_params</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">est_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;nl&#39;</span><span class="p">:</span>
-        <span class="n">fnames</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;mu</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-                  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">est_params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">numnests</span><span class="p">())]</span> <span class="o">+</span> <span class="n">fnames</span>
-    <span class="k">return</span> <span class="n">fnames</span>
 
 
 <span class="c"># TODO: split this out into separate functions for estimation</span>
@@ -229,67 +224,7 @@
     <span class="n">chosen</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: compute MNL interaction dataset&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">alts_sample</span><span class="p">,</span> <span class="n">chosen</span>
-
-</div>
-<div class="viewcode-block" id="nl_interaction_dataset"><a class="viewcode-back" href="../../../urbanchoice/interaction.html#urbansim.urbanchoice.interaction.nl_interaction_dataset">[docs]</a><span class="k">def</span> <span class="nf">nl_interaction_dataset</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">,</span> <span class="n">nestcol</span><span class="p">,</span>
-                           <span class="n">chosenalts</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s">&#39;nodeid&#39;</span><span class="p">,</span> <span class="n">presample</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                           <span class="n">nestcounts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="n">nests</span> <span class="o">=</span> <span class="n">alternatives</span><span class="p">[</span><span class="n">nestcol</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-    <span class="k">print</span> <span class="s">&quot;Alternatives in each nest</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">nests</span>
-    <span class="n">sample_size_per_nest</span> <span class="o">=</span> <span class="n">SAMPLE_SIZE</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">nests</span><span class="p">)</span>
-    <span class="k">print</span> <span class="s">&quot;Sample size per nest&quot;</span><span class="p">,</span> <span class="n">sample_size_per_nest</span>
-    <span class="k">assert</span> <span class="n">SAMPLE_SIZE</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">nests</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c"># divides evenly</span>
-
-    <span class="k">if</span> <span class="n">presample</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">nests</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-            <span class="c"># full sampled set</span>
-            <span class="n">nsample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
-                <span class="n">alternatives</span><span class="p">[</span><span class="n">alternatives</span><span class="p">[</span><span class="n">nestcol</span><span class="p">]</span> <span class="o">==</span> <span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">sample_size_per_nest</span> <span class="o">*</span> <span class="n">choosers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">nsample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-                <span class="n">nsample</span><span class="p">,</span> <span class="p">(</span><span class="n">nsample</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="n">sample_size_per_nest</span><span class="p">,</span>
-                          <span class="n">sample_size_per_nest</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">sample</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">sample</span> <span class="o">=</span> <span class="n">nsample</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">sample</span><span class="p">,</span> <span class="n">nsample</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">presample</span>
-
-    <span class="c"># means we&#39;re estimating, not simulating</span>
-    <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">choosers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left_on</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">left_on</span> <span class="ow">in</span> <span class="n">choosers</span><span class="o">.</span><span class="n">columns</span>
-        <span class="n">chosennest</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="n">left_on</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s">&quot;left&quot;</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="n">nestcol</span><span class="p">]</span>  <span class="c"># need to maintain same index</span>
-        <span class="k">print</span> <span class="s">&quot;Chosen alternatives by nest</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">chosennest</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="n">sample</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">chosen</span><span class="o">.</span><span class="n">shape</span>
-        <span class="c"># this restriction should be removed in the future - for now nestids</span>
-        <span class="c"># have to count from 0 to numnests-1</span>
-        <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">nests</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">max</span><span class="p">(</span><span class="n">nests</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nests</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="c"># replace with chosen alternative</span>
-        <span class="n">sample</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">chosennest</span> <span class="o">*</span>
-               <span class="n">sample_size_per_nest</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosenalts</span>
-        <span class="n">chosen</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">chosen</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">chosennest</span> <span class="o">*</span> <span class="n">sample_size_per_nest</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-
-    <span class="n">sample</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;object&#39;</span><span class="p">)</span>
-    <span class="n">alts_sample</span> <span class="o">=</span> <span class="n">alternatives</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
-    <span class="n">alts_sample</span><span class="p">[</span><span class="s">&#39;join_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">)</span>
-
-    <span class="k">print</span> <span class="s">&quot;Merging sample (takes a while)&quot;</span>
-    <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">alts_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">alts_sample</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s">&#39;join_index&#39;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">print</span> <span class="s">&quot;Done merging sample in </span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span>
-
-    <span class="n">nestinfo</span> <span class="o">=</span> <span class="n">nl</span><span class="o">.</span><span class="n">NestInfo</span><span class="p">(</span><span class="n">nests</span><span class="p">,</span> <span class="n">sample_size_per_nest</span><span class="p">,</span> <span class="n">chosennest</span><span class="p">,</span> <span class="n">nestcounts</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">alts_sample</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;nl&#39;</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">nestinfo</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">alts_sample</span><span class="p">,</span> <span class="n">chosen</span></div>
 </pre></div>
 
           </div>

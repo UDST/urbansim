@@ -59,12 +59,27 @@
         
         
             <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="">Regression Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lcm.html">Location Choice Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transition.html">Transition Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
@@ -205,6 +220,34 @@ class instance for use during prediction.</p>
 </table>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="urbansim.models.regression.RegressionModel.fit_from_cfg">
+<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<blockquote>
+<div><p>The dataframe which contains the columns to use for the estimation.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file which describes the hedonic model.</p>
+</div></blockquote>
+<p><strong>debug</strong> : boolean, optional (default False)</p>
+<blockquote>
+<div><p>Whether to generate debug information on the model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionModel which was used to fit</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="urbansim.models.regression.RegressionModel.fitted">
 <tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
@@ -257,6 +300,36 @@ referenced by the right-hand side of the <cite>model_expression</cite>.</p>
 <div><p>Predicted values as a pandas Series. Will have the index of <cite>data</cite>
 after applying filters.</p>
 </div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.regression.RegressionModel.predict_from_cfg">
+<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<blockquote>
+<div><p>The dataframe which contains the columns to use for the estimation.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file which describes the hedonic model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+after applying filters and minus any groups that do not have
+models.</p>
+</div></blockquote>
+<p class="last"><strong>hm</strong> : RegressionModel which was used to predict</p>
 </td>
 </tr>
 </tbody>
@@ -517,25 +590,21 @@ the results reflect actual price.</p>
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.add_segment">
 <tt class="descname">add_segment</tt><big>(</big><em>name</em>, <em>model_expression=None</em>, <em>ytransform='default'</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div>Add a new segment with its own model expression and ytransform.</div></blockquote>
+<dd><p>Add a new segment with its own model expression and ytransform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name :</strong></p>
 <blockquote>
-<div><blockquote>
 <div><p>Segment name. Must match a segment in the groupby of the data.</p>
 </div></blockquote>
-<dl class="docutils">
-<dt>model_expression <span class="classifier-delimiter">:</span> <span class="classifier">str or dict, optional</span></dt>
-<dd><p class="first last">A patsy model expression that can be used with statsmodels.
+<p><strong>model_expression</strong> : str or dict, optional</p>
+<blockquote>
+<div><p>A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.
 If not given the default model will be used, which must not be
 None.</p>
-</dd>
-</dl>
 </div></blockquote>
 <p><strong>ytransform</strong> : callable, optional</p>
 <blockquote class="last">
@@ -581,6 +650,38 @@ added will be automatically added with default model and ytransform.</p>
 <blockquote class="last">
 <div><p>Keys are the segment names.</p>
 </div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg">
+<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em>, <em>debug=False</em>, <em>min_segment_size=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<blockquote>
+<div><p>The dataframe which contains the columns to use for the estimation.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file which describes the hedonic model.</p>
+</div></blockquote>
+<p><strong>debug</strong> : boolean, optional (default False)</p>
+<blockquote>
+<div><p>Whether to generate debug information on the model.</p>
+</div></blockquote>
+<p><strong>min_segment_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Set attribute on the model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>hm</strong> : SegmentedRegressionModel which was used to fit</p>
 </td>
 </tr>
 </tbody>
@@ -639,6 +740,40 @@ same name as <cite>segmentation_col</cite>.</p>
 <div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters.</p>
 </div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">
+<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em>, <em>min_segment_size=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<blockquote>
+<div><p>The dataframe which contains the columns to use for the estimation.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file which describes the hedonic model.</p>
+</div></blockquote>
+<p><strong>min_segment_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Set attribute on the model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+after applying filters and minus any groups that do not have
+models.</p>
+</div></blockquote>
+<p class="last"><strong>hm</strong> : SegmentedRegressionModel which was used to predict</p>
 </td>
 </tr>
 </tbody>
