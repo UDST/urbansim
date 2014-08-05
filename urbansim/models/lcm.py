@@ -1204,6 +1204,6 @@ class SegmentedMNLLocationChoiceModel(object):
             logger.info("  after sampling %d locations are available\n" % len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
-        print("Assigned %d choosers to new units" % len(new_units.index))
+        print("Assigned %d choosers to new units" % len(new_units.dropna()))
         logger.debug('finish: predict from configuration {}'.format(cfgname))
         return new_units, lcm

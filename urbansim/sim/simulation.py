@@ -1177,6 +1177,7 @@ def run(models, years=None, data_out=None, out_interval=1):
                 model = get_model(model_name)
                 t1 = time.time()
                 model()
+                print("Time to execute model = %.3fs" % (time.time()-t1))
                 logger.info("Time to execute model = %.3fs" % (time.time()-t1))
 
         year_counter += 1
