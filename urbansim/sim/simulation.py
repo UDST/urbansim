@@ -104,6 +104,11 @@ class DataFrameWrapper(object):
         Name for the table.
     frame : pandas.DataFrame
 
+    Attributes
+    ----------
+    name : str
+        Table name.
+
     """
     def __init__(self, name, frame):
         self.name = name
@@ -256,6 +261,13 @@ class TableFuncWrapper(object):
     cache : bool, optional
         Whether to cache the results of calling the wrapped function.
 
+    Attributes
+    __________
+    name : str
+        Table name.
+    cache : bool
+        Whether caching is enabled for this table.
+
     """
     def __init__(self, name, func, cache=False):
         self.name = name
@@ -392,6 +404,11 @@ class TableSourceWrapper(TableFuncWrapper):
     name : str
     func : callable
 
+    Attributes
+    ----------
+    name : str
+        Table name.
+
     """
     def convert(self):
         """
@@ -437,6 +454,15 @@ class _ColumnFuncWrapper(object):
         index matching the table to which it is being added.
     cache : bool, optional
         Whether to cache the result of calling the wrapped function.
+
+    Attributes
+    ----------
+    name : str
+        Column name.
+    table_name : str
+        Name of table this column is associated with.
+    cache : bool
+        Whether caching is enabled for this column.
 
     """
     def __init__(self, table_name, column_name, func, cache=False):
@@ -497,6 +523,13 @@ class _SeriesWrapper(object):
         Should return a Series that has an
         index matching the table to which it is being added.
 
+    Attributes
+    ----------
+    name : str
+        Column name.
+    table_name : str
+        Name of table this column is associated with.
+
     """
     def __init__(self, table_name, column_name, series):
         self.table_name = table_name
@@ -525,6 +558,13 @@ class _InjectableFuncWrapper(object):
     func : callable
     cache : bool, optional
         Whether to cache the result of calling the wrapped function.
+
+    Attributes
+    ----------
+    name : str
+        Name of this injectable.
+    cache : bool
+        Whether caching is enabled for this injectable function.
 
     """
     def __init__(self, name, func, cache=False):
@@ -569,6 +609,11 @@ class _ModelFuncWrapper(object):
     ----------
     model_name : str
     func : callable
+
+    Attributes
+    ----------
+    name : str
+        Name of model.
 
     """
     def __init__(self, model_name, func):
