@@ -1218,4 +1218,4 @@ def run(models, years=None, data_out=None, out_interval=1):
         year_counter += 1
 
     if data_out:
-        write_tables(data_out, models, year)
+        write_tables(data_out, models, 'final')
