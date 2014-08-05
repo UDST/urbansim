@@ -393,7 +393,7 @@ class TableFuncWrapper(object):
                 self.name))
 
 
-class TableSourceWrapper(TableFuncWrapper):
+class _TableSourceWrapper(TableFuncWrapper):
     """
     Wraps a function that returns a DataFrame. After the function
     is evaluated the returned DataFrame replaces the function in the
@@ -714,7 +714,7 @@ def _collect_injectables(names):
     for name, thing in dicts.items():
         if isinstance(thing, _InjectableFuncWrapper):
             dicts[name] = thing()
-        elif isinstance(thing, TableSourceWrapper):
+        elif isinstance(thing, _TableSourceWrapper):
             dicts[name] = thing.convert()
 
     return dicts
@@ -787,10 +787,10 @@ def add_table_source(table_name, func):
 
     Returns
     -------
-    wrapped : `TableSourceWrapper`
+    wrapped : `_TableSourceWrapper`
 
     """
-    wrapped = TableSourceWrapper(table_name, func)
+    wrapped = _TableSourceWrapper(table_name, func)
     logger.debug('registering table source {}'.format(table_name))
     _TABLES[table_name] = wrapped
     return wrapped
@@ -819,7 +819,7 @@ def get_table(table_name):
 
     Returns
     -------
-    table : `DataFrameWrapper`, `TableFuncWrapper`, or `TableSourceWrapper`
+    table : `DataFrameWrapper`, `TableFuncWrapper`, or `_TableSourceWrapper`
 
     """
     if table_name in _TABLES:
