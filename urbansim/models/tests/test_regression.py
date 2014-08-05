@@ -342,7 +342,7 @@ def test_SegmentedRegressionModel_yaml(groupby_df):
         'min_segment_size': 5000,
         'default_config': {
             'model_expression': 'col1 ~ col2',
-            'ytransform': None
+            'ytransform': ''
         },
         'fitted': False,
         'models': {
