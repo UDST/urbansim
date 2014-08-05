@@ -894,7 +894,7 @@ class SegmentedRegressionModel(object):
         if d['model_expression'] == self.default_model_expr:
             del d['model_expression']
 
-        if d['ytransform'] == self.default_ytransform:
+        if YTRANSFORM_MAPPING[d['ytransform']] == self.default_ytransform:
             del d['ytransform']
 
         d["name"] = yamlio.to_scalar_safe(d["name"])
