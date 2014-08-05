@@ -84,12 +84,13 @@ class Developer(object):
         int
             the number of units that need to be built
         """
-        print "Number of agents: %d" % num_agents
-        print "Number of agent spaces: %d" % num_units
+        print "Number of agents: {:,}".format(num_agents)
+        print "Number of agent spaces: {:,}".format(int(num_units))
         assert target_vacancy < 1.0
-        target_units = max(num_agents / (1 - target_vacancy) - num_units, 0)
-        print "Current vacancy = %.2f" % (1 - num_agents / float(num_units))
-        print "Target vacancy = %.2f, target of new units = %d" % (target_vacancy, target_units)
+        target_units = int(max(num_agents / (1 - target_vacancy) - num_units, 0))
+        print "Current vacancy = {:.2f}".format(1 - num_agents / float(num_units))
+        print "Target vacancy = {:.2f}, target of new units = {:,}".\
+            format(target_vacancy, target_units)
         return target_units
 
     def pick(self, form, target_units, parcel_size, ave_unit_size,
@@ -168,7 +169,8 @@ class Developer(object):
             return
 
         # print "Describe of net units\n", df.net_units.describe()
-        print "Sum of net units that are profitable", df.net_units.sum()
+        print "Sum of net units that are profitable: {:,}".\
+            format(int(df.net_units.sum()))
         if df.net_units.sum() < target_units:
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO MATCH DEMAND"
 
@@ -177,7 +179,9 @@ class Developer(object):
                                    p=(df.max_profit.values / df.max_profit.sum()))
         net_units = df.net_units.loc[choices]
         tot_units = net_units.values.cumsum()
-        ind = np.searchsorted(tot_units, target_units, side="right")+1
+        ind = int(np.searchsorted(tot_units, target_units, side="left"))
+        if target_units != 0:
+            ind += 1
         ind = min(ind, len(choices))
         build_idx = choices[:ind]
 
