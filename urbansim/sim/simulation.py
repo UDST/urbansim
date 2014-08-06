@@ -1178,11 +1178,11 @@ def run(models, years=None, data_out=None, out_interval=1):
                 model = get_model(model_name)
                 t2 = time.time()
                 model()
-                print("Time to execute model = %.3fs" % (time.time()-t2))
-                logger.info("Time to execute model = %.3fs" % (time.time()-t2))
+                print("Time to execute model '{}': {:.2f}s".format(
+                      model_name, time.time()-t2))
 
-        print("Time to execute year = %.3fs" % (time.time()-t1))
-        logger.info("Time to execute year = %.3fs" % (time.time()-t1))
+        print("Total time to execute{}: {:.2f}s".format(
+            " year %d" % year if year is not None else '', time.time()-t1))
         year_counter += 1
 
     if data_out:
