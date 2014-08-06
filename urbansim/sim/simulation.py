@@ -104,6 +104,11 @@ class DataFrameWrapper(object):
         Name for the table.
     frame : pandas.DataFrame
 
+    Attributes
+    ----------
+    name : str
+        Table name.
+
     """
     def __init__(self, name, frame):
         self.name = name
@@ -256,6 +261,13 @@ class TableFuncWrapper(object):
     cache : bool, optional
         Whether to cache the results of calling the wrapped function.
 
+    Attributes
+    __________
+    name : str
+        Table name.
+    cache : bool
+        Whether caching is enabled for this table.
+
     """
     def __init__(self, name, func, cache=False):
         self.name = name
@@ -381,7 +393,7 @@ class TableFuncWrapper(object):
                 self.name))
 
 
-class TableSourceWrapper(TableFuncWrapper):
+class _TableSourceWrapper(TableFuncWrapper):
     """
     Wraps a function that returns a DataFrame. After the function
     is evaluated the returned DataFrame replaces the function in the
@@ -391,6 +403,11 @@ class TableSourceWrapper(TableFuncWrapper):
     ----------
     name : str
     func : callable
+
+    Attributes
+    ----------
+    name : str
+        Table name.
 
     """
     def convert(self):
@@ -437,6 +454,15 @@ class _ColumnFuncWrapper(object):
         index matching the table to which it is being added.
     cache : bool, optional
         Whether to cache the result of calling the wrapped function.
+
+    Attributes
+    ----------
+    name : str
+        Column name.
+    table_name : str
+        Name of table this column is associated with.
+    cache : bool
+        Whether caching is enabled for this column.
 
     """
     def __init__(self, table_name, column_name, func, cache=False):
@@ -497,6 +523,13 @@ class _SeriesWrapper(object):
         Should return a Series that has an
         index matching the table to which it is being added.
 
+    Attributes
+    ----------
+    name : str
+        Column name.
+    table_name : str
+        Name of table this column is associated with.
+
     """
     def __init__(self, table_name, column_name, series):
         self.table_name = table_name
@@ -525,6 +558,13 @@ class _InjectableFuncWrapper(object):
     func : callable
     cache : bool, optional
         Whether to cache the result of calling the wrapped function.
+
+    Attributes
+    ----------
+    name : str
+        Name of this injectable.
+    cache : bool
+        Whether caching is enabled for this injectable function.
 
     """
     def __init__(self, name, func, cache=False):
@@ -569,6 +609,11 @@ class _ModelFuncWrapper(object):
     ----------
     model_name : str
     func : callable
+
+    Attributes
+    ----------
+    name : str
+        Name of model.
 
     """
     def __init__(self, model_name, func):
@@ -669,7 +714,7 @@ def _collect_injectables(names):
     for name, thing in dicts.items():
         if isinstance(thing, _InjectableFuncWrapper):
             dicts[name] = thing()
-        elif isinstance(thing, TableSourceWrapper):
+        elif isinstance(thing, _TableSourceWrapper):
             dicts[name] = thing.convert()
 
     return dicts
@@ -742,10 +787,10 @@ def add_table_source(table_name, func):
 
     Returns
     -------
-    wrapped : `TableSourceWrapper`
+    wrapped : `_TableSourceWrapper`
 
     """
-    wrapped = TableSourceWrapper(table_name, func)
+    wrapped = _TableSourceWrapper(table_name, func)
     logger.debug('registering table source {}'.format(table_name))
     _TABLES[table_name] = wrapped
     return wrapped
@@ -774,7 +819,7 @@ def get_table(table_name):
 
     Returns
     -------
-    table : `DataFrameWrapper`, `TableFuncWrapper`, or `TableSourceWrapper`
+    table : `DataFrameWrapper`, `TableFuncWrapper`, or `_TableSourceWrapper`
 
     """
     if table_name in _TABLES:
@@ -1222,4 +1267,4 @@ def run(models, years=None, data_out=None, out_interval=1):
         year_counter += 1
 
     if data_out:
-        write_tables(data_out, models, year)
+        write_tables(data_out, models, 'final')
