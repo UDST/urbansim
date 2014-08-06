@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 import pandas as pd
 import pytest
 from pandas.util import testing as pdt
@@ -6,13 +9,12 @@ from .. import simulation as sim
 from ...utils.testing import assert_frames_equal
 
 
-@pytest.fixture
-def clear_sim(request):
+def setup_function(func):
     sim.clear_sim()
 
-    def fin():
-        sim.clear_sim()
-    request.addfinalizer(fin)
+
+def teardown_function(func):
+    sim.clear_sim()
 
 
 @pytest.fixture
@@ -23,7 +25,7 @@ def df():
         index=['x', 'y', 'z'])
 
 
-def test_tables(df, clear_sim):
+def test_tables(df):
     wrapped_df = sim.add_table('test_frame', df)
 
     @sim.table('test_func')
@@ -56,7 +58,29 @@ def test_tables(df, clear_sim):
     assert table.columns == ['a', 'b']
 
 
-def test_columns_for_table(clear_sim):
+def test_table_func_cache(df):
+    sim.add_injectable('x', 2)
+
+    @sim.table('table', cache=True)
+    def table(x):
+        return df * x
+
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 2)
+    sim.add_injectable('x', 3)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 2)
+    sim.get_table('table').clear_cached()
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 3)
+    sim.add_injectable('x', 4)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 3)
+    sim.clear_cache()
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 4)
+    sim.add_injectable('x', 5)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 4)
+    sim.add_table('table', table)
+    pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 5)
+
+
+def test_columns_for_table():
     sim.add_column(
         'table1', 'col10', pd.Series([1, 2, 3], index=['a', 'b', 'c']))
     sim.add_column(
@@ -83,7 +107,7 @@ def test_columns_for_table(clear_sim):
     assert 'col20' in t2_cols and 'col21' in t2_cols
 
 
-def test_columns_and_tables(df, clear_sim):
+def test_columns_and_tables(df):
     sim.add_table('test_frame', df)
 
     @sim.table('test_func')
@@ -133,7 +157,41 @@ def test_columns_and_tables(df, clear_sim):
     assert set(sim.list_columns()) == {('test_frame', 'c'), ('test_func', 'd')}
 
 
-def test_update_col(clear_sim, df):
+def test_column_cache(df):
+    sim.add_injectable('x', 2)
+    series = pd.Series([1, 2, 3], index=['x', 'y', 'z'])
+    key = ('table', 'col')
+
+    @sim.table('table')
+    def table():
+        return df
+
+    @sim.column(*key, cache=True)
+    def col(x):
+        return series * x
+
+    c = lambda: sim._COLUMNS[key]
+
+    pdt.assert_series_equal(c()(), series * 2)
+    sim.add_injectable('x', 3)
+    pdt.assert_series_equal(c()(), series * 2)
+    c().clear_cached()
+    pdt.assert_series_equal(c()(), series * 3)
+    sim.add_injectable('x', 4)
+    pdt.assert_series_equal(c()(), series * 3)
+    sim.clear_cache()
+    pdt.assert_series_equal(c()(), series * 4)
+    sim.add_injectable('x', 5)
+    pdt.assert_series_equal(c()(), series * 4)
+    sim.get_table('table').clear_cached()
+    pdt.assert_series_equal(c()(), series * 5)
+    sim.add_injectable('x', 6)
+    pdt.assert_series_equal(c()(), series * 5)
+    sim.add_column(*key, column=col, cache=True)
+    pdt.assert_series_equal(c()(), series * 6)
+
+
+def test_update_col(df):
     wrapped = sim.add_table('table', df)
 
     wrapped.update_col('b', pd.Series([7, 8, 9], index=df.index))
@@ -147,7 +205,7 @@ def test_update_col(clear_sim, df):
         wrapped['a'], pd.Series([1, 99, 3], index=df.index))
 
 
-def test_models(df, clear_sim):
+def test_models(df):
     sim.add_table('test_table', df)
 
     @sim.model('test_model')
@@ -156,6 +214,7 @@ def test_models(df, clear_sim):
         test_table['a'] = tt['a'] + tt['b']
 
     model = sim.get_model('test_model')
+    assert model._tables_used() == ['test_table']
     model()
 
     table = sim.get_table('test_table')
@@ -169,7 +228,7 @@ def test_models(df, clear_sim):
     assert sim.list_models() == ['test_model']
 
 
-def test_model_run(df, clear_sim):
+def test_model_run(df):
     sim.add_table('test_table', df)
 
     @sim.table('table_func')
@@ -206,8 +265,11 @@ def test_model_run(df, clear_sim):
              3000: [3012, 3017, 3024]},
             index=['x', 'y', 'z']))
 
+    m = sim.get_model('test_model1')
+    assert set(m._tables_used()) == {'test_table', 'table_func'}
 
-def test_get_broadcasts(clear_sim):
+
+def test_get_broadcasts():
     sim.broadcast('a', 'b')
     sim.broadcast('b', 'c')
     sim.broadcast('z', 'b')
@@ -227,7 +289,7 @@ def test_get_broadcasts(clear_sim):
         {('a', 'b'), ('b', 'c'), ('z', 'b'), ('f', 'g')}
 
 
-def test_collect_injectables(clear_sim, df):
+def test_collect_injectables(df):
     sim.add_table('df', df)
 
     @sim.table('df_func')
@@ -259,7 +321,7 @@ def test_collect_injectables(clear_sim, df):
     pdt.assert_frame_equal(things['source']._frame, df)
 
 
-def test_injectables(clear_sim):
+def test_injectables():
     sim.add_injectable('answer', 42)
 
     @sim.injectable('func1')
@@ -288,7 +350,7 @@ def test_injectables(clear_sim):
         {'answer', 'func1', 'func2', 'func3', 'func4'}
 
 
-def test_injectables_combined(clear_sim, df):
+def test_injectables_combined(df):
     @sim.injectable('column')
     def column():
         return pd.Series(['a', 'b', 'c'], index=df.index)
@@ -305,13 +367,37 @@ def test_injectables_combined(clear_sim, df):
 
     sim.run(models=['model'])
 
-    table = sim.get_table('table').to_frame()
+    table_wr = sim.get_table('table').to_frame()
 
-    pdt.assert_frame_equal(table[['a', 'b']], df)
-    pdt.assert_series_equal(table['new'], column())
+    pdt.assert_frame_equal(table_wr[['a', 'b']], df)
+    pdt.assert_series_equal(table_wr['new'], column())
 
 
-def test_table_source(clear_sim, df):
+def test_injectables_cache():
+    x = 2
+
+    @sim.injectable('inj', autocall=True, cache=True)
+    def inj():
+        return x * x
+
+    i = lambda: sim.get_injectable('inj')
+
+    assert i()() == 4
+    x = 3
+    assert i()() == 4
+    i().clear_cached()
+    assert i()() == 9
+    x = 4
+    assert i()() == 9
+    sim.clear_cache()
+    assert i()() == 16
+    x = 5
+    assert i()() == 16
+    sim.add_injectable('inj', inj, autocall=True, cache=True)
+    assert i()() == 25
+
+
+def test_table_source(df):
     @sim.table_source('source')
     def source():
         return df
@@ -332,7 +418,7 @@ def test_table_source(clear_sim, df):
     pdt.assert_frame_equal(test_df, df)
 
 
-def test_table_source_convert(clear_sim, df):
+def test_table_source_convert(df):
     @sim.table_source('source')
     def source():
         return df
@@ -348,7 +434,7 @@ def test_table_source_convert(clear_sim, df):
     assert table2 is table
 
 
-def test_table_func_local_cols(clear_sim, df):
+def test_table_func_local_cols(df):
     @sim.table('table')
     def table():
         return df
@@ -357,10 +443,70 @@ def test_table_func_local_cols(clear_sim, df):
     assert sim.get_table('table').local_columns == ['a', 'b']
 
 
-def test_table_source_local_cols(clear_sim, df):
+def test_table_source_local_cols(df):
     @sim.table_source('source')
     def source():
         return df
     sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
 
     assert sim.get_table('source').local_columns == ['a', 'b']
+
+
+def test_is_table(df):
+    sim.add_table('table', df)
+    assert sim._is_table('table') is True
+    assert sim._is_table('asdf') is False
+
+
+@pytest.fixture
+def store_name(request):
+    fname = tempfile.NamedTemporaryFile(suffix='.h5').name
+
+    def fin():
+        if os.path.isfile(fname):
+            os.remove(fname)
+    request.addfinalizer(fin)
+
+    return fname
+
+
+def test_write_tables(df, store_name):
+    sim.add_table('table', df)
+
+    @sim.model('model')
+    def model(table):
+        pass
+
+    sim.write_tables(store_name, ['model'], None)
+
+    with pd.get_store(store_name, mode='r') as store:
+        assert 'table' in store
+        pdt.assert_frame_equal(store['table'], df)
+
+    sim.write_tables(store_name, ['model'], 1969)
+
+    with pd.get_store(store_name, mode='r') as store:
+        assert '1969/table' in store
+        pdt.assert_frame_equal(store['1969/table'], df)
+
+
+def test_run_and_write_tables(df, store_name):
+    sim.add_table('table', df)
+
+    year_key = lambda y: '{}'.format(y)
+    series_year = lambda y: pd.Series([y] * 3, index=df.index)
+
+    @sim.model('model')
+    def model(year, table):
+        table[year_key(year)] = series_year(year)
+
+    sim.run(['model'], years=range(11), data_out=store_name, out_interval=3)
+
+    with pd.get_store(store_name, mode='r') as store:
+        for year in range(0, 11, 3) + [10]:
+            key = '{}/table'.format(year)
+            assert key in store
+
+            for x in range(year):
+                pdt.assert_series_equal(
+                    store[key][year_key(x)], series_year(x))
