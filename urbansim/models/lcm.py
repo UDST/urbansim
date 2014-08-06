@@ -334,6 +334,9 @@ class MNLLocationChoiceModel(object):
         if len(choosers) == 0:
             return pd.Series()
 
+        if len(alternatives) == 0:
+            return pd.Series(index=choosers.index)
+
         # TODO: only using 1st item in choosers for determining probabilities.
         # Need to expand options around this.
         num_choosers = 1
@@ -532,7 +535,7 @@ class MNLLocationChoiceModel(object):
             logger.info("  after sampling %d locations are available\n" % len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
-        print("Assigned %d choosers to new units" % len(new_units.index))
+        print("Assigned %d choosers to new units" % len(new_units.dropna()))
         logger.debug('finish: predict from configuration {}'.format(cfgname))
         return new_units, lcm
 
@@ -1201,6 +1204,6 @@ class SegmentedMNLLocationChoiceModel(object):
             logger.info("  after sampling %d locations are available\n" % len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
-        print("Assigned %d choosers to new units" % len(new_units.index))
+        print("Assigned %d choosers to new units" % len(new_units.dropna()))
         logger.debug('finish: predict from configuration {}'.format(cfgname))
         return new_units, lcm

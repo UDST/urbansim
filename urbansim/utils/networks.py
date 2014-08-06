@@ -3,10 +3,13 @@ import yaml
 
 import numpy as np
 import pandas as pd
+import logging
 
 from . import misc
 from ..models import util
 import urbansim.sim.simulation as sim
+
+logger = logging.getLogger(__name__)
 
 NETWORKS = None
 
@@ -47,17 +50,17 @@ def from_yaml(cfgname):
             flds += variable['add_fields']
         if node_col:
             flds.append(node_col)
-        print "    Fields available to accvar =", ', '.join(flds)
+        logger.info("    Fields available to accvar =", ', '.join(flds))
 
         df = sim.get_table(dfname).to_frame(flds)
 
         if "filters" in variable:
             df = util.apply_filter_query(df, variable["filters"])
-            print "    Filters = %s" % variable["filters"]
+            logger.info("    Filters = %s" % variable["filters"])
 
-        print "    dataframe = %s, varname=%s" % (dfname, vname)
-        print "    radius = %s, aggregation = %s, decay = %s" % (
-            radius, agg, decay)
+        logger.info("    dataframe = %s, varname=%s" % (dfname, vname))
+        logger.info("    radius = %s, aggregation = %s, decay = %s" % (
+            radius, agg, decay))
 
         nodes[name] = NETWORKS.accvar(
             df, radius, node_ids=node_col, agg=agg, decay=decay,
@@ -65,8 +68,6 @@ def from_yaml(cfgname):
 
         if "apply" in variable:
             nodes[name] = nodes[name].apply(eval(variable["apply"]))
-
-    print "Done"
 
     return nodes
 
