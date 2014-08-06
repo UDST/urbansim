@@ -1170,16 +1170,19 @@ def run(models, years=None, data_out=None, out_interval=1):
             print('Running year {}'.format(year))
             logger.debug('running year {}'.format(year))
 
+        t1 = time.time()
         for model_name in models:
             print('Running model {!r}'.format(model_name))
             with log_start_finish(
                     'run model {!r}'.format(model_name), logger, logging.INFO):
                 model = get_model(model_name)
-                t1 = time.time()
+                t2 = time.time()
                 model()
-                print("Time to execute model = %.3fs" % (time.time()-t1))
-                logger.info("Time to execute model = %.3fs" % (time.time()-t1))
+                print("Time to execute model = %.3fs" % (time.time()-t2))
+                logger.info("Time to execute model = %.3fs" % (time.time()-t2))
 
+        print("Time to execute year = %.3fs" % (time.time()-t1))
+        logger.info("Time to execute year = %.3fs" % (time.time()-t1))
         year_counter += 1
 
     if data_out:
