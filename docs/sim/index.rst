@@ -56,21 +56,22 @@ the simulation process:
     You can enable caching on individual items to save time, then later clear
     the cache on just that item or clear the entire cache in one call.
 
+* Automated Merges
+
+  * UrbanSim can merge multiple tables to some target table once you have
+    described relationships between them.
+
 * Data archives
 
   * After a simulation it can be useful to look out how the data changed
     as the simulation progressed. UrbanSim can save registered tables out
     to an HDF5 file every simulation iteration or on set intervals.
 
-Note
-~~~~
+.. note::
+   In the documentation below the following imports are implied::
 
-In the documentation below the following imports are implied::
-
-    import pandas as pd
-    import urbansim.sim.simulation as sim
-
-The code samples are shown as if they are
+       import pandas as pd
+       import urbansim.sim.simulation as sim
 
 Tables
 ------
@@ -138,6 +139,93 @@ register it. For that you can use the
 
 When ``my_table`` is first injected somewhere it will be converted to a
 :py:class:`~urbansim.sim.simulation.DataFrameWrapper`.
+
+Automated Merges
+~~~~~~~~~~~~~~~~
+
+Certain analyses can be easiest when some tables are merged together,
+but in other places it may be best to keep the tables separate.
+UrbanSim can make these on-demand merges easy by letting you define table
+relationships up front and then performing the merges for you as needed.
+We call these relationships "broadcasts" (as in a rule for how to broadcast
+one table onto another) and you register them using the
+:py:func:`~urbansim.sim.simulation.broadcast` function.
+
+For an example we'll first define some DataFrames that contain links
+to one another and register them with the simulation::
+
+    df_a = pd.DataFrame(
+        {'a': [0, 1]},
+        index=['a0', 'a1'])
+    df_b = pd.DataFrame(
+        {'b': [2, 3, 4, 5, 6],
+         'a_id': ['a0', 'a1', 'a1', 'a0', 'a1']},
+        index=['b0', 'b1', 'b2', 'b3', 'b4'])
+    df_c = pd.DataFrame(
+        {'c': [7, 8, 9]},
+        index=['c0', 'c1', 'c2'])
+    df_d = pd.DataFrame(
+        {'d': [10, 11, 12, 13, 15, 16, 16, 17, 18, 19],
+         'b_id': ['b2', 'b0', 'b3', 'b3', 'b1', 'b4', 'b1', 'b4', 'b3', 'b3'],
+         'c_id': ['c0', 'c1', 'c1', 'c0', 'c0', 'c2', 'c1', 'c2', 'c1', 'c2']},
+        index=['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9'])
+
+    sim.add_table('a', df_a)
+    sim.add_table('b', df_b)
+    sim.add_table('c', df_c)
+    sim.add_table('d', df_d)
+
+The tables have data so that 'a' can be broadcast onto 'b',
+and 'b' and 'c' and be broadcast onto 'd'.
+We use the :py:func:`~urbansim.sim.simulation.broadcast` function
+to register those relationships::
+
+    sim.broadcast(cast='a', onto='b', cast_index=True, onto_on='a_id')
+    sim.broadcast(cast='b', onto='d', cast_index=True, onto_on='b_id')
+    sim.broadcast(cast='c', onto='d', cast_index=True, onto_on='c_id')
+
+The syntax is similar to that of the
+`pandas merge function <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.merge.html#pandas.merge>`_,
+and indeed ``merge`` is used behind the scenes.
+Once the broadcasts are defined, use the
+:py:func:`~urbansim.sim.simulation.merge_tables` function to get a
+merged DataFrame. Some examples in IPython::
+
+    In [4]: sim.merge_tables(target='b', tables=[a, b])
+    Out[4]:
+       a_id  b  a
+    b0   a0  2  0
+    b3   a0  5  0
+    b1   a1  3  1
+    b2   a1  4  1
+    b4   a1  6  1
+
+    In [5]: sim.merge_tables(target='d', tables=[a, b, c, d])
+    Out[5]:
+       b_id c_id   d  c a_id  b  a
+    d0   b2   c0  10  7   a1  4  1
+    d3   b3   c0  13  7   a0  5  0
+    d2   b3   c1  12  8   a0  5  0
+    d8   b3   c1  18  8   a0  5  0
+    d9   b3   c2  19  9   a0  5  0
+    d4   b1   c0  15  7   a1  3  1
+    d6   b1   c1  16  8   a1  3  1
+    d1   b0   c1  11  8   a0  2  0
+    d5   b4   c2  16  9   a1  6  1
+    d7   b4   c2  17  9   a1  6  1
+
+Note that it's the target table's index that you find in the final merged
+table, though the order may have changed.
+:py:func:`~urbansim.sim.simulation.merge_tables` has an optional
+``columns=`` keyword that can contain column names from any the tables
+going into the merge so you can limit which columns end up in the final table.
+(Columns necessary for performing merges will be included whether or not
+they are in the ``columns=`` list.)
+
+.. note:: :py:func:`~urbansim.sim.simulation.merge_tables` calls
+   `pandas.merge <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.merge.html#pandas.merge>`_
+   with ``how='inner'``, meaning that only items that
+   appear in both tables are kept in the merged table.
 
 Columns
 -------
