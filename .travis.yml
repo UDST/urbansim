@@ -5,14 +5,20 @@ install:
 - sudo pip install conda
 - sudo conda init
 - |
-  conda create -p $HOME/py --yes pip jinja2 matplotlib numpy pandas patsy scipy statsmodels pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION"
+  conda create -p $HOME/py --yes ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
 - pip install simplejson bottle
 - pip install pytest-cov coveralls pep8
 - pip install .
+before_script:
+- git clone https://github.com/synthicity/sanfran_urbansim.git
+- cd sanfran_urbansim; ipython nbconvert --to python Simulation.ipynb
+- cd ..
 script:
 - pep8 urbansim scripts
 - py.test --cov urbansim --cov-report term-missing
+- cd sanfran_urbansim; python Simulation.py
+- cd ..
 after_success:
 - coveralls
 notifications:
