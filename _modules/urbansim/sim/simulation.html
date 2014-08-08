@@ -57,6 +57,10 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
@@ -1216,8 +1220,42 @@
         <span class="k">yield</span> <span class="n">k</span>
 
 
+<span class="k">def</span> <span class="nf">_recursive_getitem</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Descend into a dict of dicts to return the one that contains</span>
+<span class="sd">    a given key. Every value in the dict must be another dict.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">d</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">_recursive_getitem</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;Key not found: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_dict_value_to_pairs</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes the first value of a dictionary (which it self should be</span>
+<span class="sd">    a dictionary) and turns it into a series of {key: value} dicts.</span>
+
+<span class="sd">    For example, _dict_value_to_pairs({&#39;c&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}}) will yield</span>
+<span class="sd">    {&#39;a&#39;: 1} and {&#39;b&#39;: 2}.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">toolz</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span>
+
+
 <span class="k">def</span> <span class="nf">_is_leaf_node</span><span class="p">(</span><span class="n">merge_node</span><span class="p">):</span>
-    <span class="k">return</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">merge</span> <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns True for dicts like {&#39;a&#39;: {}}.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
 
 <span class="k">def</span> <span class="nf">_next_merge</span><span class="p">(</span><span class="n">merge_node</span><span class="p">):</span>
@@ -1226,12 +1264,13 @@
 <span class="sd">    the ones below are ready to be merged to make a new leaf node.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">_is_leaf_node</span><span class="p">(</span><span class="n">merge</span><span class="p">)</span> <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">_is_leaf_node</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">_dict_value_to_pairs</span><span class="p">(</span><span class="n">merge_node</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">merge_node</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">merge</span> <span class="ow">in</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">merge</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">_next_merge</span><span class="p">(</span><span class="n">merge</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">toolz</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">_is_leaf_node</span><span class="p">,</span> <span class="n">_dict_value_to_pairs</span><span class="p">(</span><span class="n">merge_node</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">_next_merge</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SimulationError</span><span class="p">(</span><span class="s">&#39;No node found for next merge.&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="merge_tables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.merge_tables">[docs]</a><span class="k">def</span> <span class="nf">merge_tables</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">tables</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1293,21 +1332,35 @@
     <span class="n">frames</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">colmap</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
               <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
+    <span class="c"># perform merges until there&#39;s only one table left</span>
     <span class="k">while</span> <span class="n">merges</span><span class="p">[</span><span class="n">target</span><span class="p">]:</span>
         <span class="n">nm</span> <span class="o">=</span> <span class="n">_next_merge</span><span class="p">(</span><span class="n">merges</span><span class="p">)</span>
-        <span class="n">onto</span> <span class="o">=</span> <span class="n">nm</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">onto</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">first</span><span class="p">(</span><span class="n">nm</span><span class="p">)</span>
         <span class="n">onto_table</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">cast</span> <span class="ow">in</span> <span class="n">nm</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+
+        <span class="c"># loop over all the tables that can be broadcast onto</span>
+        <span class="c"># the onto_table and merge them all in.</span>
+        <span class="k">for</span> <span class="n">cast</span> <span class="ow">in</span> <span class="n">nm</span><span class="p">[</span><span class="n">onto</span><span class="p">]:</span>
             <span class="n">cast_table</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="n">cast</span><span class="p">]</span>
             <span class="n">bc</span> <span class="o">=</span> <span class="n">casts</span><span class="p">[(</span><span class="n">cast</span><span class="p">,</span> <span class="n">onto</span><span class="p">)]</span>
+
             <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                     <span class="s">&#39;merge tables {} and {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">onto</span><span class="p">,</span> <span class="n">cast</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+
                 <span class="n">onto_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
                     <span class="n">onto_table</span><span class="p">,</span> <span class="n">cast_table</span><span class="p">,</span>
                     <span class="n">left_on</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">onto_on</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">cast_on</span><span class="p">,</span>
                     <span class="n">left_index</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">onto_index</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="n">bc</span><span class="o">.</span><span class="n">cast_index</span><span class="p">)</span>
+
+        <span class="c"># replace the existing table with the merged one</span>
         <span class="n">frames</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span> <span class="o">=</span> <span class="n">onto_table</span>
-        <span class="n">nm</span><span class="p">[</span><span class="n">onto</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c"># free up space by dropping the cast table</span>
+        <span class="k">del</span> <span class="n">frames</span><span class="p">[</span><span class="n">cast</span><span class="p">]</span>
+
+        <span class="c"># mark the onto table as having no more things to broadcast</span>
+        <span class="c"># onto it.</span>
+        <span class="n">_recursive_getitem</span><span class="p">(</span><span class="n">merges</span><span class="p">,</span> <span class="n">onto</span><span class="p">)[</span><span class="n">onto</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finished merge&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">frames</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
@@ -1379,15 +1432,19 @@
             <span class="k">print</span><span class="p">(</span><span class="s">&#39;Running year {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;running year {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
 
+        <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&#39;Running model {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span>
             <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                     <span class="s">&#39;run model {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">),</span> <span class="n">logger</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
                 <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
-                <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
                 <span class="n">model</span><span class="p">()</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Time to execute model = </span><span class="si">%.3f</span><span class="s">s&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Time to execute model &#39;{}&#39;: {:.2f}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                      <span class="n">model_name</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t2</span><span class="p">))</span>
 
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Total time to execute{}: {:.2f}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="s">&quot; year </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">year</span> <span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">))</span>
         <span class="n">year_counter</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">if</span> <span class="n">data_out</span><span class="p">:</span>

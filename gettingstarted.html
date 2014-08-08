@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>UrbanSim &mdash; urbansim 0.2dev documentation</title>
+  <title>Getting Started &mdash; urbansim 0.2dev documentation</title>
   
 
   
@@ -28,8 +28,9 @@
   
 
   
-    <link rel="top" title="urbansim 0.2dev documentation" href="#"/>
-        <link rel="next" title="Getting Started" href="gettingstarted.html"/> 
+    <link rel="top" title="urbansim 0.2dev documentation" href="index.html"/>
+        <link rel="next" title="Simulation Framework" href="sim/index.html"/>
+        <link rel="prev" title="UrbanSim" href="index.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -43,7 +44,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="#" class="fa fa-home"> urbansim</a>
+        <a href="index.html" class="fa fa-home"> urbansim</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -56,9 +57,9 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
-<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#installation">Installation</a></li>
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sim/index.html">Simulation Framework</a><ul>
@@ -107,7 +108,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">urbansim</a>
+        <a href="index.html">urbansim</a>
       </nav>
 
 
@@ -116,12 +117,12 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
+    <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>UrbanSim</li>
+    <li>Getting Started</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          <a href="_sources/gettingstarted.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -129,65 +130,33 @@
 </div>
           <div role="main">
             
-  <div class="section" id="urbansim">
-<h1>UrbanSim<a class="headerlink" href="#urbansim" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="http://urbansim.org">UrbanSim</a> is a model system for analyzing urban
-development.
-It is an open source platform that has been continuously refined and
-distributed for planning applications around the world for over 15 years.</p>
-<div class="section" id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#installation">Installation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="sim/index.html">Simulation Framework</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#tables">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#columns">Columns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#injectables">Injectables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#module-urbansim.sim.simulation">API</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="models/index.html">Real Estate Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="models/regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/transition.html">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/util.html">Model Related Utilities</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer/index.html">Developer Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer/developer.html">Developer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer/sqftproforma.html">Square-Foot Proforma</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/testing.html">Testing Helpers</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="urbanchoice/interaction.html">Interaction Datasets</a></li>
-</ul>
-</li>
-</ul>
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="anaconda">
+<h3>Anaconda<a class="headerlink" href="#anaconda" title="Permalink to this headline">¶</a></h3>
+<p>UrbanSim is a Python library that uses a number of packages from the
+scientific Python ecosystem.
+The easiest way to get your own scientific Python installation is to
+install <a class="reference external" href="http://docs.continuum.io/anaconda/index.html">Anaconda</a>,
+which contains most of the libraries upon which UrbanSim depends.</p>
+</div>
+<div class="section" id="urbansim">
+<h3>UrbanSim<a class="headerlink" href="#urbansim" title="Permalink to this headline">¶</a></h3>
+<p>UrbanSim can be installed from our
+<a class="reference external" href="https://github.com/synthicity/urbansim">development repository</a>
+using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
+pip is included with Anaconda so you should now be able to open a terminal
+and run the following command to install UrbanSim:</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install -U https://github.com/synthicity/urbansim/archive/master.zip
+</pre></div>
+</div>
+<p>This will download urbansim and install the remaining dependencies not
+included in Anaconda.</p>
+<p>If you need to update UrbanSim run the above command again.</p>
 </div>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
-</ul>
 </div>
 
 
@@ -196,8 +165,10 @@ distributed for planning applications around the world for over 15 years.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="gettingstarted.html" class="btn btn-neutral float-right" title="Getting Started"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="sim/index.html" class="btn btn-neutral float-right" title="Simulation Framework"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="index.html" class="btn btn-neutral" title="UrbanSim"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

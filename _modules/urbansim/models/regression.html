@@ -57,6 +57,10 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
@@ -1024,7 +1028,7 @@
         <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_ytransform</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">YTRANSFORM_MAPPING</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_ytransform</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]</span>
 
         <span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">to_scalar_safe</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">])</span>

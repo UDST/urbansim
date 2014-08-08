@@ -57,6 +57,10 @@
         
         
             <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
@@ -212,12 +216,13 @@
 <span class="sd">        int</span>
 <span class="sd">            the number of units that need to be built</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;Number of agents: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">num_agents</span>
-        <span class="k">print</span> <span class="s">&quot;Number of agent spaces: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">num_units</span>
+        <span class="k">print</span> <span class="s">&quot;Number of agents: {:,}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_agents</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;Number of agent spaces: {:,}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_units</span><span class="p">))</span>
         <span class="k">assert</span> <span class="n">target_vacancy</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
-        <span class="n">target_units</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">num_agents</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">target_vacancy</span><span class="p">)</span> <span class="o">-</span> <span class="n">num_units</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&quot;Current vacancy = </span><span class="si">%.2f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">num_agents</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_units</span><span class="p">))</span>
-        <span class="k">print</span> <span class="s">&quot;Target vacancy = </span><span class="si">%.2f</span><span class="s">, target of new units = </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">target_vacancy</span><span class="p">,</span> <span class="n">target_units</span><span class="p">)</span>
+        <span class="n">target_units</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_agents</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">target_vacancy</span><span class="p">)</span> <span class="o">-</span> <span class="n">num_units</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">print</span> <span class="s">&quot;Current vacancy = {:.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">num_agents</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_units</span><span class="p">))</span>
+        <span class="k">print</span> <span class="s">&quot;Target vacancy = {:.2f}, target of new units = {:,}&quot;</span><span class="o">.</span>\
+            <span class="n">format</span><span class="p">(</span><span class="n">target_vacancy</span><span class="p">,</span> <span class="n">target_units</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">target_units</span>
 </div>
 <div class="viewcode-block" id="Developer.pick"><a class="viewcode-back" href="../../../developer/developer.html#urbansim.developer.developer.Developer.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">parcel_size</span><span class="p">,</span> <span class="n">ave_unit_size</span><span class="p">,</span>
@@ -296,7 +301,8 @@
             <span class="k">return</span>
 
         <span class="c"># print &quot;Describe of net units\n&quot;, df.net_units.describe()</span>
-        <span class="k">print</span> <span class="s">&quot;Sum of net units that are profitable&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&quot;Sum of net units that are profitable: {:,}&quot;</span><span class="o">.</span>\
+            <span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
         <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">target_units</span><span class="p">:</span>
             <span class="k">print</span> <span class="s">&quot;WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO MATCH DEMAND&quot;</span>
 
@@ -305,7 +311,9 @@
                                    <span class="n">p</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">max_profit</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">max_profit</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
         <span class="n">net_units</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">choices</span><span class="p">]</span>
         <span class="n">tot_units</span> <span class="o">=</span> <span class="n">net_units</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
-        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">tot_units</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s">&quot;right&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">tot_units</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">target_units</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">))</span>
         <span class="n">build_idx</span> <span class="o">=</span> <span class="n">choices</span><span class="p">[:</span><span class="n">ind</span><span class="p">]</span>
 
