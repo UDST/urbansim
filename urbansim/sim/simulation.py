@@ -1148,9 +1148,9 @@ def merge_tables(target, tables, columns=None):
 
     Parameters
     ----------
-    target : str
-        Name of the table onto which tables will be merged.
-    tables : list of `DataFrameWrapper` or `TableFuncWrapper`
+    target : str, DataFrameWrapper, or TableFuncWrapper
+        Name of the table (or wrapped table) onto which tables will be merged.
+    tables : list of `DataFrameWrapper`, `TableFuncWrapper`, or str
         All of the tables to merge. Should include the target table.
     columns : list of str, optional
         If given, columns will be mapped to `tables` and only those columns
@@ -1163,6 +1163,15 @@ def merge_tables(target, tables, columns=None):
     merged : pandas.DataFrame
 
     """
+    # allow target to be string or table wrapper
+    if isinstance(target, (DataFrameWrapper, TableFuncWrapper)):
+        target = target.name
+
+    # allow tables to be strings or table wrappers
+    tables = [get_table(t)
+              if not isinstance(t, (DataFrameWrapper, TableFuncWrapper)) else t
+              for t in tables]
+
     merges = {t.name: {} for t in tables}
     tables = {t.name: t for t in tables}
     casts = _get_broadcasts(tables.keys())
