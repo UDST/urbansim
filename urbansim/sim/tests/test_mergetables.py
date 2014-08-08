@@ -123,7 +123,7 @@ def test_merge_tables1(dfa, dfz, dfb):
 def test_merge_tables2(dfa, dfz, dfb, dfc):
     all_broadcasts()
 
-    merged = sim.merge_tables('c', [dfa, dfz, dfb, dfc])
+    merged = sim.merge_tables(dfc, [dfa, dfz, dfb, dfc])
 
     expected = pd.merge(
         dfa.to_frame(), dfb.to_frame(), left_index=True, right_on='a_id')
@@ -177,12 +177,7 @@ def test_merge_tables3():
     sim.broadcast(cast='b', onto='d', cast_index=True, onto_on='b_id')
     sim.broadcast(cast='c', onto='d', cast_index=True, onto_on='c_id')
 
-    a = sim.get_table('a')
-    b = sim.get_table('b')
-    c = sim.get_table('c')
-    d = sim.get_table('d')
-
-    df = sim.merge_tables(target='d', tables=[a, b, c, d])
+    df = sim.merge_tables(target='d', tables=['a', 'b', 'c', 'd'])
 
     expected = pd.merge(df_a, df_b, left_index=True, right_on='a_id')
     expected = pd.merge(expected, df_d, left_index=True, right_on='b_id')
