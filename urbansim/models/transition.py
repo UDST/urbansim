@@ -86,8 +86,8 @@ def remove_rows(data, nrows):
     nrows = abs(nrows)  # in case a negative number came in
     if nrows == 0:
         return data, _empty_index()
-    elif nrows >= len(data):
-        raise ValueError('Operation would remove entire table.')
+    elif nrows > len(data):
+        raise ValueError('Number of rows to remove exceeds number of rows in table.')
 
     i_to_keep = np.random.choice(
         data.index.values, len(data) - nrows, replace=False)
