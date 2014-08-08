@@ -100,7 +100,9 @@ Note that the names given to tables (and other registered things) should be
 `valid Python variable names <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`_
 so that they can be used in dependency injection.
 
-Here's a demo of the above table definitions shown in IPython::
+Here's a demo of the above table definitions shown in IPython:
+
+.. code-block:: python
 
     In [19]: wrapped = sim.get_table('halve_my_table')
 
@@ -189,7 +191,9 @@ The syntax is similar to that of the
 and indeed ``merge`` is used behind the scenes.
 Once the broadcasts are defined, use the
 :py:func:`~urbansim.sim.simulation.merge_tables` function to get a
-merged DataFrame. Some examples in IPython::
+merged DataFrame. Some examples in IPython:
+
+.. code-block:: python
 
     In [4]: sim.merge_tables(target='b', tables=[a, b])
     Out[4]:
@@ -251,7 +255,9 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called ``to_frame()`` with no arguments).
 
-A demonstration in IPython using the table definitions from above::
+A demonstration in IPython using the table definitions from above:
+
+.. code-block:: python
 
     In [29]: wrapped = sim.get_table('my_table')
 
@@ -308,7 +314,9 @@ behavior and instead inject the wrapped function itself.
 Like tables and columns, injectable functions can have their results
 cached with ``cache=True``.
 
-An example of the above injectables in IPython::
+An example of the above injectables in IPython:
+
+.. code-block:: python
 
     In [38]: wrapped = sim.get_table('ztable')
 
@@ -358,7 +366,9 @@ If your table is a wrapped function, not a DataFrame, you can update
 columns by replacing them entirely with a new `Series`_ using the
 :py:func:`~urbansim.sim.simulation.add_column` function.
 
-A demonstration of running the above models::
+A demonstration of running the above models:
+
+.. code-block:: python
 
     In [68]: sim.run(['replace_col', 'update_col', 'add_rows'])
     Running model 'replace_col'
@@ -387,7 +397,9 @@ Calling :py:func:`~urbansim.sim.simulation.run` with just a list of models,
 as in the above example, will run through the models once.
 To run the simulation over some years provide those years as a sequence
 to :py:func:`~urbansim.sim.simulation.run`.
-The variable ``year`` is provided as an injectable to model functions::
+The variable ``year`` is provided as an injectable to model functions:
+
+.. code-block:: python
 
     In [77]: @sim.model('print_year')
        ....: def print_year(year):
