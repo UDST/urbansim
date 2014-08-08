@@ -1088,8 +1088,42 @@ def _all_reachable_tables(t):
         yield k
 
 
+def _recursive_getitem(d, key):
+    """
+    Descend into a dict of dicts to return the one that contains
+    a given key. Every value in the dict must be another dict.
+
+    """
+    if key in d:
+        return d
+    else:
+        for v in d.values():
+            return _recursive_getitem(v, key)
+        else:
+            raise KeyError('Key not found: {}'.format(key))
+
+
+def _dict_value_to_pairs(d):
+    """
+    Takes the first value of a dictionary (which it self should be
+    a dictionary) and turns it into a series of {key: value} dicts.
+
+    For example, _dict_value_to_pairs({'c': {'a': 1, 'b': 2}}) will yield
+    {'a': 1} and {'b': 2}.
+
+    """
+    d = d[toolz.first(d)]
+
+    for k, v in d.items():
+        yield {k: v}
+
+
 def _is_leaf_node(merge_node):
-    return not any(merge for merge in merge_node.values())
+    """
+    Returns True for dicts like {'a': {}}.
+
+    """
+    return len(merge_node) == 1 and not merge_node.values()[0]
 
 
 def _next_merge(merge_node):
@@ -1098,12 +1132,13 @@ def _next_merge(merge_node):
     the ones below are ready to be merged to make a new leaf node.
 
     """
-    if all(_is_leaf_node(merge) for merge in merge_node.values()):
+    if all(_is_leaf_node(d) for d in _dict_value_to_pairs(merge_node)):
         return merge_node
     else:
-        for merge in merge_node.values():
-            if merge:
-                return _next_merge(merge)
+        for d in toolz.remove(_is_leaf_node, _dict_value_to_pairs(merge_node)):
+            return _next_merge(d)
+        else:
+            raise SimulationError('No node found for next merge.')
 
 
 def merge_tables(target, tables, columns=None):
@@ -1165,21 +1200,35 @@ def merge_tables(target, tables, columns=None):
     frames = {name: t.to_frame(columns=colmap[name])
               for name, t in tables.items()}
 
+    # perform merges until there's only one table left
     while merges[target]:
         nm = _next_merge(merges)
-        onto = nm.keys()[0]
+        onto = toolz.first(nm)
         onto_table = frames[onto]
-        for cast in nm[onto].keys():
+
+        # loop over all the tables that can be broadcast onto
+        # the onto_table and merge them all in.
+        for cast in nm[onto]:
             cast_table = frames[cast]
             bc = casts[(cast, onto)]
+
             with log_start_finish(
                     'merge tables {} and {}'.format(onto, cast), logger):
+
                 onto_table = pd.merge(
                     onto_table, cast_table,
                     left_on=bc.onto_on, right_on=bc.cast_on,
                     left_index=bc.onto_index, right_index=bc.cast_index)
+
+        # replace the existing table with the merged one
         frames[onto] = onto_table
-        nm[onto] = {}
+
+        # free up space by dropping the cast table
+        del frames[cast]
+
+        # mark the onto table as having no more things to broadcast
+        # onto it.
+        _recursive_getitem(merges, onto)[onto] = {}
 
     logger.debug('finished merge')
     return frames[target]
