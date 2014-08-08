@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-from pandas.util import testing as pdt
 
 from .. import simulation as sim
 from ...utils.testing import assert_frames_equal
@@ -75,6 +74,32 @@ def all_broadcasts():
     sim.broadcast('g', 'h', cast_index=True, onto_on='g_id')
 
 
+def test_recursive_getitem():
+    assert sim._recursive_getitem({'a': {}}, 'a') == {'a': {}}
+    assert sim._recursive_getitem(
+        {'a': {'b': {'c': {'d': {}, 'e': {}}}}}, 'e') == {'d': {}, 'e': {}}
+
+    with pytest.raises(KeyError):
+        sim._recursive_getitem({'a': {'b': {'c': {'d': {}, 'e': {}}}}}, 'f')
+
+
+def test_dict_value_to_pairs():
+    assert list(sim._dict_value_to_pairs({'c': {'a': 1, 'b': 2}})) == \
+        [{'a': 1}, {'b': 2}]
+
+
+def test_is_leaf_node():
+    assert sim._is_leaf_node({'b': {'a': {}}}) is False
+    assert sim._is_leaf_node({'a': {}}) is True
+
+
+def test_next_merge():
+    assert sim._next_merge({'d': {'c': {}, 'b': {'a': {}}}}) == \
+        {'b': {'a': {}}}
+    assert sim._next_merge({'b': {'a': {}, 'z': {}}}) == \
+        {'b': {'a': {}, 'z': {}}}
+
+
 def test_merge_tables_raises(dfa, dfz, dfb, dfg, dfh):
     all_broadcasts()
 
@@ -124,3 +149,43 @@ def test_merge_tables_cols(dfa, dfz, dfb, dfc):
         index=['ca', 'cb', 'cc', 'cd', 'ce', 'cf', 'cg', 'ch', 'ci', 'cj'])
 
     assert_frames_equal(merged, expected)
+
+
+def test_merge_tables3():
+    df_a = pd.DataFrame(
+        {'a': [0, 1]},
+        index=['a0', 'a1'])
+    df_b = pd.DataFrame(
+        {'b': [2, 3, 4, 5, 6],
+         'a_id': ['a0', 'a1', 'a1', 'a0', 'a1']},
+        index=['b0', 'b1', 'b2', 'b3', 'b4'])
+    df_c = pd.DataFrame(
+        {'c': [7, 8, 9]},
+        index=['c0', 'c1', 'c2'])
+    df_d = pd.DataFrame(
+        {'d': [10, 11, 12, 13, 15, 16, 16, 17, 18, 19],
+         'b_id': ['b2', 'b0', 'b3', 'b3', 'b1', 'b4', 'b1', 'b4', 'b3', 'b3'],
+         'c_id': ['c0', 'c1', 'c1', 'c0', 'c0', 'c2', 'c1', 'c2', 'c1', 'c2']},
+        index=['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9'])
+
+    sim.add_table('a', df_a)
+    sim.add_table('b', df_b)
+    sim.add_table('c', df_c)
+    sim.add_table('d', df_d)
+
+    sim.broadcast(cast='a', onto='b', cast_index=True, onto_on='a_id')
+    sim.broadcast(cast='b', onto='d', cast_index=True, onto_on='b_id')
+    sim.broadcast(cast='c', onto='d', cast_index=True, onto_on='c_id')
+
+    a = sim.get_table('a')
+    b = sim.get_table('b')
+    c = sim.get_table('c')
+    d = sim.get_table('d')
+
+    df = sim.merge_tables(target='d', tables=[a, b, c, d])
+
+    expected = pd.merge(df_a, df_b, left_index=True, right_on='a_id')
+    expected = pd.merge(expected, df_d, left_index=True, right_on='b_id')
+    expected = pd.merge(df_c, expected, left_index=True, right_on='c_id')
+
+    assert_frames_equal(df, expected)
