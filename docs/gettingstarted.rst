@@ -128,3 +128,40 @@ Some representation of real estate development must be modeled to accurately rep
 It should be noted that many other kinds of models can be included in the simulation loop as well.  For instance, inclusion of scheduled development events is a key element to representing known future development projects.
 
 In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set and an ever-increasing set of functionality will be added over time.
+
+Taking the Next Step
+--------------------
+
+The simulation framework will be discussed in depth in the `next section <sim/index.html>`_, but before moving on it's useful to describe at a high level how the simulation framework solves the problems described thus far in this *getting started* document.
+
+Over many years of implementing UrbanSim models, we realized that we wanted a flexible framework that had the following features:
+
+* Tables can be registered from a wide variety of sources including databases, text files, and shapefiles.
+* Relationships can be defined between tables and data from different sources can be easily merged and used as a new entity.
+* Calculated columns can be specified so that when underlying data is changed, calculated columns are kept in sync automatically.
+* Data processing *models* can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.
+
+To this end UrbanSim now implements this functionality as `tables <sim/index.html#tables>`_, `broadcasts <sim/index.html#broadcasts>`_, `columns <sim/index.html#columns>`_, and `models <sim/index.html#models>`_ respectively.  We decided to implement these concepts with Python functions and `decorators <http://thecodeship.com/patterns/guide-to-python-function-decorators/>`_. This is what is happening when you see the ``@sim.DECORATOR_NAME`` syntax everywhere, e.g.: ::
+
+    @sim.table_source('buildings')
+    def buildings(store):
+        return store['buildings']
+
+    @sim.table_source('parcels')
+    def parcels(store):
+        return store['parcels']
+
+With the use of decorators you can *register* these concepts with the simulation engine and deal with one small piece of the simulation at a time - for instance, how to access data for a certain table, or how to compute a certain variable, or how to run a certain model.
+
+The objects can then be passed to each other using *injection*, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called ``total_units`` on the ``parcels`` table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.::
+
+    @sim.column('parcels', 'total_units')
+    def residential_unit_density(buildings, parcels):
+        return buildings.residential_units.groupby(buildings.parcel_id).sum() / parcels.acres
+
+If done well, these functions are limited to just a few lines which implement a very specific piece of functionality, and there will be more detailed examples in the tutorials section.
+
+Note that this approach is inspired by a number of different frameworks (in Python and otherwise) such as `py.test <http://pytest.org/latest/fixture.html#fixture>`_, `flask <http://flask.pocoo.org/>`_, and even web frameworks like `Angular <https://docs.angularjs.org/guide/di>`_.
+
+Note that this is designed to be an *extremely* flexible framework.  Models can be injected into tables, and tables into models, and infinite recursion is possible (this is not suggested!).  Additionally, multiple kinds of decorators can be added to the same file so that a piece of functionality can be separated - for instance, an affordable housing module.  On the other hand, models could be kept together, columns together, and tables together - the organization is up to you.  We hope that this flexibility inspires innovation for specific use cases, but what follows is a set of tutorials that we consider best practices.
+
