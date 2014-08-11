@@ -114,6 +114,13 @@ def test_remove_rows_zero(basic_df):
     assert_empty_index(removed)
 
 
+def test_remove_rows_all(basic_df):
+    nrows = len(basic_df)
+    new, removed = transition.remove_rows(basic_df, nrows)
+    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    pdt.assert_index_equal(removed, basic_df.index)
+
+
 def test_remove_rows_raises(basic_df):
     # should raise ValueError if asked to remove more rows than
     # are in the table
@@ -175,6 +182,17 @@ def test_grtransition_remove(basic_df):
     assert removed.isin(basic_df.index).all()
 
 
+def test_grtransition_remove_all(basic_df):
+    growth_rate = -1
+    year = 2112
+    grt = transition.GrowthRateTransition(growth_rate)
+    new, added, copied, removed = grt.transition(basic_df, year)
+    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    pdt.assert_index_equal(removed, basic_df.index)
+
+
 def test_grtransition_zero(basic_df):
     growth_rate = 0
     year = 2112
@@ -204,6 +222,16 @@ def test_tgrtransition_remove(basic_df, growth_rates, year, rates_col):
     assert_empty_index(added)
     assert_empty_index(copied)
     assert len(removed) == 2
+
+
+def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
+    growth_rates[rates_col] = -1
+    tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
+    new, added, copied, removed = tgrt.transition(basic_df, year)
+    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    pdt.assert_index_equal(removed, basic_df.index)
 
 
 def test_tgrtransition_zero(basic_df, growth_rates, year, rates_col):
@@ -244,6 +272,17 @@ def test_tabular_transition_remove(basic_df, grow_targets, totals_col, year):
     assert_for_remove(new, added)
     assert_empty_index(copied)
     assert len(removed) == 2
+
+
+def test_tabular_transition_remove_all(
+        basic_df, grow_targets, totals_col, year):
+    grow_targets[totals_col] = [0]
+    tran = transition.TabularTotalsTransition(grow_targets, totals_col)
+    new, added, copied, removed = tran.transition(basic_df, year)
+    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    assert_empty_index(added)
+    assert_empty_index(copied)
+    pdt.assert_index_equal(removed, basic_df.index)
 
 
 def test_tabular_transition_raises_on_bad_year(
