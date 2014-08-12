@@ -101,7 +101,7 @@ pygments_style = 'sphinx'
 
 
 numpydoc_show_class_members = False
-numpydoc_class_members_toctree = True
+numpydoc_class_members_toctree = False
 
 
 # -- Options for HTML output ----------------------------------------------

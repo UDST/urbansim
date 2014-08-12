@@ -442,6 +442,74 @@ under the key ``'final/<table name>'``.
 API
 ---
 
+.. currentmodule:: urbansim.sim.simulation
+
+Table API
+~~~~~~~~~
+
+.. autosummary::
+
+   add_table
+   table
+   add_table_source
+   table_source
+   get_table
+   list_tables
+   DataFrameWrapper
+   TableFuncWrapper
+
+Column API
+~~~~~~~~~~
+
+.. autosummary::
+
+   add_column
+   column
+   list_columns
+
+Injectable API
+~~~~~~~~~~~~~~
+
+.. autosummary::
+
+   add_injectable
+   injectable
+   get_injectable
+   list_injectables
+
+Merge API
+~~~~~~~~~
+
+.. autosummary::
+
+   broadcast
+   list_broadcasts
+   merge_tables
+
+Model API
+~~~~~~~~~
+
+.. autosummary::
+
+   add_model
+   model
+   get_model
+   list_models
+   run
+
+Cache API
+~~~~~~~~~
+
+.. autosummary::
+
+   clear_cache
+   disable_cache
+   enable_cache
+   cache_on
+
+API Docs
+~~~~~~~~
+
 .. automodule:: urbansim.sim.simulation
    :members:
 
