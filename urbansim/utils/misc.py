@@ -79,6 +79,14 @@ def reports_dir():
     return _mkifnotexists("web/reports")
 
 
+def edits_dir():
+    """
+    Return the directory for the editable files (used by the
+    website).
+    """
+    return _mkifnotexists("")
+
+
 def config(fname):
     """
     Return the config path for the file with the given filename.

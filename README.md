@@ -9,7 +9,7 @@ New version of UrbanSim, a tool for modeling metropolitan real estate markets
 
 Documentation is on the github wiki: https://github.com/synthicity/urbansim/wiki
 
-**Installation instructions** for UrbanSim users are available on [this page](https://github.com/synthicity/urbansim/wiki/Installation-Instructions).
+**Installation instructions** for UrbanSim users are available on [this page](http://synthicity.github.io/urbansim/gettingstarted.html#installation).
 
 UrbanSim
 -------
