@@ -27,3 +27,4 @@ Contents
    statistical
    transrelo
    util
+   urbanchoice

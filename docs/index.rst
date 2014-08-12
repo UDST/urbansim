@@ -22,8 +22,6 @@ Contents
    models/index
    developer/index
    utils/index
-   urbanchoice/index
-
 
 Indices and tables
 ==================
