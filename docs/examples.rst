@@ -4,12 +4,26 @@ Examples
 Basic Example - Residential Price Hedonic
 -----------------------------------------
 
+A fairly complete case study of using UrbanSim can be shown entirely within a single IPython Notebook, as is this case with `this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/86013bc11247d2e58d04bf52ee5462a927003f58/Hedonic%20Example.ipynb>`_ from the `example repository <https://github.com/synthicity/sanfran_urbansim>`_.
 
-These components are described in more detail in the link above, but an example of how they tie together can be described here. As the canonical case, take the example of a residential sales hedonic model used to perform an ordinary least squares regression on a table of building data. The best practice would be to store the building data in an Pandas HDFStore, and can include millions of rows (all of the buildings in a region) and attributes like square footage, lot size, number of bedrooms and bathrooms and the like. Importantly, the dependent variable should also be included which in this case might be the assessed or observed price of each unit.
+As the canonical example of using UrbanSim, take the case of a residential sales hedonic model used to perform an ordinary least squares regression on a table of building price data. The best practice would be to store the building data in a Pandas HDFStore, and the buildings table can include millions of rows (all of the buildings in a region) and attributes like square footage, lot size, number of bedrooms and bathrooms and the like. Importantly, the dependent variable should also be included which in this case might be the assessed or observed price of each unit.  The example repository includes sample data so that this Notebook can be executed.
 
-Now, a typical setup would pass the buildings dataframe to a Buildings "view" which is defined in dataset.py like the one here. The view is then accessed in a models.py file like it is here. Finally, a model entry point is defined which combines the view with a model configuration file which is done here. The model configuration file specifies the small number of parameters necessary to build the model, most notably the actual specification of dependent and independent variables, which is done with R-like syntax using patsy.
+This Notebook performs the exact same residential price hedonic as in the complete example below, but all entirely within the same IPython Notebook (and without explicitly using the ``sim.model`` decorator).  The simplest use case of the UrbanSim methodology is to create a single model to study an emperical behavior or interest to the modeler, and a good place to start in building such a model is this example.
 
-A process like the one described above is then repeated for each model. Note that there is often some overlap in data needs for different models - for instance all three hedonic price models in this implementation use the same buildings view to compute the relevant variables (although the variables that are utilized are often different). This is why they can be thought of as separate modules in which dataset.py provides views of all the basic objects used by UrbanSim and models.py creates model entry points which combine the relevant views with configuration files (and occasionally custom code) to capture the behavior of interest to the urban modeler.
+Note that the flow of the notebook is one often followed in statistical modeling:
+
+* Import the necessary modules
+* Set the data repository (HDFStore)
+* Name the actual tables from the repository (and set a relationship between zones and buildings)
+* Set all columns which are computed from the source data - for instance, map specific ``building_type_ids`` to a ``general_type`` column or sum the number of residential units in a zone using the ``sum_residential_units`` variable and so forth.  Note that the vast majority of code in this notebook is in creating computed columns
+* Next instantiate and configure the RegressionModel instance for the hedonic, including some filters which get rid of degenerate data
+* Then merge the buildings and zones tables and fill invalid numeric values with reasonable imputations (medians, modes, or zeros respectively)
+* The fit the model and print the fit summary
+* And finally run the model in predict mode and describe the predicated values
+
+If you can follow this simple flow, all of UrbanSim simply repeats this sort of functionality for other urban behaviors.  It's probably a good idea to read through this example a few times until it's relatively clear how the parts fit together before moving on to the complete example. For the complete example, a process like the one described above is then repeated for each model of urban behavior described in the gentle introduction to UrbanSim.
+
+Note that there is often some overlap in data needs for different models - for instance, both the residential and non-residential hedonic models in the implementation below use the same buildings table to compute the relevant variables (although the variables that are utilized are often slightly different).  Thus it is usually good practice to abstract bits of functionality into different parts of the model system to aid in code reuse.  A full example follows which shows exactly how this can be done.
 
 Complete Example - San Francisco UrbanSim Modules
 -------------------------------------------------
