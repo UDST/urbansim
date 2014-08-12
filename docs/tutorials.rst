@@ -11,16 +11,30 @@ Now, a typical setup would pass the buildings dataframe to a Buildings "view" wh
 
 A process like the one described above is then repeated for each model. Note that there is often some overlap in data needs for different models - for instance all three hedonic price models in this implementation use the same buildings view to compute the relevant variables (although the variables that are utilized are often different). This is why they can be thought of as separate modules in which dataset.py provides views of all the basic objects used by UrbanSim and models.py creates model entry points which combine the relevant views with configuration files (and occasionally custom code) to capture the behavior of interest to the urban modeler.
 
-Complete Example - San Francisco UrbanSim Structure
----------------------------------------------------
+Complete Example - San Francisco UrbanSim Modules
+-------------------------------------------------
 
 A complete example of the latest UrbanSim framework is now being maintained on `GitHub <https://github.com/synthicity/sanfran_urbansim>`_.  The example requires that the UrbanSim package is already installed (no other dependencies are required).  The example is maintained under Travis Continuous Integration so should always run with the latest version of UrbanSim.
 
-The example has a number of Python modules including ``dataset.py``, ``models.py``, ``assumptions.py``, and ``variables.py`` which will be discussed one at a time below.  The modules are then used in *workflows* which are IPython Notebooks and will be described in detail in the next section.
+The example has a number of Python modules including ``dataset.py``, ``assumptions.py``, ``variables.py``, ``models.py`` which will be discussed one at a time below.  The modules are then used in *workflows* which are IPython Notebooks and will be described in detail in the next section.
 
-Tables
-~~~~~~
+Tables Sources
+~~~~~~~~~~~~~~
 
+Tables sources are a decorator that describes where UrbanSim data comes from.  All tables sources return `Pandas DataFrames <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`_ but the data can come from different locations, including HDF5 files, CSV files, databases, Excel files, and others.  Pandas has a large and ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/dev/io.html>`_ although this example keeps data in a single HDF5 data store which is `provided directly in the repo <https://github.com/synthicity/sanfran_urbansim/blob/master/data>`_
+
+Specifying a source of data for a dataframe is done with the `table_source <sim/index.html#urbansim.sim.simulation.table_source>`_ decorator as in the example below, which is lifted `directly from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`.::
+
+    @sim.table_source('households')
+    def households(store):
+        df = store['households']
+        return df
+
+The complete example includes mappings of tables stored in the HDF5 file to table sources for a typical UrbanSim schema, including parcels, buildings, households, zoning (density limits and allowable uses), and zones (aggregate geographic shapes in the city).  By convention these table sources are stored in the `dataset.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py>`_ file but this is not a strict requirement.
+
+Arbitrary Python can occur in these table sources as shown in the `zoning_baseline table source <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L69>`_ which uses injections of ``zoning`` and ``zoning_for_parcels`` that were defined in the prior lines of code.
+
+Finally, the relationships between all tables can be specified with the `sim.broadcast decorator <sim/index.html#urbansim.sim.simulation.broadcast>`_ and which by convention has been specified at the `bottom of the dataset.py files <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L78>`_.  Once these relationships are set they can be used later in the simulation using the `merge_tables helper <sim/index.html#urbansim.sim.simulation.merge_tables>`_.
 
 Assumptions
 ~~~~~~~~~~~

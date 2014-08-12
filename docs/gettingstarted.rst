@@ -141,7 +141,7 @@ Over many years of implementing UrbanSim models, we realized that we wanted a fl
 * Calculated columns can be specified so that when underlying data is changed, calculated columns are kept in sync automatically.
 * Data processing *models* can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.
 
-To this end UrbanSim now implements this functionality as `tables <sim/index.html#tables>`_, `broadcasts <sim/index.html#broadcasts>`_, `columns <sim/index.html#columns>`_, and `models <sim/index.html#models>`_ respectively.  We decided to implement these concepts with Python functions and `decorators <http://thecodeship.com/patterns/guide-to-python-function-decorators/>`_. This is what is happening when you see the ``@sim.DECORATOR_NAME`` syntax everywhere, e.g.: ::
+To this end UrbanSim now implements this functionality as `tables <sim/index.html#tables>`_, `broadcasts <sim/index.html#urbansim.sim.simulation.broadcast>`_, `columns <sim/index.html#columns>`_, and `models <sim/index.html#models>`_ respectively.  We decided to implement these concepts with Python functions and `decorators <http://thecodeship.com/patterns/guide-to-python-function-decorators/>`_. This is what is happening when you see the ``@sim.DECORATOR_NAME`` syntax everywhere, e.g.: ::
 
     @sim.table_source('buildings')
     def buildings(store):
