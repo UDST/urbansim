@@ -18,7 +18,7 @@ Contents
    :maxdepth: 2
 
    gettingstarted
-   tutorials
+   examples
    sim/index
    models/index
    developer/index

@@ -1,0 +1,163 @@
+Examples
+========
+
+Basic Example - Residential Price Hedonic
+-----------------------------------------
+
+
+These components are described in more detail in the link above, but an example of how they tie together can be described here. As the canonical case, take the example of a residential sales hedonic model used to perform an ordinary least squares regression on a table of building data. The best practice would be to store the building data in an Pandas HDFStore, and can include millions of rows (all of the buildings in a region) and attributes like square footage, lot size, number of bedrooms and bathrooms and the like. Importantly, the dependent variable should also be included which in this case might be the assessed or observed price of each unit.
+
+Now, a typical setup would pass the buildings dataframe to a Buildings "view" which is defined in dataset.py like the one here. The view is then accessed in a models.py file like it is here. Finally, a model entry point is defined which combines the view with a model configuration file which is done here. The model configuration file specifies the small number of parameters necessary to build the model, most notably the actual specification of dependent and independent variables, which is done with R-like syntax using patsy.
+
+A process like the one described above is then repeated for each model. Note that there is often some overlap in data needs for different models - for instance all three hedonic price models in this implementation use the same buildings view to compute the relevant variables (although the variables that are utilized are often different). This is why they can be thought of as separate modules in which dataset.py provides views of all the basic objects used by UrbanSim and models.py creates model entry points which combine the relevant views with configuration files (and occasionally custom code) to capture the behavior of interest to the urban modeler.
+
+Complete Example - San Francisco UrbanSim Modules
+-------------------------------------------------
+
+A complete example of the latest UrbanSim framework is now being maintained on `GitHub <https://github.com/synthicity/sanfran_urbansim>`_.  The example requires that the UrbanSim package is already installed (no other dependencies are required).  The example is maintained under Travis Continuous Integration so should always run with the latest version of UrbanSim.
+
+The example has a number of Python modules including ``dataset.py``, ``assumptions.py``, ``variables.py``, ``models.py`` which will be discussed one at a time below.  The modules are then used in *workflows* which are IPython Notebooks and will be described in detail in the next section.
+
+Tables Sources
+~~~~~~~~~~~~~~
+
+Tables sources are a decorator that describes where UrbanSim data comes from.  All tables sources return `Pandas DataFrames <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`_ but the data can come from different locations, including HDF5 files, CSV files, databases, Excel files, and others.  Pandas has a large and ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/dev/io.html>`_ although this example keeps data in a single HDF5 data store which is `provided directly in the repo <https://github.com/synthicity/sanfran_urbansim/blob/master/data>`_
+
+Specifying a source of data for a dataframe is done with the `table_source <sim/index.html#urbansim.sim.simulation.table_source>`_ decorator as in the example below, which is lifted `directly from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`_.::
+
+    @sim.table_source('households')
+    def households(store):
+        df = store['households']
+        return df
+
+The complete example includes mappings of tables stored in the HDF5 file to table sources for a typical UrbanSim schema, including parcels, buildings, households, jobs, zoning (density limits and allowable uses), and zones (aggregate geographic shapes in the city).  By convention these table sources are stored in the `dataset.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py>`_ file but this is not a strict requirement.
+
+Arbitrary Python can occur in these table sources as shown in the `zoning_baseline table source <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L69>`_ which uses injections of ``zoning`` and ``zoning_for_parcels`` that were defined in the prior lines of code.
+
+Finally, the relationships between all tables can be specified with the `sim.broadcast decorator <sim/index.html#urbansim.sim.simulation.broadcast>`_ and all of the broadcasts for the example are specified together at the `bottom of the dataset.py file <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L78>`_.  Once these relationships are set they can be used later in the simulation using the `merge_tables helper <sim/index.html#urbansim.sim.simulation.merge_tables>`_.
+
+Assumptions
+~~~~~~~~~~~
+
+By convention `assumptions.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py>`_ contains all of the high-level assumptions for the simulation. A typical assumption would be the `one below <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L28>`_, which sets a Python dictionary that can be used to map building types to land use category names.::
+
+    # this maps building type ids to general building types
+    # basically just reduces dimensionality
+    sim.add_injectable("building_type_map", {
+        1: "Residential",
+        2: "Residential",
+        3: "Residential",
+        4: "Office",
+        5: "Hotel",
+        6: "School",
+        7: "Industrial",
+        8: "Industrial",
+        9: "Industrial",
+        10: "Retail",
+        11: "Retail",
+        12: "Residential",
+        13: "Retail",
+        14: "Office"
+    })
+
+All assumptions are registered with the simulation with the `add_injectable <file:///Users/ffoti/src/urbansim/docs/_build/html/sim/index.html#urbansim.sim.simulation.add_injectable>`_ method, which is used to register Python data types with names that can be injected in to other simulation methods.  Although not all injectables are assumptions, this file mostly contains high-level assumptions including a `dictionary of building square feet per job for each building type <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L7>`_, `a map of building forms to building types <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L52>`_, etc.
+
+Note that the above code simply sets the map to the name ``building_type_map`` - it must be injected and used somewhere else to have an effect.  In fact, this map is used in ``variables.py`` to compute the `general_type <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L125>`_ attribute on the ``buildings`` table.
+
+Perhaps most importantly, the `location of the HDFStore <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L62>`_ is set using the ``store`` injectable.  An observant reader will notice that this ``store`` injectable which is set here was used in the table_source described above.  Note that the ``store`` injectable could be defined *after* the ``households`` ``table_source`` as long as they're both registered before the simulation makes an attempt to call the registered methods.
+
+Variables
+~~~~~~~~~
+
+Models
+~~~~~~
+
+The main objective of the `models.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py>`_ file is to define the "entry points" into the model system. Although UrbanSim provides the direct API for a `Regression Model <models/regression.html>`_ a `Location Choice Model <models/lcm.html>`_, etc, it is the models.py file which defines the specific *steps* that outline a simulation or even a more general data processing workflow.
+
+In the San Francisco example, there are two price/rent `hedonic models <http://en.wikipedia.org/wiki/Hedonic_regression>`_ which both use the RegressionModel, one which is the residential sales hedonic which is estimated with the entry point `rsh_estimate <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L9>`_ and then run in simulation mode with the entry point rsh_simulate.  The non-residential rent hedonic has similar entry points `nrh_estimate <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L20>`_ and nrh_simulate.  Note that both functions call `hedonic_estimate <https://github.com/synthicity/sanfran_urbansim/blob/master/utils.py#L110>`_ and hedonic_simulate in `utils.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/utils.py>`_.  In this case ``utils.py`` actually uses the UrbanSim API by calling the `fit_from_cfg <file:///Users/ffoti/src/urbansim/docs/_build/html/models/regression.html#urbansim.models.regression.RegressionModel.fit_from_cfg>`_ method on the Regressionmodel.
+
+There are two things that warrant further explanation at this point.
+
+* ``utils.py`` is a set of helper functions that assist with merging data and running models from configuration files.  Note that the code in this file is generally sharable across UrbanSim implementations (in fact, this exact code is in use in multiple live simulations).  It defines a certain style of UrbanSim and handles a number of boundary cases in a transparent way.  In the long run, this kind of functionality might be unit tested and moved to UrbanSim, but for now we think it helps with transparency, flexibility, and debugging to keep this file with the specific client implementations.
+
+* Many of the models use configuration files to define the actual model configuration.  In fact, most models in this file are very short *stub* functions which pass a Pandas DataFrame into the estimation and configure the model using a configuration file in the `YAML file format <http://en.wikipedia.org/wiki/YAML>`_. For instance, the ``rsh_estimate`` function knows to read the configuration file, estimate the model defined in the configuration on the dataframe passed in, and write the estimated coefficients back to the same configuration file, and the complete method is pasted below::
+
+    @sim.model('rsh_estimate')
+    def rsh_estimate(buildings, zones):
+        return utils.hedonic_estimate("rsh.yaml", buildings, zones)
+
+ For simulation, the stub is only slightly more complicated - in this case the model is simulating an output based on the model we estimated above, and the resulting Pandas ``Series`` needs to be stored on an UrbanSim table with a given attribute name (in this case to the ``residential_sales_price`` attribute of buildings table).::
+
+    @sim.model('rsh_simulate')
+    def rsh_simulate(buildings, zones):
+        return utils.hedonic_simulate("rsh.yaml", buildings, zones,
+                                  "residential_sales_price")
+
+These stubs can then be repeated as necessary with quite a bit of flexibility.  For instance, the live Bay Area UrbanSim implementation has an additional hedonic model for residential rent which is not present in the example, and the associated stubs make use of a new configuration file called ``rrh.yaml`` and so forth.
+
+A typical UrbanSim models setup is present in the ``models.py`` file, which registers 15 models including hedonic models, location choice models, relocation models, and transition models for both the residential and non-residential sides of the real estate market, then a feasibility model which uses the prices simulated previously to measure real estate development feasibility, and a developer model for each of the residential and non-residential sides.
+
+Note that some parameters are defined directly in the Python while other models have full configuration files to specify the model configuration.  This is a matter of tastes, and eventually all of the models are likely to be YAML configurable.
+
+Note also that some models have dependencies on previous models.  For instance ``hlcm_simulate`` and ``feasibility`` are both dependent on ``rsh_simulate``.  At this time there is no way guarantee that model dependencies are met and this is left to the user to resolve.  For full simulations, there is a typical order of models which doesn't change very often, so this requirement is not terribly onerous.
+
+Clearly ``models.py`` is extremely flexible - any method which reads and writes data using the simulated framework can be considered a model in this framework. Models with more logic than the stubs above are common, although more complicated functionality is usually generalized, documented, unit tested, and added to UrbanSim.  In the future new travel modeling and data cleaning workflows will be implemented in the same framework.
+
+One final point about ``models.py`` - these entry points are designed to be written by the model implementer and not necessarily the modeler herself.  Once the models have been correctly set up, the basic infrastructure of the model will rarely change.  What happens more frequently is 1) a new data source is added 2) a new variable is computed with a column from that data source and then 3) that variable is added to the YAML configuration for one of the statistical models. The framework is designed to enable these changes, and because of this **models.py is the least frequent to change of the simulation decorators described here.  It is the structure of the simulation while the other decorators are the configuration.**
+
+Model Configuration
+~~~~~~~~~~~~~~~~~~~
+
+Bridging the divide between the modules above and the workflows above are configuration files.  It should be emphas
+
+Models can be configured directly in Python code but the preferred method is to set up an entry point that uses a YAML configuration file.
+
+The configuration file used in this example is available here.
+
+Notice that the parameters "name", "fit_filters", "predict_filters", "model_expression", and "y_transform" are the exact same parameters provided to the object in the api. In fact, the API documentation also documents the YAML although an example is a great place to get started while using the API pages as a reference.
+
+YAML can also be used to define location choice models and even accessibility variables.
+
+As can be seen, these configuration files are a great way to separate specification of the model from the actual infrastructure that stores and uses these configuration files and the data which gets passed to the models, both of which are defined in the models.py file.
+
+Complete Example - San Francisco UrbanSim Workflows
+---------------------------------------------------
+
+Estimation Workflow
+~~~~~~~~~~~~~~~~~~~
+
+Simulation Workflow
+~~~~~~~~~~~~~~~~~~~
+
+Exploration Workflow
+~~~~~~~~~~~~~~~~~~~~
+
+Specifying Scenario Inputs
+--------------------------
+
+Control Totals
+~~~~~~~~~~~~~~
+
+Zoning Changes
+~~~~~~~~~~~~~~
+
+Fees and Subsidies
+~~~~~~~~~~~~~~~~~~
+
+Model Implementation Choices
+----------------------------
+
+UrbanAccess or Zones
+~~~~~~~~~~~~~~~~~~~~
+
+Geographic Detail
+~~~~~~~~~~~~~~~~~
+
+Configuration of Models
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Dealing with NaNs
+~~~~~~~~~~~~~~~~~
+
+
+
