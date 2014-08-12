@@ -185,14 +185,56 @@ As can be seen, these configuration files are a great way to separate specificat
 Complete Example - San Francisco UrbanSim Workflows
 ---------------------------------------------------
 
+Once the proper setup of Python modules is accomplished as above, interactive execution of certain UrbanSim workflows is extremely easy to accomplish, and will be described in the subsections below.  These are all done in the IPython Notebook and use nbviewer to display the results in a web browser.  We use IPython Notebooks (or the UrbanSim web portal) for almost any workflow in order to avoid executing Python from the command line / console, although this is an option as well.
+
+*Note that because these workflows are IPython Notebooks, the reader should browse to the example on the web and no example code will be pasted here.*
+
+One thing to note is the `autoreload magic <http://ipython.org/ipython-doc/dev/config/extensions/autoreload.html>`_ used in all of these workflows.  This can be very helpful when interactively editing code in the underlying Python modules as it automatically keeps the code in sync within the notebooks (i.e. it re-imports the modules when the underlying code changes).
+
 Estimation Workflow
 ~~~~~~~~~~~~~~~~~~~
+
+A sample estimation workflow is available `here <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`_.
+
+This notebook estimates all of the models in the example that need estimation (because they are statistical models).  In fact, every cell simply calls the `sim.run <sim/index.html#running-simulations>`_ method with one of the names of the model entry points defined in ``models.py``. The ``sim.run`` method resolves all of the dependencies and prints the output of the model estimation in the result cell of the IPython Notebook.  Note that the hedonic models are estimated first, then simulated, and then the location choice models are estimated since the hedonic models are dependencies of the location choice models.  In other words, the ``rsh_simulate`` method is configured to create the ``residential_sales_price`` column which is then a right hand side variable in the ``hlcm_estimate`` model (because residential price is theorized to impact the location choices of households).
 
 Simulation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
+A sample simulation workflow (for a complete UrbanSim simulation is available `here <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`_.
+
+This notebook is possibly even simpler than the estimation workflow as it has only one substantive cell which runs all of the available models in the appropriate sequence.  Passing a range of years will run the simulation for multiple years (the example simply runs the simulation for a single year).  Other parameters are available to the  `sim.run <sim/index.html#running-simulations>`_ method which write the output to an HDF5 file.
+
 Exploration Workflow
 ~~~~~~~~~~~~~~~~~~~~
+
+UrbanSim now also provides a method to interactively explore UrbanSim inputs and outputs using web mapping tools, and the `exploration notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb>`_ demonstrates how to set up and use this interactive display tool.
+
+This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (``buildings``, ``househlds``, ``jobs``, and others).  Once the DataFrames have been created, they are passed to the `dframe_explorer.start <>`_ method.
+
+The dframe_explorer takes a dictionary of DataFrames which are joined to a set of shapes for visualization.  The most common case is to use a `geojson <http://geojson.org/>`_ format shapefile of zones to join to any DataFrame that has a zone_id (the dframe_explorer module does the join for you).  Here the center and zoom level are set for the map, the name of geojson shapefile is passed, as are the join keys both in the geojson file and the DataFrames.
+
+Once that is accomplished, the cell can be executed and the IPython Notebook is now running a web service which will respond to queries from a web browser.  Try is out - open your web browser and navigate to `http://localhost:8765/ <http://localhost:8765/>`_ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
+
+.. image:: https://github.com/synthicity/urbansim/blob/master/docs/screenshots/dframe_explorer_screenshot.png
+
+Here is what each drop down on the web page does:
+
+* The first drop down gives the names of the DataFames you have passed ``dframe_explorer.start``
+* The second drop down allows you to choose between all of the column in that data frame
+* The third drop down selects the color scheme from the `colorbrewer <http://colorbrewer2.org/>` color schemes
+* The fourth drop down sets ``quantile`` and ``equal_interval`` color schemes
+* The fifth drop down selects the Pandas aggregation method to use
+* The sixth drop down executes a `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_ method on the Pandas DataFrame in order to filter the input data
+* The seventh drop down executes a `.eval <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.eval.html>`_ method on the Pandas DataFrame in order to create simple computed variables that are not already columns on the DataFrame.
+
+So what is this doing?  The web service is translating the drop down to a simple interactive Pandas statement, for example: ::
+
+    df.groupby('zone_id')['sum_residential_units'].mean()
+
+The notebook will print out each statement it executes.  The website then transparently joins the Pandas series to the shapes and create an interactive *slippy* web map using the `leaflet <http://leafletjs.com/>`_.  The code for this map is really `quite simple <https://github.com/synthicity/urbansim/tree/master/urbansim/maps>`_ - feel free to browse and add functionality as required.
+
+To be clear, the website is performing a Pandas aggregation on the fly.  If you have a buildings DataFrame with millions of records, Pandas will ``groupby`` the ``zone_id`` and perform an aggregation of your choice.  This is designed to give you a quickly navigable map interface to understand the underlying disaggregate data, similar to that supplied by commercial projects such as `Tableau <http://kb.tableausoftware.com/articles/knowledgebase/mapping-basics>`_.
 
 Specifying Scenario Inputs
 --------------------------
