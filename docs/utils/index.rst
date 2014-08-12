@@ -1,8 +1,16 @@
 UrbanSim Utilities
 ==================
 
+About
+-----
+
+These are various utilities used internally within UrbanSim.
+
+Contents
+--------
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    yamlio
    misc
