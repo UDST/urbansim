@@ -24,6 +24,7 @@ Contents
    developer/index
    utils/index
    urbanchoice/index
+   maps/index
 
 
 Indices and tables

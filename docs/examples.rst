@@ -210,7 +210,7 @@ Exploration Workflow
 
 UrbanSim now also provides a method to interactively explore UrbanSim inputs and outputs using web mapping tools, and the `exploration notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb>`_ demonstrates how to set up and use this interactive display tool.
 
-This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (``buildings``, ``househlds``, ``jobs``, and others).  Once the DataFrames have been created, they are passed to the `dframe_explorer.start <>`_ method.
+This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (``buildings``, ``househlds``, ``jobs``, and others).  Once the DataFrames have been created, they are passed to the `dframe_explorer.start <maps/dframe_explorer.html#urbansim.maps.dframe_explorer.start>`_ method.
 
 The dframe_explorer takes a dictionary of DataFrames which are joined to a set of shapes for visualization.  The most common case is to use a `geojson <http://geojson.org/>`_ format shapefile of zones to join to any DataFrame that has a zone_id (the dframe_explorer module does the join for you).  Here the center and zoom level are set for the map, the name of geojson shapefile is passed, as are the join keys both in the geojson file and the DataFrames.
 
@@ -218,23 +218,25 @@ Once that is accomplished, the cell can be executed and the IPython Notebook is 
 
 .. image:: https://github.com/synthicity/urbansim/blob/master/docs/screenshots/dframe_explorer_screenshot.png
 
-Here is what each drop down on the web page does:
+Here is what each dropdown on the web page does:
 
-* The first drop down gives the names of the DataFames you have passed ``dframe_explorer.start``
-* The second drop down allows you to choose between all of the column in that data frame
-* The third drop down selects the color scheme from the `colorbrewer <http://colorbrewer2.org/>` color schemes
-* The fourth drop down sets ``quantile`` and ``equal_interval`` color schemes
-* The fifth drop down selects the Pandas aggregation method to use
-* The sixth drop down executes a `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_ method on the Pandas DataFrame in order to filter the input data
-* The seventh drop down executes a `.eval <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.eval.html>`_ method on the Pandas DataFrame in order to create simple computed variables that are not already columns on the DataFrame.
+* The first dropdown gives the names of the DataFames you have passed ``dframe_explorer.start``
+* The second dropdown allows you to choose between each of the columns in the DataFrame with the name from the first dropdown
+* The third dropdown selects the color scheme from the `colorbrewer <http://colorbrewer2.org/>`_ color schemes
+* The fourth dropdown sets ``quantile`` and ``equal_interval`` `color schemes <http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html>`_
+* The fifth dropdown selects the Pandas aggregation method to use
+* The sixth dropdown executes a `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_ method on the Pandas DataFrame in order to filter the input data
+* The seventh dropdown executes a `.eval <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.eval.html>`_ method on the Pandas DataFrame in order to create simple computed variables that are not already columns on the DataFrame.
 
-So what is this doing?  The web service is translating the drop down to a simple interactive Pandas statement, for example: ::
+So what is this doing?  The web service is translating the drop downs to a simple interactive Pandas statement, for example: ::
 
     df.groupby('zone_id')['sum_residential_units'].mean()
 
-The notebook will print out each statement it executes.  The website then transparently joins the Pandas series to the shapes and create an interactive *slippy* web map using the `leaflet <http://leafletjs.com/>`_.  The code for this map is really `quite simple <https://github.com/synthicity/urbansim/tree/master/urbansim/maps>`_ - feel free to browse and add functionality as required.
+The notebook will print out each statement it executes.  The website then transparently joins the output Pandas series to the shapes and create an interactive *slippy* web map using the `Leaflet <http://leafletjs.com/>`_ Javasript library.  The code for this map is really `quite simple <https://github.com/synthicity/urbansim/tree/master/urbansim/maps>`_ - feel free to browse the code and add functionality as required.
 
 To be clear, the website is performing a Pandas aggregation on the fly.  If you have a buildings DataFrame with millions of records, Pandas will ``groupby`` the ``zone_id`` and perform an aggregation of your choice.  This is designed to give you a quickly navigable map interface to understand the underlying disaggregate data, similar to that supplied by commercial projects such as `Tableau <http://kb.tableausoftware.com/articles/knowledgebase/mapping-basics>`_.
+
+Because this is serving these queries directly from the IPython Notebook, you can execute some part of a data processing workflow, then run ``dframe_explorer`` and look at the results.  If something needs modification, simply hit the ``interrupt kernel`` menu item in the IPython Notebook.  You can now execute more Notebook cells and return to ``dframe_explorer`` at any time by running the appropraite cell again.  Now the map exploration is simply another interactive step in your data processing workflow.
 
 Specifying Scenario Inputs
 --------------------------
