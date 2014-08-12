@@ -23,7 +23,7 @@ Tables Sources
 
 Tables sources are a decorator that describes where UrbanSim data comes from.  All tables sources return `Pandas DataFrames <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`_ but the data can come from different locations, including HDF5 files, CSV files, databases, Excel files, and others.  Pandas has a large and ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/dev/io.html>`_ although this example keeps data in a single HDF5 data store which is `provided directly in the repo <https://github.com/synthicity/sanfran_urbansim/blob/master/data>`_
 
-Specifying a source of data for a dataframe is done with the `table_source <sim/index.html#urbansim.sim.simulation.table_source>`_ decorator as in the example below, which is lifted `directly from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`_.::
+Specifying a source of data for a dataframe is done with the `table_source <sim/index.html#urbansim.sim.simulation.table_source>`_ decorator as in the example below, which is lifted `directly from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`_. ::
 
     @sim.table_source('households')
     def households(store):
@@ -68,6 +68,50 @@ Perhaps most importantly, the `location of the HDFStore <https://github.com/synt
 
 Variables
 ~~~~~~~~~
+
+`variables.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py>`_ is similar to the `variable library <http://www.urbansim.org/downloads/manual/dev-version/opus-userguide/node211.html>`_ from the OPUS version of UrbanSim.  By convention all variables which are computed from underlying attributes are stored in this file.  Although the previous version of UrbanSim used a domain-specific *expression language*, the current version uses native Pandas, along with the ``@sim.column`` decorator and dependency injection.  As before, the convention is to name the underlying data the *primary attributes* and the functions specified here as *computed columns*.  A typical example is shown below: ::
+
+    @sim.column('zones', 'sum_residential_units')
+    def sum_residential_units(buildings):
+        return buildings.residential_units.groupby(buildings.zone_id).sum().apply(np.log1p)
+
+This creates a new column ``sum_residential_units`` for the ``zones`` table.  Notice that because of the magic of ``groupby``, the grouping column is used as the index after the operation so although ``buildings`` has been passed in here, because the ``zone_id`` is available on the ``buildings`` table, the Series that is returned is appropriate as a column on the ``zones`` table.  In other words ``groupby`` is used to *aggregate* from the buildings table to the zones table, which is a very common operation.
+
+To move an attribute from one table to another using a foreign key, the ``misc`` module has a `reindex method <utils/misc.html#urbansim.utils.misc.reindex>`_.  Thus even though ``zone_id`` is *only* a primary attribute on the ``parcels`` table, it can be moved using ``reindex`` to the ``buildings`` table using the ``parcel_id`` (foreign key) of that table.  This is shown below and extracted `from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L122>`_.  ::
+
+    @sim.column('buildings', 'zone_id', cache=True)
+    def zone_id(buildings, parcels):
+        return misc.reindex(parcels.zone_id, buildings.parcel_id)
+
+Note that computed columns can also be used in other computed columns.  For instance ``buildings.zone_id`` in the code for the ``sum_residential_units`` columns is itself a computed column (defined by the code we just saw).
+
+*This is the real power of the framework.  The decorators define a hierarchy of dependent columns, which are dependent on other dependent columns, which are themselves dependent on primary attributes, which are likely dependent on injectables and table_sources.  In fact, the models we see next are usually what actually resolves these dependencies, and no variables are computed unless they are actually required by the models.  The user is relatively agnostic to this whole process and need only define a line or two of code at a time attached to the proper data concept.  Thus a whole data processing workflow can be built from the hierarchy of concepts within the simulation framework.*
+
+**A Note on Table Wrappers**
+
+The ``buildings`` object that gets passed in is a `Table Wrapper <sim/index.html#table-wrappers>`_ and the reader is referred to the documentation to learn more about this concept.  In general, this means the user has access to the Series object by name on the wrapper but the **full set of Pandas DataFrame methods is not necessarily available.**  For instance ``.loc`` and ``.groupby`` will both yield exceptions on the ``Table Wrapper``.
+
+To convert a ``Table Wrapper`` to a DataFrame, the user can simply call `to_frame <sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame>`_ but this returns *all* computed columns on the table and so has performance implications.  In general it's better to use the Series objects directly where possible.
+
+As a concrete example, the above example is recommended: ::
+
+       return buildings.residential_units.groupby(buildings.zone_id).sum()
+
+This will *not* work: ::
+
+       return buildings.groupby("zone_id").residential_units.sum()
+
+This *will* work but is *slow*. ::
+
+       return buildings.to_frame().groupby("zone_id").residential_units.sum()
+
+One workaround is to call ``to_frame`` with only the columns you need, although this is a verbose syntax, i.e. this *will* work but is *syntactically awkward*. ::
+
+       return buildings.to_frame(['zone_id', 'residential_units']).groupby("zone_id").residential_units.sum()
+
+Finally, if all the attributes being used are primary, the user can call ``local_columns`` without serious performance degradation. ::
+
+       return buildings.to_frame(buildings.local_columns).groupby("zone_id").residential_units.sum()
 
 Models
 ~~~~~~
