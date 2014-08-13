@@ -17,7 +17,7 @@ class Developer(object):
         self.feasibility = feasibility
 
     @staticmethod
-    def max_form(f, colname):
+    def _max_form(f, colname):
         """
         Assumes dataframe with hierarchical columns with first index equal to the
         use and second index equal to the attribute.
@@ -36,7 +36,6 @@ class Developer(object):
                           max_profit
                           max_profit_far
                           total_cost
-
         """
         df = f.stack(level=0)[[colname]].stack().unstack(level=1).reset_index(level=1, drop=True)
         return df.idxmax(axis=1)
@@ -52,13 +51,17 @@ class Developer(object):
         forms: list of strings
             List of forms which compete which other.  Can leave some out.
 
+        Returns
+        -------
+        Nothing.  Goes from a multi-index to a single index with only the
+        most profitable form.
         """
         f = self.feasibility
 
         if forms is not None:
             f = f[forms]
 
-        mu = self.max_form(f, "max_profit")
+        mu = self._max_form(f, "max_profit")
         indexes = [tuple(x) for x in mu.reset_index().values]
         df = f.stack(level=0).loc[indexes]
         df.index.names = ["parcel_id", "form"]
@@ -81,7 +84,7 @@ class Developer(object):
 
         Returns
         -------
-        int
+        number_of_units : int
             the number of units that need to be built
         """
         print "Number of agents: {:,}".format(num_agents)
@@ -137,9 +140,14 @@ class Developer(object):
             have been chosen for development.  Usually this is true so as
             to not develop the same parcel twice.
         residential: bool
-            If creating non-residential buildings set this to false and developer
-            will fill in job_spaces rather than residential_units
+            If creating non-residential buildings set this to false and
+            developer will fill in job_spaces rather than residential_units
 
+        Returns
+        -------
+        new_buildings : dataframe
+            DataFrame of buildings to add.  These buildings are rows from the
+            DataFrame that is returned from feasibility.
         """
 
         if isinstance(form, list):
@@ -172,7 +180,8 @@ class Developer(object):
         print "Sum of net units that are profitable: {:,}".\
             format(int(df.net_units.sum()))
         if df.net_units.sum() < target_units:
-            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO MATCH DEMAND"
+            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
+                  "MATCH DEMAND"
 
         choices = np.random.choice(df.index.values, size=len(df.index),
                                    replace=False,
@@ -199,6 +208,17 @@ class Developer(object):
         usually the buildings dataset and the new dataframe is a modified
         (by the user) version of what is returned by the pick method.
 
+        Parameters
+        ----------
+        old_df : dataframe
+            Current set of buildings
+        new_df : dataframe
+            New buildings to add, usually comes from this module
+
+        Returns
+        -------
+        df : dataframe
+            Combined DataFrame of buildings, makes sure indexes don't overlap
         """
         maxind = np.max(old_df.index.values)
         new_df = new_df.reset_index(drop=True)
