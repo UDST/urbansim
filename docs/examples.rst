@@ -208,7 +208,7 @@ One thing to note is the `autoreload magic <http://ipython.org/ipython-doc/dev/c
 Estimation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-A sample estimation workflow is available `here <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`_.
+A sample estimation workflow is available `in the San Francisco example <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`_.
 
 This notebook estimates all of the models in the example that need estimation (because they are statistical models).  In fact, every cell simply calls the `sim.run <sim/index.html#running-simulations>`_ method with one of the names of the model entry points defined in ``models.py``. The ``sim.run`` method resolves all of the dependencies and prints the output of the model estimation in the result cell of the IPython Notebook.  Note that the hedonic models are estimated first, then simulated, and then the location choice models are estimated since the hedonic models are dependencies of the location choice models.  In other words, the ``rsh_simulate`` method is configured to create the ``residential_sales_price`` column which is then a right hand side variable in the ``hlcm_estimate`` model (because residential price is theorized to impact the location choices of households).
 
@@ -219,48 +219,24 @@ A sample simulation workflow (for a complete UrbanSim simulation is available `h
 
 This notebook is possibly even simpler than the estimation workflow as it has only one substantive cell which runs all of the available models in the appropriate sequence.  Passing a range of years will run the simulation for multiple years (the example simply runs the simulation for a single year).  Other parameters are available to the  `sim.run <sim/index.html#running-simulations>`_ method which write the output to an HDF5 file.
 
+.. _exploration-workflow:
+
 Exploration Workflow
 ~~~~~~~~~~~~~~~~~~~~
 
 UrbanSim now also provides a method to interactively explore UrbanSim inputs and outputs using web mapping tools, and the `exploration notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb>`_ demonstrates how to set up and use this interactive display tool.
 
-This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (``buildings``, ``househlds``, ``jobs``, and others).  Once the DataFrames have been created, they are passed to the `dframe_explorer.start <maps/dframe_explorer.html#urbansim.maps.dframe_explorer.start>`_ method.
+This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (``buildings``, ``househlds``, ``jobs``, and others).  Once the DataFrames have been created, they are passed to the `start <maps/index.html#module-urbansim.maps.dframe_explorer>`_ method.
 
-The dframe_explorer takes a dictionary of DataFrames which are joined to a set of shapes for visualization.  The most common case is to use a `geojson <http://geojson.org/>`_ format shapefile of zones to join to any DataFrame that has a zone_id (the dframe_explorer module does the join for you).  Here the center and zoom level are set for the map, the name of geojson shapefile is passed, as are the join keys both in the geojson file and the DataFrames.
+See :ref:`dframe-explorer` for detailed information on how to call the ``start`` method and what queries the website is performing.
 
-Once that is accomplished, the cell can be executed and the IPython Notebook is now running a web service which will respond to queries from a web browser.  Try is out - open your web browser and navigate to http://localhost:8765/ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
+Once the ``start``method has been called, the IPython Notebook is running a web service which will respond to queries from a web browser.  Try is out - open your web browser and navigate to http://localhost:8765/ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
 
-.. image:: https://raw.githubusercontent.com/synthicity/urbansim/high-level-docs/docs/screenshots/dframe_explorer_screenshot.png
+.. image:: screenshots/dframe_explorer_screenshot.png
 
-Here is what each dropdown on the web page does:
+See :ref:`dframe-explorer-website` for a description of how to use the website that is rendered.
 
-* The first dropdown gives the names of the DataFames you have passed ``dframe_explorer.start``
-* The second dropdown allows you to choose between each of the columns in the DataFrame with the name from the first dropdown
-* The third dropdown selects the color scheme from the `colorbrewer <http://colorbrewer2.org/>`_ color schemes
-* The fourth dropdown sets ``quantile`` and ``equal_interval`` `color schemes <http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html>`_
-* The fifth dropdown selects the Pandas aggregation method to use
-* The sixth dropdown executes the `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_ method on the Pandas DataFrame in order to filter the input data
-* The seventh dropdown executes the `.eval <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.eval.html>`_ method on the Pandas DataFrame in order to create simple computed variables that are not already columns on the DataFrame.
-
-So what is this doing?  The web service is translating the drop downs to a simple interactive Pandas statement, for example: ::
-
-    df.groupby('zone_id')['residential_units'].sum()
-
-The notebook will print out each statement it executes.  The website then transparently joins the output Pandas series to the shapes and create an interactive *slippy* web map using the `Leaflet <http://leafletjs.com/>`_ Javasript library.  The code for this map is really `quite simple <https://github.com/synthicity/urbansim/tree/master/urbansim/maps>`_ - feel free to browse the code and add functionality as required.
-
-To be clear, the website is performing a Pandas aggregation on the fly.  If you have a buildings DataFrame with millions of records, Pandas will ``groupby`` the ``zone_id`` and perform an aggregation of your choice.  This is designed to give you a quickly navigable map interface to understand the underlying disaggregate data, similar to that supplied by commercial projects such as `Tableau <http://kb.tableausoftware.com/articles/knowledgebase/mapping-basics>`_.
-
-As a concrete example, note that the ``households`` table has a ``zone_id`` and is thus available for aggregation in ``dframe_explorer``.  Since the web service is running aggregations on the *disaggregate* data, clicking to the ``households`` table and ``persons`` attribute and an aggregation of ``sum`` will run: ::
-
-    households.groupby('zone_id').persons.sum()
-
-This computes the sum of persons in each household by zone, or more simply, the population of each zone.  If the aggregation is changed to mean, the service will run: ::
-
-    households.groupby('zone_id').persons.mean()
-
-What does this compute exactly?  It computes the average number of persons per household in each zone, or the average household size by zone.
-
-Because this is serving these queries directly from the IPython Notebook, you can execute some part of a data processing workflow, then run ``dframe_explorer`` and look at the results.  If something needs modification, simply hit the ``interrupt kernel`` menu item in the IPython Notebook.  You can now execute more Notebook cells and return to ``dframe_explorer`` at any time by running the appropraite cell again.  Now map exploration is simply another interactive step in your data processing workflow.
+Because the web service is serving these queries directly from the IPython Notebook, you can execute some part of a data processing workflow, then run ``dframe_explorer`` and look at the results.  If something needs modification, simply hit the ``interrupt kernel`` menu item in the IPython Notebook.  You can now execute more Notebook cells and return to ``dframe_explorer`` at any time by running the appropriate cell again.  Now map exploration is simply another interactive step in your data processing workflow.
 
 Specifying Scenario Inputs
 --------------------------

@@ -73,6 +73,43 @@ def start(views,
           port=8765,
           host='localhost',
           testing=False):
+    """
+    Start the web service which serves the Pandas queries and generates the
+    HTML for the map.  You will need to open a web browser and navigate to
+    http://localhost:8765 (or the specified port)
+
+    Parameters
+    ----------
+    views : Python dictionary
+        This is the data that will be displayed in the maps.  Keys are strings
+        (table names) and values are dataframes.  Each data frame should have a
+        column with the name specified as join_name below
+    center : a Python list with two floats
+        The initial latitude and longitude of the center of the map
+    zoom : int
+        The initial zoom level of the map
+    shape_json : str
+        The path to the geojson file which contains that shapes that will be
+        displayed
+    geom_name : str
+        The field name from the JSON file which contains the id of the geometry
+    join_name : str
+        The column name from the dataframes passed as views (must be in each
+        view) which joins to geom_name in the shapes
+    precision : int
+        The precision of values to show in the legend on the map
+    port : int
+        The port for the web service to respond on
+    host : str
+        The hostname to run the web service from
+    testing : bool
+        Whether to print extra debug information
+
+    Returns
+    -------
+    Does not return - takes over control of the thread and responds to
+    queries from a web browser
+    """
 
     global DFRAMES, CONFIG
     DFRAMES = {str(k): views[k] for k in views}
