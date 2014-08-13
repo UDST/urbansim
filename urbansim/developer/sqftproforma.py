@@ -11,8 +11,6 @@ class SqFtProFormaConfig(object):
     This class encapsulates the configuration options for the square
     foot based pro forma.
 
-    Attributes
-    ----------
     parcel_sizes : list
         A list of parcel sizes to test.  Interestingly, right now
         the parcel sizes cancel is this style of pro forma computation so
@@ -429,10 +427,11 @@ class SqFtProForma(object):
 
         Returns
         -------
-        A dataframe where the index is the far with many columns representing
-        intermediate steps in the pro forma computation.  Additional documentation
-        will be added at a later date, although many of the columns should be fairly
-        self-expanatory.
+        debug_info : dataframe
+            A dataframe where the index is the far with many columns
+            representing intermediate steps in the pro forma computation.
+            Additional documentation will be added at a later date, although
+            many of the columns should be fairly self-expanatory.
 
         """
         return self.dev_d[(form, parking_config)]
@@ -444,14 +443,15 @@ class SqFtProForma(object):
         Parameters
         ----------
         form : string
-            Get a series representing the average cost per sqft for each form in the
-            config
+            Get a series representing the average cost per sqft for each form in
+            the config
 
         Returns
         -------
-        A series where the index is the far and the values are the average cost per
-        sqft at which the building is "break even" given the configuration parameters
-        that were passed at run time.
+        cost : series
+            A series where the index is the far and the values are the average
+            cost per sqft at which the building is "break even" given the
+            configuration parameters that were passed at run time.
 
         """
         return self.min_ave_cost_d[form]
@@ -474,7 +474,6 @@ class SqFtProForma(object):
             or when debugging)
 
         Input Dataframe Columns
-        -------
         rent : dataframe
             A set of columns, one for each of the uses passed in the configuration.
             Values are yearly rents for that use.  Typical column names would be
@@ -503,9 +502,8 @@ class SqFtProForma(object):
 
         Returns
         -------
-        A dataframe which is indexed by the parcel ids that were passed, with the
-        following columns.
-
+        index : Series, int
+            parcel identifiers
         building_sqft : Series, float
             The number of square feet for the building to build.  Keep in mind
             this includes parking and common space.  Will need a helpful function
