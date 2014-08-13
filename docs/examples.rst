@@ -208,14 +208,14 @@ One thing to note is the `autoreload magic <http://ipython.org/ipython-doc/dev/c
 Estimation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-A sample estimation workflow is available `in the San Francisco example <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`_.
+A sample estimation workflow is available `in this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`__.
 
 This notebook estimates all of the models in the example that need estimation (because they are statistical models).  In fact, every cell simply calls the `sim.run <sim/index.html#running-simulations>`_ method with one of the names of the model entry points defined in ``models.py``. The ``sim.run`` method resolves all of the dependencies and prints the output of the model estimation in the result cell of the IPython Notebook.  Note that the hedonic models are estimated first, then simulated, and then the location choice models are estimated since the hedonic models are dependencies of the location choice models.  In other words, the ``rsh_simulate`` method is configured to create the ``residential_sales_price`` column which is then a right hand side variable in the ``hlcm_estimate`` model (because residential price is theorized to impact the location choices of households).
 
 Simulation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-A sample simulation workflow (for a complete UrbanSim simulation is available `here <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`_.
+A sample simulation workflow (a complete UrbanSim simulation is available `in this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`__.
 
 This notebook is possibly even simpler than the estimation workflow as it has only one substantive cell which runs all of the available models in the appropriate sequence.  Passing a range of years will run the simulation for multiple years (the example simply runs the simulation for a single year).  Other parameters are available to the  `sim.run <sim/index.html#running-simulations>`_ method which write the output to an HDF5 file.
 
@@ -230,7 +230,7 @@ This is another simple and powerful notebook which can be used to quickly map va
 
 See :ref:`dframe-explorer` for detailed information on how to call the ``start`` method and what queries the website is performing.
 
-Once the ``start``method has been called, the IPython Notebook is running a web service which will respond to queries from a web browser.  Try is out - open your web browser and navigate to http://localhost:8765/ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
+Once the ``start`` method has been called, the IPython Notebook is running a web service which will respond to queries from a web browser.  Try is out - open your web browser and navigate to http://localhost:8765/ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
 
 .. image:: screenshots/dframe_explorer_screenshot.png
 
