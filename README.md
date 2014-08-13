@@ -22,10 +22,10 @@ This new code base is a streamlined complete re-implementation of the longstandi
 
 We lean heavily on the [PyData](http://pydata.org) community to make our work easier - [Pandas](pandas.pydata.org), [IPython](http://ipython.org/) and [statsmodels](http://statsmodels.sourceforge.net/) are ubiquitous in this work.  These Python libraries essentially replace the UrbanSim Dataset class, tools to read and write from other storage, and some of the statistical estimation previously implemented by UrbanSim.
 
-This makes our task easier as we can focus on urban modeling and leave the infrastructure to the wider Python community.  The [Pandas](http://pandas.pydata.org) library is the core of the new UrbanSim, and is an extremely well documented library that has a large community providing support, and a very helpful [book](http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793).
+This makes our task easier as we can focus on urban modeling and leave the infrastructure to the wider Python community.  The [Pandas](http://pandas.pydata.org) library is the core of the new UrbanSim, which is an extremely popular data manipulation library with a large community providing support and a very helpful [book](http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793).
 
 We have now converted a full set of UrbanSim models in the new framework, and have these running applications for Paris, Albuquerque, Denver, the Bay Area, and Detroit.  We have implemented a complete set of hedonic price models, location choice models, relocation and transition models, as well as a new real estate development model using proforma analysis.
 
-**On the other hand, if you just want to begin experimenting and creating regression and choice models and map their inputs and outputs, you've also come to the right place.**
-
 We do strongly recommend that you contact info@synthicity.org about your project to make sure you can get professional support when you need it, and know what you are getting into.  For major applied projects, professional support is highly recommended.
+
+**On the other hand, if you just want to begin experimenting and creating regression and choice models and map their inputs and outputs, you've also come to the right place.**
