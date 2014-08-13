@@ -59,6 +59,17 @@
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
@@ -68,31 +79,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Core Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../utils/testing.html">Testing Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/interaction.html">Interaction Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/dframe_explorer.html">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -152,7 +158,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
 
 
-<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.add_rows">[docs]</a><span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_rows">[docs]</a><span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add rows to data table according to a given nrows.</span>
 <span class="sd">    New rows will have their IDs set to NaN.</span>
@@ -196,7 +202,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">]),</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">i_to_copy</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.remove_rows">[docs]</a><span class="k">def</span> <span class="nf">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.remove_rows">[docs]</a><span class="k">def</span> <span class="nf">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove a random `nrows` number of rows from a table.</span>
 
@@ -218,8 +224,8 @@
     <span class="n">nrows</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span>  <span class="c"># in case a negative number came in</span>
     <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Operation would remove entire table.&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Number of rows to remove exceeds number of rows in table.&#39;</span><span class="p">)</span>
 
     <span class="n">i_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
         <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -228,7 +234,7 @@
     <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i_to_keep</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">i_to_keep</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.add_or_remove_rows">[docs]</a><span class="k">def</span> <span class="nf">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_or_remove_rows">[docs]</a><span class="k">def</span> <span class="nf">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add or remove rows to/from a table. Rows are added</span>
 <span class="sd">    for positive `nrows` and removed for negative `nrows`.</span>
@@ -271,7 +277,7 @@
     <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span>
 
 </div>
-<div class="viewcode-block" id="GrowthRateTransition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.GrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">GrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="GrowthRateTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">GrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transition given tables using a simple growth rate.</span>
 
@@ -283,7 +289,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span> <span class="o">=</span> <span class="n">growth_rate</span>
 
-<div class="viewcode-block" id="GrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.GrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+<div class="viewcode-block" id="GrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
 <span class="sd">        growth rate for this model.</span>
@@ -324,7 +330,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="TabularGrowthRateTransition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularGrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularGrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TabularGrowthRateTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularGrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularGrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Growth rate based transitions where the rates are stored in</span>
 <span class="sd">    a table indexed by year with optional segmentation.</span>
@@ -371,7 +377,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">len_data</span> <span class="o">*</span> <span class="n">growth_rate</span><span class="p">))</span>
 
-<div class="viewcode-block" id="TabularGrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularGrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+<div class="viewcode-block" id="TabularGrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularGrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
 <span class="sd">        growth rate for this model and year.</span>
@@ -449,7 +455,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="TabularTotalsTransition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularTotalsTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularTotalsTransition</span><span class="p">(</span><span class="n">TabularGrowthRateTransition</span><span class="p">):</span>
+<div class="viewcode-block" id="TabularTotalsTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularTotalsTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularTotalsTransition</span><span class="p">(</span><span class="n">TabularGrowthRateTransition</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transition data via control totals in pandas DataFrame with</span>
 <span class="sd">    optional segmentation.</span>
@@ -495,7 +501,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">target_pop</span> <span class="o">-</span> <span class="n">len_data</span>
 
-<div class="viewcode-block" id="TabularTotalsTransition.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TabularTotalsTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+<div class="viewcode-block" id="TabularTotalsTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularTotalsTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
 <span class="sd">        totals for this model and year.</span>
@@ -581,7 +587,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">table</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
 
 
-<div class="viewcode-block" id="TransitionModel"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TransitionModel">[docs]</a><span class="k">class</span> <span class="nc">TransitionModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TransitionModel"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TransitionModel">[docs]</a><span class="k">class</span> <span class="nc">TransitionModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Models things moving into or out of a region.</span>
 
@@ -596,7 +602,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transitioner</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span> <span class="o">=</span> <span class="n">transitioner</span>
 
-<div class="viewcode-block" id="TransitionModel.transition"><a class="viewcode-back" href="../../../models/transition.html#urbansim.models.transition.TransitionModel.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">linked_tables</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TransitionModel.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TransitionModel.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">linked_tables</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add or remove rows from a table based on population targets.</span>
 

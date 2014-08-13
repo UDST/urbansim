@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Testing Helpers &mdash; urbansim 0.2dev documentation</title>
+  <title>DataFrame Explorer &mdash; urbansim 0.2dev documentation</title>
   
 
   
@@ -29,9 +29,8 @@
 
   
     <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
-        <link rel="up" title="UrbanSim Utilities" href="index.html"/>
-        <link rel="next" title="Mapping Utilities" href="../maps/index.html"/>
-        <link rel="prev" title="Misc. Utilities" href="misc.html"/> 
+        <link rel="up" title="Mapping Utilities" href="index.html"/>
+        <link rel="prev" title="Mapping Utilities" href="index.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -94,13 +93,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">UrbanSim Utilities</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="index.html#about">About</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../maps/index.html">Mapping Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../maps/dframe_explorer.html">DataFrame Explorer</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Mapping Utilities</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -126,12 +125,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-          <li><a href="index.html">UrbanSim Utilities</a> &raquo;</li>
+          <li><a href="index.html">Mapping Utilities</a> &raquo;</li>
       
-    <li>Testing Helpers</li>
+    <li>DataFrame Explorer</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/utils/testing.txt" rel="nofollow"> View page source</a>
+          <a href="../_sources/maps/dframe_explorer.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -139,34 +138,44 @@
 </div>
           <div role="main">
             
-  <div class="section" id="testing-helpers">
-<h1>Testing Helpers<a class="headerlink" href="#testing-helpers" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-urbansim.utils.testing">
-<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.utils.testing" title="Permalink to this headline">¶</a></h2>
-<p>Utilities used in testing of UrbanSim.</p>
+  <div class="section" id="dataframe-explorer">
+<h1>DataFrame Explorer<a class="headerlink" href="#dataframe-explorer" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-urbansim.maps.dframe_explorer">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.maps.dframe_explorer" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="urbansim.utils.testing.assert_frames_equal">
-<tt class="descclassname">urbansim.utils.testing.</tt><tt class="descname">assert_frames_equal</tt><big>(</big><em>actual</em>, <em>expected</em>, <em>use_close=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/testing.html#assert_frames_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.testing.assert_frames_equal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compare DataFrame items by index and column and
-raise AssertionError if any item is not equal.</p>
-<p>Ordering is unimportant, items are compared only by label.
-NaN and infinite values are supported.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>actual</strong> : pandas.DataFrame</p>
-<p><strong>expected</strong> : pandas.DataFrame</p>
-<p><strong>use_close</strong> : bool, optional</p>
-<blockquote class="last">
-<div><p>If True, use numpy.testing.assert_allclose instead of
-numpy.testing.assert_equal.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dt id="urbansim.maps.dframe_explorer.ans_options">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">ans_options</tt><big>(</big><em>table=None</em>, <em>filter=None</em>, <em>groupby=None</em>, <em>field=None</em>, <em>agg=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#ans_options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.ans_options" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="urbansim.maps.dframe_explorer.data_static">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">data_static</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#data_static"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.data_static" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="urbansim.maps.dframe_explorer.enable_cors">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">enable_cors</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#enable_cors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.enable_cors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="urbansim.maps.dframe_explorer.get_schema">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">get_schema</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#get_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.get_schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="urbansim.maps.dframe_explorer.index">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">index</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="urbansim.maps.dframe_explorer.map_query">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">map_query</tt><big>(</big><em>table</em>, <em>filter</em>, <em>groupby</em>, <em>field</em>, <em>agg</em><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#map_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.map_query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="urbansim.maps.dframe_explorer.start">
+<tt class="descclassname">urbansim.maps.dframe_explorer.</tt><tt class="descname">start</tt><big>(</big><em>views, center=[37.7792, -122.2191], zoom=11, shape_json='data/zones.json', geom_name='ZONE_ID', join_name='zone_id', precision=8, port=8765, host='localhost', testing=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 </div>
@@ -177,10 +186,8 @@ numpy.testing.assert_equal.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../maps/index.html" class="btn btn-neutral float-right" title="Mapping Utilities"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="misc.html" class="btn btn-neutral" title="Misc. Utilities"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Mapping Utilities"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>urbansim.maps.dframe_explorer &mdash; urbansim 0.2dev documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../../index.html" class="fa fa-home"> urbansim</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Core Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Real Estate Development Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#contents">Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/dframe_explorer.html">DataFrame Explorer</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">urbansim</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>urbansim.maps.dframe_explorer</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for urbansim.maps.dframe_explorer</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">bottle</span> <span class="kn">import</span> <span class="n">route</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">static_file</span>
+<span class="kn">from</span> <span class="nn">urbansim.utils</span> <span class="kn">import</span> <span class="n">yamlio</span>
+<span class="kn">import</span> <span class="nn">simplejson</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
+
+
+<span class="nd">@hook</span><span class="p">(</span><span class="s">&#39;after_request&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="enable_cors"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.enable_cors">[docs]</a><span class="k">def</span> <span class="nf">enable_cors</span><span class="p">():</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;*&#39;</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Access-Control-Allow-Headers&#39;</span><span class="p">]</span> <span class="o">=</span> \
+        <span class="s">&#39;Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token&#39;</span>
+</div>
+<span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">CONFIG</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<div class="viewcode-block" id="get_schema"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.get_schema">[docs]</a><span class="k">def</span> <span class="nf">get_schema</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">DFRAMES</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">DFRAMES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">DFRAMES</span><span class="p">}</span>
+
+</div>
+<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field:path&gt;/&lt;agg&gt;&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;GET&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="map_query"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.map_query">[docs]</a><span class="k">def</span> <span class="nf">map_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">filter</span><span class="p">,</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">agg</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">DFRAMES</span>
+
+    <span class="nb">filter</span> <span class="o">=</span> <span class="s">&quot;.query(&#39;</span><span class="si">%s</span><span class="s">&#39;)&quot;</span> <span class="o">%</span> <span class="nb">filter</span> <span class="k">if</span> <span class="nb">filter</span> <span class="o">!=</span> <span class="s">&quot;empty&quot;</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">DFRAMES</span><span class="p">[</span><span class="n">table</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Col not found, trying eval:&quot;</span><span class="p">,</span> <span class="n">field</span>
+        <span class="n">df</span><span class="p">[</span><span class="s">&quot;eval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="s">&quot;eval&quot;</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;df</span><span class="si">%s</span><span class="s">.groupby(&#39;</span><span class="si">%s</span><span class="s">&#39;)[&#39;</span><span class="si">%s</span><span class="s">&#39;].</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+          <span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">agg</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">cmd</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">results</span><span class="p">[</span><span class="n">results</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+</div>
+<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field&gt;/&lt;agg&gt;&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;OPTIONS&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="ans_options"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.ans_options">[docs]</a><span class="k">def</span> <span class="nf">ans_options</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{}</span>
+
+</div>
+<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.index">[docs]</a><span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">CONFIG</span>
+    <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s">&#39;dframe_explorer.html&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">)</span>
+
+</div>
+<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/data/&lt;filename&gt;&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="data_static"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.data_static">[docs]</a><span class="k">def</span> <span class="nf">data_static</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">static_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="s">&#39;./data&#39;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../../maps/dframe_explorer.html#urbansim.maps.dframe_explorer.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">views</span><span class="p">,</span>
+          <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mf">37.7792</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2191</span><span class="p">],</span>
+          <span class="n">zoom</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+          <span class="n">shape_json</span><span class="o">=</span><span class="s">&#39;data/zones.json&#39;</span><span class="p">,</span>
+          <span class="n">geom_name</span><span class="o">=</span><span class="s">&#39;ZONE_ID&#39;</span><span class="p">,</span>  <span class="c"># from JSON file</span>
+          <span class="n">join_name</span><span class="o">=</span><span class="s">&#39;zone_id&#39;</span><span class="p">,</span>  <span class="c"># from data frames</span>
+          <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+          <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span>
+          <span class="n">host</span><span class="o">=</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span>
+          <span class="n">testing</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+    <span class="k">global</span> <span class="n">DFRAMES</span><span class="p">,</span> <span class="n">CONFIG</span>
+    <span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">views</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">}</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;center&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">center</span><span class="p">),</span>
+        <span class="s">&#39;zoom&#39;</span><span class="p">:</span> <span class="n">zoom</span><span class="p">,</span>
+        <span class="s">&#39;shape_json&#39;</span><span class="p">:</span> <span class="n">shape_json</span><span class="p">,</span>
+        <span class="s">&#39;geom_name&#39;</span><span class="p">:</span> <span class="n">geom_name</span><span class="p">,</span>
+        <span class="s">&#39;join_name&#39;</span><span class="p">:</span> <span class="n">join_name</span><span class="p">,</span>
+        <span class="s">&#39;precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">join_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">views</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Join name must be present on all dataframes - &quot;</span>
+                            <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39; not present on &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">join_name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+
+    <span class="n">config</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">get_schema</span><span class="p">())</span>
+
+    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">config</span>
+
+    <span class="k">if</span> <span class="n">testing</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Synthicity.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.2dev',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

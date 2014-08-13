@@ -29,7 +29,7 @@
 
   
     <link rel="top" title="urbansim 0.2dev documentation" href="index.html"/>
-        <link rel="next" title="Simulation Framework" href="sim/index.html"/>
+        <link rel="next" title="Examples" href="examples.html"/>
         <link rel="prev" title="UrbanSim" href="index.html"/> 
 
   
@@ -60,6 +60,17 @@
             <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sim/index.html">Simulation Framework</a><ul>
@@ -69,31 +80,26 @@
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#module-urbansim.sim.simulation">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="models/index.html">Real Estate Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="models/regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/transition.html">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/util.html">Model Related Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/index.html">Core Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developer/index.html">Developer Models</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="developer/index.html">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developer/developer.html">Developer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/testing.html">Testing Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="urbanchoice/interaction.html">Interaction Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="maps/dframe_explorer.html">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -157,6 +163,113 @@ included in Anaconda.</p>
 <p>If you need to update UrbanSim run the above command again.</p>
 </div>
 </div>
+<div class="section" id="tools-of-the-trade">
+<h2>Tools of the Trade<a class="headerlink" href="#tools-of-the-trade" title="Permalink to this headline">¶</a></h2>
+<p>This page provides a brief introduction to Pandas and IPython Notebooks  - two of the key tools that the new implementation of UrbanSim relies on.</p>
+<div class="section" id="pandas">
+<h3>Pandas<a class="headerlink" href="#pandas" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://pandas.pydata.org">Pandas</a> is a data science library written in Python which is an outstanding tool for data manipulation and exploration.  To get started, we recommend Wes McKinney&#8217;s <a class="reference external" href="http://vimeo.com/59324550">10 minute video tour</a>.</p>
+<p>Pandas is similar to a relational database with a much easier API than SQL, and with much faster performance.  However, it makes no attempt to enable multi-user editing of data and transactions the way a database would.</p>
+<p>The previous implementation of UrbanSim, known as <a class="reference external" href="http://urbansim.org">OPUS</a>, implemented much of this functionality itself in the absence of such robust libraries - in fact, the OPUS implementation of UrbanSim was started around 2005, while Pandas wasn&#8217;t developed until 2010.</p>
+<p>One of the main motivations for the current implementation of UrbanSim is to refactor the code to make it simpler, faster, and smaller, while leveraging terrific new libraries like Pandas that have solved very elegantly some of the functionality UrbanSim previously had to implement directly.</p>
+</div>
+<div class="section" id="a-note-on-pandas-indexing">
+<h3>A Note on Pandas Indexing<a class="headerlink" href="#a-note-on-pandas-indexing" title="Permalink to this headline">¶</a></h3>
+<p>One very import note about Pandas - the real genius of the abstraction is that all records in a table are viewed as key-value pairs.  Every table has an <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/indexing.html">index</a> or a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex">multi-index</a> which is used to <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/basics.html#aligning-objects-with-each-other-with-align">align</a> the table on the key for that table.</p>
+<p>This is similar to having a <a class="reference external" href="http://en.wikipedia.org/wiki/Unique_key">primary key</a> in a database except that now you can do mathematical operations with columns.  For instance, you can now take a column from one table and a column from another table and add or multiply them and the operation will automatically align on the key (i.e. it will add elements with the same index value).</p>
+<p>This is incredibly handy.  Almost all of the benefits of using Pandas come down to using these indexes in intelligent and powerful ways.  But it&#8217;s not always easy to get the functionality exactly right the first time.</p>
+<p><strong>Some general advice about using Pandas: if you have a problem with Pandas, check your indexes, re-check your indexes, and do it one more time for good measure.</strong></p>
+<p>A surprising amount of the time when you have bugs in your code, the Pandas series is not indexed correctly when performing the subsequent operations and it is not doing what you intend.  You&#8217;ve been warned.</p>
+<p>To be clear, the canonical example of using Pandas might be having a parcel table indexed on parcel id and a building table indexed on building_id, but with an attribute in the buildings table called parcel_id (the <a class="reference external" href="http://en.wikipedia.org/wiki/Foreign_key">foreign key</a>).</p>
+<p>The tables can be merged using</p>
+<p><tt class="docutils literal"><span class="pre">pd.merge(buildings,</span> <span class="pre">parcels,</span> <span class="pre">left_on=&quot;parcel_id&quot;,</span> <span class="pre">right_index=True,</span> <span class="pre">how=&quot;left&quot;)</span></tt></p>
+<p>You will do this a lot.  If you want a comparison of SQL and pandas, check out this <a class="reference external" href="http://www.gregreda.com/2013/01/23/translating-sql-to-pandas-part1/">series of blog posts</a>.</p>
+</div>
+<div class="section" id="ipython">
+<h3>IPython<a class="headerlink" href="#ipython" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://ipython.org/">IPython</a> is an interactive Python interpreter that is built on Python that helps when interfacing with the operating system, profiling, parallelizing, and with many other technical details.</p>
+<p>One of the most useful features of IPython is the <a class="reference external" href="http://ipython.org/notebook.html">IPython notebook</a>, which is perfect for interactively executing small cells of Python code. We use notebooks a LOT, and they are a wonderful way to avoid the command line in a cross-platform way.  The notebook is a fantastic tool to develop snippets of code a few lines at a time, and to capture and communicate higher-level workflows.</p>
+<p>This also makes the notebook a fantastic pedagogical tool - in other words it&#8217;s great for demos and communicating both the input and output of cells of Python code (e.g. <a class="reference external" href="http://nbviewer.ipython.org/">nbviewer</a>.  Many of the full-size examples of UrbanSim on this site are presented in notebooks.</p>
+<p>In many cases, you can write entire UrbanSim models in the notebook, but this is not generally considered the best practice.  It&#8217;s entirely up to you though, and we are happy to share with you our insights from many hours of developing and using this set of tools.</p>
+</div>
+</div>
+<div class="section" id="a-gentle-introduction-to-urbansim">
+<h2>A Gentle Introduction to UrbanSim<a class="headerlink" href="#a-gentle-introduction-to-urbansim" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="background">
+<h3>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h3>
+<p>UrbanSim has been an active research project since the late 1990&#8217;s, and has undergone continual re-thinking, and re-engineering over the ensuing years, as documented in many of the <a class="reference external" href="http://urbansim.org/Research/ResearchPapers">accumulated research papers</a>.  Below is a brief, high-level summary of UrbanSim in only a few paragraphs from a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down to a series of models estimated and then simulated in sequence.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUMYEARSINSIMULATION</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The set of models varies among the many UrbanSim applications to different regions, due to the data availability and cleanliness, the time and resources that can be devoted to the project, and specific research questions that motivated the projects.  The set of models almost always includes at least the following:</p>
+</div>
+<div class="section" id="residential-real-estate-models">
+<h3>Residential Real Estate Models<a class="headerlink" href="#residential-real-estate-models" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>Hedonic Regression Models</strong> estimate and predict real estate prices for different residential building types</li>
+<li><strong>Location Choice Models</strong> estimate and predict where different types of households will choose to live, and are usually segmented by income and sometimes by other demographics.  These models are generally coupled with relocation models to capture the varying rates of relocation by households of different demographics.</li>
+<li><strong>Transition models</strong> generate new households/persons to match <em>control totals</em> that specify the growth of households by demographics makeup.</li>
+</ul>
+</div>
+<div class="section" id="non-residential-real-estate-models">
+<h3>Non-residential Real Estate Models<a class="headerlink" href="#non-residential-real-estate-models" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><strong>Hedonic Regression Models</strong> are analogous to the above except for modeling the rent received on non-residential building types.</li>
+<li><strong>Location Choices Models</strong> are analagous to the above except for modeling the location choices of jobs/establishments, and are usually segmented by employment sector (and also include relocation rate models).</li>
+<li><strong>Transition models</strong> generate new jobs/firms to match <em>control totals</em> that specify the growth of businesses by sector.</li>
+</ul>
+</div>
+<div class="section" id="real-estate-development-models">
+<h3>Real Estate Development Models<a class="headerlink" href="#real-estate-development-models" title="Permalink to this headline">¶</a></h3>
+<p>Some representation of real estate development must be modeled to accurately represent regional real estate markets.  In UrbanSim there are several options for modeling the development process, but most users are now moving to the Pro Forma based modeling approach.</p>
+<ul>
+<li><p class="first"><strong>Development Project Location Choice Models</strong> are the easiest way to represent development, which  sample from all recent development projects, estimate a model on where development is currently being located, and find an appropriate location for a copied development.</p>
+</li>
+<li><p class="first"><strong>Pro Forma Developer Models</strong> take the perspective of the developer and measures the profitability of a proposed development by predicting the cash flows from the predicted rent or sales price in a given submarket and comparing these inflows to the anticipated development costs of the project.</p>
+<p>Development will only happen where the predicted rent is high enough to cover costs of construction and a moderate profit, and will occur roughly to meet demand based on the location choice models and control totals.</p>
+<p>This type of developer model is highly flexible and can account for various planning policies including affordable housing, parking requirements, subsidies of various kinds, density bonuses, and other similar policies.</p>
+<p>Development regulations such as comprehensive plans and zoning provide regulatory constraints on what types of developments and what densities can be considered by the model.</p>
+</li>
+</ul>
+<p>It should be noted that many other kinds of models can be included in the simulation loop as well.  For instance, inclusion of scheduled development events is a key element to representing known future development projects.</p>
+<p>In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set and an ever-increasing set of functionality will be added over time.</p>
+</div>
+</div>
+<div class="section" id="taking-the-next-step">
+<h2>Taking the Next Step<a class="headerlink" href="#taking-the-next-step" title="Permalink to this headline">¶</a></h2>
+<p>The simulation framework will be discussed in depth in the <a class="reference external" href="sim/index.html">next section</a>, but before moving on it&#8217;s useful to describe at a high level how the simulation framework solves the problems described thus far in this <em>getting started</em> document.</p>
+<p>Over many years of implementing UrbanSim models, we realized that we wanted a flexible framework that had the following features:</p>
+<ul class="simple">
+<li>Tables can be registered from a wide variety of sources including databases, text files, and shapefiles.</li>
+<li>Relationships can be defined between tables and data from different sources can be easily merged and used as a new entity.</li>
+<li>Calculated columns can be specified so that when underlying data is changed, calculated columns are kept in sync automatically.</li>
+<li>Data processing <em>models</em> can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.</li>
+</ul>
+<p>To this end UrbanSim now implements this functionality as <a class="reference external" href="sim/index.html#tables">tables</a>, <a class="reference external" href="sim/index.html#urbansim.sim.simulation.broadcast">broadcasts</a>, <a class="reference external" href="sim/index.html#columns">columns</a>, and <a class="reference external" href="sim/index.html#models">models</a> respectively.  We decided to implement these concepts with Python functions and <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>. This is what is happening when you see the <tt class="docutils literal"><span class="pre">&#64;sim.DECORATOR_NAME</span></tt> syntax everywhere, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;buildings&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;buildings&#39;</span><span class="p">]</span>
+
+<span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">parcels</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;parcels&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>With the use of decorators you can <em>register</em> these concepts with the simulation engine and deal with one small piece of the simulation at a time - for instance, how to access data for a certain table, or how to compute a certain variable, or how to run a certain model.</p>
+<p>The objects can then be passed to each other using <em>injection</em>, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called <tt class="docutils literal"><span class="pre">total_units</span></tt> on the <tt class="docutils literal"><span class="pre">parcels</span></tt> table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.column</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">,</span> <span class="s">&#39;total_units&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">residential_unit_density</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">parcels</span><span class="o">.</span><span class="n">acres</span>
+</pre></div>
+</div>
+<p>If done well, these functions are limited to just a few lines which implement a very specific piece of functionality, and there will be more detailed examples in the tutorials section.</p>
+<p>Note that this approach is inspired by a number of different frameworks (in Python and otherwise) such as <a class="reference external" href="http://pytest.org/latest/fixture.html#fixture">py.test</a>, <a class="reference external" href="http://flask.pocoo.org/">flask</a>, and even web frameworks like <a class="reference external" href="https://docs.angularjs.org/guide/di">Angular</a>.</p>
+<p>Note that this is designed to be an <em>extremely</em> flexible framework.  Models can be injected into tables, and tables into models, and infinite recursion is possible (this is not suggested!).  Additionally, multiple kinds of decorators can be added to the same file so that a piece of functionality can be separated - for instance, an affordable housing module.  On the other hand, models could be kept together, columns together, and tables together - the organization is up to you.  We hope that this flexibility inspires innovation for specific use cases, but what follows is a set of tutorials that we consider best practices.</p>
+</div>
 </div>
 
 
@@ -165,7 +278,7 @@ included in Anaconda.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sim/index.html" class="btn btn-neutral float-right" title="Simulation Framework"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="UrbanSim"><span class="fa fa-arrow-circle-left"></span> Previous</a>

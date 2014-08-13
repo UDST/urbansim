@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Transition Models &mdash; urbansim 0.2dev documentation</title>
+  <title>Transition and Relocation Models &mdash; urbansim 0.2dev documentation</title>
   
 
   
@@ -29,9 +29,9 @@
 
   
     <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
-        <link rel="up" title="Real Estate Models" href="index.html"/>
-        <link rel="next" title="Relocation Models" href="relocation.html"/>
-        <link rel="prev" title="Location Choice Models" href="lcm.html"/> 
+        <link rel="up" title="Core Models" href="index.html"/>
+        <link rel="next" title="Model Related Utilities" href="util.html"/>
+        <link rel="prev" title="Statistical Models" href="statistical.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -59,6 +59,21 @@
         
         
             <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
@@ -66,31 +81,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Real Estate Models</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../developer/developer.html">Developer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../maps/dframe_explorer.html">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -116,12 +126,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-          <li><a href="index.html">Real Estate Models</a> &raquo;</li>
+          <li><a href="index.html">Core Models</a> &raquo;</li>
       
-    <li>Transition Models</li>
+    <li>Transition and Relocation Models</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/models/transition.txt" rel="nofollow"> View page source</a>
+          <a href="../_sources/models/transrelo.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -129,10 +139,103 @@
 </div>
           <div role="main">
             
-  <div class="section" id="transition-models">
-<h1>Transition Models<a class="headerlink" href="#transition-models" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="transition-and-relocation-models">
+<span id="transition-relocation"></span><h1>Transition and Relocation Models<a class="headerlink" href="#transition-and-relocation-models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Transition models are used to add (via copying) or remove rows from a table
+based on prescribed rates or totals.
+Relocation models are used to select movers from a table, also based on
+prescribed rates.</p>
+</div>
+<div class="section" id="control-table-formatting">
+<h2>Control Table Formatting<a class="headerlink" href="#control-table-formatting" title="Permalink to this headline">¶</a></h2>
+<p>The tables of rates and totals used in transition and relocation models have
+a particular format that allows them to specify different values for
+different segments of the table. Below is an example table:</p>
+<div class="highlight-python"><div class="highlight"><pre>num_cars num_children_min num_children_max relocation_rate
+       0              nan                2            0.08
+       0                2                4            0.05
+       0                4              nan            0.03
+       1              nan                2            0.09
+       1                2                4            0.04
+       1                4              nan            0.05
+</pre></div>
+</div>
+<p>Each column except the <tt class="docutils literal"><span class="pre">relocation_rate</span></tt> column describes a filter
+on the table to which the rates will be applied. The column names are
+inspected to determine the type of the filter and the table column
+to which the filter applies.</p>
+<p>Column names that end with <tt class="docutils literal"><span class="pre">_min</span></tt> indicate a &#8220;greater than or equal to&#8221;
+filter. For example, the second row of the above table will have a filter
+like <tt class="docutils literal"><span class="pre">num_children</span> <span class="pre">&gt;=</span> <span class="pre">2</span></tt>.</p>
+<p>Column names that end with <tt class="docutils literal"><span class="pre">_max</span></tt> indicate a &#8220;less than&#8221; filter.
+For example, the second row of the above table will have a filter like
+<tt class="docutils literal"><span class="pre">num_children</span> <span class="pre">&lt;</span> <span class="pre">4</span></tt>. Notice that the maximum is not inclusive.</p>
+<p>Column names that do not end in <tt class="docutils literal"><span class="pre">_min</span></tt> or <tt class="docutils literal"><span class="pre">_max</span></tt> indicate an
+&#8220;equal to&#8221; filter. In the above table the first, second, and third rows
+will have a filter like <tt class="docutils literal"><span class="pre">num_cars</span> <span class="pre">==</span> <span class="pre">0</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">nan</span></tt> values indicate filters that do not apply in a given row.</p>
+</div>
+<div class="section" id="transition-model-notes">
+<h2>Transition Model Notes<a class="headerlink" href="#transition-model-notes" title="Permalink to this headline">¶</a></h2>
+<p>Transition models have two components. The main interface is the
+<a class="reference internal" href="#urbansim.models.transition.TransitionModel" title="urbansim.models.transition.TransitionModel"><tt class="xref py py-class docutils literal"><span class="pre">TransitionModel</span></tt></a>, but it
+is configured by providing a &#8220;transitioner&#8221;.
+Transitioners can make transitions based on different inputs like
+growth rates and control totals. Available transitioners are:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><tt class="xref py py-class docutils literal"><span class="pre">GrowthRateTransition</span></tt></a></li>
+<li><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><tt class="xref py py-class docutils literal"><span class="pre">TabularGrowthRateTransition</span></tt></a></li>
+<li><a class="reference internal" href="#urbansim.models.transition.TabularTotalsTransition" title="urbansim.models.transition.TabularTotalsTransition"><tt class="xref py py-class docutils literal"><span class="pre">TabularTotalsTransition</span></tt></a></li>
+</ul>
+<p>Or you could write and provide your own transitioner.
+Transitioners are expected to be callable and take arguments of a
+<a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrame</a> with the data to transition and a year number.
+They should return a new data table, the indexes of rows added,
+the indexes of rows copied, and the indexes of rows removed.</p>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="transition-api">
+<h3>Transition API<a class="headerlink" href="#transition-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><tt class="xref py py-obj docutils literal"><span class="pre">GrowthRateTransition</span></tt></a>(growth_rate)</td>
+<td>Transition given tables using a simple growth rate.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><tt class="xref py py-obj docutils literal"><span class="pre">TabularGrowthRateTransition</span></tt></a>(growth_rates,&nbsp;...)</td>
+<td>Growth rate based transitions where the rates are stored in a table indexed by year with optional segmentation.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.TabularTotalsTransition" title="urbansim.models.transition.TabularTotalsTransition"><tt class="xref py py-obj docutils literal"><span class="pre">TabularTotalsTransition</span></tt></a>(targets,&nbsp;totals_column)</td>
+<td>Transition data via control totals in pandas DataFrame with optional segmentation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.transition.TransitionModel" title="urbansim.models.transition.TransitionModel"><tt class="xref py py-obj docutils literal"><span class="pre">TransitionModel</span></tt></a>(transitioner)</td>
+<td>Models things moving into or out of a region.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="relocation-api">
+<h3>Relocation API<a class="headerlink" href="#relocation-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.relocation.RelocationModel" title="urbansim.models.relocation.RelocationModel"><tt class="xref py py-obj docutils literal"><span class="pre">RelocationModel</span></tt></a>(rates[,&nbsp;rate_column])</td>
+<td>Find movers within a population according to a table of relocation rates.</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="module-urbansim.models.transition">
-<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.transition" title="Permalink to this headline">¶</a></h2>
+<span id="transition-api-docs"></span><h3>Transition API Docs<a class="headerlink" href="#module-urbansim.models.transition" title="Permalink to this headline">¶</a></h3>
 <p>Use the <tt class="docutils literal"><span class="pre">TransitionModel</span></tt> class with the different transitioners to
 add or remove agents based on growth rates or target totals.</p>
 <dl class="class">
@@ -495,6 +598,134 @@ will have multiple entries.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-urbansim.models.relocation">
+<span id="relocation-api-docs"></span><h3>Relocation API Docs<a class="headerlink" href="#module-urbansim.models.relocation" title="Permalink to this headline">¶</a></h3>
+<p>Use the <tt class="docutils literal"><span class="pre">RelocationModel</span></tt> class to choose movers based on
+relocation rates.</p>
+<dl class="class">
+<dt id="urbansim.models.relocation.RelocationModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.relocation.</tt><tt class="descname">RelocationModel</tt><big>(</big><em>rates</em>, <em>rate_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find movers within a population according to a table of
+relocation rates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rates</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of relocation rates. Index is unused.</p>
+<p>Other columns describe filters on the <cite>choosers</cite>
+table so that different segments can have different relocation
+rates. Columns that ends with &#8216;_max&#8217; will be used to create
+a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
+used to create &#8220;greater than or equal to&#8221; filters.
+A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+<p>An example <cite>rates</cite> structure:</p>
+<dl class="docutils">
+<dt>age_of_head_max  age_of_head_min</dt>
+<dd><dl class="first last docutils">
+<dt>nan               65</dt>
+<dd><p class="first last">65               40</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>In this example the <cite>choosers</cite> table would need to have an
+&#8216;age_of_head&#8217; column on which to filter.</p>
+<p>nan should be used to flag filters that do not apply
+in a given row.</p>
+</div></blockquote>
+<p><strong>rate_column</strong> : object, optional</p>
+<blockquote class="last">
+<div><p>Name of column in <cite>rates</cite> table that contains relocation rates.
+If not given &#8216;probability_of_relocating&#8217; is used.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.relocation.RelocationModel.find_movers">
+<tt class="descname">find_movers</tt><big>(</big><em>choosers</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel.find_movers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel.find_movers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select movers from among a table of <cite>choosers</cite> according to the
+stored relocation rates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of agents from which to find movers.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Suitable for indexing <cite>choosers</cite> by index.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.relocation.find_movers">
+<tt class="descclassname">urbansim.models.relocation.</tt><tt class="descname">find_movers</tt><big>(</big><em>choosers</em>, <em>rates</em>, <em>rate_column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/relocation.html#find_movers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.find_movers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array of the indexes of the <cite>choosers</cite> that are slated
+to move.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of agents from which to find movers.</p>
+</div></blockquote>
+<p><strong>rates</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of relocation rates. Index is unused.</p>
+<p>Other columns describe filters on the <cite>choosers</cite>
+table so that different segments can have different relocation
+rates. Columns that ends with &#8216;_max&#8217; will be used to create
+a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
+used to create &#8220;greater than or equal to&#8221; filters.
+A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+<p>An example <cite>rates</cite> structure:</p>
+<dl class="docutils">
+<dt>age_of_head_max  age_of_head_min</dt>
+<dd><dl class="first last docutils">
+<dt>nan               65</dt>
+<dd><p class="first last">65               40</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>In this example the <cite>choosers</cite> table would need to have an
+&#8216;age_of_head&#8217; column on which to filter.</p>
+<p>nan should be used to flag filters that do not apply
+in a given row.</p>
+</div></blockquote>
+<p><strong>rate_column</strong> : object</p>
+<blockquote>
+<div><p>Name of column in <cite>rates</cite> table that has relocation rates.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
+<blockquote class="last">
+<div><p>Suitable for indexing <cite>choosers</cite> by index.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
 </div>
 
 
@@ -503,10 +734,10 @@ will have multiple entries.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="relocation.html" class="btn btn-neutral float-right" title="Relocation Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="util.html" class="btn btn-neutral float-right" title="Model Related Utilities"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="lcm.html" class="btn btn-neutral" title="Location Choice Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="statistical.html" class="btn btn-neutral" title="Statistical Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

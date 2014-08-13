@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Real Estate Models &mdash; urbansim 0.2dev documentation</title>
+  <title>Core Models &mdash; urbansim 0.2dev documentation</title>
   
 
   
@@ -29,7 +29,7 @@
 
   
     <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
-        <link rel="next" title="Regression Models" href="regression.html"/>
+        <link rel="next" title="Statistical Models" href="statistical.html"/>
         <link rel="prev" title="Simulation Framework" href="../sim/index.html"/> 
 
   
@@ -60,6 +60,17 @@
             <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
@@ -69,31 +80,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Real Estate Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="transition.html">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="util.html">Model Related Utilities</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Core Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../developer/developer.html">Developer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../maps/dframe_explorer.html">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -119,7 +125,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-    <li>Real Estate Models</li>
+    <li>Core Models</li>
       <li class="wy-breadcrumbs-aside">
         
           <a href="../_sources/models/index.txt" rel="nofollow"> View page source</a>
@@ -130,31 +136,56 @@
 </div>
           <div role="main">
             
-  <div class="section" id="real-estate-models">
-<h1>Real Estate Models<a class="headerlink" href="#real-estate-models" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="core-models">
+<h1>Core Models<a class="headerlink" href="#core-models" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Most of UrbanSim&#8217;s models are implemented as specialized classes that
+help link <a class="reference external" href="http://pandas.pydata.org">pandas</a> data structures
+with other operations. The model selections include:</p>
+<ul class="simple">
+<li><a class="reference internal" href="statistical.html#statistical-models"><em>Statistical Models</em></a><ul>
+<li>A regression model for predicting numeric data
+and a location choice model for matching choosers to their
+likely selections.</li>
+</ul>
+</li>
+<li><a class="reference internal" href="transrelo.html#transition-relocation"><em>Transition and Relocation Models</em></a><ul>
+<li>For adding/removing members from a population and choosing movers.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="regression.html">Regression Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="regression.html#module-urbansim.models.regression">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistical.html">Statistical Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="statistical.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="statistical.html#model-expressions">Model Expressions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="statistical.html#yaml-persistence">YAML Persistence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="statistical.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="lcm.html">Location Choice Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="lcm.html#module-urbansim.models.lcm">API</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="transition.html">Transition Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="transition.html#module-urbansim.models.transition">API</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="relocation.html">Relocation Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="relocation.html#module-urbansim.models.relocation">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transrelo.html">Transition and Relocation Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transrelo.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transrelo.html#control-table-formatting">Control Table Formatting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transrelo.html#transition-model-notes">Transition Model Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transrelo.html#api">API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Model Related Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="util.html#module-urbansim.models.util">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html#api">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="urbanchoice.html">Location Choice Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="urbanchoice.html#module-urbansim.urbanchoice.mnl">Multinomial Logit API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="urbanchoice.html#module-urbansim.urbanchoice.interaction">Interaction Datasets API</a></li>
 </ul>
 </li>
 </ul>
+</div>
 </div>
 </div>
 
@@ -164,7 +195,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="regression.html" class="btn btn-neutral float-right" title="Regression Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="statistical.html" class="btn btn-neutral float-right" title="Statistical Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../sim/index.html" class="btn btn-neutral" title="Simulation Framework"><span class="fa fa-arrow-circle-left"></span> Previous</a>

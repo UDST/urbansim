@@ -29,8 +29,8 @@
 
   
     <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
-        <link rel="next" title="Real Estate Models" href="../models/index.html"/>
-        <link rel="prev" title="Getting Started" href="../gettingstarted.html"/> 
+        <link rel="next" title="Core Models" href="../models/index.html"/>
+        <link rel="prev" title="Examples" href="../examples.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -60,6 +60,17 @@
             <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Simulation Framework</a><ul>
@@ -69,31 +80,26 @@
 <li class="toctree-l2"><a class="reference internal" href="#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.sim.simulation">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../models/index.html">Real Estate Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../models/regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../models/lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../models/transition.html">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../models/relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../models/util.html">Model Related Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../developer/developer.html">Developer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/testing.html">Testing Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../urbanchoice/interaction.html">Interaction Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../maps/dframe_explorer.html">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -552,8 +558,157 @@ saves tables every fifth year. In addition, the final data is always saved
 under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</span> <span class="pre">name&gt;'</span></tt>.</p>
 </div>
 </div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="table-api">
+<h3>Table API<a class="headerlink" href="#table-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-obj docutils literal"><span class="pre">add_table</span></tt></a>(table_name,&nbsp;table[,&nbsp;cache])</td>
+<td>Register a table with the simulation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table" title="urbansim.sim.simulation.table"><tt class="xref py py-obj docutils literal"><span class="pre">table</span></tt></a>(table_name[,&nbsp;cache])</td>
+<td>Decorator version of <cite>add_table</cite> used for decorating functions that return DataFrames.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table_source" title="urbansim.sim.simulation.add_table_source"><tt class="xref py py-obj docutils literal"><span class="pre">add_table_source</span></tt></a>(table_name,&nbsp;func)</td>
+<td>Add a DataFrame source function to the simulation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table_source" title="urbansim.sim.simulation.table_source"><tt class="xref py py-obj docutils literal"><span class="pre">table_source</span></tt></a>(table_name)</td>
+<td>Decorator version of <cite>add_table_source</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.get_table" title="urbansim.sim.simulation.get_table"><tt class="xref py py-obj docutils literal"><span class="pre">get_table</span></tt></a>(table_name)</td>
+<td>Get a registered table.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.list_tables" title="urbansim.sim.simulation.list_tables"><tt class="xref py py-obj docutils literal"><span class="pre">list_tables</span></tt></a>()</td>
+<td>List of table names.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>(name,&nbsp;frame)</td>
+<td>Wraps a DataFrame so it can provide certain columns and handle computed columns.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.TableFuncWrapper" title="urbansim.sim.simulation.TableFuncWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">TableFuncWrapper</span></tt></a>(name,&nbsp;func[,&nbsp;cache])</td>
+<td>Wrap a function that provides a DataFrame.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="column-api">
+<h3>Column API<a class="headerlink" href="#column-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_column" title="urbansim.sim.simulation.add_column"><tt class="xref py py-obj docutils literal"><span class="pre">add_column</span></tt></a>(table_name,&nbsp;column_name,&nbsp;column)</td>
+<td>Add a new column to a table from a Series or callable.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.column" title="urbansim.sim.simulation.column"><tt class="xref py py-obj docutils literal"><span class="pre">column</span></tt></a>(table_name,&nbsp;column_name[,&nbsp;cache])</td>
+<td>Decorator version of <cite>add_column</cite> used for decorating functions that return a Series with an index matching the named table.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.list_columns" title="urbansim.sim.simulation.list_columns"><tt class="xref py py-obj docutils literal"><span class="pre">list_columns</span></tt></a>()</td>
+<td>List of (table name, registered column name) pairs.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="injectable-api">
+<h3>Injectable API<a class="headerlink" href="#injectable-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_injectable" title="urbansim.sim.simulation.add_injectable"><tt class="xref py py-obj docutils literal"><span class="pre">add_injectable</span></tt></a>(name,&nbsp;value[,&nbsp;autocall,&nbsp;cache])</td>
+<td>Add a value that will be injected into other functions that are part of the simulation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.injectable" title="urbansim.sim.simulation.injectable"><tt class="xref py py-obj docutils literal"><span class="pre">injectable</span></tt></a>(name[,&nbsp;autocall,&nbsp;cache])</td>
+<td>Decorator version of <cite>add_injectable</cite>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.get_injectable" title="urbansim.sim.simulation.get_injectable"><tt class="xref py py-obj docutils literal"><span class="pre">get_injectable</span></tt></a>(name)</td>
+<td>Get an injectable by name.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.list_injectables" title="urbansim.sim.simulation.list_injectables"><tt class="xref py py-obj docutils literal"><span class="pre">list_injectables</span></tt></a>()</td>
+<td>List of registered injectables.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="merge-api">
+<h3>Merge API<a class="headerlink" href="#merge-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.broadcast" title="urbansim.sim.simulation.broadcast"><tt class="xref py py-obj docutils literal"><span class="pre">broadcast</span></tt></a>(cast,&nbsp;onto[,&nbsp;cast_on,&nbsp;onto_on,&nbsp;...])</td>
+<td>Register a rule for merging two tables by broadcasting one onto the other.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.list_broadcasts" title="urbansim.sim.simulation.list_broadcasts"><tt class="xref py py-obj docutils literal"><span class="pre">list_broadcasts</span></tt></a>()</td>
+<td>List of registered broadcasts as (cast table name, onto table name).</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.merge_tables" title="urbansim.sim.simulation.merge_tables"><tt class="xref py py-obj docutils literal"><span class="pre">merge_tables</span></tt></a>(target,&nbsp;tables[,&nbsp;columns])</td>
+<td>Merge a number of tables onto a target table.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="model-api">
+<h3>Model API<a class="headerlink" href="#model-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_model" title="urbansim.sim.simulation.add_model"><tt class="xref py py-obj docutils literal"><span class="pre">add_model</span></tt></a>(model_name,&nbsp;func)</td>
+<td>Add a model function to the simulation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.model" title="urbansim.sim.simulation.model"><tt class="xref py py-obj docutils literal"><span class="pre">model</span></tt></a>(model_name)</td>
+<td>Decorator version of <cite>add_model</cite>, used to decorate a function that will require injection of tables and that can be run by the <cite>run</cite> function.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.get_model" title="urbansim.sim.simulation.get_model"><tt class="xref py py-obj docutils literal"><span class="pre">get_model</span></tt></a>(model_name)</td>
+<td>Get a wrapped model by name.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.list_models" title="urbansim.sim.simulation.list_models"><tt class="xref py py-obj docutils literal"><span class="pre">list_models</span></tt></a>()</td>
+<td>List of registered model names.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a>(models[,&nbsp;years,&nbsp;data_out,&nbsp;out_interval])</td>
+<td>Run models in series, optionally repeatedly over some years.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="cache-api">
+<h3>Cache API<a class="headerlink" href="#cache-api" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.clear_cache" title="urbansim.sim.simulation.clear_cache"><tt class="xref py py-obj docutils literal"><span class="pre">clear_cache</span></tt></a>()</td>
+<td>Clear all cached data.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.disable_cache" title="urbansim.sim.simulation.disable_cache"><tt class="xref py py-obj docutils literal"><span class="pre">disable_cache</span></tt></a>()</td>
+<td>Turn off caching across the simulation, even for computed tables, columns, and injectables that have caching enabled.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.enable_cache" title="urbansim.sim.simulation.enable_cache"><tt class="xref py py-obj docutils literal"><span class="pre">enable_cache</span></tt></a>()</td>
+<td>Allow caching of computed tables, columns, and injectables that explicitly have caching enabled.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.cache_on" title="urbansim.sim.simulation.cache_on"><tt class="xref py py-obj docutils literal"><span class="pre">cache_on</span></tt></a>()</td>
+<td>Whether caching is currently enabled or disabled.</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="module-urbansim.sim.simulation">
-<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.sim.simulation" title="Permalink to this headline">¶</a></h2>
+<span id="api-docs"></span><h3>API Docs<a class="headerlink" href="#module-urbansim.sim.simulation" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="urbansim.sim.simulation.DataFrameWrapper">
 <em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">DataFrameWrapper</tt><big>(</big><em>name</em>, <em>frame</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper" title="Permalink to this definition">¶</a></dt>
@@ -1043,13 +1198,14 @@ explicitly have caching enabled.</p>
 <dt id="urbansim.sim.simulation.get_table">
 <tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">get_table</tt><big>(</big><em>table_name</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#get_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.get_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a registered table.</p>
+<p>Table sources will be converted to <cite>DataFrameWrapper</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> : str</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>table</strong> : <cite>DataFrameWrapper</cite>, <cite>TableFuncWrapper</cite>, or <cite>_TableSourceWrapper</cite></td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>table</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></td>
 </tr>
 </tbody>
 </table>
@@ -1100,11 +1256,11 @@ registered merge rules via the <cite>broadcast</cite> function.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target</strong> : str, DataFrameWrapper, or TableFuncWrapper</p>
 <blockquote>
-<div><p>Name of the table onto which tables will be merged.</p>
+<div><p>Name of the table (or wrapped table) onto which tables will be merged.</p>
 </div></blockquote>
-<p><strong>tables</strong> : list of <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></p>
+<p><strong>tables</strong> : list of <cite>DataFrameWrapper</cite>, <cite>TableFuncWrapper</cite>, or str</p>
 <blockquote>
 <div><p>All of the tables to merge. Should include the target table.</p>
 </div></blockquote>
@@ -1218,6 +1374,7 @@ labeling DataFrames in the HDFStore.</p>
 
 </div>
 </div>
+</div>
 
 
           </div>
@@ -1225,10 +1382,10 @@ labeling DataFrames in the HDFStore.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../models/index.html" class="btn btn-neutral float-right" title="Real Estate Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../models/index.html" class="btn btn-neutral float-right" title="Core Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../gettingstarted.html" class="btn btn-neutral" title="Getting Started"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../examples.html" class="btn btn-neutral" title="Examples"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

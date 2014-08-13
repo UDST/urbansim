@@ -59,6 +59,17 @@
             <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
@@ -68,31 +79,26 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#module-urbansim.sim.simulation">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Real Estate Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/regression.html">Regression Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/lcm.html">Location Choice Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/transition.html">Transition Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/relocation.html">Relocation Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../models/util.html">Model Related Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Core Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Developer Models</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../utils/yamlio.html">YAML Input &amp; Output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../utils/misc.html">Misc. Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../utils/testing.html">Testing Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#about">About</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../urbanchoice/index.html">Location Choice Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/mnl.html">Multinomial Logit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../urbanchoice/interaction.html">Interaction Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">Mapping Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/dframe_explorer.html">DataFrame Explorer</a></li>
 </ul>
 </li>
 </ul>
@@ -945,17 +951,22 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a registered table.</span>
 
+<span class="sd">    Table sources will be converted to `DataFrameWrapper`.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    table_name : str</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    table : `DataFrameWrapper`, `TableFuncWrapper`, or `_TableSourceWrapper`</span>
+<span class="sd">    table : `DataFrameWrapper` or `TableFuncWrapper`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">_TABLES</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">_TableSourceWrapper</span><span class="p">):</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">table</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;table not found: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
 
@@ -1280,9 +1291,9 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    target : str</span>
-<span class="sd">        Name of the table onto which tables will be merged.</span>
-<span class="sd">    tables : list of `DataFrameWrapper` or `TableFuncWrapper`</span>
+<span class="sd">    target : str, DataFrameWrapper, or TableFuncWrapper</span>
+<span class="sd">        Name of the table (or wrapped table) onto which tables will be merged.</span>
+<span class="sd">    tables : list of `DataFrameWrapper`, `TableFuncWrapper`, or str</span>
 <span class="sd">        All of the tables to merge. Should include the target table.</span>
 <span class="sd">    columns : list of str, optional</span>
 <span class="sd">        If given, columns will be mapped to `tables` and only those columns</span>
@@ -1295,6 +1306,15 @@
 <span class="sd">    merged : pandas.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># allow target to be string or table wrapper</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="p">(</span><span class="n">DataFrameWrapper</span><span class="p">,</span> <span class="n">TableFuncWrapper</span><span class="p">)):</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="c"># allow tables to be strings or table wrappers</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+              <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">DataFrameWrapper</span><span class="p">,</span> <span class="n">TableFuncWrapper</span><span class="p">))</span> <span class="k">else</span> <span class="n">t</span>
+              <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">]</span>
+
     <span class="n">merges</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
     <span class="n">tables</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
     <span class="n">casts</span> <span class="o">=</span> <span class="n">_get_broadcasts</span><span class="p">(</span><span class="n">tables</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
