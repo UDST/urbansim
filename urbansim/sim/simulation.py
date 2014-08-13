@@ -813,17 +813,22 @@ def get_table(table_name):
     """
     Get a registered table.
 
+    Table sources will be converted to `DataFrameWrapper`.
+
     Parameters
     ----------
     table_name : str
 
     Returns
     -------
-    table : `DataFrameWrapper`, `TableFuncWrapper`, or `_TableSourceWrapper`
+    table : `DataFrameWrapper` or `TableFuncWrapper`
 
     """
     if table_name in _TABLES:
-        return _TABLES[table_name]
+        table = _TABLES[table_name]
+        if isinstance(table, _TableSourceWrapper):
+            table = table.convert()
+        return table
     else:
         raise KeyError('table not found: {}'.format(table_name))
 
