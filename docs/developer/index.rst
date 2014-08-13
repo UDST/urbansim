@@ -74,8 +74,25 @@ translation to units. ::
 
 
 The ``developer model`` is responsible for picking among feasible buildings
-in order to meet demand.  It provides a simple utility to compute the number
-of units (or amount of floorspace) to build ::
+in order to meet demand.  An example usage of the model is shown below - which
+is also lifted form the `sanfran_urbansim <https://github.com/synthicity/sanfran_urbansim>`_ demo.
+
+This module provides a simple utility to compute the number of units (or
+amount of floorspace) to build.  Although the vacancy rate *can* be applied
+at the regional level, it can also be used to meet vacancy rates at a
+sub-regional level.  The developer model itself is agnostic to which parcels
+the user passes it, and the user is responsible for knowing at which level of
+geography demand is assumed to operate.  The developer model then chooses
+which buildings to "build," usually as a random choice weighted by profitability.
+This means more profitable buildings are more likely to be built although
+the results are a bit stochastic.
+
+The only remaining steps are then "bookkeeping" in the sense that some
+additional fields might need to be added (``year_built`` or a conversion from
+developer ``forms`` to ``building_type_ids``).  Finally the new buildings
+and old buildings need to be merged in such a way that the old ids are
+preserved and not duplicated (new ids are assigned at the max of the old
+ids+1 and then incremented from there).  ::
 
     dev = developer.Developer(feasibility.to_frame())
 
