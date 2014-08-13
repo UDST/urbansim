@@ -475,7 +475,9 @@ def test_table_source(df):
     def source():
         return df
 
-    table = sim.get_table('source')
+    _source = lambda: sim._TABLES['source']
+
+    table = _source()
     assert isinstance(table, sim._TableSourceWrapper)
 
     test_df = table.to_frame()
@@ -484,7 +486,7 @@ def test_table_source(df):
     assert len(table) == len(df)
     pdt.assert_index_equal(table.index, df.index)
 
-    table = sim.get_table('source')
+    table = _source()
     assert isinstance(table, sim.DataFrameWrapper)
 
     test_df = table.to_frame()
@@ -496,14 +498,16 @@ def test_table_source_convert(df):
     def source():
         return df
 
-    table = sim.get_table('source')
+    _source = lambda: sim._TABLES['source']
+
+    table = _source()
     assert isinstance(table, sim._TableSourceWrapper)
 
     table = table.convert()
     assert isinstance(table, sim.DataFrameWrapper)
     pdt.assert_frame_equal(table.to_frame(), df)
 
-    table2 = sim.get_table('source')
+    table2 = _source()
     assert table2 is table
 
 
@@ -589,3 +593,27 @@ def test_run_and_write_tables(df, store_name):
         for x in range(11):
             pdt.assert_series_equal(
                 store['final/table'][year_key(x)], series_year(x))
+
+
+def test_get_table(df):
+    sim.add_table('frame', df)
+
+    @sim.table('table')
+    def table():
+        return df
+
+    @sim.table_source('source')
+    def source():
+        return df
+
+    fr = sim.get_table('frame')
+    ta = sim.get_table('table')
+    so = sim.get_table('source')
+
+    assert isinstance(fr, sim.DataFrameWrapper)
+    assert isinstance(ta, sim.TableFuncWrapper)
+    assert isinstance(so, sim.DataFrameWrapper)
+
+    pdt.assert_frame_equal(fr.to_frame(), df)
+    pdt.assert_frame_equal(ta.to_frame(), df)
+    pdt.assert_frame_equal(so.to_frame(), df)
