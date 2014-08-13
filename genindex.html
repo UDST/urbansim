@@ -61,6 +61,7 @@
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
 </ul>
 </li>
@@ -68,7 +69,6 @@
 <li class="toctree-l2"><a class="reference internal" href="examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
@@ -88,8 +88,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developer/index.html">Real Estate Development Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer/developer.html">Developer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer/sqftproforma.html">Square-Foot Proforma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer/index.html#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer/index.html#module-urbansim.developer.developer">Developer Model API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a><ul>
@@ -97,8 +97,11 @@
 <li class="toctree-l2"><a class="reference internal" href="utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="maps/index.html">Mapping Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="maps/dframe_explorer.html">DataFrame Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maps/index.html">DataFrame Explorer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#website-description">Website Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#what-s-it-doing-exactly">What&#8217;s it Doing Exactly?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a></li>
 </ul>
 </li>
 </ul>
@@ -238,10 +241,6 @@
 
       </dl></dd>
       
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.ans_options">ans_options() (in module urbansim.maps.dframe_explorer)</a>
-  </dt>
-
-      
   <dt><a href="models/util.html#urbansim.models.util.apply_filter_query">apply_filter_query() (in module urbansim.models.util)</a>
   </dt>
 
@@ -281,10 +280,6 @@
 
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.charts_dir">charts_dir() (in module urbansim.utils.misc)</a>
-  </dt>
-
-      
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig.check_is_reasonable">check_is_reasonable() (urbansim.developer.sqftproforma.SqFtProFormaConfig method)</a>
   </dt>
 
       
@@ -331,8 +326,6 @@
   <dt><a href="utils/misc.html#urbansim.utils.misc.column_map">column_map() (in module urbansim.utils.misc)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="sim/index.html#urbansim.sim.simulation.DataFrameWrapper.columns">columns (urbansim.sim.simulation.DataFrameWrapper attribute)</a>
   </dt>
@@ -343,6 +336,8 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/util.html#urbansim.models.util.columns_in_filters">columns_in_filters() (in module urbansim.models.util)</a>
   </dt>
@@ -382,7 +377,7 @@
   </dt>
 
       
-  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.compute_units_to_build">compute_units_to_build() (urbansim.developer.developer.Developer static method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.developer.Developer.compute_units_to_build">compute_units_to_build() (urbansim.developer.developer.Developer static method)</a>
   </dt>
 
       
@@ -412,19 +407,15 @@
   </dt>
 
       
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.data_static">data_static() (in module urbansim.maps.dframe_explorer)</a>
+  <dt><a href="sim/index.html#urbansim.sim.simulation.DataFrameWrapper">DataFrameWrapper (class in urbansim.sim.simulation)</a>
   </dt>
 
       
-  <dt><a href="sim/index.html#urbansim.sim.simulation.DataFrameWrapper">DataFrameWrapper (class in urbansim.sim.simulation)</a>
+  <dt><a href="developer/index.html#urbansim.developer.developer.Developer">Developer (class in urbansim.developer.developer)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer">Developer (class in urbansim.developer.developer)</a>
-  </dt>
-
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.df64bitto32bit">df64bitto32bit() (in module urbansim.utils.misc)</a>
   </dt>
@@ -449,10 +440,6 @@
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.enable_cors">enable_cors() (in module urbansim.maps.dframe_explorer)</a>
-  </dt>
-
       
   <dt><a href="models/urbanchoice.html#urbansim.urbanchoice.interaction.enable_gpu">enable_gpu() (in module urbansim.urbanchoice.interaction)</a>
   </dt>
@@ -582,7 +569,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">get_ave_cost_sqft() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">get_ave_cost_sqft() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
   </dt>
 
       
@@ -596,7 +583,7 @@
 
       </dl></dd>
       
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">get_debug_info() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">get_debug_info() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
   </dt>
 
       
@@ -607,18 +594,14 @@
   <dt><a href="sim/index.html#urbansim.sim.simulation.get_injectable">get_injectable() (in module urbansim.sim.simulation)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="sim/index.html#urbansim.sim.simulation.get_model">get_model() (in module urbansim.sim.simulation)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="utils/misc.html#urbansim.utils.misc.get_run_number">get_run_number() (in module urbansim.utils.misc)</a>
-  </dt>
-
-      
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.get_schema">get_schema() (in module urbansim.maps.dframe_explorer)</a>
   </dt>
 
       
@@ -660,15 +643,11 @@
 
       </dl></dd>
       
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.index">index() (in module urbansim.maps.dframe_explorer)</a>
+  <dt><a href="sim/index.html#urbansim.sim.simulation.injectable">injectable() (in module urbansim.sim.simulation)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="sim/index.html#urbansim.sim.simulation.injectable">injectable() (in module urbansim.sim.simulation)</a>
-  </dt>
-
       
   <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.interaction_columns_used">interaction_columns_used() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
   </dt>
@@ -690,7 +669,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.keep_form_with_max_profit">keep_form_with_max_profit() (urbansim.developer.developer.Developer method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.developer.Developer.keep_form_with_max_profit">keep_form_with_max_profit() (urbansim.developer.developer.Developer method)</a>
   </dt>
 
   </dl></td>
@@ -732,7 +711,7 @@
 
       </dl></dd>
       
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">lookup() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">lookup() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
   </dt>
 
   </dl></td>
@@ -742,19 +721,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.map_query">map_query() (in module urbansim.maps.dframe_explorer)</a>
-  </dt>
-
-      
   <dt><a href="utils/misc.html#urbansim.utils.misc.maps_dir">maps_dir() (in module urbansim.utils.misc)</a>
   </dt>
 
       
-  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.max_form">max_form() (urbansim.developer.developer.Developer static method)</a>
-  </dt>
-
-      
-  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.merge">merge() (urbansim.developer.developer.Developer static method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.developer.Developer.merge">merge() (urbansim.developer.developer.Developer static method)</a>
   </dt>
 
       
@@ -769,12 +740,12 @@
   <dt><a href="models/urbanchoice.html#urbansim.urbanchoice.interaction.mnl_interaction_dataset">mnl_interaction_dataset() (in module urbansim.urbanchoice.interaction)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_loglik">mnl_loglik() (in module urbansim.urbanchoice.mnl)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_probs">mnl_probs() (in module urbansim.urbanchoice.mnl)</a>
   </dt>
@@ -836,7 +807,7 @@
   </dt>
 
       
-  <dt><a href="developer/developer.html#urbansim.developer.developer.Developer.pick">pick() (urbansim.developer.developer.Developer method)</a>
+  <dt><a href="developer/index.html#urbansim.developer.developer.Developer.pick">pick() (urbansim.developer.developer.Developer method)</a>
   </dt>
 
   </dl></td>
@@ -976,15 +947,15 @@
   </dt>
 
       
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma">SqFtProForma (class in urbansim.developer.sqftproforma)</a>
+  <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma">SqFtProForma (class in urbansim.developer.sqftproforma)</a>
   </dt>
 
       
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">SqFtProFormaConfig (class in urbansim.developer.sqftproforma)</a>
+  <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">SqFtProFormaConfig (class in urbansim.developer.sqftproforma)</a>
   </dt>
 
       
-  <dt><a href="maps/dframe_explorer.html#urbansim.maps.dframe_explorer.start">start() (in module urbansim.maps.dframe_explorer)</a>
+  <dt><a href="maps/index.html#urbansim.maps.dframe_explorer.start">start() (in module urbansim.maps.dframe_explorer)</a>
   </dt>
 
       
@@ -1028,12 +999,6 @@
   </dt>
 
       
-  <dt><a href="developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig.tiled_parcel_sizes">tiled_parcel_sizes (urbansim.developer.sqftproforma.SqFtProFormaConfig attribute)</a>
-  </dt>
-
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
-      
   <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.to_dict">to_dict() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
   </dt>
 
@@ -1051,6 +1016,8 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame">to_frame() (urbansim.sim.simulation.DataFrameWrapper method)</a>
   </dt>
@@ -1124,15 +1091,15 @@
   </dt>
 
       
-  <dt><a href="developer/developer.html#module-urbansim.developer.developer">urbansim.developer.developer (module)</a>
+  <dt><a href="developer/index.html#module-urbansim.developer.developer">urbansim.developer.developer (module)</a>
   </dt>
 
       
-  <dt><a href="developer/sqftproforma.html#module-urbansim.developer.sqftproforma">urbansim.developer.sqftproforma (module)</a>
+  <dt><a href="developer/index.html#module-urbansim.developer.sqftproforma">urbansim.developer.sqftproforma (module)</a>
   </dt>
 
       
-  <dt><a href="maps/dframe_explorer.html#module-urbansim.maps.dframe_explorer">urbansim.maps.dframe_explorer (module)</a>
+  <dt><a href="maps/index.html#module-urbansim.maps.dframe_explorer">urbansim.maps.dframe_explorer (module)</a>
   </dt>
 
       

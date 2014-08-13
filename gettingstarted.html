@@ -62,6 +62,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tools-of-the-trade">Tools of the Trade</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#taking-the-next-step">Taking the Next Step</a></li>
 </ul>
 </li>
@@ -69,7 +70,6 @@
 <li class="toctree-l2"><a class="reference internal" href="examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
@@ -89,8 +89,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developer/index.html">Real Estate Development Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer/developer.html">Developer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer/sqftproforma.html">Square-Foot Proforma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer/index.html#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer/index.html#module-urbansim.developer.developer">Developer Model API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a><ul>
@@ -98,8 +98,11 @@
 <li class="toctree-l2"><a class="reference internal" href="utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="maps/index.html">Mapping Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="maps/dframe_explorer.html">DataFrame Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maps/index.html">DataFrame Explorer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#website-description">Website Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#what-s-it-doing-exactly">What&#8217;s it Doing Exactly?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maps/index.html#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a></li>
 </ul>
 </li>
 </ul>
@@ -238,6 +241,44 @@ included in Anaconda.</p>
 <p>It should be noted that many other kinds of models can be included in the simulation loop as well.  For instance, inclusion of scheduled development events is a key element to representing known future development projects.</p>
 <p>In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set and an ever-increasing set of functionality will be added over time.</p>
 </div>
+</div>
+<div class="section" id="specifying-scenario-inputs">
+<h2>Specifying Scenario Inputs<a class="headerlink" href="#specifying-scenario-inputs" title="Permalink to this headline">¶</a></h2>
+<p>Although UrbanSim is designed to model real estate markets,
+the <em>raison d&#8217;etre</em> of UrbanSim is as a scenario planning tool. Regional or
+city planners want to understand how their cities will develop in the
+presence or absence of different policies or in the context of different
+assumptions that they have little or no control over, like economic growth or
+migration of households.</p>
+<p>In a sense, this style of regional modeling is kind of like retirement
+planning, but for cities - will there be enough room for all the households and
+jobs if the city grows by 3% every year?  What if it grows by 5%?  10%?
+If current zoning policies don&#8217;t appropriately accommodate that growth,
+it&#8217;s likely that prices will rise, but by how much?  If growth is pushed to
+different parts of the region, will there be environmental impacts or an
+inefficient transportation network that increases traffic, travel times,
+and infrastructure costs?  What will the resulting urban form look like?
+Sprawl, Manhattan, or something in between?</p>
+<p>UrbanSim is designed to investigate these questions, and other questions like
+them, and to allow outcomes to be analyzed as assumptions are changed.  These
+assumptions can include, but are not limited to the following.</p>
+<ul class="simple">
+<li><em>Control Totals</em> specify in a <a class="reference external" href="models/transrelo.html#control-table-formatting">simple Excel-based format</a> the basic assumptions
+on demographic shifts of households and of sector shifts of employment.
+These files control the transition models and which new households and jobs
+are added to the simulation.</li>
+<li><em>Zoning Changes</em> in the form of scenario-specific density limits such as
+<tt class="docutils literal"><span class="pre">max_far</span></tt> and <tt class="docutils literal"><span class="pre">max_dua</span></tt> are <a class="reference external" href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">passed to the pro formas</a>
+when testing for feasibility.  Simple <a class="reference external" href="https://github.com/synthicity/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29">utility functions</a> are also common to
+<em>upzone</em> certain parcels only if certain policies affect them.</li>
+<li><em>Fees and Subsidies</em> may also come in to play by adjusting the feasibility
+of buildings that are market-rate infeasible.  Fees can also be collected on
+profitable buildings and transferred to less profitable buildings,
+as with affordable housing policies.</li>
+<li><em>Developer Assumptions</em> can also be tested, like interest rates,
+the impact of mixed use buildings on feasibility, of density bonuses for
+neighborhood amenities, and of lowering or raising parking requirements.</li>
+</ul>
 </div>
 <div class="section" id="taking-the-next-step">
 <h2>Taking the Next Step<a class="headerlink" href="#taking-the-next-step" title="Permalink to this headline">¶</a></h2>

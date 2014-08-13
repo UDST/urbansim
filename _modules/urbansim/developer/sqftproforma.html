@@ -61,6 +61,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
 </ul>
 </li>
@@ -68,7 +69,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
@@ -88,8 +88,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developer/index.html">Real Estate Development Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../developer/developer.html">Developer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../developer/sqftproforma.html">Square-Foot Proforma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/index.html#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developer/index.html#module-urbansim.developer.developer">Developer Model API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../utils/index.html">UrbanSim Utilities</a><ul>
@@ -97,8 +97,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../utils/index.html#contents">Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">Mapping Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../maps/dframe_explorer.html">DataFrame Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">DataFrame Explorer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/index.html#website-description">Website Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/index.html#what-s-it-doing-exactly">What&#8217;s it Doing Exactly?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../maps/index.html#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a></li>
 </ul>
 </li>
 </ul>
@@ -144,13 +147,11 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SqFtProFormaConfig"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">[docs]</a><span class="k">class</span> <span class="nc">SqFtProFormaConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SqFtProFormaConfig"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">[docs]</a><span class="k">class</span> <span class="nc">SqFtProFormaConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class encapsulates the configuration options for the square</span>
 <span class="sd">    foot based pro forma.</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
 <span class="sd">    parcel_sizes : list</span>
 <span class="sd">        A list of parcel sizes to test.  Interestingly, right now</span>
 <span class="sd">        the parcel sizes cancel is this style of pro forma computation so</span>
@@ -341,10 +342,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">costs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">use</span><span class="p">]</span> <span class="k">for</span> <span class="n">use</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">]))</span>
 
     <span class="nd">@property</span>
-<div class="viewcode-block" id="SqFtProFormaConfig.tiled_parcel_sizes"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig.tiled_parcel_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">tiled_parcel_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">tiled_parcel_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parcel_sizes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fars</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="SqFtProFormaConfig.check_is_reasonable"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProFormaConfig.check_is_reasonable">[docs]</a>    <span class="k">def</span> <span class="nf">check_is_reasonable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">check_is_reasonable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">fars</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fars</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fars</span><span class="p">[</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fars</span><span class="p">[</span><span class="n">fars</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
@@ -379,8 +380,8 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="mi">10</span> <span class="o">&lt;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000</span>
 
-</div></div>
-<div class="viewcode-block" id="SqFtProForma"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma">[docs]</a><span class="k">class</span> <span class="nc">SqFtProForma</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="SqFtProForma"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma">[docs]</a><span class="k">class</span> <span class="nc">SqFtProForma</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize the square foot based pro forma.</span>
 
@@ -553,7 +554,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span> <span class="o">=</span> <span class="n">df_d</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_ave_cost_d</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft_d</span>
 
-<div class="viewcode-block" id="SqFtProForma.get_debug_info"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_debug_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">):</span>
+<div class="viewcode-block" id="SqFtProForma.get_debug_info"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_debug_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the debug info after running the pro forma for a given form and parking</span>
 <span class="sd">        configuration</span>
@@ -567,34 +568,36 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        A dataframe where the index is the far with many columns representing</span>
-<span class="sd">        intermediate steps in the pro forma computation.  Additional documentation</span>
-<span class="sd">        will be added at a later date, although many of the columns should be fairly</span>
-<span class="sd">        self-expanatory.</span>
+<span class="sd">        debug_info : dataframe</span>
+<span class="sd">            A dataframe where the index is the far with many columns</span>
+<span class="sd">            representing intermediate steps in the pro forma computation.</span>
+<span class="sd">            Additional documentation will be added at a later date, although</span>
+<span class="sd">            many of the columns should be fairly self-expanatory.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span><span class="p">[(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span>
 </div>
-<div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    <span class="k">def</span> <span class="nf">get_ave_cost_sqft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+<div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    <span class="k">def</span> <span class="nf">get_ave_cost_sqft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the average cost per sqft for the pro forma for a given form</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        form : string</span>
-<span class="sd">            Get a series representing the average cost per sqft for each form in the</span>
-<span class="sd">            config</span>
+<span class="sd">            Get a series representing the average cost per sqft for each form in</span>
+<span class="sd">            the config</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        A series where the index is the far and the values are the average cost per</span>
-<span class="sd">        sqft at which the building is &quot;break even&quot; given the configuration parameters</span>
-<span class="sd">        that were passed at run time.</span>
+<span class="sd">        cost : series</span>
+<span class="sd">            A series where the index is the far and the values are the average</span>
+<span class="sd">            cost per sqft at which the building is &quot;break even&quot; given the</span>
+<span class="sd">            configuration parameters that were passed at run time.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_ave_cost_d</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="SqFtProForma.lookup"><a class="viewcode-back" href="../../../developer/sqftproforma.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">[docs]</a>    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="SqFtProForma.lookup"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">[docs]</a>    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This function does the developer model lookups for all the actual input data.</span>
 
@@ -612,7 +615,6 @@
 <span class="sd">            or when debugging)</span>
 
 <span class="sd">        Input Dataframe Columns</span>
-<span class="sd">        -------</span>
 <span class="sd">        rent : dataframe</span>
 <span class="sd">            A set of columns, one for each of the uses passed in the configuration.</span>
 <span class="sd">            Values are yearly rents for that use.  Typical column names would be</span>
@@ -641,9 +643,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        A dataframe which is indexed by the parcel ids that were passed, with the</span>
-<span class="sd">        following columns.</span>
-
+<span class="sd">        index : Series, int</span>
+<span class="sd">            parcel identifiers</span>
 <span class="sd">        building_sqft : Series, float</span>
 <span class="sd">            The number of square feet for the building to build.  Keep in mind</span>
 <span class="sd">            this includes parking and common space.  Will need a helpful function</span>
