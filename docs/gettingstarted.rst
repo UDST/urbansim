@@ -129,6 +129,53 @@ It should be noted that many other kinds of models can be included in the simula
 
 In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set and an ever-increasing set of functionality will be added over time.
 
+Specifying Scenario Inputs
+--------------------------
+
+Although UrbanSim is designed to model real estate markets,
+the *raison d'etre* of UrbanSim is as a scenario planning tool. Regional or
+city planners want to understand how their cities will develop in the
+presence or absence of different policies or in the context of different
+assumptions that they have little or no control over, like economic growth or
+migration of households.
+
+In a sense, this style of regional modeling is kind of like retirement
+planning, but for cities - will there be enough room for all the households and
+jobs if the city grows by 3% every year?  What if it grows by 5%?  10%?
+If current zoning policies don't appropriately accommodate that growth,
+it's likely that prices will rise, but by how much?  If growth is pushed to
+different parts of the region, will there be environmental impacts or an
+inefficient transportation network that increases traffic, travel times,
+and infrastructure costs?  What will the resulting urban form look like?
+Sprawl, Manhattan, or something in between?
+
+UrbanSim is designed to investigate these questions, and other questions like
+them, and to allow outcomes to be analyzed as assumptions are changed.  These
+assumptions can include, but are not limited to the following.
+
+* *Control Totals* specify in a `simple Excel-based format
+  <models/transrelo.html#control-table-formatting>`_ the basic assumptions
+  on demographic shifts of households and of sector shifts of employment.
+  These files control the transition models and which new households and jobs
+  are added to the simulation.
+
+* *Zoning Changes* in the form of scenario-specific density limits such as
+  ``max_far`` and ``max_dua`` are `passed to the pro formas <developer/index
+  .html#urbansim.developer.sqftproforma.SqFtProForma.lookup>`_
+  when testing for feasibility.  Simple `utility functions <https://github
+  .com/synthicity/sanfran_urbansim/blob
+  /98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29>`_ are also common to
+  *upzone* certain parcels only if certain policies affect them.
+
+* *Fees and Subsidies* may also come in to play by adjusting the feasibility
+  of buildings that are market-rate infeasible.  Fees can also be collected on
+  profitable buildings and transferred to less profitable buildings,
+  as with affordable housing policies.
+
+* *Developer Assumptions* can also be tested, like interest rates,
+  the impact of mixed use buildings on feasibility, of density bonuses for
+  neighborhood amenities, and of lowering or raising parking requirements.
+
 Taking the Next Step
 --------------------
 

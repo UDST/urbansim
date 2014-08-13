@@ -34,6 +34,9 @@ Here is what each dropdown on the web page does:
 * The sixth dropdown executes the `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_ method on the Pandas DataFrame in order to filter the input data
 * The seventh dropdown executes the `.eval <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.eval.html>`_ method on the Pandas DataFrame in order to create simple computed variables that are not already columns on the DataFrame.
 
+What's it Doing Exactly?
+------------------------
+
 So what is this doing?  The web service is translating the drop downs to a simple interactive Pandas statement, for example: ::
 
     df.groupby('zone_id')['residential_units'].sum()

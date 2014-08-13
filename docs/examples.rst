@@ -238,18 +238,6 @@ See :ref:`dframe-explorer-website` for a description of how to use the website t
 
 Because the web service is serving these queries directly from the IPython Notebook, you can execute some part of a data processing workflow, then run ``dframe_explorer`` and look at the results.  If something needs modification, simply hit the ``interrupt kernel`` menu item in the IPython Notebook.  You can now execute more Notebook cells and return to ``dframe_explorer`` at any time by running the appropriate cell again.  Now map exploration is simply another interactive step in your data processing workflow.
 
-Specifying Scenario Inputs
---------------------------
-
-Control Totals
-~~~~~~~~~~~~~~
-
-Zoning Changes
-~~~~~~~~~~~~~~
-
-Fees and Subsidies
-~~~~~~~~~~~~~~~~~~
-
 Model Implementation Choices
 ----------------------------
 
