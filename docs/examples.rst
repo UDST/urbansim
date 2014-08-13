@@ -4,7 +4,7 @@ Examples
 Basic Example - Residential Price Hedonic
 -----------------------------------------
 
-A fairly complete case study of using UrbanSim can be shown entirely within a single IPython Notebook, as is the case with `this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/86013bc11247d2e58d04bf52ee5462a927003f58/Hedonic%20Example.ipynb>`_ from the `example repository <https://github.com/synthicity/sanfran_urbansim>`_.
+A fairly complete case study of using UrbanSim can be shown entirely within a single IPython Notebook, as is the case with `this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/6539736cbc9dbe5bbe4e2cd4559168308d46ded0/Hedonic%20Example.ipynb>`_ from the `example repository <https://github.com/synthicity/sanfran_urbansim>`_.
 
 As the canonical example of using UrbanSim, take the case of a residential sales hedonic model used to perform an ordinary least squares regression on a table of building price data. The best practice would be to store the building data in a Pandas HDFStore, and the buildings table can include millions of rows (all of the buildings in a region) and attributes like square footage, lot size, number of bedrooms and bathrooms and the like. Importantly, the dependent variable should also be included which in this case might be the assessed or observed price of each unit.  The example repository includes sample data so that this Notebook can be executed.
 

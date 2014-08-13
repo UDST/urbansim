@@ -1,5 +1,5 @@
-Developer Models
-================
+Real Estate Development Models
+==============================
 
 .. toctree::
    :maxdepth: 2
