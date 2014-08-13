@@ -18,10 +18,12 @@ Contents
    :maxdepth: 2
 
    gettingstarted
+   examples
    sim/index
    models/index
    developer/index
    utils/index
+   maps/index
 
 Indices and tables
 ==================
