@@ -253,17 +253,93 @@ Fees and Subsidies
 Model Implementation Choices
 ----------------------------
 
-UrbanAccess or Zones
-~~~~~~~~~~~~~~~~~~~~
+There are a number of model implementation choices that can be made in
+implementing an UrbanSim regional forecasting tool, and this will describe a
+few of the possibilities.  There is definitely a set of best practices
+though, so shoot us an email if you want more detail.
 
 Geographic Detail
 ~~~~~~~~~~~~~~~~~
 
+Although zone or block-level models can be done (and gridcells have been used
+historically), at this point the geographic detail is typically at the parcel or
+building level.  If good information is available for individual units,
+this level or detail is actually ideal.
+
+Most household and employment location choices choose building_ids at this
+point, and the number of available units is measured as the supply of
+units / job_spaces in the building minus the number of households / jobs in the
+building.
+
+UrbanAccess or Zones
+~~~~~~~~~~~~~~~~~~~~
+
+It is fairly standard to combine the buildings from the locations discussed
+above with some measure of the neighborhood around each building.  The simplest
+implementation of this idea is used in the sanfran_example - and is typical of
+traditional GIS - which is to use aggregations within some higher level polygon.
+In the most common case, the region has zones assigned and every parcel is
+assigned a ``zone_id`` (the ``zone_id`` is then available on the other related
+tables).  Once ``zone_ids`` are available, vanilla Pandas is usable and GIS
+is not strictly required.
+
+Although this is the easiest implementation method, a pedestrian-scale
+network-based method is perhaps more appropriate when analyses are happening
+at the parcel- and building-scale and this is the exactly the intended purpose
+of the `urbanaccess <https://github.com/synthicity/urbanaccess>`_ framework.
+Most full UrbanSim implementations now use aggregations along the local street
+network, and ``urbanaccess`` will be released as an official product by the
+end of 2014.
+
+Jobs or Establishments
+~~~~~~~~~~~~~~~~~~~~~~
+
+Jobs by sector is often the unit of analysis for the non-residential side,
+as this kind of model is completely analagous to the residential side and is
+perhaps the easiest to understand.  In some cases establishments can be used
+instead of jobs to capture different behavior of different size
+establishments, but fitting establishments into buildings then becomes a
+tricky endeavor (and modeling the movements of large employers should not
+really be part of the scope of the model system).
+
 Configuration of Models
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+Some choices need to made on the configuration of models.  For instance,
+is there a single hedonic for residential sales price or is there a second
+model for rent?  Is  non-residential rent segmented by building type?  How many
+different uses are there in the pro forma and what forms (mixes of uses) will be
+tested. The simplest model configuration is shown in the sanfran_urbansim
+example, and additional behavior can be captured to answer specific research
+questions.
 
 Dealing with NaNs
 ~~~~~~~~~~~~~~~~~
 
+There is not a standard method for dealing with NaNs (typically indicating
+missing data) within UrbanSim, but there is a good convention that can be
+used.  First an injectable can be set with an object in this form (make sure
+to set the name appropriately): ::
 
+    sim.add_injectable("fillna_config", {
+        "buildings": {
+            "residential_sales_price": ("zero", "int"),
+            "non_residential_rent": ("zero", "int"),
+            "residential_units": ("zero", "int"),
+            "non_residential_sqft": ("zero", "int"),
+            "year_built": ("median", "int"),
+            "building_type_id": ("mode", "int")
+        },
+        "jobs": {
+            "job_category": ("mode", "str"),
+        }
+    })
 
+The keys in this object are table names, the values are also dictionary
+where the keys are column names and the values are a tuple.  The first value
+of the tuple is what to call the Pandas ``fillna`` function with,
+and can be a choice of "zero," "median," or "mode" and should be set
+appropriately by the user for the specific column.  The second argument is
+the data type to conver to. The user can then call
+``utils.fill_na_from_config`` as in the `example <https://github.com/synthicity/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/dataset.py#L22>`_ with a DataFrame and table name and all NaNs will be filled. This
+functionality will eventually be moved into UrbanSim.
