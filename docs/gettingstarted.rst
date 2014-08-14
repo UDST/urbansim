@@ -48,7 +48,7 @@ One of the main motivations for the current implementation of UrbanSim is to ref
 A Note on Pandas Indexing
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-One very import note about Pandas - the real genius of the abstraction is that all records in a table are viewed as key-value pairs.  Every table has an `index <http://pandas.pydata.org/pandas-docs/stable/indexing.html>`_ or a `multi-index <http://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex>`_ which is used to `align <http://pandas.pydata.org/pandas-docs/stable/basics.html#aligning-objects-with-each-other-with-align>`_ the table on the key for that table.
+One very important note about Pandas - the real genius of the abstraction is that all records in a table are viewed as key-value pairs.  Every table has an `index <http://pandas.pydata.org/pandas-docs/stable/indexing.html>`_ or a `multi-index <http://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex>`_ which is used to `align <http://pandas.pydata.org/pandas-docs/stable/basics.html#aligning-objects-with-each-other-with-align>`_ the table on the key for that table.
 
 This is similar to having a `primary key <http://en.wikipedia.org/wiki/Unique_key>`_ in a database except that now you can do mathematical operations with columns.  For instance, you can now take a column from one table and a column from another table and add or multiply them and the operation will automatically align on the key (i.e. it will add elements with the same index value).
 
@@ -72,7 +72,7 @@ IPython
 
 One of the most useful features of IPython is the `IPython notebook <http://ipython.org/notebook.html>`_, which is perfect for interactively executing small cells of Python code. We use notebooks a LOT, and they are a wonderful way to avoid the command line in a cross-platform way.  The notebook is a fantastic tool to develop snippets of code a few lines at a time, and to capture and communicate higher-level workflows.
 
-This also makes the notebook a fantastic pedagogical tool - in other words it's great for demos and communicating both the input and output of cells of Python code (e.g. `nbviewer <http://nbviewer.ipython.org/>`_.  Many of the full-size examples of UrbanSim on this site are presented in notebooks.
+This also makes the notebook a fantastic pedagogical tool - in other words it's great for demos and communicating both the input and output of cells of Python code (e.g. `nbviewer <http://nbviewer.ipython.org/>`_).  Many of the full-size examples of UrbanSim on this site are presented in notebooks.
 
 In many cases, you can write entire UrbanSim models in the notebook, but this is not generally considered the best practice.  It's entirely up to you though, and we are happy to share with you our insights from many hours of developing and using this set of tools.
 
@@ -90,7 +90,7 @@ UrbanSim has been an active research project since the late 1990's, and has unde
         for model in models:
             model.simulate(model_configuration_parameters)
 
-The set of models varies among the many UrbanSim applications to different regions, due to the data availability and cleanliness, the time and resources that can be devoted to the project, and specific research questions that motivated the projects.  The set of models almost always includes at least the following:
+The set of models varies among the many UrbanSim applications to different regions, due to data availability and cleanliness, the time and resources that can be devoted to the project, and specific research questions that motivated the projects.  The set of models almost always includes at least the following:
 
 Residential Real Estate Models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,7 +127,7 @@ Some representation of real estate development must be modeled to accurately rep
 
 It should be noted that many other kinds of models can be included in the simulation loop as well.  For instance, inclusion of scheduled development events is a key element to representing known future development projects.
 
-In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set and an ever-increasing set of functionality will be added over time.
+In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set, and an ever-increasing set of functionality will be added over time.
 
 Specifying Scenario Inputs
 --------------------------

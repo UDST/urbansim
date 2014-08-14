@@ -13,7 +13,7 @@ class SqFtProFormaConfig(object):
 
     parcel_sizes : list
         A list of parcel sizes to test.  Interestingly, right now
-        the parcel sizes cancel is this style of pro forma computation so
+        the parcel sizes cancel in this style of pro forma computation so
         you can set this to something reasonable for debugging purposes -
         e.g. [10000].  All sizes can be feet or meters as long as they are
         consistently used.

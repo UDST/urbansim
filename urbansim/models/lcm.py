@@ -311,7 +311,7 @@ class MNLLocationChoiceModel(object):
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
         debug : bool
-            If debug is set to true, well set the variable "sim_pdf" on
+            If debug is set to true, will set the variable "sim_pdf" on
             the object to store the probabilities for mapping of the
             outcome.
 
@@ -504,7 +504,7 @@ class MNLLocationChoiceModel(object):
         movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
-            A dataframe of locations which the choosers are location in and which
+            A dataframe of locations which the choosers are locating in and which
             have a supply.
         cfgname : string
             The name of the yaml config file from which to read the location
@@ -697,7 +697,7 @@ class MNLLocationChoiceModelGroup(object):
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
         debug : bool
-            If debug is set to true, well set the variable "sim_pdf" on
+            If debug is set to true, will set the variable "sim_pdf" on
             the object to store the probabilities for mapping of the
             outcome.
 
@@ -985,7 +985,7 @@ class SegmentedMNLLocationChoiceModel(object):
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
         debug : bool
-            If debug is set to true, well set the variable "sim_pdf" on
+            If debug is set to true, will set the variable "sim_pdf" on
             the object to store the probabilities for mapping of the
             outcome.
 
@@ -1175,7 +1175,7 @@ class SegmentedMNLLocationChoiceModel(object):
         movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
-            A dataframe of locations which the choosers are location in and which
+            A dataframe of locations which the choosers are locating in and which
             have a supply.
         cfgname : string
             The name of the yaml config file from which to read the location
