@@ -178,7 +178,7 @@ to one another and register them with the simulation::
     sim.add_table('d', df_d)
 
 The tables have data so that 'a' can be broadcast onto 'b',
-and 'b' and 'c' and be broadcast onto 'd'.
+and 'b' and 'c' can be broadcast onto 'd'.
 We use the :py:func:`~urbansim.sim.simulation.broadcast` function
 to register those relationships::
 
