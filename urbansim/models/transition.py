@@ -419,31 +419,19 @@ def _update_linked_table(table, col_name, added, copied, removed):
     """
     logger.debug('start: update linked table after transition')
     table = table.loc[~table[col_name].isin(set(removed))]
-    sub_table = table.loc[table[col_name].isin(set(copied))]
 
     # map new IDs to the IDs from which they were copied
-    id_map = added.groupby(copied)
-    new_rows = []
+    id_map = pd.concat([pd.Series(copied, name=col_name), pd.Series(added, name='temp_id')], axis=1)
+    
+    # join to linked table and assign new id
+    new_rows = id_map.merge(table, on=col_name)
+    new_rows.drop(col_name, axis=1, inplace=True)
+    new_rows.rename(columns={'temp_id':col_name}, inplace=True)
 
-    for copied_id, rows in sub_table.groupby(col_name, sort=False):
-        # number of times we'll need to duplicate new_ids
-        n_matching_rows = len(rows)
-
-        new_ids = id_map[copied_id]
-
-        if len(new_ids) > 1:
-            rows = rows.loc[rows.index.repeat(len(new_ids))].copy()
-        else:
-            rows = rows.copy()
-
-        rows[col_name] = new_ids * n_matching_rows
-        new_rows.append(rows)
-
-    new_rows = pd.concat(new_rows)
-
+    # index the new rows
     starting_index = table.index.values.max() + 1
     new_rows.index = np.arange(
-        starting_index, starting_index + len(new_rows), dtype=np.int)
+         starting_index, starting_index + len(new_rows), dtype=np.int)
 
     logger.debug('finish: update linked table after transition')
     return pd.concat([table, new_rows])
