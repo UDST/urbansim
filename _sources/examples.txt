@@ -8,7 +8,7 @@ A fairly complete case study of using UrbanSim can be shown entirely within a si
 
 As the canonical example of using UrbanSim, take the case of a residential sales hedonic model used to perform an ordinary least squares regression on a table of building price data. The best practice would be to store the building data in a Pandas HDFStore, and the buildings table can include millions of rows (all of the buildings in a region) and attributes like square footage, lot size, number of bedrooms and bathrooms and the like. Importantly, the dependent variable should also be included which in this case might be the assessed or observed price of each unit.  The example repository includes sample data so that this Notebook can be executed.
 
-This Notebook performs the exact same residential price hedonic as in the complete example below, but all entirely within the same IPython Notebook (and without explicitly using the ``sim.model`` decorator).  The simplest use case of the UrbanSim methodology is to create a single model to study an emperical behavior or interest to the modeler, and a good place to start in building such a model is this example.
+This Notebook performs the exact same residential price hedonic as in the complete example below, but all entirely within the same IPython Notebook (and without explicitly using the ``sim.model`` decorator).  The simplest use case of the UrbanSim methodology is to create a single model to study an emperical behavior of interest to the modeler, and a good place to start in building such a model is this example.
 
 Note that the flow of the notebook is one often followed in statistical modeling:
 
@@ -107,7 +107,7 @@ The ``buildings`` object that gets passed in is a `Table Wrapper <sim/index.html
 
 To convert a ``Table Wrapper`` to a DataFrame, the user can simply call `to_frame <sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame>`_ but this returns *all* computed columns on the table and so has performance implications.  In general it's better to use the Series objects directly where possible.
 
-As a concrete example, the above code is recommended: ::
+As a concrete example, the following code is recommended: ::
 
        return buildings.residential_units.groupby(buildings.zone_id).sum()
 
@@ -130,13 +130,13 @@ Finally, if all the attributes being used are primary, the user can call ``local
 Models
 ~~~~~~
 
-The main objective of the `models.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py>`_ file is to define the "entry points" into the model system. Although UrbanSim provides the direct API for a `Regression Model <models/statistical.html#urbansim.models.regression.RegressionModel>`_ a `Location Choice Model <models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel>`_, etc, it is the models.py file which defines the specific *steps* that outline a simulation or even a more general data processing workflow.
+The main objective of the `models.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py>`_ file is to define the "entry points" into the model system. Although UrbanSim provides the direct API for a `Regression Model <models/statistical.html#urbansim.models.regression.RegressionModel>`_, a `Location Choice Model <models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel>`_, etc, it is the models.py file which defines the specific *steps* that outline a simulation or even a more general data processing workflow.
 
 In the San Francisco example, there are two price/rent `hedonic models <http://en.wikipedia.org/wiki/Hedonic_regression>`_ which both use the RegressionModel, one which is the residential sales hedonic which is estimated with the entry point `rsh_estimate <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L9>`_ and then run in simulation mode with the entry point rsh_simulate.  The non-residential rent hedonic has similar entry points `nrh_estimate <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L20>`_ and nrh_simulate.  Note that both functions call `hedonic_estimate <https://github.com/synthicity/sanfran_urbansim/blob/master/utils.py#L110>`_ and hedonic_simulate in `utils.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/utils.py>`_.  In this case ``utils.py`` actually uses the UrbanSim API by calling the `fit_from_cfg <models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg>`_ method on the Regressionmodel.
 
 There are two things that warrant further explanation at this point.
 
-* ``utils.py`` is a set of helper functions that assist with merging data and running models from configuration files.  Note that the code in this file is generally sharable across UrbanSim implementations (in fact, this exact code is in use in multiple live simulations).  It defines a certain style of UrbanSim and handles a number of boundary cases in a transparent way.  In the long run, this kind of functionality might be unit tested and moved to UrbanSim, but for now we think it helps with transparency, flexibility, and debugging to keep this file with the specific client implementations.
+* ``utils.py`` is a set of helper functions that assist with merging data and running models from configuration files.  Note that the code in this file is generally shareable across UrbanSim implementations (in fact, this exact code is in use in multiple live simulations).  It defines a certain style of UrbanSim and handles a number of boundary cases in a transparent way.  In the long run, this kind of functionality might be unit tested and moved to UrbanSim, but for now we think it helps with transparency, flexibility, and debugging to keep this file with the specific client implementations.
 
 * Many of the models use configuration files to define the actual model configuration.  In fact, most models in this file are very short *stub* functions which pass a Pandas DataFrame into the estimation and configure the model using a configuration file in the `YAML file format <http://en.wikipedia.org/wiki/YAML>`_. For instance, the ``rsh_estimate`` function knows to read the configuration file, estimate the model defined in the configuration on the dataframe passed in, and write the estimated coefficients back to the same configuration file, and the complete method is pasted below::
 
@@ -215,7 +215,7 @@ This notebook estimates all of the models in the example that need estimation (b
 Simulation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-A sample simulation workflow (a complete UrbanSim simulation is available `in this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`__.
+A sample simulation workflow (a complete UrbanSim simulation) is available `in this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`__.
 
 This notebook is possibly even simpler than the estimation workflow as it has only one substantive cell which runs all of the available models in the appropriate sequence.  Passing a range of years will run the simulation for multiple years (the example simply runs the simulation for a single year).  Other parameters are available to the  `sim.run <sim/index.html#running-simulations>`_ method which write the output to an HDF5 file.
 
@@ -230,7 +230,7 @@ This is another simple and powerful notebook which can be used to quickly map va
 
 See :ref:`dframe-explorer` for detailed information on how to call the ``start`` method and what queries the website is performing.
 
-Once the ``start`` method has been called, the IPython Notebook is running a web service which will respond to queries from a web browser.  Try is out - open your web browser and navigate to http://localhost:8765/ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
+Once the ``start`` method has been called, the IPython Notebook is running a web service which will respond to queries from a web browser.  Try it out - open your web browser and navigate to http://localhost:8765/ or follow the same link embedded in your notebook.  Note the link won't work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:
 
 .. image:: screenshots/dframe_explorer_screenshot.png
 
@@ -323,11 +323,11 @@ to set the name appropriately): ::
         }
     })
 
-The keys in this object are table names, the values are also dictionary
+The keys in this object are table names, the values are also a dictionary
 where the keys are column names and the values are a tuple.  The first value
 of the tuple is what to call the Pandas ``fillna`` function with,
 and can be a choice of "zero," "median," or "mode" and should be set
 appropriately by the user for the specific column.  The second argument is
-the data type to conver to. The user can then call
+the data type to convert to. The user can then call
 ``utils.fill_na_from_config`` as in the `example <https://github.com/synthicity/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/dataset.py#L22>`_ with a DataFrame and table name and all NaNs will be filled. This
 functionality will eventually be moved into UrbanSim.

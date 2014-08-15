@@ -314,7 +314,7 @@ to one another and register them with the simulation:</p>
 </pre></div>
 </div>
 <p>The tables have data so that &#8216;a&#8217; can be broadcast onto &#8216;b&#8217;,
-and &#8216;b&#8217; and &#8216;c&#8217; and be broadcast onto &#8216;d&#8217;.
+and &#8216;b&#8217; and &#8216;c&#8217; can be broadcast onto &#8216;d&#8217;.
 We use the <a class="reference internal" href="#urbansim.sim.simulation.broadcast" title="urbansim.sim.simulation.broadcast"><tt class="xref py py-func docutils literal"><span class="pre">broadcast()</span></tt></a> function
 to register those relationships:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">sim</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">cast</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">onto</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">cast_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">onto_on</span><span class="o">=</span><span class="s">&#39;a_id&#39;</span><span class="p">)</span>

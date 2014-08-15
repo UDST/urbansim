@@ -178,7 +178,7 @@ included in Anaconda.</p>
 </div>
 <div class="section" id="a-note-on-pandas-indexing">
 <h3>A Note on Pandas Indexing<a class="headerlink" href="#a-note-on-pandas-indexing" title="Permalink to this headline">¶</a></h3>
-<p>One very import note about Pandas - the real genius of the abstraction is that all records in a table are viewed as key-value pairs.  Every table has an <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/indexing.html">index</a> or a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex">multi-index</a> which is used to <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/basics.html#aligning-objects-with-each-other-with-align">align</a> the table on the key for that table.</p>
+<p>One very important note about Pandas - the real genius of the abstraction is that all records in a table are viewed as key-value pairs.  Every table has an <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/indexing.html">index</a> or a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex">multi-index</a> which is used to <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/basics.html#aligning-objects-with-each-other-with-align">align</a> the table on the key for that table.</p>
 <p>This is similar to having a <a class="reference external" href="http://en.wikipedia.org/wiki/Unique_key">primary key</a> in a database except that now you can do mathematical operations with columns.  For instance, you can now take a column from one table and a column from another table and add or multiply them and the operation will automatically align on the key (i.e. it will add elements with the same index value).</p>
 <p>This is incredibly handy.  Almost all of the benefits of using Pandas come down to using these indexes in intelligent and powerful ways.  But it&#8217;s not always easy to get the functionality exactly right the first time.</p>
 <p><strong>Some general advice about using Pandas: if you have a problem with Pandas, check your indexes, re-check your indexes, and do it one more time for good measure.</strong></p>
@@ -192,7 +192,7 @@ included in Anaconda.</p>
 <h3>IPython<a class="headerlink" href="#ipython" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="http://ipython.org/">IPython</a> is an interactive Python interpreter that is built on Python that helps when interfacing with the operating system, profiling, parallelizing, and with many other technical details.</p>
 <p>One of the most useful features of IPython is the <a class="reference external" href="http://ipython.org/notebook.html">IPython notebook</a>, which is perfect for interactively executing small cells of Python code. We use notebooks a LOT, and they are a wonderful way to avoid the command line in a cross-platform way.  The notebook is a fantastic tool to develop snippets of code a few lines at a time, and to capture and communicate higher-level workflows.</p>
-<p>This also makes the notebook a fantastic pedagogical tool - in other words it&#8217;s great for demos and communicating both the input and output of cells of Python code (e.g. <a class="reference external" href="http://nbviewer.ipython.org/">nbviewer</a>.  Many of the full-size examples of UrbanSim on this site are presented in notebooks.</p>
+<p>This also makes the notebook a fantastic pedagogical tool - in other words it&#8217;s great for demos and communicating both the input and output of cells of Python code (e.g. <a class="reference external" href="http://nbviewer.ipython.org/">nbviewer</a>).  Many of the full-size examples of UrbanSim on this site are presented in notebooks.</p>
 <p>In many cases, you can write entire UrbanSim models in the notebook, but this is not generally considered the best practice.  It&#8217;s entirely up to you though, and we are happy to share with you our insights from many hours of developing and using this set of tools.</p>
 </div>
 </div>
@@ -208,7 +208,7 @@ included in Anaconda.</p>
         <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The set of models varies among the many UrbanSim applications to different regions, due to the data availability and cleanliness, the time and resources that can be devoted to the project, and specific research questions that motivated the projects.  The set of models almost always includes at least the following:</p>
+<p>The set of models varies among the many UrbanSim applications to different regions, due to data availability and cleanliness, the time and resources that can be devoted to the project, and specific research questions that motivated the projects.  The set of models almost always includes at least the following:</p>
 </div>
 <div class="section" id="residential-real-estate-models">
 <h3>Residential Real Estate Models<a class="headerlink" href="#residential-real-estate-models" title="Permalink to this headline">¶</a></h3>
@@ -239,7 +239,7 @@ included in Anaconda.</p>
 </li>
 </ul>
 <p>It should be noted that many other kinds of models can be included in the simulation loop as well.  For instance, inclusion of scheduled development events is a key element to representing known future development projects.</p>
-<p>In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set and an ever-increasing set of functionality will be added over time.</p>
+<p>In general, any Python script that reads and writes data can be included to help answer a specific research question or to model a certain real-world behavior - models can even be parameterized in JSON or YAML and included in the standard model set, and an ever-increasing set of functionality will be added over time.</p>
 </div>
 </div>
 <div class="section" id="specifying-scenario-inputs">
