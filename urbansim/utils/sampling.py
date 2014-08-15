@@ -26,9 +26,6 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     -------
     sample_rows : pandas.DataFrame
         Table containing the sample.
-    num_iterations : int
-        Number of iterations it took to hit the control (temporary for testing), only
-        used when accounting_column is provided
     """
 
     # simplest case, just return n random rows
@@ -83,4 +80,4 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
             curr_total -= curr_rows[accounting_column].sum()
             if not replace: np.append(sample_idx, curr_rows.index.values) 
     
-    return sample_rows.copy(), i + 1
+    return sample_rows.copy()

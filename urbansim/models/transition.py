@@ -12,6 +12,7 @@ import pandas as pd
 
 from . import util
 from ..utils.logutil import log_start_finish
+from ..utils.sampling import sample_rows
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ def _empty_index():
     return pd.Index([])
 
 
-def add_rows(data, nrows, starting_index=None):
+def add_rows(data, nrows, starting_index=None, accounting_column=None):
     """
     Add rows to data table according to a given nrows.
     New rows will have their IDs set to NaN.
@@ -33,6 +34,9 @@ def add_rows(data, nrows, starting_index=None):
     starting_index : int, optional
         The starting index from which to calculate indexes for the new
         rows. If not given the max + 1 of the index of `data` will be used.
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        then row counts will be used for accounting.
 
     Returns
     -------
@@ -53,18 +57,18 @@ def add_rows(data, nrows, starting_index=None):
     if not starting_index:
         starting_index = data.index.values.max() + 1
 
-    i_to_copy = np.random.choice(data.index.values, nrows)
-    new_rows = data.loc[i_to_copy].copy()
+    new_rows = sample_rows(nrows, data, accounting_column=accounting_column)
+    copied_index = new_rows.index
     added_index = pd.Index(np.arange(
-        starting_index, starting_index + nrows, dtype=np.int))
+        starting_index, starting_index + len(new_rows.index), dtype=np.int))
     new_rows.index = added_index
 
     logger.debug(
         'finish: added {} rows in transition model'.format(len(new_rows)))
-    return pd.concat([data, new_rows]), added_index, pd.Index(i_to_copy)
+    return pd.concat([data, new_rows]), added_index, copied_index
 
 
-def remove_rows(data, nrows):
+def remove_rows(data, nrows, accounting_column=None):
     """
     Remove a random `nrows` number of rows from a table.
 
@@ -73,7 +77,10 @@ def remove_rows(data, nrows):
     data : DataFrame
     nrows : float
         Number of rows to remove.
-
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        then row counts will be used for accounting.
+        
     Returns
     -------
     updated : pandas.DataFrame
@@ -89,14 +96,14 @@ def remove_rows(data, nrows):
     elif nrows > len(data):
         raise ValueError('Number of rows to remove exceeds number of rows in table.')
 
-    i_to_keep = np.random.choice(
-        data.index.values, len(data) - nrows, replace=False)
+    remove_rows = sample_rows(nrows, data, accounting_column=accounting_column, replace=False)
+    remove_index = remove_rows.index
 
     logger.debug('finish: removed {} rows in transition model'.format(nrows))
-    return data.loc[i_to_keep], data.index.diff(i_to_keep)
+    return data.loc[data.index.diff(remove_index)], remove_index
 
 
-def add_or_remove_rows(data, nrows, starting_index=None):
+def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None):
     """
     Add or remove rows to/from a table. Rows are added
     for positive `nrows` and removed for negative `nrows`.
@@ -125,11 +132,11 @@ def add_or_remove_rows(data, nrows, starting_index=None):
 
     """
     if nrows > 0:
-        updated, added, copied = add_rows(data, nrows, starting_index)
+        updated, added, copied = add_rows(data, nrows, starting_index, accounting_column=accounting_column)
         removed = _empty_index()
 
     elif nrows < 0:
-        updated, removed = remove_rows(data, nrows)
+        updated, removed = remove_rows(data, nrows, accounting_column=accounting_column)
         added, copied = _empty_index(), _empty_index()
 
     else:
@@ -146,10 +153,13 @@ class GrowthRateTransition(object):
     Parameters
     ----------
     growth_rate : float
-
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        then row counts will be used for accounting.
     """
-    def __init__(self, growth_rate):
+    def __init__(self, growth_rate, accounting_column=None):
         self.growth_rate = growth_rate
+        self.accounting_column = accounting_column
 
     def transition(self, data, year):
         """
@@ -182,7 +192,7 @@ class GrowthRateTransition(object):
                 'adding {} rows via growth rate ({}) transition'.format(
                     nrows, self.growth_rate),
                 logger):
-            return add_or_remove_rows(data, nrows)
+            return add_or_remove_rows(data, nrows, self.accounting_column)
 
     def __call__(self, data, year):
         """
@@ -202,11 +212,14 @@ class TabularGrowthRateTransition(object):
     growth_rates : pandas.DataFrame
     rates_column : str
         Name of the column in `growth_rates` that contains the rates.
-
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        then row counts will be used for accounting.
     """
-    def __init__(self, growth_rates, rates_column):
+    def __init__(self, growth_rates, rates_column, accounting_column=None):
         self.growth_rates = growth_rates
         self.rates_column = rates_column
+        self.accounting_column = accounting_column
 
     @property
     def _config_table(self):
@@ -292,7 +305,7 @@ class TabularGrowthRateTransition(object):
 
             nrows = self._calc_nrows(len(subset), row[self._config_column])
             updated, added, copied, removed = \
-                add_or_remove_rows(subset, nrows, starting_index)
+                add_or_remove_rows(subset, nrows, starting_index, self.accounting_column)
             if nrows > 0:
                 # only update the starting index if rows were added
                 starting_index = starting_index + nrows
@@ -327,11 +340,14 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
     targets : pandas.DataFrame
     totals_column : str
         Name of the column in `targets` that contains the control totals.
-
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        then row counts will be used for accounting.
     """
-    def __init__(self, targets, totals_column):
+    def __init__(self, targets, totals_column,accounting_column=None):
         self.targets = targets
         self.totals_column = totals_column
+        self.accounting_column = accounting_column
 
     @property
     def _config_table(self):
