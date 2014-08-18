@@ -80,7 +80,7 @@ def remove_rows(data, nrows, accounting_column=None):
     accounting_column: string, optional
         Name of column with accounting totals/quanties to apply towards the control. If not provided 
         then row counts will be used for accounting.
-        
+
     Returns
     -------
     updated : pandas.DataFrame
@@ -187,12 +187,15 @@ class GrowthRateTransition(object):
             Index of rows that were removed.
 
         """
-        nrows = int(round(len(data) * self.growth_rate))
+        if self.accounting_column is None:
+            nrows = int(round(len(data) * self.growth_rate))
+        else:
+            nrows = int(round(data[self.accounting_column].sum() * self.growth_rate))
         with log_start_finish(
                 'adding {} rows via growth rate ({}) transition'.format(
                     nrows, self.growth_rate),
                 logger):
-            return add_or_remove_rows(data, nrows, self.accounting_column)
+            return add_or_remove_rows(data, nrows, accounting_column=self.accounting_column)
 
     def __call__(self, data, year):
         """
@@ -303,7 +306,12 @@ class TabularGrowthRateTransition(object):
                 logger.debug('empty segment encountered')
                 continue
 
-            nrows = self._calc_nrows(len(subset), row[self._config_column])
+            if self.accounting_column is None:
+                nrows = self._calc_nrows(len(subset), row[self._config_column])
+            else:
+                nrows = self._calc_nrows(subset[self.accounting_column].sum(), 
+                    row[self._config_column])
+
             updated, added, copied, removed = \
                 add_or_remove_rows(subset, nrows, starting_index, self.accounting_column)
             if nrows > 0:
