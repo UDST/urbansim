@@ -35,7 +35,7 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
         The starting index from which to calculate indexes for the new
         rows. If not given the max + 1 of the index of `data` will be used.
     accounting_column: string, optional
-        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
 
     Returns
@@ -78,7 +78,7 @@ def remove_rows(data, nrows, accounting_column=None):
     nrows : float
         Number of rows to remove.
     accounting_column: string, optional
-        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
 
     Returns
@@ -132,7 +132,9 @@ def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None)
 
     """
     if nrows > 0:
-        updated, added, copied = add_rows(data, nrows, starting_index, accounting_column=accounting_column)
+        updated, added, copied = add_rows(
+            data, nrows, starting_index,
+            accounting_column=accounting_column)
         removed = _empty_index()
 
     elif nrows < 0:
@@ -154,7 +156,7 @@ class GrowthRateTransition(object):
     ----------
     growth_rate : float
     accounting_column: string, optional
-        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
     """
     def __init__(self, growth_rate, accounting_column=None):
@@ -216,7 +218,7 @@ class TabularGrowthRateTransition(object):
     rates_column : str
         Name of the column in `growth_rates` that contains the rates.
     accounting_column: string, optional
-        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
     """
     def __init__(self, growth_rates, rates_column, accounting_column=None):
@@ -309,7 +311,8 @@ class TabularGrowthRateTransition(object):
             if self.accounting_column is None:
                 nrows = self._calc_nrows(len(subset), row[self._config_column])
             else:
-                nrows = self._calc_nrows(subset[self.accounting_column].sum(), 
+                nrows = self._calc_nrows(
+                    subset[self.accounting_column].sum(),
                     row[self._config_column])
 
             updated, added, copied, removed = \
@@ -349,10 +352,10 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
     totals_column : str
         Name of the column in `targets` that contains the control totals.
     accounting_column: string, optional
-        Name of column with accounting totals/quanties to apply towards the control. If not provided 
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
     """
-    def __init__(self, targets, totals_column,accounting_column=None):
+    def __init__(self, targets, totals_column, accounting_column=None):
         self.targets = targets
         self.totals_column = totals_column
         self.accounting_column = accounting_column
@@ -442,20 +445,23 @@ def _update_linked_table(table, col_name, added, copied, removed):
 
     """
     logger.debug('start: update linked table after transition')
+
+    # handle removals
     table = table.loc[~table[col_name].isin(set(removed))]
+    if (added is None or len(added) == 0):
+        return table
 
     # map new IDs to the IDs from which they were copied
     id_map = pd.concat([pd.Series(copied, name=col_name), pd.Series(added, name='temp_id')], axis=1)
-    
+
     # join to linked table and assign new id
     new_rows = id_map.merge(table, on=col_name)
     new_rows.drop(col_name, axis=1, inplace=True)
-    new_rows.rename(columns={'temp_id':col_name}, inplace=True)
+    new_rows.rename(columns={'temp_id': col_name}, inplace=True)
 
     # index the new rows
     starting_index = table.index.values.max() + 1
-    new_rows.index = np.arange(
-         starting_index, starting_index + len(new_rows), dtype=np.int)
+    new_rows.index = np.arange(starting_index, starting_index + len(new_rows), dtype=np.int)
 
     logger.debug('finish: update linked table after transition')
     return pd.concat([table, new_rows])
