@@ -167,7 +167,16 @@ def reindex(series1, series2):
     table.  In both of those cases, the series would be indexed on the foreign
     table and would require a second step to change the index.
     """
-    return pd.Series(series1.loc[series2.values].values, index=series2.index)
+
+    # turns out the merge is much faster than the .loc below
+    df = pd.merge(pd.DataFrame({"left": series2}),
+                  pd.DataFrame({"right": series1}),
+                  left_on="left",
+                  right_index=True,
+                  how="left")
+    return df.right
+
+    #return pd.Series(series1.loc[series2.values].values, index=series2.index)
 
 
 def signif(val):
