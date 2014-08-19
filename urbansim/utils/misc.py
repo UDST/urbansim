@@ -176,7 +176,7 @@ def reindex(series1, series2):
                   how="left")
     return df.right
 
-    #return pd.Series(series1.loc[series2.values].values, index=series2.index)
+    # return pd.Series(series1.loc[series2.values].values, index=series2.index)
 
 
 def signif(val):
