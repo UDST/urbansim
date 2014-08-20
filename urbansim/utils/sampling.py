@@ -17,7 +17,7 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     replace: bool, optional, default True
         Indicates if sampling with or without replacement.
     accounting_column: string, optional
-        Name of column with accounting totals/quanties to apply towards the control. If not provided
+        Name of column with accounting totals/quantities to apply towards the control. If not provided
         then row counts will be used for accounting.
     max_iterations: int, optional, default 50
         When using an accounting attribute, the maximum number of sampling iterations
@@ -42,7 +42,7 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     # determine avg number of accounting items per sample (e.g. persons per household)
     per_sample = data[accounting_column].sum() / (1.0 * len(data.index.values))
 
-    # do the intial sample
+    # do the initial sample
     num_samples = int(math.ceil(total / per_sample))
     if replace:
         sample_idx = data.index.values

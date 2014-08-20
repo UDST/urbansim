@@ -63,6 +63,19 @@ def assert_empty_index(index):
     pdt.assert_index_equal(index, pd.Index([]))
 
 
+def assert_index_equal_order_agnostic(left, right):
+    """
+    Similar to pdt.assert_index_equal but is not sensitive to key ordering.
+    """
+    pdt.assert_isinstance(left, pd.Index, '[index] ')
+    pdt.assert_isinstance(right, pd.Index, '[index] ')
+    left_diff = left.diff(right)
+    right_diff = right.diff(left)
+    if len(left_diff) > 0 or len(right_diff) > 0:
+        raise AssertionError("keys not in left [{0}], keys not in right [{1}]".format(
+            left_diff, right_diff))
+
+
 def assert_for_add(new, added):
     assert len(new) == 7
     pdt.assert_index_equal(added, pd.Index([105, 106]))
@@ -98,6 +111,18 @@ def test_add_rows_zero(basic_df):
     assert_empty_index(added)
     assert_empty_index(copied)
 
+def test_add_rows_with_accounting():
+    old_state = np.random.get_state()
+    np.random.seed(1)
+    control = 10
+    df = pd.DataFrame(
+        {'some_count': np.random.randint(1,8,20)},
+        index = range(0,20)
+        )
+    new, added, copied = transition.add_rows(df, control, accounting_column='some_count' )
+    np.random.set_state(old_state)
+    assert control == new.loc[copied]['some_count'].sum()
+    assert copied.isin(df.index).all()
 
 def test_remove_rows(basic_df):
     nrows = 2
@@ -118,8 +143,19 @@ def test_remove_rows_all(basic_df):
     nrows = len(basic_df)
     new, removed = transition.remove_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df.loc[[]])
-    pdt.assert_index_equal(removed, basic_df.index)
+    assert_index_equal_order_agnostic(removed, basic_df.index)
 
+def test_remove_rows_with_accounting():
+    old_state = np.random.get_state()
+    np.random.seed(1)
+    control = 10
+    df = pd.DataFrame(
+        {'some_count': np.random.randint(1,8,10)},
+        index = range(0,10)
+        )
+    new, removed = transition.remove_rows(df, control, accounting_column='some_count' )
+    np.random.set_state(old_state)
+    assert control == df.loc[removed]['some_count'].sum()
 
 def test_remove_rows_raises(basic_df):
     # should raise ValueError if asked to remove more rows than
@@ -190,7 +226,8 @@ def test_grtransition_remove_all(basic_df):
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    pdt.assert_index_equal(removed, basic_df.index)
+    #pdt.assert_index_equal(removed, basic_df.index)
+    assert_index_equal_order_agnostic(removed, basic_df.index)
 
 
 def test_grtransition_zero(basic_df):
@@ -231,7 +268,8 @@ def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    pdt.assert_index_equal(removed, basic_df.index)
+    #pdt.assert_index_equal(removed, basic_df.index)
+    assert_index_equal_order_agnostic(removed, basic_df.index)
 
 
 def test_tgrtransition_zero(basic_df, growth_rates, year, rates_col):
@@ -282,8 +320,8 @@ def test_tabular_transition_remove_all(
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    pdt.assert_index_equal(removed, basic_df.index)
-
+    #pdt.assert_index_equal(removed, basic_df.index)
+    assert_index_equal_order_agnostic(removed, basic_df.index)
 
 def test_tabular_transition_raises_on_bad_year(
         basic_df, grow_targets, totals_col, year):
