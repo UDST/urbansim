@@ -6,6 +6,7 @@ import pytest
 from pandas.util import testing as pdt
 
 from .. import transition
+from ...utils import testing as ust
 
 
 @pytest.fixture
@@ -43,6 +44,25 @@ def grow_targets_filters(year, totals_col):
                          'x': [np.nan, np.nan, 4],
                          totals_col: [1, 4, 10]},
                         index=[year, year, year])
+
+
+@pytest.fixture(scope='function')
+def random_df(request):
+    """
+    Seed the numpy prng and return a data frame w/ predictable test inputs
+    so that the tests will have consistent results across builds.
+    """
+    old_state = np.random.get_state()
+
+    def fin():
+        # tear down: reset the prng after the test to the pre-test state
+        np.random.set_state(old_state)
+
+    request.addfinalizer(fin)
+    np.random.seed(1)
+    return pd.DataFrame(
+        {'some_count': np.random.randint(1, 8, 20)},
+        index=range(0, 20))
 
 
 @pytest.fixture
@@ -99,6 +119,14 @@ def test_add_rows_zero(basic_df):
     assert_empty_index(copied)
 
 
+def test_add_rows_with_accounting(random_df):
+    control = 10
+    new, added, copied = transition.add_rows(
+        random_df, control, accounting_column='some_count')
+    assert control == new.loc[copied]['some_count'].sum()
+    assert copied.isin(random_df.index).all()
+
+
 def test_remove_rows(basic_df):
     nrows = 2
     new, removed_indexes = transition.remove_rows(basic_df, nrows)
@@ -118,7 +146,15 @@ def test_remove_rows_all(basic_df):
     nrows = len(basic_df)
     new, removed = transition.remove_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df.loc[[]])
-    pdt.assert_index_equal(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
+
+
+def test_remove_rows_with_accounting(random_df):
+    control = 10
+    new, removed = transition.remove_rows(
+        random_df, control, accounting_column='some_count')
+    assert control == random_df.loc[removed]['some_count'].sum()
+    assert removed.isin(random_df.index).all()
 
 
 def test_remove_rows_raises(basic_df):
@@ -171,6 +207,20 @@ def test_grtransition_add(basic_df):
     assert_empty_index(removed)
 
 
+def test_grtransition_add_with_accounting(random_df):
+    growth_rate = .1
+    year = 2012
+    orig_total = random_df['some_count'].sum()
+    growth = int(round(orig_total * growth_rate))
+    target = orig_total + growth
+    grt = transition.GrowthRateTransition(growth_rate, 'some_count')
+    new, added, copied, removed = grt(random_df, year)
+    assert growth == new.loc[copied]['some_count'].sum()
+    assert target == new['some_count'].sum()
+    assert copied.isin(random_df.index).all()
+    assert_empty_index(removed)
+
+
 def test_grtransition_remove(basic_df):
     growth_rate = -0.4
     year = 2112
@@ -182,6 +232,21 @@ def test_grtransition_remove(basic_df):
     assert removed.isin(basic_df.index).all()
 
 
+def test_grtransition_remove_with_accounting(random_df):
+    growth_rate = -.1
+    year = 2012
+    orig_total = random_df['some_count'].sum()
+    change = -1 * int(round(orig_total * growth_rate))
+    target = orig_total - change
+    grt = transition.GrowthRateTransition(growth_rate, 'some_count')
+    new, added, copied, removed = grt(random_df, year)
+    assert change == random_df.loc[removed]['some_count'].sum()
+    assert target == new['some_count'].sum()
+    assert removed.isin(random_df.index).all()
+    assert_empty_index(added)
+    assert_empty_index(copied)
+
+
 def test_grtransition_remove_all(basic_df):
     growth_rate = -1
     year = 2112
@@ -190,7 +255,7 @@ def test_grtransition_remove_all(basic_df):
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    pdt.assert_index_equal(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_grtransition_zero(basic_df):
@@ -224,6 +289,60 @@ def test_tgrtransition_remove(basic_df, growth_rates, year, rates_col):
     assert len(removed) == 2
 
 
+def test_tgrtransition_with_accounting(random_df):
+    """
+    Test segmented growth rate transitions--with an accounting
+    column--using 1 test w/ mixed growth rates trends:
+    declining, growing and no growth.
+    """
+    grp1 = random_df.copy()
+    grp1['segment'] = 'a'
+    grp2 = random_df.copy()
+    grp2['segment'] = 'b'
+    grp3 = random_df.copy()
+    grp3['segment'] = 'c'
+    test_df = pd.concat([grp1, grp2, grp3], axis=0, ignore_index=True)
+    orig_total = random_df['some_count'].sum()
+
+    year = 2012
+    growth_rates = pd.DataFrame(
+        {
+            'grow_rate': [-0.1, 0.25, 0],
+            'segment': ['a', 'b', 'c']
+        },
+        index=[year, year, year])
+    tgrt = transition.TabularGrowthRateTransition(
+        growth_rates, 'grow_rate', 'some_count')
+    new, added, copied, removed = tgrt.transition(test_df, year)
+    added_rows = new.loc[copied]
+    removed_rows = test_df.loc[removed]
+
+    # test a declining segment
+    a_added_rows = added_rows[added_rows['segment'] == 'a']
+    a_removed_rows = removed_rows[removed_rows['segment'] == 'a']
+    a_change = int(round(orig_total * -0.1))
+    a_target = orig_total + a_change
+    assert a_change * -1 == a_removed_rows['some_count'].sum()
+    assert a_target == new[new['segment'] == 'a']['some_count'].sum()
+    assert_empty_index(a_added_rows.index)
+
+    # test a growing segment
+    b_added_rows = added_rows[added_rows['segment'] == 'b']
+    b_removed_rows = removed_rows[removed_rows['segment'] == 'b']
+    b_change = int(round(orig_total * 0.25))
+    b_target = orig_total + b_change
+    assert b_change == b_added_rows['some_count'].sum()
+    assert b_target == new[new['segment'] == 'b']['some_count'].sum()
+    assert_empty_index(b_removed_rows.index)
+
+    # test a no change segment
+    c_added_rows = added_rows[added_rows['segment'] == 'c']
+    c_removed_rows = removed_rows[removed_rows['segment'] == 'c']
+    assert orig_total == new[new['segment'] == 'c']['some_count'].sum()
+    assert_empty_index(c_added_rows.index)
+    assert_empty_index(c_removed_rows.index)
+
+
 def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
     growth_rates[rates_col] = -1
     tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
@@ -231,7 +350,7 @@ def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    pdt.assert_index_equal(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_tgrtransition_zero(basic_df, growth_rates, year, rates_col):
@@ -282,7 +401,7 @@ def test_tabular_transition_remove_all(
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    pdt.assert_index_equal(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_tabular_transition_raises_on_bad_year(
@@ -318,6 +437,17 @@ def test_update_linked_table(basic_df):
     pdt.assert_series_equal(
         updated['y'],
         pd.Series([6, 7, 8, 9, 6, 6, 8], index=updated.index))
+
+
+def test_updated_linked_table_remove_only(basic_df):
+    col_name = 'x'
+    added = pd.Index([])
+    copied = pd.Index([])
+    removed = pd.Index([1, 3])
+
+    updated = transition._update_linked_table(
+        basic_df, col_name, added, copied, removed)
+    assert len(updated) == len(basic_df) + len(added) - len(removed)
 
 
 def test_transition_model(basic_df, grow_targets_filters, totals_col, year):
