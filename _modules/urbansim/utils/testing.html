@@ -189,7 +189,25 @@
                 <span class="n">comp</span><span class="p">(</span><span class="n">act_item</span><span class="p">,</span> <span class="n">exp_item</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                    <span class="n">e</span><span class="o">.</span><span class="n">message</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">Column: {!r}</span><span class="se">\n</span><span class="s">Row: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span></div>
+                    <span class="n">e</span><span class="o">.</span><span class="n">message</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n\n</span><span class="s">Column: {!r}</span><span class="se">\n</span><span class="s">Row: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="assert_index_equal"><a class="viewcode-back" href="../../../utils/testing.html#urbansim.utils.testing.assert_index_equal">[docs]</a><span class="k">def</span> <span class="nf">assert_index_equal</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Similar to pdt.assert_index_equal but is not sensitive to key ordering.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    left: pandas.Index</span>
+<span class="sd">    right: pandas.Index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span>
+    <span class="n">left_diff</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+    <span class="n">right_diff</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">right_diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s">&quot;keys not in left [{0}], keys not in right [{1}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">left_diff</span><span class="p">,</span> <span class="n">right_diff</span><span class="p">))</span></div>
 </pre></div>
 
           </div>

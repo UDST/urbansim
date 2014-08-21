@@ -153,6 +153,49 @@ which contains most of the libraries upon which UrbanSim depends.</p>
 </div>
 <div class="section" id="urbansim">
 <h3>UrbanSim<a class="headerlink" href="#urbansim" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="latest-release">
+<h4>Latest Release<a class="headerlink" href="#latest-release" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="conda">
+<h5>conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h5>
+<p><a class="reference external" href="http://conda.pydata.org/">conda</a>, which comes with Anaconda, is the
+easiest way to install UrbanSim because it has binary installers for
+all of UrbanSim&#8217;s hard-to-install dependencies.
+First, add the <a class="reference external" href="https://binstar.org/synthicity">synthicity channel</a>
+to your conda configuration:</p>
+<div class="highlight-python"><div class="highlight"><pre>conda config --add channels synthicity
+</pre></div>
+</div>
+<p>Then use conda to install UrbanSim:</p>
+<div class="highlight-python"><div class="highlight"><pre>conda install urbansim
+</pre></div>
+</div>
+<p>To update to a new UrbanSim version use the <tt class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></tt> command:</p>
+<div class="highlight-python"><div class="highlight"><pre>conda update urbansim
+</pre></div>
+</div>
+</div>
+<div class="section" id="pip">
+<h5>pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h5>
+<p>UrbanSim can also be installed from
+<a class="reference external" href="https://pypi.python.org/pypi/urbansim">PyPI</a>
+via <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install urbansim
+</pre></div>
+</div>
+<p>When using this method it&#8217;s best to already have most of the dependencies
+installed, otherwise pip will try to download and install things like
+NumPy, SciPy, and matplotlib.
+If you&#8217;re using Anaconda you will already have all of the hard-to-install
+libraries.</p>
+<p>To update to a new release of UrbanSim use the <tt class="docutils literal"><span class="pre">-U</span></tt> option with
+<tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>pip install -U urbansim
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="development-version">
+<h4>Development Version<a class="headerlink" href="#development-version" title="Permalink to this headline">¶</a></h4>
 <p>UrbanSim can be installed from our
 <a class="reference external" href="https://github.com/synthicity/urbansim">development repository</a>
 using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
@@ -164,6 +207,15 @@ and run the following command to install UrbanSim:</p>
 <p>This will download urbansim and install the remaining dependencies not
 included in Anaconda.</p>
 <p>If you need to update UrbanSim run the above command again.</p>
+</div>
+<div class="section" id="developer-install">
+<h4>Developer Install<a class="headerlink" href="#developer-install" title="Permalink to this headline">¶</a></h4>
+<p>If you are going to be developing on UrbanSim you will want to fork our
+<a class="reference external" href="https://github.com/synthicity/urbansim">GitHub repository</a> and clone
+your fork to your computer. Then run <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></tt> to install
+UrbanSim in developer mode. In this mode you won&#8217;t have to reinstall
+UrbanSim every time you make changes.</p>
+</div>
 </div>
 </div>
 <div class="section" id="tools-of-the-trade">

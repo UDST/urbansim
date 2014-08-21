@@ -308,7 +308,16 @@
 <span class="sd">    table.  In both of those cases, the series would be indexed on the foreign</span>
 <span class="sd">    table and would require a second step to change the index.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">series1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">series2</span><span class="o">.</span><span class="n">values</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">series2</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="c"># turns out the merge is much faster than the .loc below</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;left&quot;</span><span class="p">:</span> <span class="n">series2</span><span class="p">}),</span>
+                  <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;right&quot;</span><span class="p">:</span> <span class="n">series1</span><span class="p">}),</span>
+                  <span class="n">left_on</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span>
+                  <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                  <span class="n">how</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">right</span>
+
+    <span class="c"># return pd.Series(series1.loc[series2.values].values, index=series2.index)</span>
 
 </div>
 <div class="viewcode-block" id="signif"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.signif">[docs]</a><span class="k">def</span> <span class="nf">signif</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>

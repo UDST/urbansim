@@ -208,7 +208,7 @@ the indexes of rows copied, and the indexes of rows removed.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><tt class="xref py py-obj docutils literal"><span class="pre">GrowthRateTransition</span></tt></a>(growth_rate)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><tt class="xref py py-obj docutils literal"><span class="pre">GrowthRateTransition</span></tt></a>(growth_rate[,&nbsp;...])</td>
 <td>Transition given tables using a simple growth rate.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><tt class="xref py py-obj docutils literal"><span class="pre">TabularGrowthRateTransition</span></tt></a>(growth_rates,&nbsp;...)</td>
@@ -243,13 +243,19 @@ the indexes of rows copied, and the indexes of rows removed.</p>
 add or remove agents based on growth rates or target totals.</p>
 <dl class="class">
 <dt id="urbansim.models.transition.GrowthRateTransition">
-<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">GrowthRateTransition</tt><big>(</big><em>growth_rate</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">GrowthRateTransition</tt><big>(</big><em>growth_rate</em>, <em>accounting_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transition given tables using a simple growth rate.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>growth_rate</strong> : float</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>growth_rate</strong> : float</p>
+<p><strong>accounting_column: string, optional</strong></p>
+<blockquote class="last">
+<div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
+then row counts will be used for accounting.</p>
+</div></blockquote>
+</td>
 </tr>
 </tbody>
 </table>
@@ -300,7 +306,7 @@ will have multiple entries.</p>
 
 <dl class="class">
 <dt id="urbansim.models.transition.TabularGrowthRateTransition">
-<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TabularGrowthRateTransition</tt><big>(</big><em>growth_rates</em>, <em>rates_column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TabularGrowthRateTransition</tt><big>(</big><em>growth_rates</em>, <em>rates_column</em>, <em>accounting_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Growth rate based transitions where the rates are stored in
 a table indexed by year with optional segmentation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -309,8 +315,13 @@ a table indexed by year with optional segmentation.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>growth_rates</strong> : pandas.DataFrame</p>
 <p><strong>rates_column</strong> : str</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Name of the column in <cite>growth_rates</cite> that contains the rates.</p>
+</div></blockquote>
+<p><strong>accounting_column: string, optional</strong></p>
+<blockquote class="last">
+<div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
+then row counts will be used for accounting.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -363,7 +374,7 @@ will have multiple entries.</p>
 
 <dl class="class">
 <dt id="urbansim.models.transition.TabularTotalsTransition">
-<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TabularTotalsTransition</tt><big>(</big><em>targets</em>, <em>totals_column</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">TabularTotalsTransition</tt><big>(</big><em>targets</em>, <em>totals_column</em>, <em>accounting_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transition data via control totals in pandas DataFrame with
 optional segmentation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -372,8 +383,13 @@ optional segmentation.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>targets</strong> : pandas.DataFrame</p>
 <p><strong>totals_column</strong> : str</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Name of the column in <cite>targets</cite> that contains the control totals.</p>
+</div></blockquote>
+<p><strong>accounting_column: string, optional</strong></p>
+<blockquote class="last">
+<div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
+then row counts will be used for accounting.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -487,7 +503,7 @@ returned <cite>updated_links</cite>.</p>
 
 <dl class="function">
 <dt id="urbansim.models.transition.add_or_remove_rows">
-<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">add_or_remove_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>starting_index=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_or_remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_or_remove_rows" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">add_or_remove_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>starting_index=None</em>, <em>accounting_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_or_remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_or_remove_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add or remove rows to/from a table. Rows are added
 for positive <cite>nrows</cite> and removed for negative <cite>nrows</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -532,7 +548,7 @@ will have multiple entries.</p>
 
 <dl class="function">
 <dt id="urbansim.models.transition.add_rows">
-<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">add_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>starting_index=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_rows" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">add_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>starting_index=None</em>, <em>accounting_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add rows to data table according to a given nrows.
 New rows will have their IDs set to NaN.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -548,6 +564,11 @@ New rows will have their IDs set to NaN.</p>
 <blockquote>
 <div><p>The starting index from which to calculate indexes for the new
 rows. If not given the max + 1 of the index of <cite>data</cite> will be used.</p>
+</div></blockquote>
+<p><strong>accounting_column: string, optional</strong></p>
+<blockquote>
+<div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
+then row counts will be used for accounting.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -573,7 +594,7 @@ will have multiple entries.</p>
 
 <dl class="function">
 <dt id="urbansim.models.transition.remove_rows">
-<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">remove_rows</tt><big>(</big><em>data</em>, <em>nrows</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.remove_rows" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.models.transition.</tt><tt class="descname">remove_rows</tt><big>(</big><em>data</em>, <em>nrows</em>, <em>accounting_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/transition.html#remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.remove_rows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a random <cite>nrows</cite> number of rows from a table.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -583,6 +604,11 @@ will have multiple entries.</p>
 <p><strong>nrows</strong> : float</p>
 <blockquote>
 <div><p>Number of rows to remove.</p>
+</div></blockquote>
+<p><strong>accounting_column: string, optional</strong></p>
+<blockquote>
+<div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
+then row counts will be used for accounting.</p>
 </div></blockquote>
 </td>
 </tr>

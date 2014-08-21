@@ -153,6 +153,7 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+<span class="kn">from</span> <span class="nn">..utils.sampling</span> <span class="kn">import</span> <span class="n">sample_rows</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
@@ -161,7 +162,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
 
 
-<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_rows">[docs]</a><span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_rows">[docs]</a><span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add rows to data table according to a given nrows.</span>
 <span class="sd">    New rows will have their IDs set to NaN.</span>
@@ -174,6 +175,9 @@
 <span class="sd">    starting_index : int, optional</span>
 <span class="sd">        The starting index from which to calculate indexes for the new</span>
 <span class="sd">        rows. If not given the max + 1 of the index of `data` will be used.</span>
+<span class="sd">    accounting_column: string, optional</span>
+<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
+<span class="sd">        then row counts will be used for accounting.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -194,18 +198,18 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">starting_index</span><span class="p">:</span>
         <span class="n">starting_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="n">i_to_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
-    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i_to_copy</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">sample_rows</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">)</span>
+    <span class="n">copied_index</span> <span class="o">=</span> <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span>
     <span class="n">added_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-        <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
+        <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
     <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">added_index</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
         <span class="s">&#39;finish: added {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">]),</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">i_to_copy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">]),</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">copied_index</span>
 
 </div>
-<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.remove_rows">[docs]</a><span class="k">def</span> <span class="nf">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.remove_rows">[docs]</a><span class="k">def</span> <span class="nf">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove a random `nrows` number of rows from a table.</span>
 
@@ -214,6 +218,9 @@
 <span class="sd">    data : DataFrame</span>
 <span class="sd">    nrows : float</span>
 <span class="sd">        Number of rows to remove.</span>
+<span class="sd">    accounting_column: string, optional</span>
+<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
+<span class="sd">        then row counts will be used for accounting.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -230,14 +237,14 @@
     <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Number of rows to remove exceeds number of rows in table.&#39;</span><span class="p">)</span>
 
-    <span class="n">i_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">remove_rows</span> <span class="o">=</span> <span class="n">sample_rows</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">remove_index</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="o">.</span><span class="n">index</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: removed {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i_to_keep</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">i_to_keep</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">remove_index</span><span class="p">)],</span> <span class="n">remove_index</span>
 
 </div>
-<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_or_remove_rows">[docs]</a><span class="k">def</span> <span class="nf">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_or_remove_rows">[docs]</a><span class="k">def</span> <span class="nf">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add or remove rows to/from a table. Rows are added</span>
 <span class="sd">    for positive `nrows` and removed for negative `nrows`.</span>
@@ -266,11 +273,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">)</span>
+        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">add_rows</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">,</span>
+            <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">)</span>
         <span class="n">removed</span> <span class="o">=</span> <span class="n">_empty_index</span><span class="p">()</span>
 
     <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">updated</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
+        <span class="n">updated</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">)</span>
         <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -287,10 +296,13 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    growth_rate : float</span>
-
+<span class="sd">    accounting_column: string, optional</span>
+<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
+<span class="sd">        then row counts will be used for accounting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span> <span class="o">=</span> <span class="n">growth_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="o">=</span> <span class="n">accounting_column</span>
 
 <div class="viewcode-block" id="GrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -318,12 +330,15 @@
 <span class="sd">            Index of rows that were removed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
         <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                 <span class="s">&#39;adding {} rows via growth rate ({}) transition&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">nrows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">),</span>
                 <span class="n">logger</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -343,11 +358,14 @@
 <span class="sd">    growth_rates : pandas.DataFrame</span>
 <span class="sd">    rates_column : str</span>
 <span class="sd">        Name of the column in `growth_rates` that contains the rates.</span>
-
+<span class="sd">    accounting_column: string, optional</span>
+<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
+<span class="sd">        then row counts will be used for accounting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rates</span><span class="p">,</span> <span class="n">rates_column</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rates</span><span class="p">,</span> <span class="n">rates_column</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">growth_rates</span> <span class="o">=</span> <span class="n">growth_rates</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rates_column</span> <span class="o">=</span> <span class="n">rates_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="o">=</span> <span class="n">accounting_column</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -431,9 +449,15 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;empty segment encountered&#39;</span><span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span>
+                    <span class="n">subset</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
+                    <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
+
             <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> \
-                <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">)</span>
+                <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c"># only update the starting index if rows were added</span>
                 <span class="n">starting_index</span> <span class="o">=</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span>
@@ -468,11 +492,14 @@
 <span class="sd">    targets : pandas.DataFrame</span>
 <span class="sd">    totals_column : str</span>
 <span class="sd">        Name of the column in `targets` that contains the control totals.</span>
-
+<span class="sd">    accounting_column: string, optional</span>
+<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
+<span class="sd">        then row counts will be used for accounting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">totals_column</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">totals_column</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">totals_column</span> <span class="o">=</span> <span class="n">totals_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="o">=</span> <span class="n">accounting_column</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -559,32 +586,23 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: update linked table after transition&#39;</span><span class="p">)</span>
+
+    <span class="c"># handle removals</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">removed</span><span class="p">))]</span>
-    <span class="n">sub_table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">copied</span><span class="p">))]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">added</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">added</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">table</span>
 
     <span class="c"># map new IDs to the IDs from which they were copied</span>
-    <span class="n">id_map</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
-    <span class="n">new_rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">id_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">copied</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">col_name</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">added</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;temp_id&#39;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">copied_id</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">sub_table</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="c"># number of times we&#39;ll need to duplicate new_ids</span>
-        <span class="n">n_matching_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="c"># join to linked table and assign new id</span>
+    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">id_map</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">col_name</span><span class="p">)</span>
+    <span class="n">new_rows</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">new_rows</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;temp_id&#39;</span><span class="p">:</span> <span class="n">col_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        <span class="n">new_ids</span> <span class="o">=</span> <span class="n">id_map</span><span class="p">[</span><span class="n">copied_id</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_ids</span><span class="p">))]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-        <span class="n">rows</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_ids</span> <span class="o">*</span> <span class="n">n_matching_rows</span>
-        <span class="n">new_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
-
-    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">new_rows</span><span class="p">)</span>
-
+    <span class="c"># index the new rows</span>
     <span class="n">starting_index</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-        <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: update linked table after transition&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">table</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
