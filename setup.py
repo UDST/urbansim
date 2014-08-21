@@ -14,7 +14,7 @@ else:
 
 setup(
     name='urbansim',
-    version='1.0dev',
+    version='1.1dev',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
     author='Synthicity',
