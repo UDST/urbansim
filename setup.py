@@ -1,12 +1,22 @@
+import os.path
+
 from ez_setup import use_setuptools
 use_setuptools()
 
 from setuptools import setup, find_packages
 
+# read README as the long description
+if os.path.exists('README'):
+    with open('README', 'r') as f:
+        long_description = f.read()
+else:
+    long_description = None
+
 setup(
     name='urbansim',
     version='1.0dev',
     description='Tool for modeling metropolitan real estate markets',
+    long_description=long_description,
     author='Synthicity',
     author_email='ffoti@berkeley.edu',
     license='BSD',
