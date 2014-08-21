@@ -9,7 +9,7 @@ setup(
     description='Tool for modeling metropolitan real estate markets',
     author='Synthicity',
     author_email='ffoti@berkeley.edu',
-    license='AGPL',
+    license='BSD',
     url='https://github.com/synthicity/urbansim',
     classifiers=[
         'Development Status :: 4 - Beta',
