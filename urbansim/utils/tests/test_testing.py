@@ -62,3 +62,23 @@ def test_frames_equal_close():
         testing.assert_frames_equal(frame1, frame2)
 
     testing.assert_frames_equal(frame1, frame2, use_close=True)
+
+
+def test_index_equal_order_agnostic():
+    left = pd.Index([1, 2, 3])
+    right = pd.Index([3, 2, 1])
+    testing.assert_index_equal(left, right)
+
+
+def test_index_equal_order_agnostic_raises_left():
+    left = pd.Index([1, 2, 3, 4])
+    right = pd.Index([3, 2, 1])
+    with pytest.raises(AssertionError):
+        testing.assert_index_equal(left, right)
+
+
+def test_index_equal_order_agnostic_raises_right():
+    left = pd.Index([1, 2, 3])
+    right = pd.Index([3, 2, 1, 4])
+    with pytest.raises(AssertionError):
+        testing.assert_index_equal(left, right)

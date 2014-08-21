@@ -6,6 +6,7 @@ import pytest
 from pandas.util import testing as pdt
 
 from .. import transition
+from ...utils import testing as ust
 
 
 @pytest.fixture
@@ -82,19 +83,6 @@ def assert_empty_index(index):
     pdt.assert_index_equal(index, pd.Index([]))
 
 
-def assert_index_equal_order_agnostic(left, right):
-    """
-    Similar to pdt.assert_index_equal but is not sensitive to key ordering.
-    """
-    pdt.assert_isinstance(left, pd.Index, '[index] ')
-    pdt.assert_isinstance(right, pd.Index, '[index] ')
-    left_diff = left.diff(right)
-    right_diff = right.diff(left)
-    if len(left_diff) > 0 or len(right_diff) > 0:
-        raise AssertionError("keys not in left [{0}], keys not in right [{1}]".format(
-            left_diff, right_diff))
-
-
 def assert_for_add(new, added):
     assert len(new) == 7
     pdt.assert_index_equal(added, pd.Index([105, 106]))
@@ -158,7 +146,7 @@ def test_remove_rows_all(basic_df):
     nrows = len(basic_df)
     new, removed = transition.remove_rows(basic_df, nrows)
     pdt.assert_frame_equal(new, basic_df.loc[[]])
-    assert_index_equal_order_agnostic(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_remove_rows_with_accounting(random_df):
@@ -267,7 +255,7 @@ def test_grtransition_remove_all(basic_df):
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    assert_index_equal_order_agnostic(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_grtransition_zero(basic_df):
@@ -323,7 +311,8 @@ def test_tgrtransition_with_accounting(random_df):
             'segment': ['a', 'b', 'c']
         },
         index=[year, year, year])
-    tgrt = transition.TabularGrowthRateTransition(growth_rates, 'grow_rate', 'some_count')
+    tgrt = transition.TabularGrowthRateTransition(
+        growth_rates, 'grow_rate', 'some_count')
     new, added, copied, removed = tgrt.transition(test_df, year)
     added_rows = new.loc[copied]
     removed_rows = test_df.loc[removed]
@@ -346,12 +335,12 @@ def test_tgrtransition_with_accounting(random_df):
     assert b_target == new[new['segment'] == 'b']['some_count'].sum()
     assert_empty_index(b_removed_rows.index)
 
-    # test a now change segment
+    # test a no change segment
     c_added_rows = added_rows[added_rows['segment'] == 'c']
     c_removed_rows = removed_rows[removed_rows['segment'] == 'c']
     assert orig_total == new[new['segment'] == 'c']['some_count'].sum()
     assert_empty_index(c_added_rows.index)
-    assert_empty_index(b_removed_rows.index)
+    assert_empty_index(c_removed_rows.index)
 
 
 def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
@@ -361,7 +350,7 @@ def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    assert_index_equal_order_agnostic(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_tgrtransition_zero(basic_df, growth_rates, year, rates_col):
@@ -412,7 +401,7 @@ def test_tabular_transition_remove_all(
     pdt.assert_frame_equal(new, basic_df.loc[[]])
     assert_empty_index(added)
     assert_empty_index(copied)
-    assert_index_equal_order_agnostic(removed, basic_df.index)
+    ust.assert_index_equal(removed, basic_df.index)
 
 
 def test_tabular_transition_raises_on_bad_year(

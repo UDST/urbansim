@@ -49,3 +49,21 @@ def assert_frames_equal(actual, expected, use_close=False):
             except AssertionError as e:
                 raise AssertionError(
                     e.message + '\n\nColumn: {!r}\nRow: {!r}'.format(j, i))
+
+
+def assert_index_equal(left, right):
+    """
+    Similar to pdt.assert_index_equal but is not sensitive to key ordering.
+
+    Parameters
+    ----------
+    left: pandas.Index
+    right: pandas.Index
+    """
+    assert isinstance(left, pd.Index)
+    assert isinstance(right, pd.Index)
+    left_diff = left.diff(right)
+    right_diff = right.diff(left)
+    if len(left_diff) > 0 or len(right_diff) > 0:
+        raise AssertionError("keys not in left [{0}], keys not in right [{1}]".format(
+            left_diff, right_diff))
