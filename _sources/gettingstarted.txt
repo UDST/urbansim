@@ -4,6 +4,12 @@ Getting Started
 Installation
 ------------
 
+.. note::
+   In the instructions below we will direct you to run various commands.
+   On Mac and Linux these should go in your standard terminal.
+   On Windows you may use the standard command prompt, the Anaconda
+   command prompt, or even Git Bash (if you have that installed).
+
 Anaconda
 ~~~~~~~~
 
@@ -15,6 +21,24 @@ which contains most of the libraries upon which UrbanSim depends.
 
 UrbanSim
 ~~~~~~~~
+
+Dependencies
+^^^^^^^^^^^^
+
+UrbanSim depends on the following libraries, most of which are in Anaconda:
+
+* `bottle <http://bottlepy.org/docs/dev/index.html>`__ >= 0.12.5
+* `matplotlib <http://matplotlib.org>`__ >= 1.3.1
+* `numpy <http://numpy.org>`__ >= 1.8.0
+* `pandas <http://pandas.pydata.org>`__ >= 0.13.1
+* `patsy <http://patsy.readthedocs.org/en/latest/>`__ >= 0.2.1
+* `prettytable <https://code.google.com/p/prettytable/>`__ >= 0.7.2
+* `pyyaml <http://pyyaml.org/>`__ >= 3.10
+* `scipy <http://scipy.org>`__ >= 0.13.3
+* `simplejson <http://simplejson.readthedocs.org/en/latest/>`__ >= 3.3.3
+* `statsmodels <http://statsmodels.sourceforge.net/stable/index.html>`__ >= 0.5.0
+* `tables <http://www.pytables.org/moin>`__ >= 3.1.0
+* `toolz <http://toolz.readthedocs.org/en/latest/>`__ >= 0.7
 
 Latest Release
 ^^^^^^^^^^^^^^
