@@ -17,8 +17,8 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     replace: bool, optional, default True
         Indicates if sampling with or without replacement.
     accounting_column: string, optional
-        Name of column with accounting totals/quantities to apply towards the control. If not provided
-        then row counts will be used for accounting.
+        Name of column with accounting totals/quantities to apply towards the control.
+        If not provided then row counts will be used for accounting.
     max_iterations: int, optional, default 50
         When using an accounting attribute, the maximum number of sampling iterations
         that will be applied.
