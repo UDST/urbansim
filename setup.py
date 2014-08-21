@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='urbansim',
-    version='0.2dev',
+    version='1.0dev',
     description='Tool for modeling metropolitan real estate markets',
     author='Synthicity',
     author_email='ffoti@berkeley.edu',
@@ -14,9 +14,9 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 2.7',
-        'License :: OSI Approved :: GNU Affero General Public License v3'
+        'License :: OSI Approved :: BSD License'
     ],
-    package_data = {
+    package_data={
         '': ['*.html'],
     },
     packages=find_packages(exclude=['*.tests']),
