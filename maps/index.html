@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -169,18 +170,15 @@ undocumented as the user does not interact with that API.  Simply call the
 <div class="section" id="what-s-it-doing-exactly">
 <h2>What&#8217;s it Doing Exactly?<a class="headerlink" href="#what-s-it-doing-exactly" title="Permalink to this headline">¶</a></h2>
 <p>So what is this doing?  The web service is translating the drop downs to a simple interactive Pandas statement, for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;zone_id&#39;</span><span class="p">)[</span><span class="s">&#39;residential_units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-</pre></div>
+<div class="highlight-python"><pre>df.groupby('zone_id')['residential_units'].sum()</pre>
 </div>
 <p>The web service will print out each statement it executes.  The website then transparently joins the output Pandas series to the shapes and create an interactive <em>slippy</em> web map using the <a class="reference external" href="http://leafletjs.com/">Leaflet</a> Javasript library.  The code for this map is really <a class="reference external" href="https://github.com/synthicity/urbansim/tree/master/urbansim/maps">quite simple</a> - feel free to browse the code and add functionality as required.</p>
 <p>To be clear, the website is performing a Pandas aggregation on the fly.  If you have a buildings DataFrame with millions of records, Pandas will <tt class="docutils literal"><span class="pre">groupby</span></tt> the <tt class="docutils literal"><span class="pre">zone_id</span></tt> and perform an aggregation of your choice.  This is designed to give you a quickly navigable map interface to understand the underlying disaggregate data, similar to that supplied by commercial projects such as <a class="reference external" href="http://kb.tableausoftware.com/articles/knowledgebase/mapping-basics">Tableau</a>.</p>
 <p>As a concrete example, note that the <tt class="docutils literal"><span class="pre">households</span></tt> table has a <tt class="docutils literal"><span class="pre">zone_id</span></tt> and is thus available for aggregation in <tt class="docutils literal"><span class="pre">dframe_explorer</span></tt>.  Since the web service is running aggregations on the <em>disaggregate</em> data, clicking to the <tt class="docutils literal"><span class="pre">households</span></tt> table and <tt class="docutils literal"><span class="pre">persons</span></tt> attribute and an aggregation of <tt class="docutils literal"><span class="pre">sum</span></tt> will run:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-</pre></div>
+<div class="highlight-python"><pre>households.groupby('zone_id').persons.sum()</pre>
 </div>
 <p>This computes the sum of persons in each household by zone, or more simply, the population of each zone.  If the aggregation is changed to mean, the service will run:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</pre></div>
+<div class="highlight-python"><pre>households.groupby('zone_id').persons.mean()</pre>
 </div>
 <p>What does this compute exactly?  It computes the average number of persons per household in each zone, or the average household size by zone.</p>
 </div>
@@ -196,7 +194,7 @@ HTML for the map.  You will need to open a web browser and navigate to
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>views</strong> : Python dictionary</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>views</strong> : Python dictionary</p>
 <blockquote>
 <div><p>This is the data that will be displayed in the maps.  Keys are strings
 (table names) and values are dataframes.  Each data frame should have a
@@ -242,8 +240,8 @@ view) which joins to geom_name in the shapes</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Does not return - takes over control of the thread and responds to</p>
-<p class="last">queries from a web browser</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>Does not return - takes over control of the thread and responds to</strong> :</p>
+<p class="last"><strong>queries from a web browser</strong> :</p>
 </td>
 </tr>
 </tbody>

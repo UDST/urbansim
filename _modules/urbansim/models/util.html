@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -138,352 +139,352 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.models.util</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Utilities used within the ``urbansim.models`` package.</span>
+  <h1>Source code for urbansim.models.util</h1><pre>
+"""
+Utilities used within the ``urbansim.models`` package.
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numbers</span>
-<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
-<span class="kn">from</span> <span class="nn">tokenize</span> <span class="kn">import</span> <span class="n">generate_tokens</span><span class="p">,</span> <span class="n">NAME</span>
+"""
+import collections
+import logging
+import numbers
+from StringIO import StringIO
+from tokenize import generate_tokens, NAME
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">patsy</span>
-<span class="kn">import</span> <span class="nn">toolz</span>
+import numpy as np
+import pandas as pd
+import patsy
+import toolz
 
-<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+from ..utils.logutil import log_start_finish
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="apply_filter_query"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.apply_filter_query">[docs]</a><span class="k">def</span> <span class="nf">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Use the DataFrame.query method to filter a table down to the</span>
-<span class="sd">    desired rows.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">    filters : list of str or str, optional</span>
-<span class="sd">        List of filters to apply. Will be joined together with</span>
-<span class="sd">        &#39; and &#39; and passed to DataFrame.query. A string will be passed</span>
-<span class="sd">        straight to DataFrame.query.</span>
-<span class="sd">        If not supplied no filtering will be done.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    filtered_df : pandas.DataFrame</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;apply filter query: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filters</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="n">filters</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="s">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">df</span>
-
-</div>
-<span class="k">def</span> <span class="nf">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Turn a `name` and `value` into a string expression compatible</span>
-<span class="sd">    the ``DataFrame.query`` method.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        Should be the name of a column in the table to which the</span>
-<span class="sd">        filter will be applied.</span>
-
-<span class="sd">        A suffix of &#39;_max&#39; will result in a &quot;less than&quot; filter,</span>
-<span class="sd">        a suffix of &#39;_min&#39; will result in a &quot;greater than or equal to&quot; filter,</span>
-<span class="sd">        and no recognized suffix will result in an &quot;equal to&quot; filter.</span>
-<span class="sd">    value : any</span>
-<span class="sd">        Value side of filter for comparison to column values.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    filter_exp : str</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;_min&#39;</span><span class="p">):</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
-        <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;&gt;=&#39;</span>
-    <span class="k">elif</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;_max&#39;</span><span class="p">):</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
-        <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;&lt;&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">comp</span> <span class="o">=</span> <span class="s">&#39;==&#39;</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="s">&#39;{} {} {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s">&#39;converted name={} and value={} to filter {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">result</span>
+logger = logging.getLogger(__name__)
 
 
-<div class="viewcode-block" id="filter_table"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.filter_table">[docs]</a><span class="k">def</span> <span class="nf">filter_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filter_series</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Filter a table based on a set of restrictions given in</span>
-<span class="sd">    Series of column name / filter parameter pairs. The column</span>
-<span class="sd">    names can have suffixes `_min` and `_max` to indicate</span>
-<span class="sd">    &quot;less than&quot; and &quot;greater than&quot; constraints.</span>
+<div class="viewcode-block" id="apply_filter_query"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.apply_filter_query">[docs]</a>def apply_filter_query(df, filters=None):
+    """
+    Use the DataFrame.query method to filter a table down to the
+    desired rows.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    table : pandas.DataFrame</span>
-<span class="sd">        Table to filter.</span>
-<span class="sd">    filter_series : pandas.Series</span>
-<span class="sd">        Series of column name / value pairs of filter constraints.</span>
-<span class="sd">        Columns that ends with &#39;_max&#39; will be used to create</span>
-<span class="sd">        a &quot;less than&quot; filters, columns that end with &#39;_min&#39; will be</span>
-<span class="sd">        used to create &quot;greater than or equal to&quot; filters.</span>
-<span class="sd">        A column with no suffix will be used to make an &#39;equal to&#39; filter.</span>
-<span class="sd">    ignore : sequence of str, optional</span>
-<span class="sd">        List of column names that should not be used for filtering.</span>
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    filters : list of str or str, optional
+        List of filters to apply. Will be joined together with
+        ' and ' and passed to DataFrame.query. A string will be passed
+        straight to DataFrame.query.
+        If not supplied no filtering will be done.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    filtered : pandas.DataFrame</span>
+    Returns
+    -------
+    filtered_df : pandas.DataFrame
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;filter table&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-        <span class="n">ignore</span> <span class="o">=</span> <span class="n">ignore</span> <span class="k">if</span> <span class="n">ignore</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
-
-        <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_filterize</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-                   <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">filter_series</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
-                   <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ignore</span> <span class="ow">or</span>
-                           <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">)</span> <span class="ow">and</span>
-                            <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="p">)))]</span>
-
-        <span class="k">return</span> <span class="n">apply_filter_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
+    """
+    with log_start_finish('apply filter query: {!r}'.format(filters), logger):
+        if filters:
+            if isinstance(filters, str):
+                query = filters
+            else:
+                query = ' and '.join(filters)
+            return df.query(query)
+        else:
+            return df
 
 </div>
-<div class="viewcode-block" id="concat_indexes"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.concat_indexes">[docs]</a><span class="k">def</span> <span class="nf">concat_indexes</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Concatenate a sequence of pandas Indexes.</span>
+def _filterize(name, value):
+    """
+    Turn a `name` and `value` into a string expression compatible
+    the ``DataFrame.query`` method.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    indexes : sequence of pandas.Index</span>
+    Parameters
+    ----------
+    name : str
+        Should be the name of a column in the table to which the
+        filter will be applied.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pandas.Index</span>
+        A suffix of '_max' will result in a "less than" filter,
+        a suffix of '_min' will result in a "greater than or equal to" filter,
+        and no recognized suffix will result in an "equal to" filter.
+    value : any
+        Value side of filter for comparison to column values.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">indexes</span><span class="p">))</span>
+    Returns
+    -------
+    filter_exp : str
 
-</div>
-<div class="viewcode-block" id="has_constant_expr"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.has_constant_expr">[docs]</a><span class="k">def</span> <span class="nf">has_constant_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Report whether a model expression has constant specific term.</span>
-<span class="sd">    That is, a term explicitly specying whether the model should or</span>
-<span class="sd">    should not include a constant. (e.g. &#39;+ 1&#39; or &#39;- 1&#39;.)</span>
+    """
+    if name.endswith('_min'):
+        name = name[:-4]
+        comp = '&gt;='
+    elif name.endswith('_max'):
+        name = name[:-4]
+        comp = '&lt;'
+    else:
+        comp = '=='
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    expr : str</span>
-<span class="sd">        Model expression to check.</span>
+    result = '{} {} {!r}'.format(name, comp, value)
+    logger.debug(
+        'converted name={} and value={} to filter {}'.format(
+            name, value, result))
+    return result
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    has_constant : bool</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">has_constant</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s">&#39;ONE&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span>
+<div class="viewcode-block" id="filter_table"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.filter_table">[docs]</a>def filter_table(table, filter_series, ignore=None):
+    """
+    Filter a table based on a set of restrictions given in
+    Series of column name / filter parameter pairs. The column
+    names can have suffixes `_min` and `_max` to indicate
+    "less than" and "greater than" constraints.
 
-        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">has_constant</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">True</span>
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        Table to filter.
+    filter_series : pandas.Series
+        Series of column name / value pairs of filter constraints.
+        Columns that ends with '_max' will be used to create
+        a "less than" filters, columns that end with '_min' will be
+        used to create "greater than or equal to" filters.
+        A column with no suffix will be used to make an 'equal to' filter.
+    ignore : sequence of str, optional
+        List of column names that should not be used for filtering.
 
-        <span class="k">return</span> <span class="bp">False</span>
+    Returns
+    -------
+    filtered : pandas.DataFrame
 
-    <span class="k">return</span> <span class="n">has_constant</span><span class="p">(</span><span class="n">patsy</span><span class="o">.</span><span class="n">parse_formula</span><span class="o">.</span><span class="n">parse_formula</span><span class="p">(</span><span class="n">expr</span><span class="p">))</span>
+    """
+    with log_start_finish('filter table', logger):
+        ignore = ignore if ignore else set()
 
-</div>
-<div class="viewcode-block" id="str_model_expression"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.str_model_expression">[docs]</a><span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    We support specifying model expressions as strings, lists, or dicts;</span>
-<span class="sd">    but for use with patsy and statsmodels we need a string.</span>
-<span class="sd">    This function will take any of those as input and return a string.</span>
+        filters = [_filterize(name, val)
+                   for name, val in filter_series.iteritems()
+                   if not (name in ignore or
+                           (isinstance(val, numbers.Number) and
+                            np.isnan(val)))]
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    expr : str, iterable, or dict</span>
-<span class="sd">        A string will be returned unmodified except to add or remove</span>
-<span class="sd">        a constant.</span>
-<span class="sd">        An iterable sequence will be joined together with &#39; + &#39;.</span>
-<span class="sd">        A dictionary should have ``right_side`` and, optionally,</span>
-<span class="sd">        ``left_side`` keys. The ``right_side`` can be a list or a string</span>
-<span class="sd">        and will be handled as above. If ``left_side`` is present it will</span>
-<span class="sd">        be joined with ``right_side`` with &#39; ~ &#39;.</span>
-<span class="sd">    add_constant : bool, optional</span>
-<span class="sd">        Whether to add a &#39; + 1&#39; (if True) or &#39; - 1&#39; (if False) to the model.</span>
-<span class="sd">        If the expression already has a &#39;+ 1&#39; or &#39;- 1&#39; this option will be</span>
-<span class="sd">        ignored.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    model_expression : str</span>
-<span class="sd">        A string model expression suitable for use with statsmodels and patsy.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
-            <span class="n">left_side</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;left_side&#39;</span><span class="p">)</span>
-            <span class="n">right_side</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">[</span><span class="s">&#39;right_side&#39;</span><span class="p">],</span> <span class="n">add_constant</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c"># some kind of iterable like a list</span>
-            <span class="n">left_side</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="n">right_side</span> <span class="o">=</span> <span class="s">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">left_side</span><span class="p">:</span>
-            <span class="n">model_expression</span> <span class="o">=</span> <span class="s">&#39; ~ &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">left_side</span><span class="p">,</span> <span class="n">right_side</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model_expression</span> <span class="o">=</span> <span class="n">right_side</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">model_expression</span> <span class="o">=</span> <span class="n">expr</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_constant_expr</span><span class="p">(</span><span class="n">model_expression</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">add_constant</span><span class="p">:</span>
-            <span class="n">model_expression</span> <span class="o">+=</span> <span class="s">&#39; + 1&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">model_expression</span> <span class="o">+=</span> <span class="s">&#39; - 1&#39;</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s">&#39;converted expression: {!r} to model: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">expr</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">model_expression</span>
+        return apply_filter_query(table, filters)
 
 </div>
-<div class="viewcode-block" id="sorted_groupby"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.sorted_groupby">[docs]</a><span class="k">def</span> <span class="nf">sorted_groupby</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">groupby</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform a groupby on a DataFrame using a specific column</span>
-<span class="sd">    and assuming that that column is sorted.</span>
+<div class="viewcode-block" id="concat_indexes"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.concat_indexes">[docs]</a>def concat_indexes(indexes):
+    """
+    Concatenate a sequence of pandas Indexes.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df : pandas.DataFrame</span>
-<span class="sd">    groupby : object</span>
-<span class="sd">        Column name on which to groupby. This column must be sorted.</span>
+    Parameters
+    ----------
+    indexes : sequence of pandas.Index
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    generator</span>
-<span class="sd">        Yields pairs of group_name, DataFrame.</span>
+    Returns
+    -------
+    pandas.Index
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">prev</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">groupby</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">groupby</span><span class="p">]):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">prev</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">prev</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">prev</span> <span class="o">=</span> <span class="n">x</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
-    <span class="c"># need to send back the last group</span>
-    <span class="k">yield</span> <span class="n">prev</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span>
+    """
+    return pd.Index(np.concatenate(indexes))
 
 </div>
-<div class="viewcode-block" id="columns_in_filters"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.columns_in_filters">[docs]</a><span class="k">def</span> <span class="nf">columns_in_filters</span><span class="p">(</span><span class="n">filters</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns a list of the columns used in a set of query filters.</span>
+<div class="viewcode-block" id="has_constant_expr"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.has_constant_expr">[docs]</a>def has_constant_expr(expr):
+    """
+    Report whether a model expression has constant specific term.
+    That is, a term explicitly specying whether the model should or
+    should not include a constant. (e.g. '+ 1' or '- 1'.)
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    filters : list of str or str</span>
-<span class="sd">        List of the filters as passed passed to ``apply_filter_query``.</span>
+    Parameters
+    ----------
+    expr : str
+        Model expression to check.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    columns : list of str</span>
-<span class="sd">        List of all the strings mentioned in the filters.</span>
+    Returns
+    -------
+    has_constant : bool
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">filters</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
+    """
+    def has_constant(node):
+        if node.type == 'ONE':
+            return True
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">filters</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+        for n in node.args:
+            if has_constant(n):
+                return True
 
-    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">reserved</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;and&#39;</span><span class="p">,</span> <span class="s">&#39;or&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="s">&#39;not&#39;</span><span class="p">}</span>
+        return False
 
-    <span class="k">for</span> <span class="n">toknum</span><span class="p">,</span> <span class="n">tokval</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">generate_tokens</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">toknum</span> <span class="o">==</span> <span class="n">NAME</span> <span class="ow">and</span> <span class="n">tokval</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reserved</span><span class="p">:</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokval</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span>
+    return has_constant(patsy.parse_formula.parse_formula(expr))
 
 </div>
-<span class="k">def</span> <span class="nf">_tokens_from_patsy</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Yields all the individual tokens from within a patsy formula</span>
-<span class="sd">    as parsed by patsy.parse_formula.parse_formula.</span>
+<div class="viewcode-block" id="str_model_expression"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.str_model_expression">[docs]</a>def str_model_expression(expr, add_constant=True):
+    """
+    We support specifying model expressions as strings, lists, or dicts;
+    but for use with patsy and statsmodels we need a string.
+    This function will take any of those as input and return a string.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    node : patsy.parse_formula.ParseNode</span>
+    Parameters
+    ----------
+    expr : str, iterable, or dict
+        A string will be returned unmodified except to add or remove
+        a constant.
+        An iterable sequence will be joined together with ' + '.
+        A dictionary should have ``right_side`` and, optionally,
+        ``left_side`` keys. The ``right_side`` can be a list or a string
+        and will be handled as above. If ``left_side`` is present it will
+        be joined with ``right_side`` with ' ~ '.
+    add_constant : bool, optional
+        Whether to add a ' + 1' (if True) or ' - 1' (if False) to the model.
+        If the expression already has a '+ 1' or '- 1' this option will be
+        ignored.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_tokens_from_patsy</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">t</span>
+    Returns
+    -------
+    model_expression : str
+        A string model expression suitable for use with statsmodels and patsy.
 
-    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
-        <span class="k">yield</span> <span class="n">node</span><span class="o">.</span><span class="n">token</span>
+    """
+    if not isinstance(expr, str):
+        if isinstance(expr, collections.Mapping):
+            left_side = expr.get('left_side')
+            right_side = str_model_expression(expr['right_side'], add_constant)
+        else:
+            # some kind of iterable like a list
+            left_side = None
+            right_side = ' + '.join(expr)
+
+        if left_side:
+            model_expression = ' ~ '.join((left_side, right_side))
+        else:
+            model_expression = right_side
+
+    else:
+        model_expression = expr
+
+    if not has_constant_expr(model_expression):
+        if add_constant:
+            model_expression += ' + 1'
+        else:
+            model_expression += ' - 1'
+
+    logger.debug(
+        'converted expression: {!r} to model: {!r}'.format(
+            expr, model_expression))
+    return model_expression
+
+</div>
+<div class="viewcode-block" id="sorted_groupby"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.sorted_groupby">[docs]</a>def sorted_groupby(df, groupby):
+    """
+    Perform a groupby on a DataFrame using a specific column
+    and assuming that that column is sorted.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+    groupby : object
+        Column name on which to groupby. This column must be sorted.
+
+    Returns
+    -------
+    generator
+        Yields pairs of group_name, DataFrame.
+
+    """
+    start = 0
+    prev = df[groupby].iloc[start]
+    for i, x in enumerate(df[groupby]):
+        if x != prev:
+            yield prev, df.iloc[start:i]
+            prev = x
+            start = i
+    # need to send back the last group
+    yield prev, df.iloc[start:]
+
+</div>
+<div class="viewcode-block" id="columns_in_filters"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.columns_in_filters">[docs]</a>def columns_in_filters(filters):
+    """
+    Returns a list of the columns used in a set of query filters.
+
+    Parameters
+    ----------
+    filters : list of str or str
+        List of the filters as passed passed to ``apply_filter_query``.
+
+    Returns
+    -------
+    columns : list of str
+        List of all the strings mentioned in the filters.
+
+    """
+    if not filters:
+        return []
+
+    if not isinstance(filters, str):
+        filters = ' '.join(filters)
+
+    columns = []
+    reserved = {'and', 'or', 'in', 'not'}
+
+    for toknum, tokval, _, _, _ in generate_tokens(StringIO(filters).readline):
+        if toknum == NAME and tokval not in reserved:
+            columns.append(tokval)
+
+    return list(toolz.unique(columns))
+
+</div>
+def _tokens_from_patsy(node):
+    """
+    Yields all the individual tokens from within a patsy formula
+    as parsed by patsy.parse_formula.parse_formula.
+
+    Parameters
+    ----------
+    node : patsy.parse_formula.ParseNode
+
+    """
+    for n in node.args:
+        for t in _tokens_from_patsy(n):
+            yield t
+
+    if node.token:
+        yield node.token
 
 
-<div class="viewcode-block" id="columns_in_formula"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.columns_in_formula">[docs]</a><span class="k">def</span> <span class="nf">columns_in_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns the names of all the columns used in a patsy formula.</span>
+<div class="viewcode-block" id="columns_in_formula"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.columns_in_formula">[docs]</a>def columns_in_formula(formula):
+    """
+    Returns the names of all the columns used in a patsy formula.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    formula : str, iterable, or dict</span>
-<span class="sd">        Any formula construction supported by ``str_model_expression``.</span>
+    Parameters
+    ----------
+    formula : str, iterable, or dict
+        Any formula construction supported by ``str_model_expression``.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    columns : list of str</span>
+    Returns
+    -------
+    columns : list of str
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">formula</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
+    """
+    if formula is None:
+        return []
 
-    <span class="n">formula</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+    formula = str_model_expression(formula, add_constant=False)
+    columns = []
 
-    <span class="n">tokens</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span><span class="p">,</span>
-        <span class="n">toolz</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span>
-            <span class="n">_tokens_from_patsy</span><span class="p">(</span><span class="n">patsy</span><span class="o">.</span><span class="n">parse_formula</span><span class="o">.</span><span class="n">parse_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">))))</span>
+    tokens = map(
+        lambda x: x.extra,
+        toolz.remove(
+            lambda x: x.extra is None,
+            _tokens_from_patsy(patsy.parse_formula.parse_formula(formula))))
 
-    <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
-        <span class="c"># if there are parentheses in the expression we</span>
-        <span class="c"># want to drop them and everything outside</span>
-        <span class="c"># and start again from the top</span>
-        <span class="k">if</span> <span class="s">&#39;(&#39;</span> <span class="ow">in</span> <span class="n">tok</span><span class="p">:</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">fin</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s">&#39;)&#39;</span><span class="p">)</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="n">tok</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">fin</span><span class="p">]))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">toknum</span><span class="p">,</span> <span class="n">tokval</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">generate_tokens</span><span class="p">(</span>
-                    <span class="n">StringIO</span><span class="p">(</span><span class="n">tok</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">toknum</span> <span class="o">==</span> <span class="n">NAME</span><span class="p">:</span>
-                    <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tokval</span><span class="p">)</span>
+    for tok in tokens:
+        # if there are parentheses in the expression we
+        # want to drop them and everything outside
+        # and start again from the top
+        if '(' in tok:
+            start = tok.find('(') + 1
+            fin = tok.rfind(')')
+            columns.extend(columns_in_formula(tok[start:fin]))
+        else:
+            for toknum, tokval, _, _, _ in generate_tokens(
+                    StringIO(tok).readline):
+                if toknum == NAME:
+                    columns.append(tokval)
 
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span></div>
-</pre></div>
+    return list(toolz.unique(columns))</div>
+</pre>
 
           </div>
           <footer>

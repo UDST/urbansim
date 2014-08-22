@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -138,146 +139,146 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.maps.dframe_explorer</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">bottle</span> <span class="kn">import</span> <span class="n">route</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">static_file</span>
-<span class="kn">from</span> <span class="nn">urbansim.utils</span> <span class="kn">import</span> <span class="n">yamlio</span>
-<span class="kn">import</span> <span class="nn">simplejson</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
+  <h1>Source code for urbansim.maps.dframe_explorer</h1><pre>
+from bottle import route, response, run, hook, static_file
+from urbansim.utils import yamlio
+import simplejson
+import numpy as np
+import pandas as pd
+import os
+from jinja2 import Environment
 
 
-<span class="nd">@hook</span><span class="p">(</span><span class="s">&#39;after_request&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">enable_cors</span><span class="p">():</span>
-    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;*&#39;</span>
-    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Access-Control-Allow-Headers&#39;</span><span class="p">]</span> <span class="o">=</span> \
-        <span class="s">&#39;Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token&#39;</span>
+@hook('after_request')
+def enable_cors():
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = \
+        'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
 
-<span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">CONFIG</span> <span class="o">=</span> <span class="bp">None</span>
-
-
-<span class="k">def</span> <span class="nf">get_schema</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">DFRAMES</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">DFRAMES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">DFRAMES</span><span class="p">}</span>
+DFRAMES = {}
+CONFIG = None
 
 
-<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field:path&gt;/&lt;agg&gt;&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;GET&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">map_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">filter</span><span class="p">,</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">agg</span><span class="p">):</span>
-    <span class="k">global</span> <span class="n">DFRAMES</span>
-
-    <span class="nb">filter</span> <span class="o">=</span> <span class="s">&quot;.query(&#39;</span><span class="si">%s</span><span class="s">&#39;)&quot;</span> <span class="o">%</span> <span class="nb">filter</span> <span class="k">if</span> <span class="nb">filter</span> <span class="o">!=</span> <span class="s">&quot;empty&quot;</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">DFRAMES</span><span class="p">[</span><span class="n">table</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;Col not found, trying eval:&quot;</span><span class="p">,</span> <span class="n">field</span>
-        <span class="n">df</span><span class="p">[</span><span class="s">&quot;eval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-        <span class="n">field</span> <span class="o">=</span> <span class="s">&quot;eval&quot;</span>
-
-    <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;df</span><span class="si">%s</span><span class="s">.groupby(&#39;</span><span class="si">%s</span><span class="s">&#39;)[&#39;</span><span class="si">%s</span><span class="s">&#39;].</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
-          <span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">agg</span><span class="p">)</span>
-    <span class="k">print</span> <span class="n">cmd</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="n">results</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">results</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span>
-    <span class="k">return</span> <span class="n">results</span>
+def get_schema():
+    global DFRAMES
+    return {name: list(DFRAMES[name].columns) for name in DFRAMES}
 
 
-<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field&gt;/&lt;agg&gt;&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&quot;OPTIONS&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">ans_options</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{}</span>
+@route('/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field:path&gt;/&lt;agg&gt;', method="GET")
+def map_query(table, filter, groupby, field, agg):
+    global DFRAMES
+
+    filter = ".query('%s')" % filter if filter != "empty" else ""
+
+    df = DFRAMES[table]
+
+    if field not in df.columns:
+        print "Col not found, trying eval:", field
+        df["eval"] = df.eval(field)
+        field = "eval"
+
+    cmd = "df%s.groupby('%s')['%s'].%s" % \
+          (filter, groupby, field, agg)
+    print cmd
+    results = eval(cmd)
+    results[results == np.inf] = np.nan
+    results = yamlio.series_to_yaml_safe(results.dropna())
+    results = {int(k): results[k] for k in results}
+    return results
 
 
-<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">CONFIG</span>
-    <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">)</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="s">&#39;dframe_explorer.html&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Environment</span><span class="p">()</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">CONFIG</span><span class="p">)</span>
+@route('/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field&gt;/&lt;agg&gt;', method="OPTIONS")
+def ans_options(table=None, filter=None, groupby=None, field=None, agg=None):
+    return {}
 
 
-<span class="nd">@route</span><span class="p">(</span><span class="s">&#39;/data/&lt;filename&gt;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">data_static</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">static_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="s">&#39;./data&#39;</span><span class="p">)</span>
+@route('/')
+def index():
+    global CONFIG
+    dir = os.path.dirname(__file__)
+    index = open(os.path.join(dir, 'dframe_explorer.html')).read()
+    return Environment().from_string(index).render(CONFIG)
 
 
-<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../../maps/index.html#urbansim.maps.dframe_explorer.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">views</span><span class="p">,</span>
-          <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mf">37.7792</span><span class="p">,</span> <span class="o">-</span><span class="mf">122.2191</span><span class="p">],</span>
-          <span class="n">zoom</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-          <span class="n">shape_json</span><span class="o">=</span><span class="s">&#39;data/zones.json&#39;</span><span class="p">,</span>
-          <span class="n">geom_name</span><span class="o">=</span><span class="s">&#39;ZONE_ID&#39;</span><span class="p">,</span>  <span class="c"># from JSON file</span>
-          <span class="n">join_name</span><span class="o">=</span><span class="s">&#39;zone_id&#39;</span><span class="p">,</span>  <span class="c"># from data frames</span>
-          <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-          <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span>
-          <span class="n">host</span><span class="o">=</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span>
-          <span class="n">testing</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Start the web service which serves the Pandas queries and generates the</span>
-<span class="sd">    HTML for the map.  You will need to open a web browser and navigate to</span>
-<span class="sd">    http://localhost:8765 (or the specified port)</span>
+@route('/data/&lt;filename&gt;')
+def data_static(filename):
+    return static_file(filename, root='./data')
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    views : Python dictionary</span>
-<span class="sd">        This is the data that will be displayed in the maps.  Keys are strings</span>
-<span class="sd">        (table names) and values are dataframes.  Each data frame should have a</span>
-<span class="sd">        column with the name specified as join_name below</span>
-<span class="sd">    center : a Python list with two floats</span>
-<span class="sd">        The initial latitude and longitude of the center of the map</span>
-<span class="sd">    zoom : int</span>
-<span class="sd">        The initial zoom level of the map</span>
-<span class="sd">    shape_json : str</span>
-<span class="sd">        The path to the geojson file which contains that shapes that will be</span>
-<span class="sd">        displayed</span>
-<span class="sd">    geom_name : str</span>
-<span class="sd">        The field name from the JSON file which contains the id of the geometry</span>
-<span class="sd">    join_name : str</span>
-<span class="sd">        The column name from the dataframes passed as views (must be in each</span>
-<span class="sd">        view) which joins to geom_name in the shapes</span>
-<span class="sd">    precision : int</span>
-<span class="sd">        The precision of values to show in the legend on the map</span>
-<span class="sd">    port : int</span>
-<span class="sd">        The port for the web service to respond on</span>
-<span class="sd">    host : str</span>
-<span class="sd">        The hostname to run the web service from</span>
-<span class="sd">    testing : bool</span>
-<span class="sd">        Whether to print extra debug information</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Does not return - takes over control of the thread and responds to</span>
-<span class="sd">    queries from a web browser</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../../maps/index.html#urbansim.maps.dframe_explorer.start">[docs]</a>def start(views,
+          center=[37.7792, -122.2191],
+          zoom=11,
+          shape_json='data/zones.json',
+          geom_name='ZONE_ID',  # from JSON file
+          join_name='zone_id',  # from data frames
+          precision=8,
+          port=8765,
+          host='localhost',
+          testing=False):
+    """
+    Start the web service which serves the Pandas queries and generates the
+    HTML for the map.  You will need to open a web browser and navigate to
+    http://localhost:8765 (or the specified port)
 
-    <span class="k">global</span> <span class="n">DFRAMES</span><span class="p">,</span> <span class="n">CONFIG</span>
-    <span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">views</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">}</span>
+    Parameters
+    ----------
+    views : Python dictionary
+        This is the data that will be displayed in the maps.  Keys are strings
+        (table names) and values are dataframes.  Each data frame should have a
+        column with the name specified as join_name below
+    center : a Python list with two floats
+        The initial latitude and longitude of the center of the map
+    zoom : int
+        The initial zoom level of the map
+    shape_json : str
+        The path to the geojson file which contains that shapes that will be
+        displayed
+    geom_name : str
+        The field name from the JSON file which contains the id of the geometry
+    join_name : str
+        The column name from the dataframes passed as views (must be in each
+        view) which joins to geom_name in the shapes
+    precision : int
+        The precision of values to show in the legend on the map
+    port : int
+        The port for the web service to respond on
+    host : str
+        The hostname to run the web service from
+    testing : bool
+        Whether to print extra debug information
 
-    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s">&#39;center&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">center</span><span class="p">),</span>
-        <span class="s">&#39;zoom&#39;</span><span class="p">:</span> <span class="n">zoom</span><span class="p">,</span>
-        <span class="s">&#39;shape_json&#39;</span><span class="p">:</span> <span class="n">shape_json</span><span class="p">,</span>
-        <span class="s">&#39;geom_name&#39;</span><span class="p">:</span> <span class="n">geom_name</span><span class="p">,</span>
-        <span class="s">&#39;join_name&#39;</span><span class="p">:</span> <span class="n">join_name</span><span class="p">,</span>
-        <span class="s">&#39;precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
-    <span class="p">}</span>
+    Returns
+    -------
+    Does not return - takes over control of the thread and responds to
+    queries from a web browser
+    """
 
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">join_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">views</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Join name must be present on all dataframes - &quot;</span>
-                            <span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39; not present on &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">join_name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+    global DFRAMES, CONFIG
+    DFRAMES = {str(k): views[k] for k in views}
 
-    <span class="n">config</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simplejson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">get_schema</span><span class="p">())</span>
+    config = {
+        'center': str(center),
+        'zoom': zoom,
+        'shape_json': shape_json,
+        'geom_name': geom_name,
+        'join_name': join_name,
+        'precision': precision
+    }
 
-    <span class="n">CONFIG</span> <span class="o">=</span> <span class="n">config</span>
+    for k in views:
+        if join_name not in views[k].columns:
+            raise Exception("Join name must be present on all dataframes - "
+                            "'%s' not present on '%s'" % (join_name, k))
 
-    <span class="k">if</span> <span class="n">testing</span><span class="p">:</span>
-        <span class="k">return</span>
+    config['schema'] = simplejson.dumps(get_schema())
 
-    <span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
-</pre></div>
+    CONFIG = config
+
+    if testing:
+        return
+
+    run(host=host, port=port, debug=True)</div>
+</pre>
 
           </div>
           <footer>

@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -211,9 +212,8 @@ to an HDF5 file every simulation iteration or on set intervals.</li>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>In the documentation below the following imports are implied:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">urbansim.sim.simulation</span> <span class="kn">as</span> <span class="nn">sim</span>
-</pre></div>
+<div class="last highlight-python"><pre>import pandas as pd
+import urbansim.sim.simulation as sim</pre>
 </div>
 </div>
 </div>
@@ -222,17 +222,15 @@ to an HDF5 file every simulation iteration or on set intervals.</li>
 <p>Tables are pandas <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a>.
 Use the <a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-func docutils literal"><span class="pre">add_table()</span></tt></a> function to register
 a DataFrame under a given name:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
-</pre></div>
+<div class="highlight-python"><pre>df = pd.DataFrame({'a': [1, 2, 3]})
+sim.add_table('my_table', df)</pre>
 </div>
 <p>Or you can use the decorator <a class="reference internal" href="#urbansim.sim.simulation.table" title="urbansim.sim.simulation.table"><tt class="xref py py-func docutils literal"><span class="pre">table()</span></tt></a>
 to register a function that returns a DataFrame:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table</span><span class="p">(</span><span class="s">&#39;halve_my_table&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">halve_my_table</span><span class="p">(</span><span class="n">my_table</span><span class="p">):</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">df</span> <span class="o">/</span> <span class="mi">2</span>
-</pre></div>
+<div class="highlight-python"><pre>@sim.table('halve_my_table')
+def halve_my_table(my_table):
+    df = my_table.to_frame()
+    return df / 2</pre>
 </div>
 <p>By registering <tt class="docutils literal"><span class="pre">halve_my_table</span></tt> as a function its values will always be
 half those in <tt class="docutils literal"><span class="pre">my_table</span></tt>, even if <tt class="docutils literal"><span class="pre">my_table</span></tt> is later changed.
@@ -242,15 +240,14 @@ is used, pass the <tt class="docutils literal"><span class="pre">cache=True</spa
 <a class="reference external" href="http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types">valid Python variable names</a>
 so that they can be used in dependency injection.</p>
 <p>Here&#8217;s a demo of the above table definitions shown in IPython:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">19</span><span class="p">]:</span> <span class="n">wrapped</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;halve_my_table&#39;</span><span class="p">)</span>
+<div class="highlight-python"><pre>In [19]: wrapped = sim.get_table('halve_my_table')
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">20</span><span class="p">]:</span> <span class="n">wrapped</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">20</span><span class="p">]:</span>
-     <span class="n">a</span>
-<span class="mi">0</span>  <span class="mf">0.5</span>
-<span class="mi">1</span>  <span class="mf">1.0</span>
-<span class="mi">2</span>  <span class="mf">1.5</span>
-</pre></div>
+In [20]: wrapped.to_frame()
+Out[20]:
+     a
+0  0.5
+1  1.0
+2  1.5</pre>
 </div>
 <div class="section" id="table-wrappers">
 <h3>Table Wrappers<a class="headerlink" href="#table-wrappers" title="Permalink to this headline">¶</a></h3>
@@ -272,10 +269,9 @@ only have it evaluated once and thereafter have access to the DataFrame itself
 as if you had used <a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-func docutils literal"><span class="pre">add_table()</span></tt></a> to
 register it. For that you can use the
 <a class="reference internal" href="#urbansim.sim.simulation.table_source" title="urbansim.sim.simulation.table_source"><tt class="xref py py-func docutils literal"><span class="pre">table_source()</span></tt></a> decorator:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">my_table</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
-</pre></div>
+<div class="highlight-python"><pre>@sim.table_source('my_table')
+def my_table():
+    return pd.DataFrame({'a': [1, 2, 3]})</pre>
 </div>
 <p>When <tt class="docutils literal"><span class="pre">my_table</span></tt> is first injected somewhere it will be converted to a
 <a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>.</p>
@@ -291,36 +287,34 @@ one table onto another) and you register them using the
 <a class="reference internal" href="#urbansim.sim.simulation.broadcast" title="urbansim.sim.simulation.broadcast"><tt class="xref py py-func docutils literal"><span class="pre">broadcast()</span></tt></a> function.</p>
 <p>For an example we&#8217;ll first define some DataFrames that contain links
 to one another and register them with the simulation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">df_a</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span>
-    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a0&#39;</span><span class="p">,</span> <span class="s">&#39;a1&#39;</span><span class="p">])</span>
-<span class="n">df_b</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">{</span><span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
-     <span class="s">&#39;a_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;a0&#39;</span><span class="p">,</span> <span class="s">&#39;a1&#39;</span><span class="p">,</span> <span class="s">&#39;a1&#39;</span><span class="p">,</span> <span class="s">&#39;a0&#39;</span><span class="p">,</span> <span class="s">&#39;a1&#39;</span><span class="p">]},</span>
-    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;b0&#39;</span><span class="p">,</span> <span class="s">&#39;b1&#39;</span><span class="p">,</span> <span class="s">&#39;b2&#39;</span><span class="p">,</span> <span class="s">&#39;b3&#39;</span><span class="p">,</span> <span class="s">&#39;b4&#39;</span><span class="p">])</span>
-<span class="n">df_c</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">{</span><span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]},</span>
-    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;c0&#39;</span><span class="p">,</span> <span class="s">&#39;c1&#39;</span><span class="p">,</span> <span class="s">&#39;c2&#39;</span><span class="p">])</span>
-<span class="n">df_d</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">{</span><span class="s">&#39;d&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span>
-     <span class="s">&#39;b_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;b2&#39;</span><span class="p">,</span> <span class="s">&#39;b0&#39;</span><span class="p">,</span> <span class="s">&#39;b3&#39;</span><span class="p">,</span> <span class="s">&#39;b3&#39;</span><span class="p">,</span> <span class="s">&#39;b1&#39;</span><span class="p">,</span> <span class="s">&#39;b4&#39;</span><span class="p">,</span> <span class="s">&#39;b1&#39;</span><span class="p">,</span> <span class="s">&#39;b4&#39;</span><span class="p">,</span> <span class="s">&#39;b3&#39;</span><span class="p">,</span> <span class="s">&#39;b3&#39;</span><span class="p">],</span>
-     <span class="s">&#39;c_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;c0&#39;</span><span class="p">,</span> <span class="s">&#39;c1&#39;</span><span class="p">,</span> <span class="s">&#39;c1&#39;</span><span class="p">,</span> <span class="s">&#39;c0&#39;</span><span class="p">,</span> <span class="s">&#39;c0&#39;</span><span class="p">,</span> <span class="s">&#39;c2&#39;</span><span class="p">,</span> <span class="s">&#39;c1&#39;</span><span class="p">,</span> <span class="s">&#39;c2&#39;</span><span class="p">,</span> <span class="s">&#39;c1&#39;</span><span class="p">,</span> <span class="s">&#39;c2&#39;</span><span class="p">]},</span>
-    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;d0&#39;</span><span class="p">,</span> <span class="s">&#39;d1&#39;</span><span class="p">,</span> <span class="s">&#39;d2&#39;</span><span class="p">,</span> <span class="s">&#39;d3&#39;</span><span class="p">,</span> <span class="s">&#39;d4&#39;</span><span class="p">,</span> <span class="s">&#39;d5&#39;</span><span class="p">,</span> <span class="s">&#39;d6&#39;</span><span class="p">,</span> <span class="s">&#39;d7&#39;</span><span class="p">,</span> <span class="s">&#39;d8&#39;</span><span class="p">,</span> <span class="s">&#39;d9&#39;</span><span class="p">])</span>
+<div class="highlight-python"><pre>df_a = pd.DataFrame(
+    {'a': [0, 1]},
+    index=['a0', 'a1'])
+df_b = pd.DataFrame(
+    {'b': [2, 3, 4, 5, 6],
+     'a_id': ['a0', 'a1', 'a1', 'a0', 'a1']},
+    index=['b0', 'b1', 'b2', 'b3', 'b4'])
+df_c = pd.DataFrame(
+    {'c': [7, 8, 9]},
+    index=['c0', 'c1', 'c2'])
+df_d = pd.DataFrame(
+    {'d': [10, 11, 12, 13, 15, 16, 16, 17, 18, 19],
+     'b_id': ['b2', 'b0', 'b3', 'b3', 'b1', 'b4', 'b1', 'b4', 'b3', 'b3'],
+     'c_id': ['c0', 'c1', 'c1', 'c0', 'c0', 'c2', 'c1', 'c2', 'c1', 'c2']},
+    index=['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9'])
 
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">df_a</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">df_b</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="n">df_c</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="n">df_d</span><span class="p">)</span>
-</pre></div>
+sim.add_table('a', df_a)
+sim.add_table('b', df_b)
+sim.add_table('c', df_c)
+sim.add_table('d', df_d)</pre>
 </div>
 <p>The tables have data so that &#8216;a&#8217; can be broadcast onto &#8216;b&#8217;,
 and &#8216;b&#8217; and &#8216;c&#8217; can be broadcast onto &#8216;d&#8217;.
 We use the <a class="reference internal" href="#urbansim.sim.simulation.broadcast" title="urbansim.sim.simulation.broadcast"><tt class="xref py py-func docutils literal"><span class="pre">broadcast()</span></tt></a> function
 to register those relationships:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">sim</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">cast</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">onto</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">cast_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">onto_on</span><span class="o">=</span><span class="s">&#39;a_id&#39;</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">cast</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">onto</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="n">cast_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">onto_on</span><span class="o">=</span><span class="s">&#39;b_id&#39;</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">cast</span><span class="o">=</span><span class="s">&#39;c&#39;</span><span class="p">,</span> <span class="n">onto</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="n">cast_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">onto_on</span><span class="o">=</span><span class="s">&#39;c_id&#39;</span><span class="p">)</span>
-</pre></div>
+<div class="highlight-python"><pre>sim.broadcast(cast='a', onto='b', cast_index=True, onto_on='a_id')
+sim.broadcast(cast='b', onto='d', cast_index=True, onto_on='b_id')
+sim.broadcast(cast='c', onto='d', cast_index=True, onto_on='c_id')</pre>
 </div>
 <p>The syntax is similar to that of the
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.merge.html#pandas.merge">pandas merge function</a>,
@@ -328,29 +322,28 @@ and indeed <tt class="docutils literal"><span class="pre">merge</span></tt> is u
 Once the broadcasts are defined, use the
 <a class="reference internal" href="#urbansim.sim.simulation.merge_tables" title="urbansim.sim.simulation.merge_tables"><tt class="xref py py-func docutils literal"><span class="pre">merge_tables()</span></tt></a> function to get a
 merged DataFrame. Some examples in IPython:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">sim</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
-   <span class="n">a_id</span>  <span class="n">b</span>  <span class="n">a</span>
-<span class="n">b0</span>   <span class="n">a0</span>  <span class="mi">2</span>  <span class="mi">0</span>
-<span class="n">b3</span>   <span class="n">a0</span>  <span class="mi">5</span>  <span class="mi">0</span>
-<span class="n">b1</span>   <span class="n">a1</span>  <span class="mi">3</span>  <span class="mi">1</span>
-<span class="n">b2</span>   <span class="n">a1</span>  <span class="mi">4</span>  <span class="mi">1</span>
-<span class="n">b4</span>   <span class="n">a1</span>  <span class="mi">6</span>  <span class="mi">1</span>
+<div class="highlight-python"><pre>In [4]: sim.merge_tables(target='b', tables=[a, b])
+Out[4]:
+   a_id  b  a
+b0   a0  2  0
+b3   a0  5  0
+b1   a1  3  1
+b2   a1  4  1
+b4   a1  6  1
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">sim</span><span class="o">.</span><span class="n">merge_tables</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">])</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span>
-   <span class="n">b_id</span> <span class="n">c_id</span>   <span class="n">d</span>  <span class="n">c</span> <span class="n">a_id</span>  <span class="n">b</span>  <span class="n">a</span>
-<span class="n">d0</span>   <span class="n">b2</span>   <span class="n">c0</span>  <span class="mi">10</span>  <span class="mi">7</span>   <span class="n">a1</span>  <span class="mi">4</span>  <span class="mi">1</span>
-<span class="n">d3</span>   <span class="n">b3</span>   <span class="n">c0</span>  <span class="mi">13</span>  <span class="mi">7</span>   <span class="n">a0</span>  <span class="mi">5</span>  <span class="mi">0</span>
-<span class="n">d2</span>   <span class="n">b3</span>   <span class="n">c1</span>  <span class="mi">12</span>  <span class="mi">8</span>   <span class="n">a0</span>  <span class="mi">5</span>  <span class="mi">0</span>
-<span class="n">d8</span>   <span class="n">b3</span>   <span class="n">c1</span>  <span class="mi">18</span>  <span class="mi">8</span>   <span class="n">a0</span>  <span class="mi">5</span>  <span class="mi">0</span>
-<span class="n">d9</span>   <span class="n">b3</span>   <span class="n">c2</span>  <span class="mi">19</span>  <span class="mi">9</span>   <span class="n">a0</span>  <span class="mi">5</span>  <span class="mi">0</span>
-<span class="n">d4</span>   <span class="n">b1</span>   <span class="n">c0</span>  <span class="mi">15</span>  <span class="mi">7</span>   <span class="n">a1</span>  <span class="mi">3</span>  <span class="mi">1</span>
-<span class="n">d6</span>   <span class="n">b1</span>   <span class="n">c1</span>  <span class="mi">16</span>  <span class="mi">8</span>   <span class="n">a1</span>  <span class="mi">3</span>  <span class="mi">1</span>
-<span class="n">d1</span>   <span class="n">b0</span>   <span class="n">c1</span>  <span class="mi">11</span>  <span class="mi">8</span>   <span class="n">a0</span>  <span class="mi">2</span>  <span class="mi">0</span>
-<span class="n">d5</span>   <span class="n">b4</span>   <span class="n">c2</span>  <span class="mi">16</span>  <span class="mi">9</span>   <span class="n">a1</span>  <span class="mi">6</span>  <span class="mi">1</span>
-<span class="n">d7</span>   <span class="n">b4</span>   <span class="n">c2</span>  <span class="mi">17</span>  <span class="mi">9</span>   <span class="n">a1</span>  <span class="mi">6</span>  <span class="mi">1</span>
-</pre></div>
+In [5]: sim.merge_tables(target='d', tables=[a, b, c, d])
+Out[5]:
+   b_id c_id   d  c a_id  b  a
+d0   b2   c0  10  7   a1  4  1
+d3   b3   c0  13  7   a0  5  0
+d2   b3   c1  12  8   a0  5  0
+d8   b3   c1  18  8   a0  5  0
+d9   b3   c2  19  9   a0  5  0
+d4   b1   c0  15  7   a1  3  1
+d6   b1   c1  16  8   a1  3  1
+d1   b0   c1  11  8   a0  2  0
+d5   b4   c2  16  9   a1  6  1
+d7   b4   c2  17  9   a1  6  1</pre>
 </div>
 <p>Note that it&#8217;s the target table&#8217;s index that you find in the final merged
 table, though the order may have changed.
@@ -376,14 +369,13 @@ or perform a calculation to generate a column. UrbanSim allows you to
 register a <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">Series</a> or function as a column on a registered table.
 Use the <a class="reference internal" href="#urbansim.sim.simulation.add_column" title="urbansim.sim.simulation.add_column"><tt class="xref py py-func docutils literal"><span class="pre">add_column()</span></tt></a> function or
 the <tt class="xref py py-func docutils literal"><span class="pre">_urbansim.sim.simulation.column()</span></tt> decorator:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">])</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">,</span> <span class="s">&#39;my_col&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<div class="highlight-python"><pre>s = pd.Series(['a', 'b', 'c'])
+sim.add_column('my_table', 'my_col', s)
 
-<span class="nd">@sim.column</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">,</span> <span class="s">&#39;my_col_x2&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">my_col_x2</span><span class="p">(</span><span class="n">my_table</span><span class="p">):</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;my_col&#39;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;my_col&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
-</pre></div>
+@sim.column('my_table', 'my_col_x2')
+def my_col_x2(my_table):
+    df = my_table.to_frame(columns=['my_col'])
+    return df['my_col'] * 2</pre>
 </div>
 <p>In the <tt class="docutils literal"><span class="pre">my_col_x2</span></tt> function we use the <tt class="docutils literal"><span class="pre">columns=</span></tt> keyword on
 <a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper.to_frame" title="urbansim.sim.simulation.DataFrameWrapper.to_frame"><tt class="xref py py-meth docutils literal"><span class="pre">to_frame()</span></tt></a> to get only
@@ -391,21 +383,20 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called <tt class="docutils literal"><span class="pre">to_frame()</span></tt> with no arguments).</p>
 <p>A demonstration in IPython using the table definitions from above:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">29</span><span class="p">]:</span> <span class="n">wrapped</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;my_table&#39;</span><span class="p">)</span>
+<div class="highlight-python"><pre>In [29]: wrapped = sim.get_table('my_table')
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="n">wrapped</span><span class="o">.</span><span class="n">columns</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">30</span><span class="p">]:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;my_col&#39;</span><span class="p">,</span> <span class="s">&#39;my_col_x2&#39;</span><span class="p">]</span>
+In [30]: wrapped.columns
+Out[30]: ['a', 'my_col', 'my_col_x2']
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="n">wrapped</span><span class="o">.</span><span class="n">local_columns</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">31</span><span class="p">]:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span>
+In [31]: wrapped.local_columns
+Out[31]: ['a']
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">32</span><span class="p">]:</span> <span class="n">wrapped</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">32</span><span class="p">]:</span>
-   <span class="n">a</span> <span class="n">my_col_x2</span> <span class="n">my_col</span>
-<span class="mi">0</span>  <span class="mi">1</span>        <span class="n">aa</span>      <span class="n">a</span>
-<span class="mi">1</span>  <span class="mi">2</span>        <span class="n">bb</span>      <span class="n">b</span>
-<span class="mi">2</span>  <span class="mi">3</span>        <span class="n">cc</span>      <span class="n">c</span>
-</pre></div>
+In [32]: wrapped.to_frame()
+Out[32]:
+   a my_col_x2 my_col
+0  1        aa      a
+1  2        bb      b
+2  3        cc      c</pre>
 </div>
 <p><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a> has
 <a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper.columns" title="urbansim.sim.simulation.DataFrameWrapper.columns"><tt class="xref py py-attr docutils literal"><span class="pre">columns</span></tt></a>
@@ -423,21 +414,20 @@ for which UrbanSim has &#8220;injectables&#8221;. You can register <em>anything<
 it injected into functions.
 Use the <a class="reference internal" href="#urbansim.sim.simulation.add_injectable" title="urbansim.sim.simulation.add_injectable"><tt class="xref py py-func docutils literal"><span class="pre">add_injectable()</span></tt></a> function or the
 <a class="reference internal" href="#urbansim.sim.simulation.injectable" title="urbansim.sim.simulation.injectable"><tt class="xref py py-func docutils literal"><span class="pre">injectable()</span></tt></a> decorator:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">sim</span><span class="o">.</span><span class="n">add_injectable</span><span class="p">(</span><span class="s">&#39;z&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<div class="highlight-python"><pre>sim.add_injectable('z', 5)
 
-<span class="nd">@sim.injectable</span><span class="p">(</span><span class="s">&#39;pow&#39;</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">x</span> <span class="o">**</span> <span class="n">y</span>
+@sim.injectable('pow', autocall=False)
+def pow(x, y):
+    return x ** y
 
-<span class="nd">@sim.injectable</span><span class="p">(</span><span class="s">&#39;zsquared&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">zsquared</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="nb">pow</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">pow</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+@sim.injectable('zsquared')
+def zsquared(z, pow):
+    return pow(z, 2)
 
-<span class="nd">@sim.table</span><span class="p">(</span><span class="s">&#39;ztable&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">ztable</span><span class="p">(</span><span class="n">my_table</span><span class="p">,</span> <span class="n">zsquared</span><span class="p">):</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">my_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">df</span> <span class="o">*</span> <span class="n">zsquared</span>
-</pre></div>
+@sim.table('ztable')
+def ztable(my_table, zsquared):
+    df = my_table.to_frame(columns=['a'])
+    return df * zsquared</pre>
 </div>
 <p>Be default injectable functions are evaluated before injection and the return
 value is passed into other functions. Use <tt class="docutils literal"><span class="pre">autocall=False</span></tt> to disable this
@@ -445,15 +435,14 @@ behavior and instead inject the wrapped function itself.
 Like tables and columns, injectable functions can have their results
 cached with <tt class="docutils literal"><span class="pre">cache=True</span></tt>.</p>
 <p>An example of the above injectables in IPython:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="n">wrapped</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;ztable&#39;</span><span class="p">)</span>
+<div class="highlight-python"><pre>In [38]: wrapped = sim.get_table('ztable')
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">39</span><span class="p">]:</span> <span class="n">wrapped</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">39</span><span class="p">]:</span>
-    <span class="n">a</span>
-<span class="mi">0</span>  <span class="mi">25</span>
-<span class="mi">1</span>  <span class="mi">50</span>
-<span class="mi">2</span>  <span class="mi">75</span>
-</pre></div>
+In [39]: wrapped.to_frame()
+Out[39]:
+    a
+0  25
+1  50
+2  75</pre>
 </div>
 </div>
 <div class="section" id="models">
@@ -464,29 +453,26 @@ decorator to register a model function.
 Models are important for their side-effects, their
 return values are discarded. For example, a model might replace a column
 in a table (a new table, though similar to <tt class="docutils literal"><span class="pre">my_table</span></tt> above):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;new_table&#39;</span><span class="p">)</span>
+<div class="highlight-python"><pre>df = pd.DataFrame({'a': [1, 2, 3]})
+sim.add_table('new_table')
 
-<span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;replace_col&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">replace_col</span><span class="p">(</span><span class="n">new_table</span><span class="p">):</span>
-    <span class="n">new_table</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
-</pre></div>
+@sim.model('replace_col')
+def replace_col(new_table):
+    new_table['a'] = [4, 5, 6]</pre>
 </div>
 <p>Or update some values in a column:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;update_col&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_col</span><span class="p">(</span><span class="n">new_table</span><span class="p">):</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">99</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">new_table</span><span class="o">.</span><span class="n">update_col_from_series</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-</pre></div>
+<div class="highlight-python"><pre>@sim.model('update_col')
+def update_col(new_table):
+    s = pd.Series([99], index=[1])
+    new_table.update_col_from_series('a', s)</pre>
 </div>
 <p>Or add rows to a table:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;add_rows&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">new_table</span><span class="p">):</span>
-    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">]},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">new_table</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
-    <span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&#39;new_table&#39;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
-</pre></div>
+<div class="highlight-python"><pre>@sim.model('add_rows')
+def add_rows(new_table):
+    new_rows = pd.DataFrame({'a': [100, 101]}, index=[3, 4])
+    df = new_table.to_frame()
+    df = pd.concat([df, new_rows])
+    sim.add_table('new_table', df)</pre>
 </div>
 <p>The first two of the above examples update <tt class="docutils literal"><span class="pre">my_tables</span></tt>&#8216;s underlying DataFrame and
 so require it to be a <a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-class docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>.
@@ -494,20 +480,19 @@ If your table is a wrapped function, not a DataFrame, you can update
 columns by replacing them entirely with a new <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#series">Series</a> using the
 <a class="reference internal" href="#urbansim.sim.simulation.add_column" title="urbansim.sim.simulation.add_column"><tt class="xref py py-func docutils literal"><span class="pre">add_column()</span></tt></a> function.</p>
 <p>A demonstration of running the above models:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">68</span><span class="p">]:</span> <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s">&#39;replace_col&#39;</span><span class="p">,</span> <span class="s">&#39;update_col&#39;</span><span class="p">,</span> <span class="s">&#39;add_rows&#39;</span><span class="p">])</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;replace_col&#39;</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;update_col&#39;</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;add_rows&#39;</span>
+<div class="highlight-python"><pre>In [68]: sim.run(['replace_col', 'update_col', 'add_rows'])
+Running model 'replace_col'
+Running model 'update_col'
+Running model 'add_rows'
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">69</span><span class="p">]:</span> <span class="n">sim</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;new_table&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">69</span><span class="p">]:</span>
-     <span class="n">a</span>
-<span class="mi">0</span>    <span class="mi">4</span>
-<span class="mi">1</span>   <span class="mi">99</span>
-<span class="mi">2</span>    <span class="mi">6</span>
-<span class="mi">3</span>  <span class="mi">100</span>
-<span class="mi">4</span>  <span class="mi">101</span>
-</pre></div>
+In [69]: sim.get_table('new_table').to_frame()
+Out[69]:
+     a
+0    4
+1   99
+2    6
+3  100
+4  101</pre>
 </div>
 <p>Though updating tables is generally how models will advance the simulation
 they can do anything you like, so feel free to insert models with any
@@ -522,28 +507,27 @@ as in the above example, will run through the models once.
 To run the simulation over some years provide those years as a sequence
 to <a class="reference internal" href="#urbansim.sim.simulation.run" title="urbansim.sim.simulation.run"><tt class="xref py py-func docutils literal"><span class="pre">run()</span></tt></a>.
 The variable <tt class="docutils literal"><span class="pre">year</span></tt> is provided as an injectable to model functions:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">77</span><span class="p">]:</span> <span class="nd">@sim.model</span><span class="p">(</span><span class="s">&#39;print_year&#39;</span><span class="p">)</span>
-   <span class="o">....</span><span class="p">:</span> <span class="k">def</span> <span class="nf">print_year</span><span class="p">(</span><span class="n">year</span><span class="p">):</span>
-   <span class="o">....</span><span class="p">:</span>         <span class="k">print</span> <span class="s">&#39;*** the year is {} ***&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
-   <span class="o">....</span><span class="p">:</span>
+<div class="highlight-python"><pre>In [77]: @sim.model('print_year')
+   ....: def print_year(year):
+   ....:         print '*** the year is {} ***'.format(year)
+   ....:
 
-<span class="n">In</span> <span class="p">[</span><span class="mi">78</span><span class="p">]:</span> <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s">&#39;print_year&#39;</span><span class="p">],</span> <span class="n">years</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">2015</span><span class="p">))</span>
-<span class="n">Running</span> <span class="n">year</span> <span class="mi">2010</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;print_year&#39;</span>
-<span class="o">***</span> <span class="n">the</span> <span class="n">year</span> <span class="ow">is</span> <span class="mi">2010</span> <span class="o">***</span>
-<span class="n">Running</span> <span class="n">year</span> <span class="mi">2011</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;print_year&#39;</span>
-<span class="o">***</span> <span class="n">the</span> <span class="n">year</span> <span class="ow">is</span> <span class="mi">2011</span> <span class="o">***</span>
-<span class="n">Running</span> <span class="n">year</span> <span class="mi">2012</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;print_year&#39;</span>
-<span class="o">***</span> <span class="n">the</span> <span class="n">year</span> <span class="ow">is</span> <span class="mi">2012</span> <span class="o">***</span>
-<span class="n">Running</span> <span class="n">year</span> <span class="mi">2013</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;print_year&#39;</span>
-<span class="o">***</span> <span class="n">the</span> <span class="n">year</span> <span class="ow">is</span> <span class="mi">2013</span> <span class="o">***</span>
-<span class="n">Running</span> <span class="n">year</span> <span class="mi">2014</span>
-<span class="n">Running</span> <span class="n">model</span> <span class="s">&#39;print_year&#39;</span>
-<span class="o">***</span> <span class="n">the</span> <span class="n">year</span> <span class="ow">is</span> <span class="mi">2014</span> <span class="o">***</span>
-</pre></div>
+In [78]: sim.run(['print_year'], years=range(2010, 2015))
+Running year 2010
+Running model 'print_year'
+*** the year is 2010 ***
+Running year 2011
+Running model 'print_year'
+*** the year is 2011 ***
+Running year 2012
+Running model 'print_year'
+*** the year is 2012 ***
+Running year 2013
+Running model 'print_year'
+*** the year is 2013 ***
+Running year 2014
+Running model 'print_year'
+*** the year is 2014 ***</pre>
 </div>
 <div class="section" id="archiving-data">
 <h3>Archiving Data<a class="headerlink" href="#archiving-data" title="Permalink to this headline">¶</a></h3>
@@ -575,10 +559,10 @@ under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</s
 <td>Register a table with the simulation.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table" title="urbansim.sim.simulation.table"><tt class="xref py py-obj docutils literal"><span class="pre">table</span></tt></a>(table_name[,&nbsp;cache])</td>
-<td>Decorator version of <cite>add_table</cite> used for decorating functions that return DataFrames.</td>
+<td>Decorator version of <cite>add_table</cite> used for decorating functions</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table_source" title="urbansim.sim.simulation.add_table_source"><tt class="xref py py-obj docutils literal"><span class="pre">add_table_source</span></tt></a>(table_name,&nbsp;func)</td>
-<td>Add a DataFrame source function to the simulation.</td>
+<td>Add a DataFrame source function to the simulation. This function is</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table_source" title="urbansim.sim.simulation.table_source"><tt class="xref py py-obj docutils literal"><span class="pre">table_source</span></tt></a>(table_name)</td>
 <td>Decorator version of <cite>add_table_source</cite>.</td>
@@ -590,7 +574,7 @@ under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</s
 <td>List of table names.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>(name,&nbsp;frame)</td>
-<td>Wraps a DataFrame so it can provide certain columns and handle computed columns.</td>
+<td>Wraps a DataFrame so it can provide certain columns and handle</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.TableFuncWrapper" title="urbansim.sim.simulation.TableFuncWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">TableFuncWrapper</span></tt></a>(name,&nbsp;func[,&nbsp;cache])</td>
 <td>Wrap a function that provides a DataFrame.</td>
@@ -610,7 +594,7 @@ under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</s
 <td>Add a new column to a table from a Series or callable.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.column" title="urbansim.sim.simulation.column"><tt class="xref py py-obj docutils literal"><span class="pre">column</span></tt></a>(table_name,&nbsp;column_name[,&nbsp;cache])</td>
-<td>Decorator version of <cite>add_column</cite> used for decorating functions that return a Series with an index matching the named table.</td>
+<td>Decorator version of <cite>add_column</cite> used for decorating functions</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.list_columns" title="urbansim.sim.simulation.list_columns"><tt class="xref py py-obj docutils literal"><span class="pre">list_columns</span></tt></a>()</td>
 <td>List of (table name, registered column name) pairs.</td>
@@ -673,7 +657,7 @@ under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</s
 <td>Add a model function to the simulation.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.model" title="urbansim.sim.simulation.model"><tt class="xref py py-obj docutils literal"><span class="pre">model</span></tt></a>(model_name)</td>
-<td>Decorator version of <cite>add_model</cite>, used to decorate a function that will require injection of tables and that can be run by the <cite>run</cite> function.</td>
+<td>Decorator version of <cite>add_model</cite>, used to decorate a function that</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.get_model" title="urbansim.sim.simulation.get_model"><tt class="xref py py-obj docutils literal"><span class="pre">get_model</span></tt></a>(model_name)</td>
 <td>Get a wrapped model by name.</td>
@@ -699,10 +683,10 @@ under the key <tt class="docutils literal"><span class="pre">'final/&lt;table</s
 <td>Clear all cached data.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.disable_cache" title="urbansim.sim.simulation.disable_cache"><tt class="xref py py-obj docutils literal"><span class="pre">disable_cache</span></tt></a>()</td>
-<td>Turn off caching across the simulation, even for computed tables, columns, and injectables that have caching enabled.</td>
+<td>Turn off caching across the simulation, even for computed tables,</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.enable_cache" title="urbansim.sim.simulation.enable_cache"><tt class="xref py py-obj docutils literal"><span class="pre">enable_cache</span></tt></a>()</td>
-<td>Allow caching of computed tables, columns, and injectables that explicitly have caching enabled.</td>
+<td>Allow caching of computed tables, columns, and injectables that</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.cache_on" title="urbansim.sim.simulation.cache_on"><tt class="xref py py-obj docutils literal"><span class="pre">cache_on</span></tt></a>()</td>
 <td>Whether caching is currently enabled or disabled.</td>
@@ -721,7 +705,7 @@ computed columns.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
 <blockquote>
 <div><p>Name for the table.</p>
 </div></blockquote>
@@ -733,12 +717,14 @@ computed columns.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="19%" />
-<col width="81%" />
+<col width="22%" />
+<col width="17%" />
+<col width="61%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>name</td>
-<td>(str) Table name.</td>
+<td>str</td>
+<td>Table name.</td>
 </tr>
 </tbody>
 </table>
@@ -762,9 +748,9 @@ computed columns.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>column_name</strong> : str</td>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><strong>column_name</strong> : str</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>column</strong> : pandas.Series</td>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><strong>column</strong> : pandas.Series</td>
 </tr>
 </tbody>
 </table>
@@ -790,14 +776,14 @@ computed columns.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : sequence, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>columns</strong> : sequence, optional</p>
 <blockquote>
 <div><p>Sequence of the column names desired in the DataFrame.
 If None all columns are returned, including registered columns.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>frame</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>frame</strong> : pandas.DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -812,7 +798,7 @@ If None all columns are returned, including registered columns.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column_name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>column_name</strong> : str</p>
 <blockquote>
 <div><p>Column to add or replace.</p>
 </div></blockquote>
@@ -835,7 +821,7 @@ Index values must match in both column and series.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column_name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>column_name</strong> : str</p>
 <p class="last"><strong>series</strong> : panas.Series</p>
 </td>
 </tr>
@@ -853,7 +839,7 @@ Index values must match in both column and series.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
 <blockquote>
 <div><p>Name for the table.</p>
 </div></blockquote>
@@ -865,8 +851,8 @@ Index values must match in both column and series.</p>
 <blockquote>
 <div><p>Whether to cache the results of calling the wrapped function.</p>
 </div></blockquote>
-<p><strong>Attributes</strong></p>
-<p><strong>__________</strong></p>
+<p><strong>Attributes</strong> :</p>
+<p><strong>__________</strong> :</p>
 <p><strong>name</strong> : str</p>
 <blockquote>
 <div><p>Table name.</p>
@@ -900,9 +886,9 @@ if the wrapped function has not been called yet.)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>column_name</strong> : str</td>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><strong>column_name</strong> : str</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>column</strong> : pandas.Series</td>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><strong>column</strong> : pandas.Series</td>
 </tr>
 </tbody>
 </table>
@@ -930,14 +916,14 @@ wrapped function. (No registered columns included.)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : sequence, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>columns</strong> : sequence, optional</p>
 <blockquote>
 <div><p>Sequence of the column names desired in the DataFrame.
 If None all columns are returned.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>frame</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>frame</strong> : pandas.DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -954,7 +940,7 @@ If None all columns are returned.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
 <blockquote>
 <div><p>Table with which the column will be associated.</p>
 </div></blockquote>
@@ -987,8 +973,8 @@ are part of the simulation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
-<p><strong>value</strong></p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<p><strong>value</strong> :</p>
 <blockquote>
 <div><p>If a callable and <cite>autocall</cite> is True then the function will be
 evaluated using dependency injection and the return value will
@@ -1023,7 +1009,7 @@ year injected.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model_name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>model_name</strong> : str</p>
 <p class="last"><strong>func</strong> : callable</p>
 </td>
 </tr>
@@ -1039,7 +1025,7 @@ year injected.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
 <blockquote>
 <div><p>Should be globally unique to this table.</p>
 </div></blockquote>
@@ -1056,7 +1042,7 @@ apply if <cite>table</cite> is a DataFrame.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></p>
 </td>
 </tr>
 </tbody>
@@ -1073,7 +1059,7 @@ evaluated only once, after which the returned DataFrame replaces
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>table_name</strong> : str</p>
 <p><strong>func</strong> : callable</p>
 <blockquote>
 <div><p>Function argument names will be matched to known injectables,
@@ -1081,7 +1067,7 @@ which will be injected when this function is called.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>_TableSourceWrapper</cite></p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>_TableSourceWrapper</cite></p>
 </td>
 </tr>
 </tbody>
@@ -1097,7 +1083,7 @@ the other.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cast, onto</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>cast, onto</strong> : str</p>
 <blockquote>
 <div><p>Names of registered tables.</p>
 </div></blockquote>
@@ -1125,7 +1111,7 @@ parameters of pandas.merge.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>on</strong> : bool</p>
+<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>on</strong> : bool</p>
 <blockquote class="last">
 <div><p>True if caching is enabled.</p>
 </div></blockquote>
@@ -1178,10 +1164,10 @@ explicitly have caching enabled.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">injectable</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>injectable</strong> :</p>
 <blockquote class="last">
 <div><p>Original value or _InjectableFuncWrapper if autocall was True.</p>
 </div></blockquote>
@@ -1206,9 +1192,9 @@ explicitly have caching enabled.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>table_name</strong> : str</td>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><strong>table_name</strong> : str</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>table</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></td>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><strong>table</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></td>
 </tr>
 </tbody>
 </table>
@@ -1259,7 +1245,7 @@ registered merge rules via the <cite>broadcast</cite> function.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target</strong> : str, DataFrameWrapper, or TableFuncWrapper</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>target</strong> : str, DataFrameWrapper, or TableFuncWrapper</p>
 <blockquote>
 <div><p>Name of the table (or wrapped table) onto which tables will be merged.</p>
 </div></blockquote>
@@ -1276,7 +1262,7 @@ table.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>merged</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>merged</strong> : pandas.DataFrame</p>
 </td>
 </tr>
 </tbody>
@@ -1300,7 +1286,7 @@ The current year is set as a global injectable.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>models</strong> : list of str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>models</strong> : list of str</p>
 <blockquote>
 <div><p>List of models to run identified by their name.</p>
 </div></blockquote>
@@ -1355,7 +1341,7 @@ multiple years can go in the same file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
 <blockquote>
 <div><p>File name for HDFStore. Will be opened in append mode and closed
 at the end of this function.</p>

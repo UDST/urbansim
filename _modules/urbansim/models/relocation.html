@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -138,131 +139,131 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.models.relocation</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Use the ``RelocationModel`` class to choose movers based on</span>
-<span class="sd">relocation rates.</span>
+  <h1>Source code for urbansim.models.relocation</h1><pre>
+"""
+Use the ``RelocationModel`` class to choose movers based on
+relocation rates.
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+"""
+import logging
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+import numpy as np
+import pandas as pd
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+from . import util
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+logger = logging.getLogger(__name__)
 
 
-<div class="viewcode-block" id="find_movers"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.relocation.find_movers">[docs]</a><span class="k">def</span> <span class="nf">find_movers</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">rate_column</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns an array of the indexes of the `choosers` that are slated</span>
-<span class="sd">    to move.</span>
+<div class="viewcode-block" id="find_movers"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.relocation.find_movers">[docs]</a>def find_movers(choosers, rates, rate_column):
+    """
+    Returns an array of the indexes of the `choosers` that are slated
+    to move.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    choosers : pandas.DataFrame</span>
-<span class="sd">        Table of agents from which to find movers.</span>
-<span class="sd">    rates : pandas.DataFrame</span>
-<span class="sd">        Table of relocation rates. Index is unused.</span>
+    Parameters
+    ----------
+    choosers : pandas.DataFrame
+        Table of agents from which to find movers.
+    rates : pandas.DataFrame
+        Table of relocation rates. Index is unused.
 
-<span class="sd">        Other columns describe filters on the `choosers`</span>
-<span class="sd">        table so that different segments can have different relocation</span>
-<span class="sd">        rates. Columns that ends with &#39;_max&#39; will be used to create</span>
-<span class="sd">        a &quot;less than&quot; filters, columns that end with &#39;_min&#39; will be</span>
-<span class="sd">        used to create &quot;greater than or equal to&quot; filters.</span>
-<span class="sd">        A column with no suffix will be used to make an &#39;equal to&#39; filter.</span>
+        Other columns describe filters on the `choosers`
+        table so that different segments can have different relocation
+        rates. Columns that ends with '_max' will be used to create
+        a "less than" filters, columns that end with '_min' will be
+        used to create "greater than or equal to" filters.
+        A column with no suffix will be used to make an 'equal to' filter.
 
-<span class="sd">        An example `rates` structure:</span>
+        An example `rates` structure:
 
-<span class="sd">        age_of_head_max  age_of_head_min</span>
-<span class="sd">                    nan               65</span>
-<span class="sd">                     65               40</span>
+        age_of_head_max  age_of_head_min
+                    nan               65
+                     65               40
 
-<span class="sd">        In this example the `choosers` table would need to have an</span>
-<span class="sd">        &#39;age_of_head&#39; column on which to filter.</span>
+        In this example the `choosers` table would need to have an
+        'age_of_head' column on which to filter.
 
-<span class="sd">        nan should be used to flag filters that do not apply</span>
-<span class="sd">        in a given row.</span>
-<span class="sd">    rate_column : object</span>
-<span class="sd">        Name of column in `rates` table that has relocation rates.</span>
+        nan should be used to flag filters that do not apply
+        in a given row.
+    rate_column : object
+        Name of column in `rates` table that has relocation rates.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    movers : pandas.Index</span>
-<span class="sd">        Suitable for indexing `choosers` by index.</span>
+    Returns
+    -------
+    movers : pandas.Index
+        Suitable for indexing `choosers` by index.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: find movers for relocation&#39;</span><span class="p">)</span>
-    <span class="n">relocation_rates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">)),</span> <span class="n">index</span><span class="o">=</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    """
+    logger.debug('start: find movers for relocation')
+    relocation_rates = pd.Series(
+        np.zeros(len(choosers)), index=choosers.index)
 
-    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-        <span class="n">indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="n">rate_column</span><span class="p">})</span><span class="o">.</span><span class="n">index</span>
-        <span class="n">relocation_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indexes</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">rate_column</span><span class="p">]</span>
+    for _, row in rates.iterrows():
+        indexes = util.filter_table(choosers, row, ignore={rate_column}).index
+        relocation_rates.loc[indexes] = row[rate_column]
 
-    <span class="n">movers</span> <span class="o">=</span> <span class="n">relocation_rates</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
-        <span class="n">relocation_rates</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">))]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;picked {} movers for relocation&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)))</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: find movers for relocation&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">movers</span>
+    movers = relocation_rates.index[
+        relocation_rates &gt; np.random.random(len(choosers))]
+    logger.debug('picked {} movers for relocation'.format(len(movers)))
+    logger.debug('finish: find movers for relocation')
+    return movers
 
 </div>
-<div class="viewcode-block" id="RelocationModel"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.relocation.RelocationModel">[docs]</a><span class="k">class</span> <span class="nc">RelocationModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Find movers within a population according to a table of</span>
-<span class="sd">    relocation rates.</span>
+<div class="viewcode-block" id="RelocationModel"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.relocation.RelocationModel">[docs]</a>class RelocationModel(object):
+    """
+    Find movers within a population according to a table of
+    relocation rates.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    rates : pandas.DataFrame</span>
-<span class="sd">        Table of relocation rates. Index is unused.</span>
+    Parameters
+    ----------
+    rates : pandas.DataFrame
+        Table of relocation rates. Index is unused.
 
-<span class="sd">        Other columns describe filters on the `choosers`</span>
-<span class="sd">        table so that different segments can have different relocation</span>
-<span class="sd">        rates. Columns that ends with &#39;_max&#39; will be used to create</span>
-<span class="sd">        a &quot;less than&quot; filters, columns that end with &#39;_min&#39; will be</span>
-<span class="sd">        used to create &quot;greater than or equal to&quot; filters.</span>
-<span class="sd">        A column with no suffix will be used to make an &#39;equal to&#39; filter.</span>
+        Other columns describe filters on the `choosers`
+        table so that different segments can have different relocation
+        rates. Columns that ends with '_max' will be used to create
+        a "less than" filters, columns that end with '_min' will be
+        used to create "greater than or equal to" filters.
+        A column with no suffix will be used to make an 'equal to' filter.
 
-<span class="sd">        An example `rates` structure:</span>
+        An example `rates` structure:
 
-<span class="sd">        age_of_head_max  age_of_head_min</span>
-<span class="sd">                    nan               65</span>
-<span class="sd">                     65               40</span>
+        age_of_head_max  age_of_head_min
+                    nan               65
+                     65               40
 
-<span class="sd">        In this example the `choosers` table would need to have an</span>
-<span class="sd">        &#39;age_of_head&#39; column on which to filter.</span>
+        In this example the `choosers` table would need to have an
+        'age_of_head' column on which to filter.
 
-<span class="sd">        nan should be used to flag filters that do not apply</span>
-<span class="sd">        in a given row.</span>
-<span class="sd">    rate_column : object, optional</span>
-<span class="sd">        Name of column in `rates` table that contains relocation rates.</span>
-<span class="sd">        If not given &#39;probability_of_relocating&#39; is used.</span>
+        nan should be used to flag filters that do not apply
+        in a given row.
+    rate_column : object, optional
+        Name of column in `rates` table that contains relocation rates.
+        If not given 'probability_of_relocating' is used.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">rate_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relocation_rates</span> <span class="o">=</span> <span class="n">rates</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rate_column</span> <span class="o">=</span> <span class="n">rate_column</span> <span class="ow">or</span> <span class="s">&#39;probability_of_relocating&#39;</span>
+    """
+    def __init__(self, rates, rate_column=None):
+        self.relocation_rates = rates
+        self.rate_column = rate_column or 'probability_of_relocating'
 
-<div class="viewcode-block" id="RelocationModel.find_movers"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.relocation.RelocationModel.find_movers">[docs]</a>    <span class="k">def</span> <span class="nf">find_movers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Select movers from among a table of `choosers` according to the</span>
-<span class="sd">        stored relocation rates.</span>
+<div class="viewcode-block" id="RelocationModel.find_movers"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.relocation.RelocationModel.find_movers">[docs]</a>    def find_movers(self, choosers):
+        """
+        Select movers from among a table of `choosers` according to the
+        stored relocation rates.
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        choosers : pandas.DataFrame</span>
-<span class="sd">            Table of agents from which to find movers.</span>
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table of agents from which to find movers.
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        movers : pandas.Index</span>
-<span class="sd">            Suitable for indexing `choosers` by index.</span>
+        Returns
+        -------
+        movers : pandas.Index
+            Suitable for indexing `choosers` by index.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">find_movers</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relocation_rates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate_column</span><span class="p">)</span></div></div>
-</pre></div>
+        """
+        return find_movers(choosers, self.relocation_rates, self.rate_column)</div></div>
+</pre>
 
           </div>
           <footer>

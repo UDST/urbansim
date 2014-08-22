@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -138,233 +139,233 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.urbanchoice.mnl</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Number crunching code for multinomial logit.</span>
-<span class="sd">``mnl_estimate`` and ``mnl_simulate`` especially are used by</span>
-<span class="sd">``urbansim.models.lcm``.</span>
+  <h1>Source code for urbansim.urbanchoice.mnl</h1><pre>
+"""
+Number crunching code for multinomial logit.
+``mnl_estimate`` and ``mnl_simulate`` especially are used by
+``urbansim.models.lcm``.
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+"""
+import logging
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+import numpy as np
+import pandas as pd
+import scipy.optimize
 
-<span class="kn">import</span> <span class="nn">pmat</span>
-<span class="kn">from</span> <span class="nn">pmat</span> <span class="kn">import</span> <span class="n">PMAT</span>
+import pmat
+from pmat import PMAT
 
-<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+from ..utils.logutil import log_start_finish
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+logger = logging.getLogger(__name__)
 
-<span class="c"># right now MNL can only estimate location choice models, where every equation</span>
-<span class="c"># is the same</span>
-<span class="c"># it might be better to use stats models for a non-location choice problem</span>
+# right now MNL can only estimate location choice models, where every equation
+# is the same
+# it might be better to use stats models for a non-location choice problem
 
-<span class="c"># data should be column matrix of dimensions NUMVARS x (NUMALTS*NUMOBVS)</span>
-<span class="c"># beta is a row vector of dimensions 1 X NUMVARS</span>
+# data should be column matrix of dimensions NUMVARS x (NUMALTS*NUMOBVS)
+# beta is a row vector of dimensions 1 X NUMVARS
 
 
-<div class="viewcode-block" id="mnl_probs"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_probs">[docs]</a><span class="k">def</span> <span class="nf">mnl_probs</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">numalts</span><span class="p">):</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: calculate MNL probabilities&#39;</span><span class="p">)</span>
-    <span class="n">clamp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">typ</span> <span class="o">==</span> <span class="s">&#39;numpy&#39;</span>
-    <span class="n">utilities</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">numalts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Number of alternatives is zero&quot;</span><span class="p">)</span>
-    <span class="n">utilities</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">numalts</span><span class="p">,</span> <span class="n">utilities</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">/</span> <span class="n">numalts</span><span class="p">)</span>
+<div class="viewcode-block" id="mnl_probs"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_probs">[docs]</a>def mnl_probs(data, beta, numalts):
+    logging.debug('start: calculate MNL probabilities')
+    clamp = data.typ == 'numpy'
+    utilities = beta.multiply(data)
+    if numalts == 0:
+        raise Exception("Number of alternatives is zero")
+    utilities.reshape(numalts, utilities.size() / numalts)
 
-    <span class="n">exponentiated_utility</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">inftoval</span><span class="p">(</span><span class="mf">1e20</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
-    <span class="n">sum_exponentiated_utility</span> <span class="o">=</span> <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">probs</span> <span class="o">=</span> <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">divide_by_row</span><span class="p">(</span>
-        <span class="n">sum_exponentiated_utility</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">nantoval</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
+    exponentiated_utility = utilities.exp(inplace=True)
+    if clamp:
+        exponentiated_utility.inftoval(1e20)
+    if clamp:
+        exponentiated_utility.clamptomin(1e-300)
+    sum_exponentiated_utility = exponentiated_utility.sum(axis=0)
+    probs = exponentiated_utility.divide_by_row(
+        sum_exponentiated_utility, inplace=True)
+    if clamp:
+        probs.nantoval(1e-300)
+    if clamp:
+        probs.clamptomin(1e-300)
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: calculate MNL probabilities&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">probs</span>
-
-</div>
-<div class="viewcode-block" id="get_hessian"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.get_hessian">[docs]</a><span class="k">def</span> <span class="nf">get_hessian</span><span class="p">(</span><span class="n">derivative</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">derivative</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">derivative</span><span class="p">)))</span>
+    logging.debug('finish: calculate MNL probabilities')
+    return probs
 
 </div>
-<div class="viewcode-block" id="get_standard_error"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.get_standard_error">[docs]</a><span class="k">def</span> <span class="nf">get_standard_error</span><span class="p">(</span><span class="n">hessian</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">hessian</span><span class="p">))</span>
-
-<span class="c"># data should be column matrix of dimensions NUMVARS x (NUMALTS*NUMOBVS)</span>
-<span class="c"># beta is a row vector of dimensions 1 X NUMVARS</span>
+<div class="viewcode-block" id="get_hessian"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.get_hessian">[docs]</a>def get_hessian(derivative):
+    return np.linalg.inv(np.dot(derivative, np.transpose(derivative)))
 
 </div>
-<div class="viewcode-block" id="mnl_loglik"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_loglik">[docs]</a><span class="k">def</span> <span class="nf">mnl_loglik</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-               <span class="n">stderr</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: calculate MNL log-likelihood&#39;</span><span class="p">)</span>
-    <span class="n">numvars</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">size</span>
-    <span class="n">numobs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">/</span> <span class="n">numvars</span> <span class="o">/</span> <span class="n">numalts</span>
+<div class="viewcode-block" id="get_standard_error"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.get_standard_error">[docs]</a>def get_standard_error(hessian):
+    return np.sqrt(np.diagonal(hessian))
 
-    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
-    <span class="n">beta</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">typ</span><span class="p">)</span>
-
-    <span class="n">probs</span> <span class="o">=</span> <span class="n">mnl_probs</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">numalts</span><span class="p">)</span>
-
-    <span class="c"># lcgrad is the special gradient for the latent class membership model</span>
-    <span class="k">if</span> <span class="n">lcgrad</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">weights</span>
-        <span class="n">gradmat</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">gradarr</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">gradmat</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">weights</span><span class="p">:</span>
-            <span class="n">gradmat</span> <span class="o">=</span> <span class="n">chosen</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gradmat</span> <span class="o">=</span> <span class="n">chosen</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span><span class="o">.</span><span class="n">multiply_by_row</span><span class="p">(</span>
-                <span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">gradarr</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">gradmat</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">stderr</span><span class="p">:</span>
-        <span class="n">gradmat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">multiply_by_row</span><span class="p">(</span><span class="n">gradmat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">gradmat</span><span class="o">.</span><span class="n">size</span><span class="p">()))</span>
-        <span class="n">gradmat</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">numvars</span><span class="p">,</span> <span class="n">numalts</span> <span class="o">*</span> <span class="n">numobs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">get_standard_error</span><span class="p">(</span><span class="n">get_hessian</span><span class="p">(</span><span class="n">gradmat</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()))</span>
-
-    <span class="n">chosen</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">numalts</span><span class="p">,</span> <span class="n">numobs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">probs</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span> <span class="o">==</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">():</span>
-            <span class="n">loglik</span> <span class="o">=</span> <span class="p">((</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-                      <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">loglik</span> <span class="o">=</span> <span class="p">((</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">multiply_by_row</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-                      <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">loglik</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span>
-            <span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">loglik</span><span class="o">.</span><span class="n">typ</span> <span class="o">==</span> <span class="s">&#39;numpy&#39;</span><span class="p">:</span>
-        <span class="n">loglik</span><span class="p">,</span> <span class="n">gradarr</span> <span class="o">=</span> <span class="n">loglik</span><span class="o">.</span><span class="n">get_mat</span><span class="p">(),</span> <span class="n">gradarr</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">loglik</span> <span class="o">=</span> <span class="n">loglik</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="n">gradarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gradarr</span><span class="o">.</span><span class="n">get_mat</span><span class="p">(),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">gradarr</span><span class="o">.</span><span class="n">size</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: calculate MNL log-likelihood&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">loglik</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">gradarr</span>
+# data should be column matrix of dimensions NUMVARS x (NUMALTS*NUMOBVS)
+# beta is a row vector of dimensions 1 X NUMVARS
 
 </div>
-<div class="viewcode-block" id="mnl_simulate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_simulate">[docs]</a><span class="k">def</span> <span class="nf">mnl_simulate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">returnprobs</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s">&#39;start: MNL simulation with len(data)={} and numalts={}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">numalts</span><span class="p">))</span>
-    <span class="n">atype</span> <span class="o">=</span> <span class="s">&#39;numpy&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">GPU</span> <span class="k">else</span> <span class="s">&#39;cuda&#39;</span>
+<div class="viewcode-block" id="mnl_loglik"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_loglik">[docs]</a>def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
+               stderr=0):
+    logger.debug('start: calculate MNL log-likelihood')
+    numvars = beta.size
+    numobs = data.size() / numvars / numalts
 
-    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coeff</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">coeff</span><span class="p">)))</span>
+    beta = np.reshape(beta, (1, beta.size))
+    beta = PMAT(beta, data.typ)
 
-    <span class="n">data</span><span class="p">,</span> <span class="n">coeff</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">atype</span><span class="p">),</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">coeff</span><span class="p">,</span> <span class="n">atype</span><span class="p">)</span>
+    probs = mnl_probs(data, beta, numalts)
 
-    <span class="n">probs</span> <span class="o">=</span> <span class="n">mnl_probs</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">numalts</span><span class="p">)</span>
+    # lcgrad is the special gradient for the latent class membership model
+    if lcgrad:
+        assert weights
+        gradmat = weights.subtract(probs).reshape(probs.size(), 1)
+        gradarr = data.multiply(gradmat)
+    else:
+        if not weights:
+            gradmat = chosen.subtract(probs).reshape(probs.size(), 1)
+        else:
+            gradmat = chosen.subtract(probs).multiply_by_row(
+                weights).reshape(probs.size(), 1)
+        gradarr = data.multiply(gradmat)
 
-    <span class="k">if</span> <span class="n">returnprobs</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">get_mat</span><span class="p">())</span>
+    if stderr:
+        gradmat = data.multiply_by_row(gradmat.reshape(1, gradmat.size()))
+        gradmat.reshape(numvars, numalts * numobs)
+        return get_standard_error(get_hessian(gradmat.get_mat()))
 
-    <span class="c"># convert to cpu from here on - gpu doesn&#39;t currently support these ops</span>
-    <span class="k">if</span> <span class="n">probs</span><span class="o">.</span><span class="n">typ</span> <span class="o">==</span> <span class="s">&#39;cuda&#39;</span><span class="p">:</span>
-        <span class="n">probs</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">get_mat</span><span class="p">())</span>
+    chosen.reshape(numalts, numobs)
+    if weights is not None:
+        if probs.shape() == weights.shape():
+            loglik = ((probs.log(inplace=True)
+                       .element_multiply(weights, inplace=True)
+                       .element_multiply(chosen, inplace=True))
+                      .sum(axis=1).sum(axis=0))
+        else:
+            loglik = ((probs.log(inplace=True)
+                       .multiply_by_row(weights, inplace=True)
+                       .element_multiply(chosen, inplace=True))
+                      .sum(axis=1).sum(axis=0))
+    else:
+        loglik = (probs.log(inplace=True).element_multiply(
+            chosen, inplace=True)).sum(axis=1).sum(axis=0)
 
-    <span class="n">probs</span> <span class="o">=</span> <span class="n">probs</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">pmat</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">/</span> <span class="n">numalts</span><span class="p">)</span>
-    <span class="n">choices</span> <span class="o">=</span> <span class="n">probs</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">firstpositive</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    if loglik.typ == 'numpy':
+        loglik, gradarr = loglik.get_mat(), gradarr.get_mat().flatten()
+    else:
+        loglik = loglik.get_mat()[0, 0]
+        gradarr = np.reshape(gradarr.get_mat(), (1, gradarr.size()))[0]
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: MNL simulation&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">choices</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()</span>
+    logger.debug('finish: calculate MNL log-likelihood')
+    return -1 * loglik, -1 * gradarr
 
 </div>
-<div class="viewcode-block" id="mnl_estimate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_estimate">[docs]</a><span class="k">def</span> <span class="nf">mnl_estimate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">coeffrange</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-                 <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="mnl_simulate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_simulate">[docs]</a>def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
+    logger.debug(
+        'start: MNL simulation with len(data)={} and numalts={}'.format(
+            len(data), numalts))
+    atype = 'numpy' if not GPU else 'cuda'
+
+    data = np.transpose(data)
+    coeff = np.reshape(np.array(coeff), (1, len(coeff)))
+
+    data, coeff = PMAT(data, atype), PMAT(coeff, atype)
+
+    probs = mnl_probs(data, coeff, numalts)
+
+    if returnprobs:
+        return np.transpose(probs.get_mat())
+
+    # convert to cpu from here on - gpu doesn't currently support these ops
+    if probs.typ == 'cuda':
+        probs = PMAT(probs.get_mat())
+
+    probs = probs.cumsum(axis=0)
+    r = pmat.random(probs.size() / numalts)
+    choices = probs.subtract(r, inplace=True).firstpositive(axis=0)
+
+    logger.debug('finish: MNL simulation')
+    return choices.get_mat()
+
+</div>
+<div class="viewcode-block" id="mnl_estimate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_estimate">[docs]</a>def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
+                 weights=None, lcgrad=False, beta=None):
+    """
 
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data</span>
-<span class="sd">    chosen</span>
-<span class="sd">    numalts</span>
-<span class="sd">    GPU : bool</span>
-<span class="sd">    coeffrange</span>
-<span class="sd">    weights</span>
-<span class="sd">    lcgrad : bool</span>
-<span class="sd">    beta</span>
+    Parameters
+    ----------
+    data
+    chosen
+    numalts
+    GPU : bool
+    coeffrange
+    weights
+    lcgrad : bool
+    beta
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    log_likelihood : dict</span>
-<span class="sd">        Dictionary of log-likelihood values describing the quality of</span>
-<span class="sd">        the model fit.</span>
-<span class="sd">    fit_parameters : pandas.DataFrame</span>
-<span class="sd">        Table of fit parameters with columns &#39;Coefficient&#39;, &#39;Std. Error&#39;,</span>
-<span class="sd">        &#39;T-Score&#39;.</span>
+    Returns
+    -------
+    log_likelihood : dict
+        Dictionary of log-likelihood values describing the quality of
+        the model fit.
+    fit_parameters : pandas.DataFrame
+        Table of fit parameters with columns 'Coefficient', 'Std. Error',
+        'T-Score'.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s">&#39;start: MNL fit with len(data)={} and numalts={}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">numalts</span><span class="p">))</span>
-    <span class="n">atype</span> <span class="o">=</span> <span class="s">&#39;numpy&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">GPU</span> <span class="k">else</span> <span class="s">&#39;cuda&#39;</span>
+    """
+    logger.debug(
+        'start: MNL fit with len(data)={} and numalts={}'.format(
+            len(data), numalts))
+    atype = 'numpy' if not GPU else 'cuda'
 
-    <span class="n">numvars</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">numobs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">numalts</span>
+    numvars = data.shape[1]
+    numobs = data.shape[0] / numalts
 
-    <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">numobs</span><span class="p">,</span> <span class="n">numalts</span><span class="p">))</span>  <span class="c"># used for latent classes</span>
+    if chosen is None:
+        chosen = np.ones((numobs, numalts))  # used for latent classes
 
-    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span>
+    data = np.transpose(data)
+    chosen = np.transpose(chosen)
 
-    <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">atype</span><span class="p">),</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">atype</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="n">atype</span><span class="p">)</span>
+    data, chosen = PMAT(data, atype), PMAT(chosen, atype)
+    if weights is not None:
+        weights = PMAT(np.transpose(weights), atype)
 
-    <span class="k">if</span> <span class="n">beta</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numvars</span><span class="p">)</span>
-    <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">coeffrange</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numvars</span><span class="p">)])</span>
+    if beta is None:
+        beta = np.zeros(numvars)
+    bounds = np.array([coeffrange for i in range(numvars)])
 
-    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;scipy optimization for MNL fit&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">lcgrad</span><span class="p">)</span>
-        <span class="n">bfgs_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">mnl_loglik</span><span class="p">,</span>
-                                                   <span class="n">beta</span><span class="p">,</span>
-                                                   <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-                                                   <span class="n">fprime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                                                   <span class="n">factr</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
-                                                   <span class="n">approx_grad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                                                   <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span>
-                                                   <span class="p">)</span>
-    <span class="n">beta</span> <span class="o">=</span> <span class="n">bfgs_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">stderr</span> <span class="o">=</span> <span class="n">mnl_loglik</span><span class="p">(</span>
-        <span class="n">beta</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="n">lcgrad</span><span class="p">)</span>
+    with log_start_finish('scipy optimization for MNL fit', logger):
+        args = (data, chosen, numalts, weights, lcgrad)
+        bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
+                                                   beta,
+                                                   args=args,
+                                                   fprime=None,
+                                                   factr=1e5,
+                                                   approx_grad=False,
+                                                   bounds=bounds
+                                                   )
+    beta = bfgs_result[0]
+    stderr = mnl_loglik(
+        beta, data, chosen, numalts, weights, stderr=1, lcgrad=lcgrad)
 
-    <span class="n">l0beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numvars</span><span class="p">)</span>
-    <span class="n">l0</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">mnl_loglik</span><span class="p">(</span><span class="n">l0beta</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">l1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">mnl_loglik</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    l0beta = np.zeros(numvars)
+    l0 = -1 * mnl_loglik(l0beta, *args)[0]
+    l1 = -1 * mnl_loglik(beta, *args)[0]
 
-    <span class="n">log_likelihood</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s">&#39;null&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">l0</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
-        <span class="s">&#39;convergence&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">l1</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
-        <span class="s">&#39;ratio&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">l1</span> <span class="o">/</span> <span class="n">l0</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-    <span class="p">}</span>
+    log_likelihood = {
+        'null': float(l0[0][0]),
+        'convergence': float(l1[0][0]),
+        'ratio': float((1 - (l1 / l0))[0][0])
+    }
 
-    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-        <span class="s">&#39;Coefficient&#39;</span><span class="p">:</span> <span class="n">beta</span><span class="p">,</span>
-        <span class="s">&#39;Std. Error&#39;</span><span class="p">:</span> <span class="n">stderr</span><span class="p">,</span>
-        <span class="s">&#39;T-Score&#39;</span><span class="p">:</span> <span class="n">beta</span> <span class="o">/</span> <span class="n">stderr</span><span class="p">})</span>
+    fit_parameters = pd.DataFrame({
+        'Coefficient': beta,
+        'Std. Error': stderr,
+        'T-Score': beta / stderr})
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: MNL fit&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">fit_parameters</span></div>
-</pre></div>
+    logger.debug('finish: MNL fit')
+    return log_likelihood, fit_parameters</div>
+</pre>
 
           </div>
           <footer>

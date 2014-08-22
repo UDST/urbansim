@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -185,27 +186,26 @@ prices as stands to reason).  Since getting data on unit mixes in the current
 building stock is extremely difficult, most feasibility computations here
 happen on a square foot basis and the <tt class="docutils literal"><span class="pre">developer</span></tt> model below handles the
 translation to units.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">pf</span> <span class="o">=</span> <span class="n">sqftproforma</span><span class="o">.</span><span class="n">SqFtProForma</span><span class="p">()</span>
+<div class="highlight-python"><pre>pf = sqftproforma.SqFtProForma()
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">parcels</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+df = parcels.to_frame()
 
-<span class="c"># add prices for each use</span>
-<span class="k">for</span> <span class="n">use</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">uses</span><span class="p">:</span>
-    <span class="n">df</span><span class="p">[</span><span class="n">use</span><span class="p">]</span> <span class="o">=</span> <span class="n">parcel_price_callback</span><span class="p">(</span><span class="n">use</span><span class="p">)</span>
+# add prices for each use
+for use in pf.config.uses:
+    df[use] = parcel_price_callback(use)
 
-<span class="c"># convert from cost to yearly rent</span>
-<span class="k">if</span> <span class="n">residential_to_yearly</span><span class="p">:</span>
-    <span class="n">df</span><span class="p">[</span><span class="s">&quot;residential&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cap_rate</span>
+# convert from cost to yearly rent
+if residential_to_yearly:
+    df["residential"] *= pf.config.cap_rate
 
-<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
-    <span class="k">print</span> <span class="s">&quot;Computing feasibility for form </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">form</span>
-    <span class="n">d</span><span class="p">[</span><span class="n">form</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">parcel_use_allowed_callback</span><span class="p">(</span><span class="n">form</span><span class="p">)])</span>
+d = {}
+for form in pf.config.forms:
+    print "Computing feasibility for form %s" % form
+    d[form] = pf.lookup(form, df[parcel_use_allowed_callback(form)])
 
-<span class="n">far_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">keys</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+far_predictions = pd.concat(d.values(), keys=d.keys(), axis=1)
 
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&quot;feasibility&quot;</span><span class="p">,</span> <span class="n">far_predictions</span><span class="p">)</span>
-</pre></div>
+sim.add_table("feasibility", far_predictions)</pre>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></tt> is responsible for picking among feasible buildings
 in order to meet demand.  An example usage of the model is shown below - which
@@ -225,35 +225,34 @@ developer <tt class="docutils literal"><span class="pre">forms</span></tt> to <t
 and old buildings need to be merged in such a way that the old ids are
 preserved and not duplicated (new ids are assigned at the max of the old
 ids+1 and then incremented from there).</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">dev</span> <span class="o">=</span> <span class="n">developer</span><span class="o">.</span><span class="n">Developer</span><span class="p">(</span><span class="n">feasibility</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+<div class="highlight-python"><pre>dev = developer.Developer(feasibility.to_frame())
 
-<span class="n">target_units</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span>\
-    <span class="n">compute_units_to_build</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">),</span>
-                           <span class="n">buildings</span><span class="p">[</span><span class="n">supply_fname</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
-                           <span class="n">target_vacancy</span><span class="p">)</span>
+target_units = dev.\
+    compute_units_to_build(len(agents),
+                           buildings[supply_fname].sum(),
+                           target_vacancy)
 
-<span class="n">new_buildings</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="n">forms</span><span class="p">,</span>
-                         <span class="n">target_units</span><span class="p">,</span>
-                         <span class="n">parcel_size</span><span class="p">,</span>
-                         <span class="n">ave_unit_size</span><span class="p">,</span>
-                         <span class="n">total_units</span><span class="p">,</span>
-                         <span class="n">max_parcel_size</span><span class="o">=</span><span class="n">max_parcel_size</span><span class="p">,</span>
-                         <span class="n">drop_after_build</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                         <span class="n">residential</span><span class="o">=</span><span class="n">residential</span><span class="p">,</span>
-                         <span class="n">bldg_sqft_per_job</span><span class="o">=</span><span class="n">bldg_sqft_per_job</span><span class="p">)</span>
+new_buildings = dev.pick(forms,
+                         target_units,
+                         parcel_size,
+                         ave_unit_size,
+                         total_units,
+                         max_parcel_size=max_parcel_size,
+                         drop_after_build=True,
+                         residential=residential,
+                         bldg_sqft_per_job=bldg_sqft_per_job)
 
-<span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-    <span class="n">new_buildings</span><span class="p">[</span><span class="s">&quot;year_built&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
+if year is not None:
+    new_buildings["year_built"] = year
 
-<span class="k">if</span> <span class="n">form_to_btype_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-    <span class="n">new_buildings</span><span class="p">[</span><span class="s">&quot;building_type_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_buildings</span><span class="p">[</span><span class="s">&quot;form&quot;</span><span class="p">]</span><span class="o">.</span>\
-        <span class="nb">apply</span><span class="p">(</span><span class="n">form_to_btype_callback</span><span class="p">)</span>
+if form_to_btype_callback is not None:
+    new_buildings["building_type_id"] = new_buildings["form"].\
+        apply(form_to_btype_callback)
 
-<span class="n">all_buildings</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">),</span>
-                          <span class="n">new_buildings</span><span class="p">[</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">])</span>
+all_buildings = dev.merge(buildings.to_frame(buildings.local_columns),
+                          new_buildings[buildings.local_columns])
 
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&quot;buildings&quot;</span><span class="p">,</span> <span class="n">all_buildings</span><span class="p">)</span>
-</pre></div>
+sim.add_table("buildings", all_buildings)</pre>
 </div>
 <div class="toctree-wrapper compound">
 <ul class="simple">
@@ -277,7 +276,7 @@ assumption above the project scale (i.e. city of regional scale)</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>config</strong> : <cite>SqFtProFormaConfig</cite></p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>config</strong> : <cite>SqFtProFormaConfig</cite></p>
 <blockquote class="last">
 <div><p>The configuration object which should be an
 instance of <cite>SqFtProFormaConfig</cite>.  The configuration options for this
@@ -295,14 +294,14 @@ pro forma are documented on the configuration object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
 <blockquote>
 <div><p>Get a series representing the average cost per sqft for each form in
 the config</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> : series</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>cost</strong> : series</p>
 <blockquote class="last">
 <div><p>A series where the index is the far and the values are the average
 cost per sqft at which the building is &#8220;break even&#8221; given the
@@ -323,7 +322,7 @@ configuration</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
 <blockquote>
 <div><p>The form to get debug info for</p>
 </div></blockquote>
@@ -333,7 +332,7 @@ configuration</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>debug_info</strong> : dataframe</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>debug_info</strong> : dataframe</p>
 <blockquote class="last">
 <div><p>A dataframe where the index is the far with many columns
 representing intermediate steps in the pro forma computation.
@@ -354,11 +353,11 @@ many of the columns should be fairly self-expanatory.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
 <blockquote>
 <div><p>One of the forms specified in the configuration file</p>
 </div></blockquote>
-<p><strong>df: dataframe</strong></p>
+<p><strong>df: dataframe</strong> :</p>
 <blockquote>
 <div><p>Pass in a single data frame which is indexed by parcel_id and has the
 following columns</p>
@@ -370,7 +369,7 @@ by zoning, or whether to return as much information as possible, even if
 unlikely to be built (can be used when development might be subsidized
 or when debugging)</p>
 </div></blockquote>
-<p><strong>Input Dataframe Columns</strong></p>
+<p><strong>Input Dataframe Columns</strong> :</p>
 <p><strong>rent</strong> : dataframe</p>
 <blockquote>
 <div><p>A set of columns, one for each of the uses passed in the configuration.
@@ -412,7 +411,7 @@ same series).</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>index</strong> : Series, int</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>index</strong> : Series, int</p>
 <blockquote>
 <div><p>parcel identifiers</p>
 </div></blockquote>
@@ -445,7 +444,7 @@ rate (with a few adjustment factors including building efficiency).</p>
 <div><p>The FAR of the maximum profit building (constrained by the max_far and
 max_height from the input dataframe).</p>
 </div></blockquote>
-<p>max_profit :</p>
+<p><strong>max_profit :</strong> :</p>
 <blockquote class="last">
 <div><p>The profit for the maximum profit building (constrained by the max_far
 and max_height from the input dataframe).</p>
@@ -583,7 +582,7 @@ the individual data frames returned by the proforma lookup routine.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>num_agents</strong> : int</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>num_agents</strong> : int</p>
 <blockquote>
 <div><p>number of agents that need units in the region</p>
 </div></blockquote>
@@ -597,7 +596,7 @@ the individual data frames returned by the proforma lookup routine.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>number_of_units</strong> : int</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>number_of_units</strong> : int</p>
 <blockquote class="last">
 <div><p>the number of units that need to be built</p>
 </div></blockquote>
@@ -617,14 +616,14 @@ forms outcompete less profitable forms.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>forms: list of strings</strong></p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>forms: list of strings</strong> :</p>
 <blockquote>
 <div><p>List of forms which compete which other.  Can leave some out.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Nothing.  Goes from a multi-index to a single index with only the</p>
-<p class="last">most profitable form.</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>Nothing.  Goes from a multi-index to a single index with only the</strong> :</p>
+<p class="last"><strong>most profitable form.</strong> :</p>
 </td>
 </tr>
 </tbody>
@@ -641,7 +640,7 @@ usually the buildings dataset and the new dataframe is a modified
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>old_df</strong> : dataframe</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>old_df</strong> : dataframe</p>
 <blockquote>
 <div><p>Current set of buildings</p>
 </div></blockquote>
@@ -651,7 +650,7 @@ usually the buildings dataset and the new dataframe is a modified
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>df</strong> : dataframe</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>df</strong> : dataframe</p>
 <blockquote class="last">
 <div><p>Combined DataFrame of buildings, makes sure indexes don&#8217;t overlap</p>
 </div></blockquote>
@@ -670,7 +669,7 @@ order to match the specified demand.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string or list</p>
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>form</strong> : string or list</p>
 <blockquote>
 <div><p>One or more of the building forms from the pro forma specification -
 e.g. &#8220;residential&#8221; or &#8220;mixedresidential&#8221; - these are configuration
@@ -722,14 +721,14 @@ in a development projects table.</p>
 have been chosen for development.  Usually this is true so as
 to not develop the same parcel twice.</p>
 </div></blockquote>
-<p><strong>residential: bool</strong></p>
+<p><strong>residential: bool</strong> :</p>
 <blockquote>
 <div><p>If creating non-residential buildings set this to false and
 developer will fill in job_spaces rather than residential_units</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_buildings</strong> : dataframe</p>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>new_buildings</strong> : dataframe</p>
 <blockquote class="last">
 <div><p>DataFrame of buildings to add.  These buildings are rows from the
 DataFrame that is returned from feasibility.</p>

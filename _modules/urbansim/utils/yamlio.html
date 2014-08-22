@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -138,170 +139,170 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.utils.yamlio</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Utilities for doing IO to YAML files.</span>
+  <h1>Source code for urbansim.utils.yamlio</h1><pre>
+"""
+Utilities for doing IO to YAML files.
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+"""
+import itertools
+import os
+import numpy as np
 
-<span class="kn">import</span> <span class="nn">yaml</span>
+import yaml
 
 
-<div class="viewcode-block" id="series_to_yaml_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.series_to_yaml_safe">[docs]</a><span class="k">def</span> <span class="nf">series_to_yaml_safe</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a pandas Series to a dict that will survive YAML serialization</span>
-<span class="sd">    and re-conversion back to a Series.</span>
+<div class="viewcode-block" id="series_to_yaml_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.series_to_yaml_safe">[docs]</a>def series_to_yaml_safe(series):
+    """
+    Convert a pandas Series to a dict that will survive YAML serialization
+    and re-conversion back to a Series.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    series : pandas.Series</span>
+    Parameters
+    ----------
+    series : pandas.Series
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    safe : dict</span>
+    Returns
+    -------
+    safe : dict
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_native_types</span><span class="p">()</span>
-    <span class="n">values</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    """
+    index = series.index.to_native_types()
+    values = series.values.tolist()
 
-    <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">izip</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">)}</span>
-
-</div>
-<div class="viewcode-block" id="frame_to_yaml_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.frame_to_yaml_safe">[docs]</a><span class="k">def</span> <span class="nf">frame_to_yaml_safe</span><span class="p">(</span><span class="n">frame</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a pandas DataFrame to a dictionary that will survive</span>
-<span class="sd">    YAML serialization and re-conversion back to a DataFrame.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    frame : pandas.DataFrame</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    safe : dict</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>
+    return {i: v for i, v in itertools.izip(index, values)}
 
 </div>
-<div class="viewcode-block" id="to_scalar_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.to_scalar_safe">[docs]</a><span class="k">def</span> <span class="nf">to_scalar_safe</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a numpy data type to a standard python scalar.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">obj</span>
+<div class="viewcode-block" id="frame_to_yaml_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.frame_to_yaml_safe">[docs]</a>def frame_to_yaml_safe(frame):
+    """
+    Convert a pandas DataFrame to a dictionary that will survive
+    YAML serialization and re-conversion back to a DataFrame.
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame
+
+    Returns
+    -------
+    safe : dict
+
+    """
+    return {col: series_to_yaml_safe(series)
+            for col, series in frame.iteritems()}
 
 </div>
-<div class="viewcode-block" id="ordered_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.ordered_yaml">[docs]</a><span class="k">def</span> <span class="nf">ordered_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a dictionary to a YAML string with preferential ordering</span>
-<span class="sd">    for some keys. Converted string is meant to be fairly human readable.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    cfg : dict</span>
-<span class="sd">        Dictionary to convert to a YAML string.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        Nicely formatted YAML string.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;model_type&#39;</span><span class="p">,</span> <span class="s">&#39;segmentation_col&#39;</span><span class="p">,</span> <span class="s">&#39;fit_filters&#39;</span><span class="p">,</span>
-             <span class="s">&#39;predict_filters&#39;</span><span class="p">,</span>
-             <span class="s">&#39;choosers_fit_filters&#39;</span><span class="p">,</span> <span class="s">&#39;choosers_predict_filters&#39;</span><span class="p">,</span>
-             <span class="s">&#39;alts_fit_filters&#39;</span><span class="p">,</span> <span class="s">&#39;alts_predict_filters&#39;</span><span class="p">,</span>
-             <span class="s">&#39;interaction_predict_filters&#39;</span><span class="p">,</span>
-             <span class="s">&#39;choice_column&#39;</span><span class="p">,</span> <span class="s">&#39;sample_size&#39;</span><span class="p">,</span> <span class="s">&#39;estimation_sample_size&#39;</span><span class="p">,</span>
-             <span class="s">&#39;model_expression&#39;</span><span class="p">,</span> <span class="s">&#39;ytransform&#39;</span><span class="p">,</span> <span class="s">&#39;min_segment_size&#39;</span><span class="p">,</span>
-             <span class="s">&#39;default_config&#39;</span><span class="p">,</span> <span class="s">&#39;models&#39;</span><span class="p">,</span> <span class="s">&#39;coefficients&#39;</span><span class="p">,</span> <span class="s">&#39;fitted&#39;</span><span class="p">]</span>
-
-    <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
-
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<div class="viewcode-block" id="to_scalar_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.to_scalar_safe">[docs]</a>def to_scalar_safe(obj):
+    """
+    Convert a numpy data type to a standard python scalar.
+    """
+    try:
+        return np.asscalar(obj)
+    except:
+        return obj
 
 </div>
-<div class="viewcode-block" id="convert_to_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.convert_to_yaml">[docs]</a><span class="k">def</span> <span class="nf">convert_to_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a dictionary to YAML and return the string or write it out</span>
-<span class="sd">    depending on the type of `str_or_buffer`.</span>
+<div class="viewcode-block" id="ordered_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.ordered_yaml">[docs]</a>def ordered_yaml(cfg):
+    """
+    Convert a dictionary to a YAML string with preferential ordering
+    for some keys. Converted string is meant to be fairly human readable.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    cfg : dict</span>
-<span class="sd">        Dictionary to convert.</span>
-<span class="sd">    str_or_buffer : None, str, or buffer</span>
-<span class="sd">        If None: the YAML string will be returned.</span>
-<span class="sd">        If string: YAML will be saved to a file.</span>
-<span class="sd">        If buffer: YAML will be written to buffer using the ``.write`` method.</span>
+    Parameters
+    ----------
+    cfg : dict
+        Dictionary to convert to a YAML string.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str or None</span>
-<span class="sd">        YAML string if `str_or_buffer` is None, otherwise None since YAML</span>
-<span class="sd">        is written out to a separate destination.</span>
+    Returns
+    -------
+    str
+        Nicely formatted YAML string.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">ordered_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    """
+    order = ['name', 'model_type', 'segmentation_col', 'fit_filters',
+             'predict_filters',
+             'choosers_fit_filters', 'choosers_predict_filters',
+             'alts_fit_filters', 'alts_predict_filters',
+             'interaction_predict_filters',
+             'choice_column', 'sample_size', 'estimation_sample_size',
+             'model_expression', 'ytransform', 'min_segment_size',
+             'default_config', 'models', 'coefficients', 'fitted']
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">str_or_buffer</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">s</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">str_or_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    s = []
+    for key in order:
+        if key not in cfg:
+            continue
+        s.append(
+            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
+
+    for key in cfg:
+        if key in order:
+            continue
+        s.append(
+            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
+
+    return os.linesep.join(s)
 
 </div>
-<div class="viewcode-block" id="yaml_to_dict"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.yaml_to_dict">[docs]</a><span class="k">def</span> <span class="nf">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load YAML from a string, file, or buffer (an object with a .read method).</span>
-<span class="sd">    Parameters are mutually exclusive.</span>
+<div class="viewcode-block" id="convert_to_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.convert_to_yaml">[docs]</a>def convert_to_yaml(cfg, str_or_buffer):
+    """
+    Convert a dictionary to YAML and return the string or write it out
+    depending on the type of `str_or_buffer`.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    yaml_str : str, optional</span>
-<span class="sd">        A string of YAML.</span>
-<span class="sd">    str_or_buffer : str or file like, optional</span>
-<span class="sd">        File name or buffer from which to load YAML.</span>
+    Parameters
+    ----------
+    cfg : dict
+        Dictionary to convert.
+    str_or_buffer : None, str, or buffer
+        If None: the YAML string will be returned.
+        If string: YAML will be saved to a file.
+        If buffer: YAML will be written to buffer using the ``.write`` method.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        Conversion from YAML.</span>
+    Returns
+    -------
+    str or None
+        YAML string if `str_or_buffer` is None, otherwise None since YAML
+        is written out to a separate destination.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">yaml_str</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">str_or_buffer</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;One of yaml_str or str_or_buffer is required.&#39;</span><span class="p">)</span>
+    """
+    s = ordered_yaml(cfg)
 
-    <span class="k">if</span> <span class="n">yaml_str</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">)</span>
+    if not str_or_buffer:
+        return s
+    elif isinstance(str_or_buffer, str):
+        with open(str_or_buffer, 'w') as f:
+            f.write(s)
+    else:
+        str_or_buffer.write(s)
 
-    <span class="k">return</span> <span class="n">d</span></div>
-</pre></div>
+</div>
+<div class="viewcode-block" id="yaml_to_dict"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.yaml_to_dict">[docs]</a>def yaml_to_dict(yaml_str=None, str_or_buffer=None):
+    """
+    Load YAML from a string, file, or buffer (an object with a .read method).
+    Parameters are mutually exclusive.
+
+    Parameters
+    ----------
+    yaml_str : str, optional
+        A string of YAML.
+    str_or_buffer : str or file like, optional
+        File name or buffer from which to load YAML.
+
+    Returns
+    -------
+    dict
+        Conversion from YAML.
+
+    """
+    if not yaml_str and not str_or_buffer:
+        raise ValueError('One of yaml_str or str_or_buffer is required.')
+
+    if yaml_str:
+        d = yaml.load(yaml_str)
+    elif isinstance(str_or_buffer, str):
+        with open(str_or_buffer) as f:
+            d = yaml.load(f)
+    else:
+        d = yaml.load(str_or_buffer)
+
+    return d</div>
+</pre>
 
           </div>
           <footer>

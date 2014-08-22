@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -138,532 +139,532 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.models.transition</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Use the ``TransitionModel`` class with the different transitioners to</span>
-<span class="sd">add or remove agents based on growth rates or target totals.</span>
+  <h1>Source code for urbansim.models.transition</h1><pre>
+"""
+Use the ``TransitionModel`` class with the different transitioners to
+add or remove agents based on growth rates or target totals.
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+"""
+from __future__ import division
 
-<span class="kn">import</span> <span class="nn">logging</span>
+import logging
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+import numpy as np
+import pandas as pd
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
-<span class="kn">from</span> <span class="nn">..utils.sampling</span> <span class="kn">import</span> <span class="n">sample_rows</span>
+from . import util
+from ..utils.logutil import log_start_finish
+from ..utils.sampling import sample_rows
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_empty_index</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([])</span>
+logger = logging.getLogger(__name__)
 
 
-<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_rows">[docs]</a><span class="k">def</span> <span class="nf">add_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add rows to data table according to a given nrows.</span>
-<span class="sd">    New rows will have their IDs set to NaN.</span>
+def _empty_index():
+    return pd.Index([])
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : pandas.DataFrame</span>
-<span class="sd">    nrows : int</span>
-<span class="sd">        Number of rows to add.</span>
-<span class="sd">    starting_index : int, optional</span>
-<span class="sd">        The starting index from which to calculate indexes for the new</span>
-<span class="sd">        rows. If not given the max + 1 of the index of `data` will be used.</span>
-<span class="sd">    accounting_column: string, optional</span>
-<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
-<span class="sd">        then row counts will be used for accounting.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    updated : pandas.DataFrame</span>
-<span class="sd">        Table with rows added. New rows will have their index values</span>
-<span class="sd">        set to NaN.</span>
-<span class="sd">    added : pandas.Index</span>
-<span class="sd">        New indexes of the rows that were added.</span>
-<span class="sd">    copied : pandas.Index</span>
-<span class="sd">        Indexes of rows that were copied. A row copied multiple times</span>
-<span class="sd">        will have multiple entries.</span>
+<div class="viewcode-block" id="add_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_rows">[docs]</a>def add_rows(data, nrows, starting_index=None, accounting_column=None):
+    """
+    Add rows to data table according to a given nrows.
+    New rows will have their IDs set to NaN.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: adding {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
+    Parameters
+    ----------
+    data : pandas.DataFrame
+    nrows : int
+        Number of rows to add.
+    starting_index : int, optional
+        The starting index from which to calculate indexes for the new
+        rows. If not given the max + 1 of the index of `data` will be used.
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
+        then row counts will be used for accounting.
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">starting_index</span><span class="p">:</span>
-        <span class="n">starting_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    Returns
+    -------
+    updated : pandas.DataFrame
+        Table with rows added. New rows will have their index values
+        set to NaN.
+    added : pandas.Index
+        New indexes of the rows that were added.
+    copied : pandas.Index
+        Indexes of rows that were copied. A row copied multiple times
+        will have multiple entries.
 
-    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">sample_rows</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">)</span>
-    <span class="n">copied_index</span> <span class="o">=</span> <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span>
-    <span class="n">added_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
-        <span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
-    <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">added_index</span>
+    """
+    logger.debug('start: adding {} rows in transition model'.format(nrows))
+    if nrows == 0:
+        return data, _empty_index(), _empty_index()
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s">&#39;finish: added {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">]),</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">copied_index</span>
+    if not starting_index:
+        starting_index = data.index.values.max() + 1
 
-</div>
-<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.remove_rows">[docs]</a><span class="k">def</span> <span class="nf">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Remove a random `nrows` number of rows from a table.</span>
+    new_rows = sample_rows(nrows, data, accounting_column=accounting_column)
+    copied_index = new_rows.index
+    added_index = pd.Index(np.arange(
+        starting_index, starting_index + len(new_rows.index), dtype=np.int))
+    new_rows.index = added_index
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DataFrame</span>
-<span class="sd">    nrows : float</span>
-<span class="sd">        Number of rows to remove.</span>
-<span class="sd">    accounting_column: string, optional</span>
-<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
-<span class="sd">        then row counts will be used for accounting.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    updated : pandas.DataFrame</span>
-<span class="sd">        Table with random rows removed.</span>
-<span class="sd">    removed : pandas.Index</span>
-<span class="sd">        Indexes of the rows removed from the table.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: removing {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
-    <span class="n">nrows</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span>  <span class="c"># in case a negative number came in</span>
-    <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Number of rows to remove exceeds number of rows in table.&#39;</span><span class="p">)</span>
-
-    <span class="n">remove_rows</span> <span class="o">=</span> <span class="n">sample_rows</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">remove_index</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="o">.</span><span class="n">index</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: removed {} rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">remove_index</span><span class="p">)],</span> <span class="n">remove_index</span>
+    logger.debug(
+        'finish: added {} rows in transition model'.format(len(new_rows)))
+    return pd.concat([data, new_rows]), added_index, copied_index
 
 </div>
-<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_or_remove_rows">[docs]</a><span class="k">def</span> <span class="nf">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add or remove rows to/from a table. Rows are added</span>
-<span class="sd">    for positive `nrows` and removed for negative `nrows`.</span>
+<div class="viewcode-block" id="remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.remove_rows">[docs]</a>def remove_rows(data, nrows, accounting_column=None):
+    """
+    Remove a random `nrows` number of rows from a table.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DataFrame</span>
-<span class="sd">    nrows : float</span>
-<span class="sd">        Number of rows to add or remove.</span>
-<span class="sd">    starting_index : int, optional</span>
-<span class="sd">        The starting index from which to calculate indexes for new rows.</span>
-<span class="sd">        If not given the max + 1 of the index of `data` will be used.</span>
-<span class="sd">        (Not applicable if rows are being removed.)</span>
+    Parameters
+    ----------
+    data : DataFrame
+    nrows : float
+        Number of rows to remove.
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
+        then row counts will be used for accounting.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    updated : pandas.DataFrame</span>
-<span class="sd">        Table with random rows removed.</span>
-<span class="sd">    added : pandas.Index</span>
-<span class="sd">        New indexes of the rows that were added.</span>
-<span class="sd">    copied : pandas.Index</span>
-<span class="sd">        Indexes of rows that were copied. A row copied multiple times</span>
-<span class="sd">        will have multiple entries.</span>
-<span class="sd">    removed : pandas.Index</span>
-<span class="sd">        Index of rows that were removed.</span>
+    Returns
+    -------
+    updated : pandas.DataFrame
+        Table with random rows removed.
+    removed : pandas.Index
+        Indexes of the rows removed from the table.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">add_rows</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">,</span>
-            <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">)</span>
-        <span class="n">removed</span> <span class="o">=</span> <span class="n">_empty_index</span><span class="p">()</span>
+    """
+    logger.debug('start: removing {} rows in transition model'.format(nrows))
+    nrows = abs(nrows)  # in case a negative number came in
+    if nrows == 0:
+        return data, _empty_index()
+    elif nrows &gt; len(data):
+        raise ValueError('Number of rows to remove exceeds number of rows in table.')
 
-    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">updated</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">)</span>
-        <span class="n">added</span><span class="p">,</span> <span class="n">copied</span> <span class="o">=</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
+    remove_rows = sample_rows(nrows, data, accounting_column=accounting_column, replace=False)
+    remove_index = remove_rows.index
 
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> \
-            <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">(),</span> <span class="n">_empty_index</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span>
+    logger.debug('finish: removed {} rows in transition model'.format(nrows))
+    return data.loc[data.index.diff(remove_index)], remove_index
 
 </div>
-<div class="viewcode-block" id="GrowthRateTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">GrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Transition given tables using a simple growth rate.</span>
+<div class="viewcode-block" id="add_or_remove_rows"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.add_or_remove_rows">[docs]</a>def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None):
+    """
+    Add or remove rows to/from a table. Rows are added
+    for positive `nrows` and removed for negative `nrows`.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    growth_rate : float</span>
-<span class="sd">    accounting_column: string, optional</span>
-<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
-<span class="sd">        then row counts will be used for accounting.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span> <span class="o">=</span> <span class="n">growth_rate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="o">=</span> <span class="n">accounting_column</span>
+    Parameters
+    ----------
+    data : DataFrame
+    nrows : float
+        Number of rows to add or remove.
+    starting_index : int, optional
+        The starting index from which to calculate indexes for new rows.
+        If not given the max + 1 of the index of `data` will be used.
+        (Not applicable if rows are being removed.)
 
-<div class="viewcode-block" id="GrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
-<span class="sd">        growth rate for this model.</span>
+    Returns
+    -------
+    updated : pandas.DataFrame
+        Table with random rows removed.
+    added : pandas.Index
+        New indexes of the rows that were added.
+    copied : pandas.Index
+        Indexes of rows that were copied. A row copied multiple times
+        will have multiple entries.
+    removed : pandas.Index
+        Index of rows that were removed.
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : pandas.DataFrame</span>
-<span class="sd">            Rows will be removed from or added to this table.</span>
-<span class="sd">        year : None, optional</span>
-<span class="sd">            Here for compatibility with other transition models,</span>
-<span class="sd">            but ignored.</span>
+    """
+    if nrows &gt; 0:
+        updated, added, copied = add_rows(
+            data, nrows, starting_index,
+            accounting_column=accounting_column)
+        removed = _empty_index()
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        updated : pandas.DataFrame</span>
-<span class="sd">            Table with rows removed or added.</span>
-<span class="sd">        added : pandas.Index</span>
-<span class="sd">            New indexes of the rows that were added.</span>
-<span class="sd">        copied : pandas.Index</span>
-<span class="sd">            Indexes of rows that were copied. A row copied multiple times</span>
-<span class="sd">            will have multiple entries.</span>
-<span class="sd">        removed : pandas.Index</span>
-<span class="sd">            Index of rows that were removed.</span>
+    elif nrows &lt; 0:
+        updated, removed = remove_rows(data, nrows, accounting_column=accounting_column)
+        added, copied = _empty_index(), _empty_index()
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">))</span>
-        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
-                <span class="s">&#39;adding {} rows via growth rate ({}) transition&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">nrows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rate</span><span class="p">),</span>
-                <span class="n">logger</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">)</span>
-</div>
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call `self.transition` with inputs.</span>
+    else:
+        updated, added, copied, removed = \
+            data, _empty_index(), _empty_index(), _empty_index()
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+    return updated, added, copied, removed
 
 </div>
-<div class="viewcode-block" id="TabularGrowthRateTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularGrowthRateTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularGrowthRateTransition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Growth rate based transitions where the rates are stored in</span>
-<span class="sd">    a table indexed by year with optional segmentation.</span>
+<div class="viewcode-block" id="GrowthRateTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition">[docs]</a>class GrowthRateTransition(object):
+    """
+    Transition given tables using a simple growth rate.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    growth_rates : pandas.DataFrame</span>
-<span class="sd">    rates_column : str</span>
-<span class="sd">        Name of the column in `growth_rates` that contains the rates.</span>
-<span class="sd">    accounting_column: string, optional</span>
-<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
-<span class="sd">        then row counts will be used for accounting.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">growth_rates</span><span class="p">,</span> <span class="n">rates_column</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">growth_rates</span> <span class="o">=</span> <span class="n">growth_rates</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rates_column</span> <span class="o">=</span> <span class="n">rates_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="o">=</span> <span class="n">accounting_column</span>
+    Parameters
+    ----------
+    growth_rate : float
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
+        then row counts will be used for accounting.
+    """
+    def __init__(self, growth_rate, accounting_column=None):
+        self.growth_rate = growth_rate
+        self.accounting_column = accounting_column
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Table that has transition configuration.</span>
+<div class="viewcode-block" id="GrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.GrowthRateTransition.transition">[docs]</a>    def transition(self, data, year):
+        """
+        Add or remove rows to/from a table according to the prescribed
+        growth rate for this model.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">growth_rates</span>
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Rows will be removed from or added to this table.
+        year : None, optional
+            Here for compatibility with other transition models,
+            but ignored.
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_config_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Non-filter column in config table.</span>
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows removed or added.
+        added : pandas.Index
+            New indexes of the rows that were added.
+        copied : pandas.Index
+            Indexes of rows that were copied. A row copied multiple times
+            will have multiple entries.
+        removed : pandas.Index
+            Index of rows that were removed.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rates_column</span>
-
-    <span class="k">def</span> <span class="nf">_calc_nrows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_data</span><span class="p">,</span> <span class="n">growth_rate</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the number of rows to add to or remove from some data.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        len_data : int</span>
-<span class="sd">            The current number of rows in the data table.</span>
-<span class="sd">        growth_rate : float</span>
-<span class="sd">            Growth rate as a fraction. Positive for growth, negative</span>
-<span class="sd">            for removing rows.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">len_data</span> <span class="o">*</span> <span class="n">growth_rate</span><span class="p">))</span>
-
-<div class="viewcode-block" id="TabularGrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularGrowthRateTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
-<span class="sd">        growth rate for this model and year.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : pandas.DataFrame</span>
-<span class="sd">            Rows will be removed from or added to this table.</span>
-<span class="sd">        year : None, optional</span>
-<span class="sd">            Here for compatibility with other transition models,</span>
-<span class="sd">            but ignored.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        updated : pandas.DataFrame</span>
-<span class="sd">            Table with rows removed or added.</span>
-<span class="sd">        added : pandas.Index</span>
-<span class="sd">            New indexes of the rows that were added.</span>
-<span class="sd">        copied : pandas.Index</span>
-<span class="sd">            Indexes of rows that were copied. A row copied multiple times</span>
-<span class="sd">            will have multiple entries.</span>
-<span class="sd">        removed : pandas.Index</span>
-<span class="sd">            Index of rows that were removed.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: tabular transition&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_table</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;No targets for given year: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
-
-        <span class="c"># want this to be a DataFrame</span>
-        <span class="n">year_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_table</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">year</span><span class="p">]]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;transitioning {} segments&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">year_config</span><span class="p">)))</span>
-
-        <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">added_indexes</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">copied_indexes</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">removed_indexes</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c"># since we&#39;re looping over discrete segments we need to track</span>
-        <span class="c"># out here where their new indexes will begin</span>
-        <span class="n">starting_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
-
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">year_config</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-            <span class="n">subset</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">})</span>
-
-            <span class="c"># Do not run on segment if it is empty</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;empty segment encountered&#39;</span><span class="p">)</span>
-                <span class="k">continue</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">),</span> <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">nrows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_nrows</span><span class="p">(</span>
-                    <span class="n">subset</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span>
-                    <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_column</span><span class="p">])</span>
-
-            <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> \
-                <span class="n">add_or_remove_rows</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">starting_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c"># only update the starting index if rows were added</span>
-                <span class="n">starting_index</span> <span class="o">=</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="n">nrows</span>
-            <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
-            <span class="n">added_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">added</span><span class="p">)</span>
-            <span class="n">copied_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
-            <span class="n">removed_indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">removed</span><span class="p">)</span>
-
-        <span class="n">updated</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
-        <span class="n">added_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">added_indexes</span><span class="p">)</span>
-        <span class="n">copied_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">copied_indexes</span><span class="p">)</span>
-        <span class="n">removed_indexes</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat_indexes</span><span class="p">(</span><span class="n">removed_indexes</span><span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: tabular transition&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added_indexes</span><span class="p">,</span> <span class="n">copied_indexes</span><span class="p">,</span> <span class="n">removed_indexes</span>
+        """
+        if self.accounting_column is None:
+            nrows = int(round(len(data) * self.growth_rate))
+        else:
+            nrows = int(round(data[self.accounting_column].sum() * self.growth_rate))
+        with log_start_finish(
+                'adding {} rows via growth rate ({}) transition'.format(
+                    nrows, self.growth_rate),
+                logger):
+            return add_or_remove_rows(data, nrows, accounting_column=self.accounting_column)
 </div>
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call `self.transition` with inputs.</span>
+    def __call__(self, data, year):
+        """
+        Call `self.transition` with inputs.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        """
+        return self.transition(data, year)
 
 </div>
-<div class="viewcode-block" id="TabularTotalsTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularTotalsTransition">[docs]</a><span class="k">class</span> <span class="nc">TabularTotalsTransition</span><span class="p">(</span><span class="n">TabularGrowthRateTransition</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Transition data via control totals in pandas DataFrame with</span>
-<span class="sd">    optional segmentation.</span>
+<div class="viewcode-block" id="TabularGrowthRateTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularGrowthRateTransition">[docs]</a>class TabularGrowthRateTransition(object):
+    """
+    Growth rate based transitions where the rates are stored in
+    a table indexed by year with optional segmentation.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    targets : pandas.DataFrame</span>
-<span class="sd">    totals_column : str</span>
-<span class="sd">        Name of the column in `targets` that contains the control totals.</span>
-<span class="sd">    accounting_column: string, optional</span>
-<span class="sd">        Name of column with accounting totals/quanties to apply towards the control. If not provided</span>
-<span class="sd">        then row counts will be used for accounting.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">totals_column</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">totals_column</span> <span class="o">=</span> <span class="n">totals_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">accounting_column</span> <span class="o">=</span> <span class="n">accounting_column</span>
+    Parameters
+    ----------
+    growth_rates : pandas.DataFrame
+    rates_column : str
+        Name of the column in `growth_rates` that contains the rates.
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
+        then row counts will be used for accounting.
+    """
+    def __init__(self, growth_rates, rates_column, accounting_column=None):
+        self.growth_rates = growth_rates
+        self.rates_column = rates_column
+        self.accounting_column = accounting_column
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_config_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Table that has transition configuration.</span>
+    @property
+    def _config_table(self):
+        """
+        Table that has transition configuration.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span>
+        """
+        return self.growth_rates
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_config_column</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Non-filter column in config table.</span>
+    @property
+    def _config_column(self):
+        """
+        Non-filter column in config table.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">totals_column</span>
+        """
+        return self.rates_column
 
-    <span class="k">def</span> <span class="nf">_calc_nrows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_data</span><span class="p">,</span> <span class="n">target_pop</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the number of rows to add to or remove from some data.</span>
+    def _calc_nrows(self, len_data, growth_rate):
+        """
+        Calculate the number of rows to add to or remove from some data.
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        len_data : int</span>
-<span class="sd">            The current number of rows in the data table.</span>
-<span class="sd">        target_pop : int</span>
-<span class="sd">            Target population.</span>
+        Parameters
+        ----------
+        len_data : int
+            The current number of rows in the data table.
+        growth_rate : float
+            Growth rate as a fraction. Positive for growth, negative
+            for removing rows.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">target_pop</span> <span class="o">-</span> <span class="n">len_data</span>
+        """
+        return int(round(len_data * growth_rate))
 
-<div class="viewcode-block" id="TabularTotalsTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularTotalsTransition.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add or remove rows to/from a table according to the prescribed</span>
-<span class="sd">        totals for this model and year.</span>
+<div class="viewcode-block" id="TabularGrowthRateTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularGrowthRateTransition.transition">[docs]</a>    def transition(self, data, year):
+        """
+        Add or remove rows to/from a table according to the prescribed
+        growth rate for this model and year.
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : pandas.DataFrame</span>
-<span class="sd">            Rows will be removed from or added to this table.</span>
-<span class="sd">        year : None, optional</span>
-<span class="sd">            Here for compatibility with other transition models,</span>
-<span class="sd">            but ignored.</span>
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Rows will be removed from or added to this table.
+        year : None, optional
+            Here for compatibility with other transition models,
+            but ignored.
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        updated : pandas.DataFrame</span>
-<span class="sd">            Table with rows removed or added.</span>
-<span class="sd">        added : pandas.Index</span>
-<span class="sd">            New indexes of the rows that were added.</span>
-<span class="sd">        copied : pandas.Index</span>
-<span class="sd">            Indexes of rows that were copied. A row copied multiple times</span>
-<span class="sd">            will have multiple entries.</span>
-<span class="sd">        removed : pandas.Index</span>
-<span class="sd">            Index of rows that were removed.</span>
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows removed or added.
+        added : pandas.Index
+            New indexes of the rows that were added.
+        copied : pandas.Index
+            Indexes of rows that were copied. A row copied multiple times
+            will have multiple entries.
+        removed : pandas.Index
+            Index of rows that were removed.
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;tabular totals transition&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TabularTotalsTransition</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        """
+        logger.debug('start: tabular transition')
+        if year not in self._config_table.index:
+            raise ValueError('No targets for given year: {}'.format(year))
+
+        # want this to be a DataFrame
+        year_config = self._config_table.loc[[year]]
+        logger.debug('transitioning {} segments'.format(len(year_config)))
+
+        segments = []
+        added_indexes = []
+        copied_indexes = []
+        removed_indexes = []
+
+        # since we're looping over discrete segments we need to track
+        # out here where their new indexes will begin
+        starting_index = data.index.values.max() + 1
+
+        for _, row in year_config.iterrows():
+            subset = util.filter_table(data, row, ignore={self._config_column})
+
+            # Do not run on segment if it is empty
+            if len(subset) == 0:
+                logger.debug('empty segment encountered')
+                continue
+
+            if self.accounting_column is None:
+                nrows = self._calc_nrows(len(subset), row[self._config_column])
+            else:
+                nrows = self._calc_nrows(
+                    subset[self.accounting_column].sum(),
+                    row[self._config_column])
+
+            updated, added, copied, removed = \
+                add_or_remove_rows(subset, nrows, starting_index, self.accounting_column)
+            if nrows &gt; 0:
+                # only update the starting index if rows were added
+                starting_index = starting_index + nrows
+            segments.append(updated)
+            added_indexes.append(added)
+            copied_indexes.append(copied)
+            removed_indexes.append(removed)
+
+        updated = pd.concat(segments)
+        added_indexes = util.concat_indexes(added_indexes)
+        copied_indexes = util.concat_indexes(copied_indexes)
+        removed_indexes = util.concat_indexes(removed_indexes)
+
+        logger.debug('finish: tabular transition')
+        return updated, added_indexes, copied_indexes, removed_indexes
+</div>
+    def __call__(self, data, year):
+        """
+        Call `self.transition` with inputs.
+
+        """
+        return self.transition(data, year)
+
+</div>
+<div class="viewcode-block" id="TabularTotalsTransition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularTotalsTransition">[docs]</a>class TabularTotalsTransition(TabularGrowthRateTransition):
+    """
+    Transition data via control totals in pandas DataFrame with
+    optional segmentation.
+
+    Parameters
+    ----------
+    targets : pandas.DataFrame
+    totals_column : str
+        Name of the column in `targets` that contains the control totals.
+    accounting_column: string, optional
+        Name of column with accounting totals/quanties to apply towards the control. If not provided
+        then row counts will be used for accounting.
+    """
+    def __init__(self, targets, totals_column, accounting_column=None):
+        self.targets = targets
+        self.totals_column = totals_column
+        self.accounting_column = accounting_column
+
+    @property
+    def _config_table(self):
+        """
+        Table that has transition configuration.
+
+        """
+        return self.targets
+
+    @property
+    def _config_column(self):
+        """
+        Non-filter column in config table.
+
+        """
+        return self.totals_column
+
+    def _calc_nrows(self, len_data, target_pop):
+        """
+        Calculate the number of rows to add to or remove from some data.
+
+        Parameters
+        ----------
+        len_data : int
+            The current number of rows in the data table.
+        target_pop : int
+            Target population.
+
+        """
+        return target_pop - len_data
+
+<div class="viewcode-block" id="TabularTotalsTransition.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TabularTotalsTransition.transition">[docs]</a>    def transition(self, data, year):
+        """
+        Add or remove rows to/from a table according to the prescribed
+        totals for this model and year.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Rows will be removed from or added to this table.
+        year : None, optional
+            Here for compatibility with other transition models,
+            but ignored.
+
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows removed or added.
+        added : pandas.Index
+            New indexes of the rows that were added.
+        copied : pandas.Index
+            Indexes of rows that were copied. A row copied multiple times
+            will have multiple entries.
+        removed : pandas.Index
+            Index of rows that were removed.
+
+        """
+        with log_start_finish('tabular totals transition', logger):
+            return super(TabularTotalsTransition, self).transition(data, year)
 
 </div></div>
-<span class="k">def</span> <span class="nf">_update_linked_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Copy and update rows in a table that has a column referencing another</span>
-<span class="sd">    table that has had rows added via copying.</span>
+def _update_linked_table(table, col_name, added, copied, removed):
+    """
+    Copy and update rows in a table that has a column referencing another
+    table that has had rows added via copying.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    table : pandas.DataFrame</span>
-<span class="sd">        Table to update with new or removed rows.</span>
-<span class="sd">    col_name : str</span>
-<span class="sd">        Name of column in `table` that corresponds to the index values</span>
-<span class="sd">        in `copied` and `removed`.</span>
-<span class="sd">    added : pandas.Index</span>
-<span class="sd">        Indexes of rows that are new in the linked table.</span>
-<span class="sd">    copied : pandas.Index</span>
-<span class="sd">        Indexes of rows that were copied to make new rows in linked table.</span>
-<span class="sd">    removed : pandas.Index</span>
-<span class="sd">        Indexes of rows that were removed from the linked table.</span>
+    Parameters
+    ----------
+    table : pandas.DataFrame
+        Table to update with new or removed rows.
+    col_name : str
+        Name of column in `table` that corresponds to the index values
+        in `copied` and `removed`.
+    added : pandas.Index
+        Indexes of rows that are new in the linked table.
+    copied : pandas.Index
+        Indexes of rows that were copied to make new rows in linked table.
+    removed : pandas.Index
+        Indexes of rows that were removed from the linked table.
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    updated : pandas.DataFrame</span>
+    Returns
+    -------
+    updated : pandas.DataFrame
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: update linked table after transition&#39;</span><span class="p">)</span>
+    """
+    logger.debug('start: update linked table after transition')
 
-    <span class="c"># handle removals</span>
-    <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">table</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">removed</span><span class="p">))]</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">added</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">added</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">table</span>
+    # handle removals
+    table = table.loc[~table[col_name].isin(set(removed))]
+    if (added is None or len(added) == 0):
+        return table
 
-    <span class="c"># map new IDs to the IDs from which they were copied</span>
-    <span class="n">id_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">copied</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">col_name</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">added</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;temp_id&#39;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    # map new IDs to the IDs from which they were copied
+    id_map = pd.concat([pd.Series(copied, name=col_name), pd.Series(added, name='temp_id')], axis=1)
 
-    <span class="c"># join to linked table and assign new id</span>
-    <span class="n">new_rows</span> <span class="o">=</span> <span class="n">id_map</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">col_name</span><span class="p">)</span>
-    <span class="n">new_rows</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">new_rows</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;temp_id&#39;</span><span class="p">:</span> <span class="n">col_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    # join to linked table and assign new id
+    new_rows = id_map.merge(table, on=col_name)
+    new_rows.drop(col_name, axis=1, inplace=True)
+    new_rows.rename(columns={'temp_id': col_name}, inplace=True)
 
-    <span class="c"># index the new rows</span>
-    <span class="n">starting_index</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">new_rows</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">starting_index</span><span class="p">,</span> <span class="n">starting_index</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_rows</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    # index the new rows
+    starting_index = table.index.values.max() + 1
+    new_rows.index = np.arange(starting_index, starting_index + len(new_rows), dtype=np.int)
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: update linked table after transition&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">table</span><span class="p">,</span> <span class="n">new_rows</span><span class="p">])</span>
+    logger.debug('finish: update linked table after transition')
+    return pd.concat([table, new_rows])
 
 
-<div class="viewcode-block" id="TransitionModel"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TransitionModel">[docs]</a><span class="k">class</span> <span class="nc">TransitionModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Models things moving into or out of a region.</span>
+<div class="viewcode-block" id="TransitionModel"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TransitionModel">[docs]</a>class TransitionModel(object):
+    """
+    Models things moving into or out of a region.
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    transitioner : callable</span>
-<span class="sd">        A callable that takes a data table and a year number and returns</span>
-<span class="sd">        and new data table, the indexes of rows added, the indexes</span>
-<span class="sd">        of rows copied, and the indexes of rows removed.</span>
+    Parameters
+    ----------
+    transitioner : callable
+        A callable that takes a data table and a year number and returns
+        and new data table, the indexes of rows added, the indexes
+        of rows copied, and the indexes of rows removed.
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transitioner</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span> <span class="o">=</span> <span class="n">transitioner</span>
+    """
+    def __init__(self, transitioner):
+        self.transitioner = transitioner
 
-<div class="viewcode-block" id="TransitionModel.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TransitionModel.transition">[docs]</a>    <span class="k">def</span> <span class="nf">transition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">linked_tables</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add or remove rows from a table based on population targets.</span>
+<div class="viewcode-block" id="TransitionModel.transition"><a class="viewcode-back" href="../../../models/transrelo.html#urbansim.models.transition.TransitionModel.transition">[docs]</a>    def transition(self, data, year, linked_tables=None):
+        """
+        Add or remove rows from a table based on population targets.
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : pandas.DataFrame</span>
-<span class="sd">            Rows will be removed from or added to this table.</span>
-<span class="sd">        year : int</span>
-<span class="sd">            Year number that will be passed to `transitioner`.</span>
-<span class="sd">        linked_tables : dict of tuple, optional</span>
-<span class="sd">            Dictionary of (table, &#39;column name&#39;) pairs. The column name</span>
-<span class="sd">            should match the index of `data`. Indexes in `data` that</span>
-<span class="sd">            are copied or removed will also be copied and removed in</span>
-<span class="sd">            linked tables. They dictionary keys are used in the</span>
-<span class="sd">            returned `updated_links`.</span>
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Rows will be removed from or added to this table.
+        year : int
+            Year number that will be passed to `transitioner`.
+        linked_tables : dict of tuple, optional
+            Dictionary of (table, 'column name') pairs. The column name
+            should match the index of `data`. Indexes in `data` that
+            are copied or removed will also be copied and removed in
+            linked tables. They dictionary keys are used in the
+            returned `updated_links`.
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        updated : pandas.DataFrame</span>
-<span class="sd">            Table with rows removed or added.</span>
-<span class="sd">        added : pandas.Series</span>
-<span class="sd">            Indexes of new rows in `updated`.</span>
-<span class="sd">        updated_links : dict of pandas.DataFrame</span>
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows removed or added.
+        added : pandas.Series
+            Indexes of new rows in `updated`.
+        updated_links : dict of pandas.DataFrame
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: transition&#39;</span><span class="p">)</span>
-        <span class="n">linked_tables</span> <span class="o">=</span> <span class="n">linked_tables</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">updated_links</span> <span class="o">=</span> <span class="p">{}</span>
+        """
+        logger.debug('start: transition')
+        linked_tables = linked_tables or {}
+        updated_links = {}
 
-        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;add/remove rows&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-            <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitioner</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        with log_start_finish('add/remove rows', logger):
+            updated, added, copied, removed = self.transitioner(data, year)
 
-        <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="n">linked_tables</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;updating linked table {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
-            <span class="n">updated_links</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> \
-                <span class="n">_update_linked_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">copied</span><span class="p">,</span> <span class="n">removed</span><span class="p">)</span>
+        for table_name, (table, col) in linked_tables.iteritems():
+            logger.debug('updating linked table {}'.format(table_name))
+            updated_links[table_name] = \
+                _update_linked_table(table, col, added, copied, removed)
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: transition&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">updated</span><span class="p">,</span> <span class="n">added</span><span class="p">,</span> <span class="n">updated_links</span></div></div>
-</pre></div>
+        logger.debug('finish: transition')
+        return updated, added, updated_links</div></div>
+</pre>
 
           </div>
           <footer>
