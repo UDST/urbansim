@@ -4,6 +4,7 @@ python:
 install:
 - sudo pip install conda
 - sudo conda init
+- sudo conda update --yes conda
 - |
   conda create -p $HOME/py --yes ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION"
 - export PATH=$HOME/py/bin:$PATH
@@ -21,6 +22,11 @@ script:
 - cd ..
 after_success:
 - coveralls
+- bin/build_docs.sh
 notifications:
   slack:
     secure: XTKQdhpJNhVCaT7X+VHD+vST0W+pwIjp3hDe/E1eVCqvp7iE2sBCtlnxVioMjo8z3EPtQMHZcNlpm6LOoVQlHT7idg40CDJMpTMrQGLqpDRo1ixUygK1Qfs1ZHrzg2CL3IgUtQwEDK3jVGAe2qmn/3RS1sKiYPMRACkkNtWQfMk=
+env:
+  global:
+  - secure: c2olC+qzN1VHJZlznPy7mUtRvAyU7I2C7N3sYkv71Ds+dx5WN8InF6mpwNs/ZKfERbbA9slSVmYjB4j2c+VT8S1J33o6aI4F4hWNr6l7DgBKoPmozvaDx0GQ45hMOeSHSG5OF+DZCSTEXtxQK82uj61sCvZ6dIlDOqRvAHCjQDI=
+
