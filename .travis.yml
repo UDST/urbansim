@@ -11,17 +11,17 @@ install:
 - pip install simplejson bottle
 - pip install pytest-cov coveralls pep8
 - pip install .
-# before_script:
-# - git clone https://github.com/synthicity/sanfran_urbansim.git
-# - cd sanfran_urbansim; ipython nbconvert --to python Simulation.ipynb
-# - cd ..
+before_script:
+- git clone https://github.com/synthicity/sanfran_urbansim.git
+- cd sanfran_urbansim; ipython nbconvert --to python Simulation.ipynb
+- cd ..
 script:
 - pep8 urbansim scripts
-# - py.test --cov urbansim --cov-report term-missing
-# - cd sanfran_urbansim; python Simulation.py
-# - cd ..
+- py.test --cov urbansim --cov-report term-missing
+- cd sanfran_urbansim; python Simulation.py
+- cd ..
 after_success:
-# - coveralls
+- coveralls
 - bin/build_docs.sh
 notifications:
   slack:
