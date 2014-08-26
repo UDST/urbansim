@@ -1,22 +1,32 @@
+import os.path
+
 from ez_setup import use_setuptools
 use_setuptools()
 
 from setuptools import setup, find_packages
 
+# read README as the long description
+if os.path.exists('README'):
+    with open('README', 'r') as f:
+        long_description = f.read()
+else:
+    long_description = None
+
 setup(
     name='urbansim',
-    version='0.2dev',
+    version='1.1dev',
     description='Tool for modeling metropolitan real estate markets',
+    long_description=long_description,
     author='Synthicity',
     author_email='ffoti@berkeley.edu',
-    license='AGPL',
+    license='BSD',
     url='https://github.com/synthicity/urbansim',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 2.7',
-        'License :: OSI Approved :: GNU Affero General Public License v3'
+        'License :: OSI Approved :: BSD License'
     ],
-    package_data = {
+    package_data={
         '': ['*.html'],
     },
     packages=find_packages(exclude=['*.tests']),
