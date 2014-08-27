@@ -26,7 +26,7 @@ class AllocationModel(object):
     target_col:
         Name of column in the targets data frame
         to allocate to.
-    weights_col: string, optional
+    weight_col: string, optional
         Name of the column in the target data frame used to
         weight the allocation. If not provided all
         target rows will have an equal weight.
@@ -90,11 +90,16 @@ class AllocationModel(object):
         # assume there is a single row for for each year,
         # todo: add segmentation for sub-areas
         amounts = self.amounts_df[self.amounts_col]
-        if amounts[year].size != 1:
-            raise ValueError("Problem with amounts for " + str(year))
+        if year not in amounts.index:
+            raise ValueError("Year " + str(year) + " not in amounts table")
+
+        if amounts[year].size > 1:
+            raise ValueError("Too many entries for  " + str(year) + " in amounts table")
 
         if self.as_delta and self.compute_delta:
-            if amounts[year - 1].size != 1:
+            if year - 1 not in amounts.index:
+                raise ValueError("Problem computing delta for " + str(year))
+            elif amounts[year - 1].size > 1:
                 raise ValueError("Problem computing delta for " + str(year))
             else:
                 amount = amounts[year] - amounts[year - 1]
@@ -132,7 +137,6 @@ class AllocationModel(object):
                 a[have_cap] = a + (curr_amount * (w / w_sum))
             else:
                 a[have_cap] = a + (curr_amount / len(a[have_cap]))
-            print a
 
             # set allocation result to capacity for overages
             over = a + e > c
@@ -144,6 +148,8 @@ class AllocationModel(object):
         # integerize using stochastic rounding
         if self.as_integer:
             # make sure the amount is an integer
+            print "amount: " + str(amount)
+            print "amount fraction: " + str(amount % 1)
             if amount % 1 != 0:
                 raise ValueError('Cannot integerize and match non-integer amount')
 
@@ -160,11 +166,11 @@ class AllocationModel(object):
                 a[to_round_idx] = floor
 
                 # determine how many rows need to get rounded up
-                to_round_up = amount - a[a == c].sum() - floor.sum()
+                round_up_cnt = amount - a[a == c].sum() - floor.sum()
 
                 # randomly choose items to round up, weighted by their fractional part
-                fract_w = fract / fract.sum()
-                idx_to_round_up = np.random.choice(to_round_idx, to_round_up, False, fract_w)
+                fract_w = fract / fract_sum
+                idx_to_round_up = np.random.choice(to_round_idx, round_up_cnt, False, fract_w)
                 a[idx_to_round_up] += 1
 
         # update the data frame with the allocation results
