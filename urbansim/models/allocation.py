@@ -132,11 +132,13 @@ class AllocationModel(object):
             # allocate remaining amount to rows with capacity
             curr_amount = amount - a.sum()
             have_cap = a + e < c
-            w_sum = w[have_cap].sum()
-            if w_sum != 0:
-                a[have_cap] = a + (curr_amount * (w / w_sum))
-            else:
-                a[have_cap] = a + (curr_amount / len(a[have_cap]))
+            have_cap_cnt = len(a[have_cap])
+            if have_cap_cnt > 0:
+                w_sum = w[have_cap].sum()
+                if w_sum != 0:
+                    a[have_cap] = a + (curr_amount * (w / w_sum))
+                else:
+                    a[have_cap] = a + (curr_amount / have_cap_cnt)
 
             # set allocation result to capacity for overages
             over = a + e > c
@@ -148,8 +150,6 @@ class AllocationModel(object):
         # integerize using stochastic rounding
         if self.as_integer:
             # make sure the amount is an integer
-            print "amount: " + str(amount)
-            print "amount fraction: " + str(amount % 1)
             if amount % 1 != 0:
                 raise ValueError('Cannot integerize and match non-integer amount')
 
