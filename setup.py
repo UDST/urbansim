@@ -43,5 +43,8 @@ setup(
         'statsmodels>=0.5.0',
         'tables>=3.1.0',
         'toolz>=0.7.0'
-    ]
+    ],
+    extras_require = {
+        'pandana': ['pandana>=0.1']
+    }
 )
