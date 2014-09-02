@@ -4,6 +4,8 @@ import simplejson
 import numpy as np
 import pandas as pd
 import os
+import json
+import webbrowser
 from jinja2 import Environment
 
 
@@ -60,6 +62,8 @@ def index():
 
 @route('/data/<filename>')
 def data_static(filename):
+    if filename == "internal":
+        return SHAPES
     return static_file(filename, root='./data')
 
 
@@ -89,10 +93,12 @@ def start(views,
     zoom : int
         The initial zoom level of the map
     shape_json : str
-        The path to the geojson file which contains that shapes that will be
-        displayed
+        Can either be the geojson itself or the path to a file which contains
+        the geojson that describes the shapes to display (uses os.path.exists
+        to check for a file on the filesystem)
     geom_name : str
-        The field name from the JSON file which contains the id of the geometry
+        The field name from the JSON file which contains the id of the
+        geometry - if it's None, use the id of the geojson feature
     join_name : str
         The column name from the dataframes passed as views (must be in each
         view) which joins to geom_name in the shapes
@@ -111,8 +117,18 @@ def start(views,
     queries from a web browser
     """
 
-    global DFRAMES, CONFIG
+    global DFRAMES, CONFIG, SHAPES
     DFRAMES = {str(k): views[k] for k in views}
+
+    if not testing and not os.path.exists(shape_json):
+        # if the file doesn't exist, we try to use it as json
+        try:
+            json.loads(shape_json)
+        except:
+            assert 0, "The json passed in appears to be neither a parsable " \
+                      "json format nor a file that exists on the file system"
+        SHAPES = shape_json
+        shape_json = "data/internal"
 
     config = {
         'center': str(center),
@@ -135,4 +151,71 @@ def start(views,
     if testing:
         return
 
+    # open in a new tab, if possible
+    webbrowser.open("http://%s:%s" % (host, port), new=2)
+
     run(host=host, port=port, debug=True)
+
+
+def gdf_explore(gdf,
+                dataframe_d=None,
+                center=None,
+                zoom=11,
+                geom_name=None,  # from JSON file, use index if None
+                join_name='zone_id',  # from data frames
+                precision=2,
+                port=8765,
+                host='localhost',
+                testing=False):
+    """
+    This method wraps the start method above, but for displaying a geopandas
+    geodataframe.  The parameters are the same as above but many are optional
+    and the defaults can be derived from the dataframe in the following way.
+
+    You are responsible for converting to crs 4326 - using the to_crs method
+    on the geodataframe (since we don't want to do this conversion every time
+    and geopandas doesn't check the current crs before converting).
+
+    If you don't pass a dataframe_d, only the fields directly on the
+    geodataframe will be available.  The center will be derived from the
+    center of the dataframe's bounding box.  The geom_name is optional and if
+    it is not set or set to None, the index of the geodataframe will be used
+    for joining attributes to shapes.  Obviously shape_json in the above
+    method is not used - the shapes on the geodataframe are used directly.
+    """
+    try:
+        import geopandas
+    except:
+        raise ImportError("This method requires that geopandas be installed "
+                          "in order to work correctly")
+
+    if dataframe_d is None:
+        dataframe_d = {}
+
+    # add the geodataframe
+    df = pd.DataFrame(gdf)
+    if geom_name is None:
+        df[join_name] = df.index
+    dataframe_d["local"] = df
+
+    # need to check if it's already 4326
+    # gdf = gdf.to_crs(epsg=4326)
+
+    bbox = gdf.total_bounds
+    if center is None:
+        center = [(bbox[1]+bbox[3])/2, (bbox[0]+bbox[2])/2]
+
+    gdf.to_json()
+
+    start(
+        dataframe_d,
+        center=center,
+        zoom=zoom,
+        shape_json=gdf.to_json(),
+        geom_name=geom_name,  # from JSON file
+        join_name=join_name,  # from data frames
+        precision=precision,
+        port=port,
+        host=host,
+        testing=testing
+    )

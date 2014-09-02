@@ -200,7 +200,11 @@ function controller($scope, $http) {
 
 function style_f(feature) {
     if(data && q) {
+        {% if geom_name %}
         var val = data[feature.properties[GEOMNAME]];
+        {% else %}
+        var val = data[feature.id];
+        {% endif %}
         var v = q(val);
     }
     fo = .7;
@@ -225,7 +229,11 @@ d3.json(SHAPE_JSON, function(error, zones) {
     shapeLayer = new L.geoJson(zones, {
         style: style_f,
         onEachFeature: function (feature, layer) {
+            {% if geom_name %}
             feature_d[feature.properties[GEOMNAME]] = layer;
+            {% else %}
+            feature_d[feature.id] = layer;
+            {% endif %}
             //layer.bindPopup("No value");
         }
     });

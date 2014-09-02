@@ -45,6 +45,7 @@ setup(
         'toolz>=0.7.0'
     ],
     extras_require = {
-        'pandana': ['pandana>=0.1']
+        'pandana': ['pandana>=0.1'],
+        'geopandas': ['geopandas>=0.1.0']
     }
 )
