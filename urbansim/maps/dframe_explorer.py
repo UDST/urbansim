@@ -120,7 +120,6 @@ def start(views,
     global DFRAMES, CONFIG, SHAPES
     DFRAMES = {str(k): views[k] for k in views}
 
-    print shape_json
     if not testing and not os.path.exists(shape_json):
         # if the file doesn't exist, we try to use it as json
         try:
