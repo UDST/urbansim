@@ -4,6 +4,8 @@ import simplejson
 import numpy as np
 import pandas as pd
 import os
+import json
+import webbrowser
 from jinja2 import Environment
 
 
@@ -60,6 +62,8 @@ def index():
 
 @route('/data/<filename>')
 def data_static(filename):
+    if filename == "internal":
+        return SHAPES
     return static_file(filename, root='./data')
 
 
@@ -89,10 +93,12 @@ def start(views,
     zoom : int
         The initial zoom level of the map
     shape_json : str
-        The path to the geojson file which contains that shapes that will be
-        displayed
+        Can either be the geojson itself or the path to a file which contains
+        the geojson that describes the shapes to display (uses os.path.exists
+        to check for a file on the filesystem)
     geom_name : str
-        The field name from the JSON file which contains the id of the geometry
+        The field name from the JSON file which contains the id of the
+        geometry - if it's None, use the id of the geojson feature
     join_name : str
         The column name from the dataframes passed as views (must be in each
         view) which joins to geom_name in the shapes
@@ -111,8 +117,19 @@ def start(views,
     queries from a web browser
     """
 
-    global DFRAMES, CONFIG
+    global DFRAMES, CONFIG, SHAPES
     DFRAMES = {str(k): views[k] for k in views}
+
+    print shape_json
+    if not testing and not os.path.exists(shape_json):
+        # if the file doesn't exist, we try to use it as json
+        try:
+            json.loads(shape_json)
+        except:
+            assert 0, "The json passed in appears to be neither a parsable " \
+                      "json format nor a file that exists on the file system"
+        SHAPES = shape_json
+        shape_json = "data/internal"
 
     config = {
         'center': str(center),
@@ -134,5 +151,8 @@ def start(views,
 
     if testing:
         return
+
+    # open in a new tab, if possible
+    webbrowser.open("http://%s:%s" % (host, port), new=2)
 
     run(host=host, port=port, debug=True)
