@@ -169,7 +169,15 @@ def geodataframe_explore(gdf,
                          host='localhost',
                          testing=False):
     """
-    This method
+    This method wraps the start method above.  The parameters are the same as
+    above but many are optional and the defaults can be derived from the
+    dataframe in the following way.
+
+    If you don't pass a dataframe_d, only the fields directly on the
+    geodataframe will be available.  The center will be derived from the
+    center of the dataframe's bounding box.  The geom_name is optional and if
+    it is not set or set to None, the index of the geodataframe will be used
+    for joining attributes to shapes.
     """
     try:
         import geopandas

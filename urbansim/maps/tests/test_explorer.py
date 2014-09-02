@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import geopandas as gpd
 
 from .. import dframe_explorer
 
@@ -12,6 +13,11 @@ def simple_map_input():
         index=['a', 'b', 'c'])
 
 
+@pytest.fixture
+def simple_geojson():
+    return gpd.read_file("test.geojson")
+
+
 def test_explorer(simple_map_input):
     dframe_explorer.enable_cors()
     dframe_explorer.ans_options()
@@ -20,9 +26,11 @@ def test_explorer(simple_map_input):
     d = {"dfname": simple_map_input}
     dframe_explorer.start(d, testing=True)
 
-    dframe_explorer.map_query("dfname", "empty", "zone_id", "test_var", "mean()")
+    dframe_explorer.map_query("dfname", "empty", "zone_id", "test_var",
+                              "mean()")
 
-    dframe_explorer.map_query("dfname", "empty", "zone_id", "test_var > 1", "mean()")
+    dframe_explorer.map_query("dfname", "empty", "zone_id", "test_var > 1",
+                              "mean()")
 
     dframe_explorer.index()
 
@@ -33,3 +41,12 @@ def test_explorer(simple_map_input):
 
     with pytest.raises(Exception):
         dframe_explorer.start(d, testing=True)
+
+
+def test_geodf_explorer(simple_map_input, simple_geojson):
+
+    d = {"dfname": simple_map_input}
+    dframe_explorer.geodataframe_explore(simple_geojson, dataframe_d=d,
+                                         testing=True)
+
+    dframe_explorer.geodataframe_explore(simple_geojson, testing=True)
