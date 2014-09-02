@@ -8,7 +8,7 @@ install:
 - |
   conda create -p $HOME/py --yes fiona ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pandana pytables pytest pyyaml shapely toolz "python=$TRAVIS_PYTHON_VERSION" -c "synthicity"
 - export PATH=$HOME/py/bin:$PATH
-- pip install simplejson bottle
+- pip install simplejson bottle geopandas
 - pip install pytest-cov coveralls pep8
 - pip install .
 before_script:
