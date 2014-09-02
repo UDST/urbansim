@@ -1,4 +1,5 @@
 import pytest
+import os
 import pandas as pd
 import geopandas as gpd
 
@@ -15,7 +16,8 @@ def simple_map_input():
 
 @pytest.fixture
 def simple_geojson():
-    return gpd.read_file("test.geojson")
+    return gpd.read_file(os.path.join(os.path.dirname(__file__),
+                                      "test.geojson"))
 
 
 def test_explorer(simple_map_input):
@@ -46,7 +48,6 @@ def test_explorer(simple_map_input):
 def test_geodf_explorer(simple_map_input, simple_geojson):
 
     d = {"dfname": simple_map_input}
-    dframe_explorer.geodataframe_explore(simple_geojson, dataframe_d=d,
-                                         testing=True)
+    dframe_explorer.gdf_explore(simple_geojson, dataframe_d=d, testing=True)
 
-    dframe_explorer.geodataframe_explore(simple_geojson, testing=True)
+    dframe_explorer.gdf_explore(simple_geojson, testing=True)
