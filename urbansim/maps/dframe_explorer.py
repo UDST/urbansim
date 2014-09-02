@@ -172,6 +172,10 @@ def gdf_explore(gdf,
     geodataframe.  The parameters are the same as above but many are optional
     and the defaults can be derived from the dataframe in the following way.
 
+    You are responsible for converting to crs 4326 - using the to_crs method
+    on the geodataframe (since we don't want to do this conversion every time
+    and geopandas doesn't check the current crs before converting).
+
     If you don't pass a dataframe_d, only the fields directly on the
     geodataframe will be available.  The center will be derived from the
     center of the dataframe's bounding box.  The geom_name is optional and if
@@ -195,20 +199,19 @@ def gdf_explore(gdf,
     dataframe_d["local"] = df
 
     # need to check if it's already 4326
-    if gdf.crs != 4326:
-        self = gdf.to_crs(epsg=4326)
+    #gdf = gdf.to_crs(epsg=4326)
 
-    bbox = self.total_bounds
+    bbox = gdf.total_bounds
     if center is None:
         center = [(bbox[1]+bbox[3])/2, (bbox[0]+bbox[2])/2]
 
-    self.to_json()
+    gdf.to_json()
 
     start(
         dataframe_d,
         center=center,
         zoom=zoom,
-        shape_json=self.to_json(),
+        shape_json=gdf.to_json(),
         geom_name=geom_name,  # from JSON file
         join_name=join_name,  # from data frames
         precision=precision,
