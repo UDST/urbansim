@@ -158,26 +158,27 @@ def start(views,
     run(host=host, port=port, debug=True)
 
 
-def geodataframe_explore(gdf,
-                         dataframe_d=None,
-                         center=None,
-                         zoom=11,
-                         geom_name=None,  # from JSON file, use index if None
-                         join_name='zone_id',  # from data frames
-                         precision=2,
-                         port=8765,
-                         host='localhost',
-                         testing=False):
+def gdf_explore(gdf,
+                dataframe_d=None,
+                center=None,
+                zoom=11,
+                geom_name=None,  # from JSON file, use index if None
+                join_name='zone_id',  # from data frames
+                precision=2,
+                port=8765,
+                host='localhost',
+                testing=False):
     """
-    This method wraps the start method above.  The parameters are the same as
-    above but many are optional and the defaults can be derived from the
-    dataframe in the following way.
+    This method wraps the start method above, but for displaying a geopandas
+    geodataframe.  The parameters are the same as above but many are optional
+    and the defaults can be derived from the dataframe in the following way.
 
     If you don't pass a dataframe_d, only the fields directly on the
     geodataframe will be available.  The center will be derived from the
     center of the dataframe's bounding box.  The geom_name is optional and if
     it is not set or set to None, the index of the geodataframe will be used
-    for joining attributes to shapes.
+    for joining attributes to shapes.  Obviously shape_json in the above
+    method is not used - the shapes on the geodataframe are used directly.
     """
     try:
         import geopandas
