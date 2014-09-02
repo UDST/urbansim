@@ -32,7 +32,6 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
         'bottle>=0.12.5',
-        'geopandas>=0.1.0',
         'matplotlib>=1.3.1',
         'numpy>=1.8.0',
         'pandas>=0.13.1',
@@ -46,6 +45,7 @@ setup(
         'toolz>=0.7.0'
     ],
     extras_require = {
-        'pandana': ['pandana>=0.1']
+        'pandana': ['pandana>=0.1'],
+        'geopandas': ['geopandas>=0.1.0']
     }
 )

@@ -156,3 +156,55 @@ def start(views,
     webbrowser.open("http://%s:%s" % (host, port), new=2)
 
     run(host=host, port=port, debug=True)
+
+
+def geodataframe_explore(gdf,
+                         dataframe_d=None,
+                         center=None,
+                         zoom=11,
+                         geom_name=None,  # from JSON file, use index if None
+                         join_name='zone_id',  # from data frames
+                         precision=2,
+                         port=8765,
+                         host='localhost',
+                         testing=False):
+    """
+    This method
+    """
+    try:
+        import geopandas
+    except:
+        raise ImportError("This method requires that geopandas be installed "
+                          "in order to work correctly")
+
+    if dataframe_d is None:
+        dataframe_d = {}
+
+    # add the geodataframe
+    df = pd.DataFrame(gdf)
+    if geom_name is None:
+        df[join_name] = df.index
+    dataframe_d["local"] = df
+
+    # need to check if it's already 4326
+    if gdf.crs != 4326:
+        self = gdf.to_crs(epsg=4326)
+
+    bbox = self.total_bounds
+    if center is None:
+        center = [(bbox[1]+bbox[3])/2, (bbox[0]+bbox[2])/2]
+
+    self.to_json()
+
+    start(
+        dataframe_d,
+        center=center,
+        zoom=zoom,
+        shape_json=self.to_json(),
+        geom_name=geom_name,  # from JSON file
+        join_name=join_name,  # from data frames
+        precision=precision,
+        port=port,
+        host=host,
+        testing=testing
+    )
