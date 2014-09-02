@@ -87,5 +87,3 @@ variable_definitions:
     ind = pd.Series(df.index).describe()
     assert ind.loc['min'] > 0
     assert ind.loc['count'] == 1498
-
-
