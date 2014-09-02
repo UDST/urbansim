@@ -199,7 +199,7 @@ def gdf_explore(gdf,
     dataframe_d["local"] = df
 
     # need to check if it's already 4326
-    #gdf = gdf.to_crs(epsg=4326)
+    # gdf = gdf.to_crs(epsg=4326)
 
     bbox = gdf.total_bounds
     if center is None:
