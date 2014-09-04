@@ -1,13 +1,13 @@
 UrbanSim
 ========
 
-.. image:: http://img.shields.io/travis/synthicity/urbansim.svg
+.. image:: https://travis-ci.org/synthicity/urbansim.svg?branch=master
    :alt: Build Status
    :target: https://travis-ci.org/synthicity/urbansim
 
-.. image:: http://img.shields.io/coveralls/synthicity/urbansim.svg
+.. image:: https://coveralls.io/repos/synthicity/urbansim/badge.png?branch=master
    :alt: Test Coverage
-   :target: https://coveralls.io/r/synthicity/urbansim
+   :target: https://coveralls.io/r/synthicity/urbansim?branch=master
 
 New version of UrbanSim, a tool for modeling metropolitan real estate
 markets
@@ -25,7 +25,7 @@ for installation instructions.
 UrbanSim History
 ----------------
 
-`UrbanSim <http://urbansim.org/>`__ is a model system for analyzing
+UrbanSim (http://urbansim.org/) is a model system for analyzing
 urban development. It is an open source platform that has been
 continuously refined and distributed for planning applications around
 the world for over 15 years. Part of the evolution of the platform is
@@ -52,8 +52,7 @@ created in the hopes of making modeling much more widely accessible to
 planners and new modelers.
 
 We lean heavily on the `PyData <http://pydata.org>`__ community to make
-our work easier - `Pandas <pandas.pydata.org>`__,
-`IPython <http://ipython.org/>`__ and
+our work easier - Pandas, `IPython <http://ipython.org/>`__, and
 `statsmodels <http://statsmodels.sourceforge.net/>`__ are ubiquitous in
 this work. These Python libraries essentially replace the UrbanSim
 Dataset class, tools to read and write from other storage, and some of
