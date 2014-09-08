@@ -6,7 +6,7 @@ install:
 - sudo conda init
 - sudo conda update --yes conda
 - |
-  conda create -p $HOME/py --yes ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION"
+  conda create -p $HOME/py --yes ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pandana pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION" -c "synthicity"
 - export PATH=$HOME/py/bin:$PATH
 - pip install simplejson bottle
 - pip install pytest-cov coveralls pep8

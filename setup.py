@@ -6,11 +6,8 @@ use_setuptools()
 from setuptools import setup, find_packages
 
 # read README as the long description
-if os.path.exists('README'):
-    with open('README', 'r') as f:
-        long_description = f.read()
-else:
-    long_description = None
+with open('README.rst', 'r') as f:
+    long_description = f.read()
 
 setup(
     name='urbansim',
@@ -43,5 +40,8 @@ setup(
         'statsmodels>=0.5.0',
         'tables>=3.1.0',
         'toolz>=0.7.0'
-    ]
+    ],
+    extras_require={
+        'pandana': ['pandana>=0.1']
+    }
 )
