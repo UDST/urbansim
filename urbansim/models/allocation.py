@@ -78,8 +78,8 @@ class AllocationModel(object):
 
         # handle segmentation columns
         if segment_cols is not None:
-            self.ingore_cols = list(set(segment_cols) ^ list(amounts_df))
-            keys = ['temp_year'] + [segment_cols]
+            self.ignore_cols = list(set(segment_cols) ^ set(amounts_df))
+            keys = ['temp_year'] + segment_cols
         else:
             self.ignore_cols = None
             keys = ['temp_year']
@@ -88,7 +88,7 @@ class AllocationModel(object):
         temp = amounts_df.copy()
         temp['temp_year'] = amounts_df.index.values
         groups = temp.groupby(keys)
-        if groups.size.max() > 1:
+        if groups.size().max() > 1:
             raise ValueError("Duplicate entries in amounts table")
         del temp
 
@@ -114,7 +114,7 @@ class AllocationModel(object):
             data[self.target_col] = 0
 
         # loop through the amounts for the current year
-        for _, curr_row in self.amounts_df[year].iterrows():
+        for _, curr_row in self.amounts_df.loc[year:year].iterrows():
 
             # get the current amount
             amount = curr_row[self.amounts_col]
@@ -127,7 +127,7 @@ class AllocationModel(object):
                     else:
                         prev_q = ''
                         for seg_col in self.segment_cols:
-                            prev_q += '{} == {} and '.format(seg_col, row[seg_col])
+                            prev_q += '{} == {} and '.format(seg_col, curr_row[seg_col])
                         prev_q = prev_q[:-4]
                         prev_rows = self.amounts_df.query(prev_q)
                         amount = amount - prev_rows[self.amounts_col][year - 1]
@@ -136,7 +136,7 @@ class AllocationModel(object):
             if self.segment_cols is None:
                 subset = data
             else:
-                subset = us.util.filter_table(data, curr_row, ignore=self.ignore_cols)
+                subset = us_util.filter_table(data, curr_row, ignore=self.ignore_cols)
 
             # get the weight series
             if self.weight_col is not None:

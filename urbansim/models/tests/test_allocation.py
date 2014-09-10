@@ -177,13 +177,11 @@ def test_hasWeights_hasCapacity__delta(amounts_df,
 
 def test_raise_too_many_years(amounts_df,
                               amounts_col,
-                              rows_df,
                               target_col):
     year = 2010
     amounts_df.index = pd.Index([2010, 2010, 2011])
-    am = AllocationModel(amounts_df, amounts_col, target_col)
     with pytest.raises(ValueError):
-        am.allocate(rows_df, year)
+        am = AllocationModel(amounts_df, amounts_col, target_col)
 
 
 def test_raise_not_enough_capacity(amounts_df,
