@@ -92,7 +92,6 @@ class AllocationModel(object):
             raise ValueError("Duplicate entries in amounts table")
         del temp
 
-
     def allocate(self, data, year):
         """
         Performs the allocation.
