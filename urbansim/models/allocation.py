@@ -33,7 +33,7 @@ class AllocationModel(object):
         target rows will have an equal weight.
     capacity_col: string, optional
         Name of the column in the target data frame with
-        capacities that need to be respected. If not
+        maximum capacities that need to be respected. If not
         provided the allocation will be unconstrained.
     as_integer: bool, optional, default True
         If True, allocation values will be integerized to match
@@ -47,13 +47,20 @@ class AllocationModel(object):
         the allocated change. If False, the allocation
         will be treated as a total and the target column will
         be entirely re-generated each year.
-    compute_delta: bool option, default False
-        If True, and as_delta is True, the amounts are assumed
+    compute_delta: bool optional, default False
+        If True, the amounts are assumed
         to represent totals and changes will be computed
         by comparing the amount with the previous year.
     segment_cols: list <string>
         List of field names that will be used for segmentation.
         Each segment will have its own allocation.
+    minimum_col: string optional, default None
+        Name of column in the target frame with minimum values
+        that need to be respected. If not provided the
+        minimum_value argument will be used.
+    minimum_value: int optional, default 0
+        A global minimum value for row allocations. Superseded
+        by the minimum_col argument.
 
     """
     def __init__(self,
@@ -65,7 +72,9 @@ class AllocationModel(object):
                  as_integer=True,
                  as_delta=False,
                  compute_delta=False,
-                 segment_cols=None):
+                 segment_cols=None,
+                 minimum_col=None,
+                 minimum_value=0):
         self.amounts_df = amounts_df
         self.amounts_col = amounts_col
         self.target_col = target_col
@@ -75,6 +84,8 @@ class AllocationModel(object):
         self.as_delta = as_delta
         self.compute_delta = compute_delta
         self.segment_cols = segment_cols
+        self.minimum_col = minimum_col
+        self.minimum_value = minimum_value
 
         # handle segmentation columns
         if segment_cols is not None:
@@ -119,7 +130,7 @@ class AllocationModel(object):
             amount = curr_row[self.amounts_col]
 
             # adjust the amount for deltas
-            if self.as_delta and self.compute_delta:
+            if self.compute_delta:
                 if year - 1 in self.amounts_df.index:
                     if self.segment_cols is None:
                         amount = amount - self.amounts_df.loc[year - 1][self.amounts_col]
@@ -131,25 +142,14 @@ class AllocationModel(object):
                         prev_rows = self.amounts_df.query(prev_q)
                         amount = amount - prev_rows[self.amounts_col][year - 1]
 
+            if amount == 0:
+                continue
+
             # get the subset of rows for the current segment
             if self.segment_cols is None:
                 subset = data
             else:
                 subset = us_util.filter_table(data, curr_row, ignore=self.ignore_cols)
-
-            # get the weight series
-            if self.weight_col is not None:
-                w = subset[self.weight_col]
-            else:
-                w = pd.Series(np.ones(len(subset)), index=subset.index)
-
-            # get the capacity series
-            if self.capacity_col is not None:
-                c = subset[self.capacity_col]
-                if c.sum() < amount:
-                    raise ValueError('Amount exceeds the available capacity')
-            else:
-                c = pd.Series(np.ones(len(subset)) * amount, index=subset.index)
 
             # get the existing series
             if self.as_delta:
@@ -157,24 +157,52 @@ class AllocationModel(object):
             else:
                 e = pd.Series(np.zeros(len(subset)), index=subset.index)
 
+            # get the weight series
+            if self.weight_col is not None:
+                w = subset[self.weight_col]
+            else:
+                w = pd.Series(np.ones(len(subset)), index=subset.index)
+
+            # get the capacity series, capacity reflects max or min change
+            if amount > 0:
+                is_positive = True
+                if self.capacity_col is not None:
+                    c = subset[self.capacity_col]
+                else:
+                    c = pd.Series(np.ones(len(subset)) * amount, index=subset.index)
+                c = c - e
+                amount_factor = 1
+            else:
+                is_positive = False
+                amount *= -1
+                if self.minimum_col is not None:
+                    c = subset[self.minimum_col]
+                else:
+                    c = pd.Series(np.ones(len(subset)) * self.minimum_value, index=subset.index)
+                c = e - c
+
+            # throw an exception if not enough capacity
+            # TODO: set all rows to their capacity and log the issue?
+            if c.sum() < amount:
+                raise ValueError('Amount exceeds the available capacity')
+
             # perform the initial allocation
             a = pd.Series(np.zeros(len(subset)), index=subset.index)
             while True:
                 # allocate remaining amount to rows with capacity
                 curr_amount = amount - a.sum()
-                have_cap = a + e < c
-                have_cap_cnt = len(a[have_cap])
-                if have_cap_cnt > 0:
+                have_cap = a < c
+                if have_cap.any() > 0:
                     w_sum = w[have_cap].sum()
                     if w_sum != 0:
                         a[have_cap] = a + (curr_amount * (w / w_sum))
                     else:
-                        a[have_cap] = a + (curr_amount / have_cap_cnt)
+                        a[have_cap] = a + (curr_amount / len(a[have_cap]))
 
                 # set allocation result to capacity for overages
-                over = a + e > c
-                if len(a[over]) > 0:
-                    a[over] = c - e
+                over = a > c
+                if over.any():
+                    a[over] = c
                 else:
                     break
 
@@ -205,5 +233,8 @@ class AllocationModel(object):
                     a[idx_to_round_up] += 1
 
             # update the data frame with the current allocation
-            data[self.target_col].loc[subset.index.values] = a + e
+            if is_positive:
+                data[self.target_col].loc[subset.index.values] = e + a
+            else:
+                data[self.target_col].loc[subset.index.values] = e - a
         return data
