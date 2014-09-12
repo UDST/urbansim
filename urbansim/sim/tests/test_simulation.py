@@ -595,7 +595,6 @@ def test_run_and_write_tables(df, store_name):
                 store['final/table'][year_key(x)], series_year(x))
 
 
-
 def test_get_table(df):
     sim.add_table('frame', df)
 
