@@ -580,7 +580,7 @@ def test_run_and_write_tables(df, store_name):
     sim.run(['model'], years=range(11), data_out=store_name, out_interval=3)
 
     with pd.get_store(store_name, mode='r') as store:
-        for year in range(0, 11, 3):
+        for year in range(3, 11, 3):
             key = '{}/table'.format(year)
             assert key in store
 
@@ -588,11 +588,12 @@ def test_run_and_write_tables(df, store_name):
                 pdt.assert_series_equal(
                     store[key][year_key(x)], series_year(x))
 
-        assert 'final/table' in store
+        assert 'base/table' in store
 
         for x in range(11):
             pdt.assert_series_equal(
                 store['final/table'][year_key(x)], series_year(x))
+
 
 
 def test_get_table(df):
