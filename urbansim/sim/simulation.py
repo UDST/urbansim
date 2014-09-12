@@ -1301,14 +1301,13 @@ def run(models, years=None, data_out=None, out_interval=1):
 
     """
     years = years or [None]
-    year_counter = out_interval
+    year_counter = 0
+    
+    if data_out:
+        write_tables(data_out, models, 'base')
 
     for year in years:
         add_injectable('year', year)
-
-        if data_out and year_counter == out_interval:
-            write_tables(data_out, models, year)
-            year_counter = 0
 
         if year is not None:
             print('Running year {}'.format(year))
@@ -1327,7 +1326,12 @@ def run(models, years=None, data_out=None, out_interval=1):
 
         print("Total time to execute{}: {:.2f}s".format(
             " year %d" % year if year is not None else '', time.time()-t1))
+            
+        if data_out and year_counter == out_interval:
+            write_tables(data_out, models, year)
+            year_counter = 0
+            
         year_counter += 1
 
-    if data_out:
+    if data_out and year_counter!=1:
         write_tables(data_out, models, 'final')
