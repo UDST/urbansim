@@ -11,11 +11,11 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='urbansim',
-    version='1.1dev',
+    version='1.1',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
     author='Synthicity',
-    author_email='ffoti@berkeley.edu',
+    author_email='ffoti@synthicity.com',
     license='BSD',
     url='https://github.com/synthicity/urbansim',
     classifiers=[

@@ -1,4 +1,4 @@
-version = '1.1dev'
+__version__ = version = '1.1'
 
 from .patsypatch import patch_patsy
 patch_patsy()
