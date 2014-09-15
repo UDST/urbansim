@@ -238,3 +238,95 @@ class AllocationModel(object):
             else:
                 data[self.target_col].loc[subset.index.values] = e - a
         return data
+
+
+class AgentAllocationModel(object):
+    """
+    Used to locate a set of agents to locations, based on weights
+    and capacities.
+
+    Parameters:
+    ----------
+    location_col: string
+        Name of the column on the agents data frame with foreign
+        key reference to index on locations data frame.
+    weight_col: string, optional
+        Name of the column in the locations data frame used to
+        weight the allocation. If not provided all
+        target rows will have an equal weight.
+    capacity_col: string, optional
+        Name of the column in the locations data frame with
+        maximum capacities that need to be respected. If not
+        provided the allocation will be unconstrained.
+    segment_cols: list <string>, optional, default None
+        List of field names that will be used for segmentation.
+        Each segment will have its own allocation.
+
+    """
+    def __init__(self,
+                 location_col,
+                 segment_cols=None,
+                 weight_col=None,
+                 capacity_col=None):
+        self.location_col = location_col
+        self.weight_col = weight_col
+        self.capacity_col = capacity_col
+        self.segment_cols = segment_cols
+
+    def locate_agents(self, locations, agents, year):
+        """
+        Assigns a location ID to a set of agents.
+
+        Parameters:
+        ----------
+
+        locations: pandas.DataFrame
+            Locations with index IDs to assign to agents.
+        agents: pandas.DataFrame
+            Agents that need to be assigned.
+        year: int
+            Simulation year. Not really used except to be
+            consistent with other modules.
+
+        """
+        agents = agents.copy()
+        agents[self.location_col] = np.nan
+
+        # create the controls from the agent distribution
+        if self.segment_cols is None:
+            amounts_df = pd.DataFrame(
+                {'amount:' [len(agents)]},
+                index=[year]
+                )
+        else:
+            agent_cnts = agents.groupby(self.segment_cols).size()
+            amounts_df = agent_cnts.reset_index(name='amount')
+            amounts_df.index = pd.Index(np.ones(len(amounts_df)) * year)
+
+        # allocate agent quantities to locations
+        a_mod = AllocationModel(amounts_df,
+                                'amount',
+                                'allo',
+                                self.weight_col,
+                                self.capacity_col,
+                                segment_cols=self.segment_cols)
+        a_res = a_mod.allocate(locations, year)
+
+        # randomly assign agents to locations based on the allocation results
+        for _, curr_row in amounts_df.loc[year:year].iterrows():
+
+            # get agents and locations for current segment
+            if self.segment_cols is not None:
+                agent_subset = us_util.filter_table(agents, curr_row, ignore=a_mod.ignore_cols)
+                loc_subset = us_util.filter_table(a_res, curr_row, ignore=a_mod.ignore_cols)
+            else:
+                agent_subset = agents
+                loc_subset = locations
+
+            # assign the location IDs to the agents randomly
+            loc_idx = np.repeat(loc_subset.index.values, loc_subset['allo'])
+            np.random.shuffle(loc_idx)
+            loc_series = pd.Series(loc_idx, index=agent_subset.index)
+            agents[self.location_col].loc[agent_subset.index.values] = loc_series
+
+        return agents
