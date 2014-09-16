@@ -99,14 +99,11 @@ def start(sim_output,
 
 '''
 TODO
-play button
 see line chart in each zone
 aggregate the column and display (sum, mean, std, min, and max)
-add new set of columns that are internal indicators (prices, dev, and such)
-
-isolate the shared functionality between the dframe_explorer and sim_explorer
-
 post to github and link from urbansim website
+
+add new set of columns that are internal indicators (prices, dev, and such)
 parcels
 
 pass in a second scenario to do comparison

@@ -32,6 +32,7 @@
 </style>
 
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
@@ -61,29 +62,44 @@ var q = null;
 
 app = angular.module('app', ['ui.slider']);
 
-app.controller('SimCtrl', ['$scope', function controller($scope, $http) {
+app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
     MAP = L.map("map").setView(CENTER, ZOOM);
 
 
     L.tileLayer("http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
            {subdomains: '1234',type:'map',minZoom:8,maxZoom:16}).addTo(MAP);
 
+    $scope.timeout = $timeout;
     $scope.sim_output = SIM_OUTPUT;
     $scope.years = $scope.sim_output["years"];
     $scope.year_range = {
         low: $scope.years[0],
         high: $scope.years[$scope.years.length-1]
     };
-    $scope.field_names = Object.keys($scope.sim_output);
+    $scope.field_names = [];
+    Object.keys($scope.sim_output).forEach(function(a) {
+        if(a != "index" && a != "years") $scope.field_names.push(a);
+    });
     $scope.field_name = $scope.field_names[0];
     $scope.colors = Object.keys(colorbrewer);
     $scope.color = "YlGnBu";
     $scope.scale_options = ["quantile", "equal_interval"];
     $scope.scale = "quantile";
-    $scope.slider_type = "range";
+    $scope.slider_type = "growth";
 
-    $scope.$watch('year_range.low + year_range.high + field_name + slider_type',
+    $scope.$watch('year_range.low + year_range.high + year + field_name',
             function(nv, ov) {
+        $scope.runQuery();
+    });
+
+    $scope.$watch('slider_type', function(nv, ov) {
+        $scope.safeApply(function() {
+            if(nv == "total") {
+                $scope.year = $scope.year_range.high;
+            } else if (ov == "total") {
+                $scope.year_range.high = $scope.year;
+            }
+        });
         $scope.runQuery();
     });
 
@@ -186,20 +202,46 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $http) {
         // don't even need to call a query here since all the results are just
         // embedded in this html file
         keys = $scope.sim_output["index"];
-        values = $scope.sim_output[$scope.field_name][$scope.year_range.high];
+        year_high = $scope.slider_type == "total" ?
+                $scope.year : $scope.year_range.high;
+        values = $scope.sim_output[$scope.field_name][year_high];
         values2 = $scope.sim_output[$scope.field_name][$scope.year_range.low];
+        values_tot = d3.sum(values);
+        values2_tot = d3.sum(values2);
         $scope.safeApply(function() {
             var map = {}
             for(var i in keys) {
-                if($scope.slider_type == "single") {
-                    map[keys[i]] = values2[i];
-                } else {
+                if($scope.slider_type == "total") {
+                    map[keys[i]] = values[i];
+                } else if ($scope.slider_type == "growth") {
                     map[keys[i]] = values[i] - values2[i];
+                } else if ($scope.slider_type == "pct growth") {
+                    map[keys[i]] = (values[i] - values2[i]) /
+                            Math.max(1, values2[i]) * 100;
+                } else {
+                    map[keys[i]] = (values[i] - values2[i]) /
+                            Math.max(1, (values_tot - values2_tot)) *
+                            values.length;
                 }
             }
             $scope["data"] = map;
         });
     };
+
+    $scope.advance = function (i) {
+        if(i >= $scope.years.length) return;
+        $scope.safeApply(function() {
+            $scope.year_range.high = $scope.years[i];
+        });
+        setTimeout(function(){
+            $scope.advance(i+1)
+        }, 500);
+    }
+
+    $scope.play = function () {
+        $scope.year_range.low = $scope.years[0];
+        $scope.advance(0);
+    }
 
     function style_f(feature) {
         if(data && q) {
@@ -208,6 +250,11 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $http) {
         }
         fo = .7;
         if(v == undefined) {
+            v = 0;
+            fo = 0.0;
+        }
+        if($scope.slider_type != "total" &&
+                $scope.year_range.low == $scope.year_range.high) {
             v = 0;
             fo = 0.0;
         }
@@ -247,22 +294,26 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $http) {
      overflow:hidden;">
 </div>
 
+<div style="position:absolute; right: 320px; top: 12px; color: white">
+<i ng-click="play()" class="fa fa-youtube-play fa-2x"></i>
+</div>
+
 <slider style="position:absolute; right: 10px; top: 0px; width: 300px;"
         floor="{% raw %}{{years[0]}}{% endraw %}"
         ceiling="{% raw %}{{years[years.length-1]}}{% endraw %}"
-        ng-show="slider_type == 'range'"
+        ng-show="slider_type != 'total'"
         step="1" precision="0"
         ng-model-low="year_range.low" ng-model-high="year_range.high"></slider>
 
 <slider style="position:absolute; right: 10px; top: 0px; width: 300px;"
         floor="{% raw %}{{years[0]}}{% endraw %}"
         ceiling="{% raw %}{{years[years.length-1]}}{% endraw %}"
-        ng-show="slider_type == 'single'"
+        ng-show="slider_type == 'total'"
         step="1" precision="0"
-        ng-model="year_range.low"></slider>
+        ng-model="year"></slider>
 
 <select style="position:absolute; right: 10px; top: 45px; width: 150px;"
-        ng-options="type for type in ['single', 'range']"
+        ng-options="type for type in ['total', 'growth', 'pct growth', 'pct of reg growth']"
         ng-model="slider_type"></select>
 
 <select style="position:absolute; right: 10px; top: 70px; width: 150px;"
