@@ -1,0 +1,280 @@
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=1024, user-scalable=no">
+<style>
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0;}
+      #map{ height: 100% }
+
+      .legend {
+          line-height: 18px;
+          color: #555;
+      }
+      .legend i {
+          width: 15px;
+          height: 15px;
+          float: left;
+          margin-right: 8px;
+      }
+      .info {
+          padding: 6px 8px;
+          font: 14px/16px Arial, Helvetica, sans-serif;
+          background: white;
+          background: rgba(255,255,255,0.8);
+          box-shadow: 0 0 15px rgba(0,0,0,0.2);
+          border-radius: 5px;
+      }
+      .info h4 {
+          margin: 0 0 5px;
+          color: #777;
+      }
+</style>
+
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
+<script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
+<script src="http://paris.urbansim.org/angular-slider/slider.js"></script>
+<link rel="stylesheet" href="http://paris.urbansim.org/angular-slider/slider.css"/>
+
+<script type="text/javascript">
+
+SHAPE_JSON = "{{shape_json}}";
+SIM_OUTPUT = {{sim_output}};
+CENTER = {{center}};
+ZOOM = {{zoom}};
+PRECISION = {{precision}};
+GEOMNAME = "{{geom_name}}";
+JOINNAME = "{{join_name}}";
+ROOT = "http://localhost:8765/"
+
+MAP = null;
+var shapeLayer = null;
+var data = null;
+var lastlegend = null;
+
+var buckets = 7;
+var color = 'YlGnBu';
+var q = null;
+
+app = angular.module('app', ['ui.slider']);
+
+app.controller('SimCtrl', ['$scope', function controller($scope, $http) {
+    MAP = L.map("map").setView(CENTER, ZOOM);
+
+
+    L.tileLayer("http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
+           {subdomains: '1234',type:'map',minZoom:8,maxZoom:16}).addTo(MAP);
+
+    $scope.sim_output = SIM_OUTPUT;
+    $scope.years = $scope.sim_output["years"];
+    $scope.year_range = {
+        low: $scope.years[0],
+        high: $scope.years[$scope.years.length-1]
+    };
+    $scope.field_names = Object.keys($scope.sim_output);
+    $scope.field_name = $scope.field_names[0];
+    $scope.colors = Object.keys(colorbrewer);
+    $scope.color = "YlGnBu";
+    $scope.scale_options = ["quantile", "equal_interval"];
+    $scope.scale = "quantile";
+    $scope.slider_type = "range";
+
+    $scope.$watch('year_range.low + year_range.high + field_name + slider_type',
+            function(nv, ov) {
+        $scope.runQuery();
+    });
+
+    $scope.$watch('color', function(nv, ov) {
+        color = $scope.color;
+        $scope.setLegend();
+        if(shapeLayer) shapeLayer.setStyle(style_f);
+    });
+
+    $scope.$watch('scale', function(nv, ov) {
+        $scope.setScale();
+        $scope.setLegend();
+        if(shapeLayer) shapeLayer.setStyle(style_f);
+    })
+
+    $scope.$watch('data', function(nv, ov) {
+        data = nv;
+
+        $scope.setScale();
+        $scope.setLegend();
+        if(shapeLayer) shapeLayer.setStyle(style_f);
+        $scope.setPopup();
+    });
+
+    $scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+            if(fn && (typeof(fn) === 'function')) {
+                fn();
+            }
+        } else {
+            this.$apply(fn);
+        }
+    };
+
+    $scope.setScale = function() {
+        if(!data) return;
+        var values = Object.keys(data).map(function (key) {
+            return data[key];
+        });
+        if(values.length == 0) {
+            values = [0, 0];
+        }
+        if ($scope.scale == "quantile") {
+            q = d3.scale.quantile()
+                    .domain(values)
+                    .range(d3.range(buckets));
+        } else {
+            q = d3.scale.quantize()
+                    .domain(d3.extent(values))
+                    .range(d3.range(buckets));
+        }
+    }
+
+    $scope.setLegend = function() {
+        if (!data || !MAP) return;
+        if (lastlegend) lastlegend.removeFrom(MAP);
+
+        var legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+
+            var div = L.DomUtil.create('div', 'info legend'),
+                    grades = q.range(),
+                    labels = [],
+                    from, to;
+
+            for (var i = grades.length-1; i >= 0; i--) {
+                var extent = q.invertExtent(grades[i]);
+                from = extent[0].toFixed(PRECISION);
+                to = extent[1].toFixed(PRECISION);
+
+                labels.push(
+                                '<i style="background:' +
+                                colorbrewer[color][buckets][i] + '"></i>' +
+                                from + (to ? ' to ' + to : '+'));
+            }
+
+            div.innerHTML = labels.join('<br>');
+            return div;
+        };
+        lastlegend = legend;
+        legend.addTo(MAP);
+    }
+
+    $scope.setPopup = function() {
+        Object.keys(feature_d).forEach(function(taz) {
+            layer = feature_d[taz];
+            val = data[taz];
+            if(val != undefined) layer.bindPopup("zone: "+
+                    taz+"<br>"+$scope.field_name+": "+
+                    val.toFixed(PRECISION).toString());
+            else layer.bindPopup("No value");
+        })
+    }
+
+    $scope.runQuery = function() {
+        if(!shapeLayer) return;
+
+        // don't even need to call a query here since all the results are just
+        // embedded in this html file
+        keys = $scope.sim_output["index"];
+        values = $scope.sim_output[$scope.field_name][$scope.year_range.high];
+        values2 = $scope.sim_output[$scope.field_name][$scope.year_range.low];
+        $scope.safeApply(function() {
+            var map = {}
+            for(var i in keys) {
+                if($scope.slider_type == "single") {
+                    map[keys[i]] = values2[i];
+                } else {
+                    map[keys[i]] = values[i] - values2[i];
+                }
+            }
+            $scope["data"] = map;
+        });
+    };
+
+    function style_f(feature) {
+        if(data && q) {
+            var val = data[feature.properties[GEOMNAME]];
+            var v = q(val);
+        }
+        fo = .7;
+        if(v == undefined) {
+            v = 0;
+            fo = 0.0;
+        }
+        var c = colorbrewer[color][buckets][v];
+
+        return {
+            fillColor: c,
+            weight: 1,
+            opacity: .6,
+            color: 'black',
+            fillOpacity: fo
+        };
+    }
+
+    var feature_d = {}
+    d3.json(SHAPE_JSON, function(error, zones) {
+        if (error) return console.error(error);
+        shapeLayer = new L.geoJson(zones, {
+            style: style_f,
+            onEachFeature: function (feature, layer) {
+                feature_d[feature.properties[GEOMNAME]] = layer;
+                //layer.bindPopup("No value");
+            }
+        });
+        MAP.addLayer(shapeLayer);
+        $scope.runQuery();
+    });
+}]);
+
+</script>
+</head>
+
+<body ng-app="app" ng-controller="SimCtrl">
+
+<div id="map"
+     style="width:100%; height:100%; position:fixed; left:0; top:0;
+     overflow:hidden;">
+</div>
+
+<slider style="position:absolute; right: 10px; top: 0px; width: 300px;"
+        floor="{% raw %}{{years[0]}}{% endraw %}"
+        ceiling="{% raw %}{{years[years.length-1]}}{% endraw %}"
+        ng-show="slider_type == 'range'"
+        step="1" precision="0"
+        ng-model-low="year_range.low" ng-model-high="year_range.high"></slider>
+
+<slider style="position:absolute; right: 10px; top: 0px; width: 300px;"
+        floor="{% raw %}{{years[0]}}{% endraw %}"
+        ceiling="{% raw %}{{years[years.length-1]}}{% endraw %}"
+        ng-show="slider_type == 'single'"
+        step="1" precision="0"
+        ng-model="year_range.low"></slider>
+
+<select style="position:absolute; right: 10px; top: 45px; width: 150px;"
+        ng-options="type for type in ['single', 'range']"
+        ng-model="slider_type"></select>
+
+<select style="position:absolute; right: 10px; top: 70px; width: 150px;"
+        ng-options="name for name in field_names"
+        ng-model="field_name"></select>
+
+<select style="position:absolute; right: 10px; top: 95px; width: 150px;"
+        ng-options="name for name in colors"
+        ng-model="color"></select>
+
+<select style="position:absolute; right: 10px; top: 120px; width: 150px;"
+        ng-options="name for name in scale_options"
+        ng-model="scale"></select>
+
+</body>
