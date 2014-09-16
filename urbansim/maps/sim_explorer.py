@@ -107,9 +107,12 @@ post to github and link from urbansim website
 add internal indicators (prices, dev, and such)
 add parcels development info
 
+d3 transitions on the shapes
+play forever in a loop (randomize inputs)
+
 pass in a second scenario to do comparison
 meta information
-counties (mapping of zones to counties or cities)
+counties/cities (mapping of zones to counties/cities)
 add another shape (e.g. transit lines)
 county to county flows
 '''

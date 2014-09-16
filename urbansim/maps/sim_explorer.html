@@ -77,7 +77,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         high: $scope.years[$scope.years.length-1]
     };
     $scope.field_names = [];
-    $scope.norm_field_names = ['Normalize by'];
+    $scope.norm_field_names = ['Normalize by', 'Column total'];
     Object.keys($scope.sim_output).forEach(function(a) {
         if(a != "index" && a != "years") {
             $scope.field_names.push(a);
@@ -191,6 +191,18 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         legend.addTo(MAP);
     }
 
+    $scope.pan = function(type) {
+        ind = $scope["col_stats"][type].ind;
+        id = SIM_OUTPUT["index"][ind];
+        layer = feature_d[id];
+        centroid = layer.getBounds().getCenter();
+
+        MAP.panTo([centroid.lat, centroid.lng]);
+        MAP.setZoom(13);
+        console.log(layer);
+        layer.openPopup(centroid);
+    }
+
     $scope.setPopup = function() {
         Object.keys(feature_d).forEach(function(taz) {
             layer = feature_d[taz];
@@ -212,18 +224,22 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                 $scope.year : $scope.year_range.high;
         values = $scope.sim_output[$scope.field_name][year_high];
         values2 = $scope.sim_output[$scope.field_name][$scope.year_range.low];
-        //values_tot = d3.sum(values);
-        //values2_tot = d3.sum(values2);
+        out_values = []
         $scope.safeApply(function() {
             var map = {}
             for(var i in keys) {
                 high_val = values[i];
                 low_val = values2[i];
                 if($scope.norm_field_name != 'Normalize by') {
-                    high_val /=
-                            $scope.sim_output[$scope.norm_field_name][year_high][i];
-                    low_val /=
-                            $scope.sim_output[$scope.norm_field_name][$scope.year_range.low][i];
+                    if($scope.norm_field_name == 'Column total') {
+                        high_val = high_val * 100 / Math.max(1, d3.sum(values));
+                        low_val = low_val * 100 / Math.max(1, d3.sum(values2));
+                    } else {
+                        high_val = high_val * 100 /
+                                $scope.sim_output[$scope.norm_field_name][year_high][i];
+                        low_val = low_val * 100 /
+                                $scope.sim_output[$scope.norm_field_name][$scope.year_range.low][i];
+                    }
                 }
                 if($scope.slider_type == "total") {
                     map[keys[i]] = high_val;
@@ -236,6 +252,18 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                         map[keys[i]] = 0;
                     }
                 }
+                out_values.push({ind: i, val: map[keys[i]]});
+            }
+            out_values = out_values.sort(function(a, b) {
+                return d3.ascending(a.val, b.val)
+            });
+            $scope["col_stats"] = {
+                "min":out_values[0],
+                "1st quartile": out_values[Math.floor(out_values.length/4)],
+                "median": out_values[Math.floor(out_values.length/2)],
+                "3rd quartile": out_values[Math.floor(out_values.length*3/4)],
+                "max": out_values[out_values.length-1],
+                "sum": d3.sum(out_values, function(a) {return a.val})
             }
             $scope["data"] = map;
         });
@@ -245,6 +273,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         if(i >= $scope.years.length) return;
         $scope.safeApply(function() {
             $scope.year_range.high = $scope.years[i];
+            $scope.year = $scope.years[i];
         });
         setTimeout(function(){
             $scope.advance(i+1)
@@ -344,5 +373,45 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
 <select style="position:absolute; right: 10px; top: 145px; width: 150px;"
         ng-options="name for name in norm_field_names"
         ng-model="norm_field_name"></select>
+
+<div class="info legend leaflet-control"
+     style="position:absolute; left: 10px; bottom: 10px;">
+    <span>
+        <i ng-click="pan('min')" class="fa fa-plane"></i>
+        <span style="float:left">Min value:</span>
+        <span style="float:right">
+            {%raw%}{{ col_stats.min.val | number:2 }}{%endraw%}
+        </span>
+    </span><br><span>
+        <i ng-click="pan('1st quartile')" class="fa fa-plane"></i>
+        <span style="float:left">1st Quartile:</span>
+        <span style="float:right">
+            {%raw%}{{ col_stats['1st quartile'].val | number:2 }}{%endraw%}
+        </span>
+    </span><br><span>
+        <i ng-click="pan('median')" class="fa fa-plane"></i>
+        <span style="float:left">Median value:</span>
+        <span style="float:right">
+            {%raw%}{{ col_stats.median.val | number:2 }}{%endraw%}
+        </span>
+    </span><br><span>
+        <i ng-click="pan('3rd quartile')" class="fa fa-plane"></i>
+        <span style="float:left">3rd Quartile:</span>
+        <span style="float:right">
+            {%raw%}{{ col_stats['3rd quartile'].val | number:2 }}{%endraw%}
+        </span>
+    </span><br><span>
+        <i ng-click="pan('max')" class="fa fa-plane"></i>
+        <span style="float:left">Max:</span>
+        <span style="float:right">
+            {%raw%}{{ col_stats.max.val | number:2 }}{%endraw%}
+        </span>
+    </span><br><span>
+        <span style="float:left">Sum:</span>
+        <span style="float:right">
+            {%raw%}{{ col_stats.sum | number:2 }}{%endraw%}
+        </span>
+    </span>
+</div>
 
 </body>
