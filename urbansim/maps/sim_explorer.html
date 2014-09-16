@@ -77,17 +77,23 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         high: $scope.years[$scope.years.length-1]
     };
     $scope.field_names = [];
+    $scope.norm_field_names = ['Normalize by'];
     Object.keys($scope.sim_output).forEach(function(a) {
-        if(a != "index" && a != "years") $scope.field_names.push(a);
+        if(a != "index" && a != "years") {
+            $scope.field_names.push(a);
+            $scope.norm_field_names.push(a);
+        }
     });
     $scope.field_name = $scope.field_names[0];
+    $scope.norm_field_name = $scope.norm_field_names[0];
     $scope.colors = Object.keys(colorbrewer);
     $scope.color = "YlGnBu";
     $scope.scale_options = ["quantile", "equal_interval"];
     $scope.scale = "quantile";
     $scope.slider_type = "growth";
 
-    $scope.$watch('year_range.low + year_range.high + year + field_name',
+    $scope.$watch('year_range.low + year_range.high + year + field_name + ' +
+                    'norm_field_name',
             function(nv, ov) {
         $scope.runQuery();
     });
@@ -206,22 +212,29 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                 $scope.year : $scope.year_range.high;
         values = $scope.sim_output[$scope.field_name][year_high];
         values2 = $scope.sim_output[$scope.field_name][$scope.year_range.low];
-        values_tot = d3.sum(values);
-        values2_tot = d3.sum(values2);
+        //values_tot = d3.sum(values);
+        //values2_tot = d3.sum(values2);
         $scope.safeApply(function() {
             var map = {}
             for(var i in keys) {
+                high_val = values[i];
+                low_val = values2[i];
+                if($scope.norm_field_name != 'Normalize by') {
+                    high_val /=
+                            $scope.sim_output[$scope.norm_field_name][year_high][i];
+                    low_val /=
+                            $scope.sim_output[$scope.norm_field_name][$scope.year_range.low][i];
+                }
                 if($scope.slider_type == "total") {
-                    map[keys[i]] = values[i];
+                    map[keys[i]] = high_val;
                 } else if ($scope.slider_type == "growth") {
-                    map[keys[i]] = values[i] - values2[i];
+                    map[keys[i]] = high_val - low_val;
                 } else if ($scope.slider_type == "pct growth") {
-                    map[keys[i]] = (values[i] - values2[i]) /
-                            Math.max(1, values2[i]) * 100;
-                } else {
-                    map[keys[i]] = (values[i] - values2[i]) /
-                            Math.max(1, (values_tot - values2_tot)) *
-                            values.length;
+                    map[keys[i]] = (high_val - low_val) /
+                            low_val * 100;
+                    if(low_val == 0) {
+                        map[keys[i]] = 0;
+                    }
                 }
             }
             $scope["data"] = map;
@@ -313,7 +326,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         ng-model="year"></slider>
 
 <select style="position:absolute; right: 10px; top: 45px; width: 150px;"
-        ng-options="type for type in ['total', 'growth', 'pct growth', 'pct of reg growth']"
+        ng-options="type for type in ['total', 'growth', 'pct growth']"
         ng-model="slider_type"></select>
 
 <select style="position:absolute; right: 10px; top: 70px; width: 150px;"
@@ -327,5 +340,9 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
 <select style="position:absolute; right: 10px; top: 120px; width: 150px;"
         ng-options="name for name in scale_options"
         ng-model="scale"></select>
+
+<select style="position:absolute; right: 10px; top: 145px; width: 150px;"
+        ng-options="name for name in norm_field_names"
+        ng-model="norm_field_name"></select>
 
 </body>
