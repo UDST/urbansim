@@ -45,7 +45,8 @@ def start(sim_output,
           precision=2,
           port=8765,
           host='localhost',
-          testing=False):
+          testing=False,
+          write_static_file=None):
     """
     Start the web service which serves the Pandas queries and generates the
     HTML for the map.  You will need to open a web browser and navigate to
@@ -72,6 +73,9 @@ def start(sim_output,
         The hostname to run the web service from
     testing : bool
         Whether to print extra debug information
+    write_static_file : string
+        Write to the given file name instead of starting the server (for
+        viewing at a later time)
 
     Returns
     -------
@@ -93,15 +97,16 @@ def start(sim_output,
     if testing:
         return
 
+    if write_static_file is not None:
+        open(write_static_file, "w").write(index())
+        return
+
     webbrowser.open("http://%s:%s" % (host, port), new=2)
 
     run(host=host, port=port, debug=True)
 
 '''
 TODO
-see line chart in each zone
-aggregate the column and display (sum, mean, std, min, and max ->
-                                  navigate  map to that location)
 post to github and link from urbansim website
 
 add internal indicators (prices, dev, and such)

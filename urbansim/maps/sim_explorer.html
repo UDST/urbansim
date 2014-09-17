@@ -10,6 +10,7 @@
       .legend {
           line-height: 18px;
           color: #555;
+
       }
       .legend i {
           width: 15px;
@@ -38,6 +39,7 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
 <script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
 <script src="http://paris.urbansim.org/angular-slider/slider.js"></script>
+<script src="http://trifacta.github.io/vega/vega.min.js"></script>
 <link rel="stylesheet" href="http://paris.urbansim.org/angular-slider/slider.css"/>
 
 <script type="text/javascript">
@@ -128,6 +130,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         $scope.setLegend();
         if(shapeLayer) shapeLayer.setStyle(style_f);
         $scope.setPopup();
+        $scope.setChart();
     });
 
     $scope.safeApply = function(fn) {
@@ -198,18 +201,107 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         centroid = layer.getBounds().getCenter();
 
         MAP.panTo([centroid.lat, centroid.lng]);
-        MAP.setZoom(13);
+        MAP.setZoom(12);
         console.log(layer);
         layer.openPopup(centroid);
+    }
+
+    $scope.chart_show = false;
+    MAP.on('popupopen', function(e) {
+        id = e.popup._source.feature.properties[GEOMNAME];
+        $scope.safeApply(function() {
+            $scope.setChart(id);
+            $scope.chart_show = true;
+        });
+    });
+
+    MAP.on('popupclose', function(e) {
+        $scope.safeApply(function() {
+            $scope.chart_show = false;
+        });
+    });
+
+    $scope.most_recent_id = undefined;
+    $scope.setChart = function(id) {
+      if(id === undefined) id = $scope.most_recent_id;
+      $scope.most_recent_id = id;
+      spec = {
+          "width": 250,
+          "height": 150,
+          "padding": {"top": 10, "left": 25, "bottom": 35, "right": 10},
+          "data": [
+            {
+              "name": "table",
+              "values": [
+                {"x":"A", "y":28}, {"x":"B", "y":55}, {"x":"C", "y":43},
+                {"x":"D", "y":91}, {"x":"E", "y":81}, {"x":"F", "y":53},
+                {"x":"G", "y":19}, {"x":"H", "y":87}, {"x":"I", "y":52}
+              ]
+            }
+          ],
+          "scales": [
+            {"name":"x", "type":"ordinal", "range":"width", "domain":{"data":"table", "field":"data.x"}},
+            {"name":"y", "range":"height", "nice":true, "domain":{"data":"table", "field":"data.y"}}
+          ],
+          "axes": [
+            {"type":"x", "scale":"x", "ticks": 10,
+                "tickPadding": 15, "properties":
+            {"labels":
+                {"angle": {"value": 90}}}},
+            {"type":"y", "scale":"y"}
+          ],
+          "marks": [
+            {
+              "type": "line",
+              "from": {"data":"table"},
+              "properties": {
+                "enter": {
+                  "interpolate": {"value": "monotone"},
+                  "x": {"scale":"x", "field":"data.x"},
+
+                  "y": {"scale":"y", "field":"data.y"},
+                    "stroke": {"value": "steelblue"},
+
+                  "strokeWidth": {"value": 3}
+                    },
+                  "update": {
+                  "opacity": {"value": 1}
+                },
+                "hover": {
+                  "opacity": {"value": 0.5}
+                }
+              }
+            }
+          ]
+        };
+        if(id != undefined) {
+            ind = SIM_OUTPUT.index.indexOf(id);
+            values = [];
+            SIM_OUTPUT.years.forEach(function f(year) {
+                values.push({"x": year,
+                             "y": SIM_OUTPUT[$scope.field_name][year][ind]
+                            })
+            });
+            spec["data"][0]["values"] = values;
+            var max = d3.max(values, function(d) {return d.y});
+            if(max > 100) spec["padding"]["left"] = 35;
+            if(max > 1000) spec["padding"]["left"] = 45;
+            if(max > 10000) spec["padding"]["left"] = 50;
+            if(max > 100000) spec["padding"]["left"] = 60;
+            if(max > 1000000) spec["padding"]["left"] = 70;
+        }
+        vg.parse.spec(spec, function(chart) {
+            chart({el:"#chart"}).update();
+        });
     }
 
     $scope.setPopup = function() {
         Object.keys(feature_d).forEach(function(taz) {
             layer = feature_d[taz];
             val = data[taz];
-            if(val != undefined) layer.bindPopup("zone: "+
-                    taz+"<br>"+$scope.field_name+": "+
-                    val.toFixed(PRECISION).toString());
+            if(val != undefined) layer.bindPopup(
+                    "zone: "+taz+"<br>"+
+                    $scope.field_name+": "+val.toFixed(PRECISION).toString());
             else layer.bindPopup("No value");
         })
     }
@@ -266,6 +358,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                 "sum": d3.sum(out_values, function(a) {return a.val})
             }
             $scope["data"] = map;
+            $scope.setChart();
         });
     };
 
@@ -374,8 +467,12 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         ng-options="name for name in norm_field_names"
         ng-model="norm_field_name"></select>
 
-<div class="info legend leaflet-control"
+<div id="chart" ng-show="chart_show" class="info legend leaflet-control"
      style="position:absolute; left: 10px; bottom: 10px;">
+</div>
+
+<div class="info legend leaflet-control"
+     style="position:absolute; right: 10px; top: 175px; width: 170px">
     <span>
         <i ng-click="pan('min')" class="fa fa-plane"></i>
         <span style="float:left">Min value:</span>
