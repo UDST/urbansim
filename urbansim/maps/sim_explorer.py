@@ -107,8 +107,6 @@ def start(sim_output,
 
 '''
 TODO
-post to github and link from urbansim website
-
 add internal indicators (prices, dev, and such)
 add parcels development info
 

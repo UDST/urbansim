@@ -327,9 +327,9 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                         high_val = high_val * 100 / Math.max(1, d3.sum(values));
                         low_val = low_val * 100 / Math.max(1, d3.sum(values2));
                     } else {
-                        high_val = high_val * 100 /
+                        high_val = high_val /
                                 $scope.sim_output[$scope.norm_field_name][year_high][i];
-                        low_val = low_val * 100 /
+                        low_val = low_val /
                                 $scope.sim_output[$scope.norm_field_name][$scope.year_range.low][i];
                     }
                 }
