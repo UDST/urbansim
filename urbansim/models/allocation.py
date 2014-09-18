@@ -57,10 +57,14 @@ class AllocationModel(object):
     minimum_col: string optional, default None
         Name of column in the target frame with minimum values
         that need to be respected. If not provided the
-        minimum_value argument will be used.
+        minimum_value argument will be used. Note this is not
+        a hard minimum but is the minimum value when applying
+        declining controls.
     minimum_value: int optional, default 0
         A global minimum value for row allocations. Superseded
-        by the minimum_col argument.
+        by the minimum_col argument. Note this is not
+        a hard minimum but is the minimum value when applying
+        declining controls.
 
     """
     def __init__(self,
@@ -124,7 +128,7 @@ class AllocationModel(object):
             data[self.target_col] = 0
 
         # loop through the amounts for the current year
-        for _, curr_row in self.amounts_df.loc[year:year].iterrows():
+        for _, curr_row in self.amounts_df.loc[[year]].iterrows():
 
             # get the current amount
             amount = curr_row[self.amounts_col]
@@ -135,9 +139,13 @@ class AllocationModel(object):
                     if self.segment_cols is None:
                         amount = amount - self.amounts_df.loc[year - 1][self.amounts_col]
                     else:
-                        prev_q = ''
+                        prev_q = ""
                         for seg_col in self.segment_cols:
-                            prev_q += '{} == {} and '.format(seg_col, curr_row[seg_col])
+                            curr_val = curr_row[seg_col]
+                            if isinstance(curr_val, basestring):
+                                prev_q += "{} == '{}' and ".format(seg_col, curr_val)
+                            else:
+                                prev_q += "{} == {} and ".format(seg_col, curr_val)
                         prev_q = prev_q[:-4]
                         prev_rows = self.amounts_df.query(prev_q)
                         amount = amount - prev_rows[self.amounts_col][year - 1]
@@ -184,7 +192,12 @@ class AllocationModel(object):
             # throw an exception if not enough capacity
             # TODO: set all rows to their capacity and log the issue?
             if c.sum() < amount:
-                raise ValueError('Amount exceeds the available capacity')
+                print "!!!!!!!!!!!! CAPACITY ISSUE !!!!!!!!!!!!!!!!!!!"
+                print curr_row
+                print "amount (change): " + str(amount)
+                print "cap (change):" + str(c.sum())
+                continue
+                #raise ValueError('Amount exceeds the available capacity')
 
             # perform the initial allocation
             a = pd.Series(np.zeros(len(subset)), index=subset.index)
@@ -321,7 +334,7 @@ class AgentAllocationModel(object):
                 loc_subset = us_util.filter_table(a_res, curr_row, ignore=a_mod.ignore_cols)
             else:
                 agent_subset = agents
-                loc_subset = locations
+                loc_subset = a_res
 
             # assign the location IDs to the agents randomly
             loc_idx = np.repeat(loc_subset.index.values, loc_subset['allo'])
