@@ -30,22 +30,45 @@
           margin: 0 0 5px;
           color: #777;
       }
+      .mycluster {
+			width: 60px;
+			height: 35px;
+			background-color: rgb(95, 166, 15);
+			text-align: center;
+			font-size: 24px;
+            border-radius: 8px;
+            box-shadow: 7px 7px 5px 0px rgba(0,0,0,0.5);
+      }
 </style>
 
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet"
+      href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.0/leaflet.awesome-markers.css"/>
+<link rel="stylesheet"
+      href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+<link rel="stylesheet"
+      href="http://netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css"/>
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="http://paris.urbansim.org/angular-slider/Bing.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
 <script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
 <script src="http://paris.urbansim.org/angular-slider/slider.js"></script>
 <script src="http://trifacta.github.io/vega/vega.min.js"></script>
-<link rel="stylesheet" href="http://paris.urbansim.org/angular-slider/slider.css"/>
-
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.0/leaflet.awesome-markers.min.js"></script>
+<link rel="stylesheet"
+      href="http://paris.urbansim.org/angular-slider/slider.css"/>
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.Default.css"/>
 <script type="text/javascript">
 
 SHAPE_JSON = "{{shape_json}}";
-SIM_OUTPUT = {{sim_output}};
+
+SIM_OUTPUT_FILE = "{{sim_output}}";
+PARCEL_OUTPUT_FILE = "{{parcel_output}}";
+
 CENTER = {{center}};
 ZOOM = {{zoom}};
 PRECISION = {{precision}};
@@ -65,29 +88,130 @@ var q = null;
 app = angular.module('app', ['ui.slider']);
 
 app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
-    MAP = L.map("map").setView(CENTER, ZOOM);
+    var MAP = L.map("map").setView(CENTER, ZOOM);
+    var markers = new L.MarkerClusterGroup({
+            disableClusteringAtZoom: 17,
+            iconCreateFunction: function (cluster) {
+				var markers = cluster.getAllChildMarkers();
+				var n = 0;
+				for (var i = 0; i < markers.length; i++) {
+					n += markers[i].number;
+				}
+                w = 40;
+                if(n >= 1000000) {
+                    n = (n/1000000).toFixed(2)+'M';
+                }
+                else if(n >= 100000) {
+                    w = 60;
+                    n = (n/1000).toFixed(0)+'k';
+                }
+                else if(n >= 10000) {
+                    n = (n/1000).toFixed(0)+'k';
+                    w = 50;
+                }
+                else if(n >= 1000) {
+                    n = (n/1000).toFixed(1)+'k';
+                    w = 50;
+                }
+                else if(n >= 100) w = 47;
+				return L.divIcon({ html: n, className: 'mycluster', iconSize:
+                        L.point(w, 35) });
+			}
+        }
+    );
 
+    //L.tileLayer("http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
+    //       {subdomains: '1234',type:'map',minZoom:8,maxZoom:18}).addTo(MAP);
 
-    L.tileLayer("http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
-           {subdomains: '1234',type:'map',minZoom:8,maxZoom:16}).addTo(MAP);
+    var key =
+            "Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3";
+    MAP.addLayer(L.bingLayer(key, {type: 'AerialWithLabels'}));
 
     $scope.timeout = $timeout;
-    $scope.sim_output = SIM_OUTPUT;
-    $scope.years = $scope.sim_output["years"];
-    $scope.year_range = {
-        low: $scope.years[0],
-        high: $scope.years[$scope.years.length-1]
-    };
-    $scope.field_names = [];
-    $scope.norm_field_names = ['Normalize by', 'Column total'];
-    Object.keys($scope.sim_output).forEach(function(a) {
-        if(a != "index" && a != "years") {
-            $scope.field_names.push(a);
-            $scope.norm_field_names.push(a);
-        }
+    $scope.sim_output = null;
+
+    d3.json(SIM_OUTPUT_FILE, function(error, sim_output) {
+        $scope.sim_output = sim_output;
+
+        $scope.years = $scope.sim_output["years"];
+        $scope.year_range = {
+            low: $scope.years[0],
+            high: $scope.years[$scope.years.length - 1]
+        };
+        $scope.field_names = [];
+        $scope.norm_field_names = ['Normalize by', 'Column total'];
+        Object.keys($scope.sim_output).forEach(function (a) {
+            if (a != "index" && a != "years") {
+                $scope.field_names.push(a);
+                $scope.norm_field_names.push(a);
+            }
+        });
+        $scope.field_name = $scope.field_names[0];
+        $scope.norm_field_name = $scope.norm_field_names[0];
     });
-    $scope.field_name = $scope.field_names[0];
-    $scope.norm_field_name = $scope.norm_field_names[0];
+
+    $scope.parcel_output = null;
+    if(PARCEL_OUTPUT_FILE != '') {
+        d3.csv(PARCEL_OUTPUT_FILE, function (error, parcel_output) {
+            $scope.parcel_output = parcel_output;
+            console.log(parcel_output[0]);
+
+            var redMarker = L.AwesomeMarkers.icon({icon: 'building',
+                markerColor: 'red', prefix: 'fa'})
+            var yellowMarker = L.AwesomeMarkers.icon({icon: 'building',
+                markerColor: 'green', prefix: 'fa'})
+            var blueMarker = L.AwesomeMarkers.icon({icon: 'building',
+                markerColor: 'blue', prefix: 'fa'})
+            var purpleMarker = L.AwesomeMarkers.icon({icon: 'building',
+                markerColor: 'purple', prefix: 'fa'})
+            var orangeMarker = L.AwesomeMarkers.icon({icon: 'building',
+                markerColor: 'orange', prefix: 'fa'})
+            var marker_map = {
+                "residential": yellowMarker,
+                "office": blueMarker,
+                "retail": redMarker,
+                "industrial": purpleMarker
+            }
+
+            function leftright(left, right) {
+                return left + right + "<br>";
+                        //'<span><span style="float:left">'+left+
+                       // '</span><span style="float:right">'+right+'</span><br>'
+            }
+
+            parcel_output.forEach(function(r) {
+                popup = leftright("Parcel Id: ",
+                                (+r.parcel_id).toFixed(0)) +
+                        leftright("Residential units: ",
+                                        (+r.residential_units).toFixed(0))+
+                        leftright("Parcel sqft: ",
+                                        ((+r.parcel_size)).toFixed(0))+
+                        leftright("Max far: ", (+r.max_far).toFixed(1))+
+                        leftright("Max dua: ", (+r.max_dua).toFixed(1))+
+                        leftright("Old building sqft: ",
+                                        (+r.total_sqft).toFixed(0))+
+                        leftright("New building sqft: ",
+                                        (+r.building_sqft).toFixed(0))+
+                        leftright("Net units: ", (+r.net_units).toFixed(0))+
+                        leftright("Land cost: $",
+                                (+r.land_cost/1000000).toFixed(2)+"M")+
+                        leftright("Construction cost: $",
+                                (+r.building_cost/1000000).toFixed(2)+"M")+
+                        leftright("Building revenue: $",
+                                (+r.building_revenue/1000000).toFixed(2)+"M")+
+                        leftright("Oldest redev bldg: ",(+r.oldest_building).toFixed(0))
+                ;
+                //popup = "<div style='width: 350px;'>"+popup+"</div>"
+                var mark = L.marker([+r.y, +r.x], {
+                    icon: marker_map[r.form] || orangeMarker
+                }).bindPopup(popup);
+                mark.number = +r.residential_units;
+                markers.addLayer(mark)
+            });
+            MAP.addLayer(markers);
+        });
+    }
+
     $scope.colors = Object.keys(colorbrewer);
     $scope.color = "YlGnBu";
     $scope.scale_options = ["quantile", "equal_interval"];
@@ -196,18 +320,19 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
 
     $scope.pan = function(type) {
         ind = $scope["col_stats"][type].ind;
-        id = SIM_OUTPUT["index"][ind];
+        id = $scope.sim_output["index"][ind];
         layer = feature_d[id];
         centroid = layer.getBounds().getCenter();
 
         MAP.panTo([centroid.lat, centroid.lng]);
         MAP.setZoom(12);
-        console.log(layer);
         layer.openPopup(centroid);
     }
 
     $scope.chart_show = false;
     MAP.on('popupopen', function(e) {
+        if(!("feature" in e.popup._source))
+            return;
         id = e.popup._source.feature.properties[GEOMNAME];
         $scope.safeApply(function() {
             $scope.setChart(id);
@@ -275,11 +400,12 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
           ]
         };
         if(id != undefined) {
-            ind = SIM_OUTPUT.index.indexOf(id);
+            ind = $scope.sim_output.index.indexOf(id);
             values = [];
-            SIM_OUTPUT.years.forEach(function f(year) {
+            $scope.sim_output.years.forEach(function f(year) {
                 values.push({"x": year,
-                             "y": SIM_OUTPUT[$scope.field_name][year][ind]
+                             "y": $scope.sim_output[$scope.field_name]
+                                     [year][ind]
                             })
             });
             spec["data"][0]["values"] = values;
@@ -378,6 +504,14 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         $scope.advance(0);
     }
 
+    MAP.on('zoomend', function(e) {
+        if (MAP.getZoom() >= 15) {
+            MAP.removeLayer(shapeLayer);
+        } else {
+            MAP.addLayer(shapeLayer);
+        }
+    });
+
     function style_f(feature) {
         if(data && q) {
             var val = data[feature.properties[GEOMNAME]];
@@ -405,6 +539,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
     }
 
     var feature_d = {}
+    var shapeLayer;
     d3.json(SHAPE_JSON, function(error, zones) {
         if (error) return console.error(error);
         shapeLayer = new L.geoJson(zones, {
@@ -414,7 +549,9 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                 //layer.bindPopup("No value");
             }
         });
-        MAP.addLayer(shapeLayer);
+        if(MAP.getZoom() < 15) {
+            MAP.addLayer(shapeLayer);
+        }
         $scope.runQuery();
     });
 }]);

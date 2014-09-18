@@ -37,7 +37,13 @@ def data_static(filename):
     return static_file(filename, root='./data')
 
 
+@route('/runs/<filename>')
+def data_static(filename):
+    return static_file(filename, root='./runs')
+
+
 def start(sim_output,
+          parcel_output='',
           center=[37.7792, -122.2191],
           zoom=11,
           shape_json='data/zones.json',
@@ -56,6 +62,8 @@ def start(sim_output,
     ----------
     sim_output : filename
         The json output from a simulation run
+    parcel_output : filename
+        The parcel level output that comes out of urbansim
     center : a Python list with two floats
         The initial latitude and longitude of the center of the map
     zoom : int
@@ -86,7 +94,8 @@ def start(sim_output,
     global CONFIG
 
     CONFIG = {
-        'sim_output': open(sim_output).read(),
+        'sim_output': sim_output,
+        'parcel_output': parcel_output,
         'center': str(center),
         'zoom': zoom,
         'shape_json': shape_json,
@@ -109,13 +118,18 @@ def start(sim_output,
 TODO
 add internal indicators (prices, dev, and such)
 add parcels development info
+sub out aerial for aerialwlabels
 
 d3 transitions on the shapes
 play forever in a loop (randomize inputs)
 
+probably need to get the pdf of the lcms as an indicator
+separate indicators by source tables in the interface
 pass in a second scenario to do comparison
 meta information
+
 counties/cities (mapping of zones to counties/cities)
 add another shape (e.g. transit lines)
 county to county flows
+parcel data api?
 '''
