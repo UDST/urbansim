@@ -554,20 +554,25 @@ class SqFtProForma(object):
         if 'max_dua' in df.columns:
             # if max_dua is in the data frame, ave_unit_size must also be there
             assert 'ave_unit_size' in df.columns
-            # so this is the max_dua divided by the parcel size, which gives
+            # so this is the max_dua times the parcel size in acres, which gives
             # the number of units that are allowable on the parcel, times
             # by the average unit size which gives the square footage of
             # those units, divided by the building efficiency which is a
             # factor that indicates that the actual units are not the whole
-            # FAR of the building
-            df['max_far_from_dua'] = df.max_dua / df.parcel_size * \
-                df.ave_unit_size / \
-                self.config.building_efficiency
+            # FAR of the building and then divided by the parcel size again
+            # in order to get FAR - I recognize that parcel_size actually
+            # cancels here as it should, but the calc was hard to get right
+            # and it's just so much more transparent to have it in there twice
+            df['max_far_from_dua'] = df.max_dua * \
+                (df.parcel_size / 43560) * \
+                df.ave_unit_size / self.config.building_efficiency / \
+                df.parcel_size
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
                                      'max_far_from_dua']].min(axis=1)
         else:
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
 
+        df.to_csv('developer_debug.csv')
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
 

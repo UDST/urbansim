@@ -30,10 +30,19 @@
           margin: 0 0 5px;
           color: #777;
       }
-      .mycluster {
+      .rescluster {
 			width: 60px;
 			height: 35px;
-			background-color: rgb(95, 166, 15);
+			background-color: rgb(239, 167, 32);
+			text-align: center;
+			font-size: 24px;
+            border-radius: 8px;
+            box-shadow: 7px 7px 5px 0px rgba(0,0,0,0.5);
+      }
+      .nonrescluster {
+			width: 60px;
+			height: 35px;
+			background-color: rgb(41, 152, 215);
 			text-align: center;
 			font-size: 24px;
             border-radius: 8px;
@@ -43,25 +52,33 @@
 
 <link rel="stylesheet"
       href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-<link rel="stylesheet"
+<!--<link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.0/leaflet.awesome-markers.css"/>
+-->
 <link rel="stylesheet"
       href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
 <link rel="stylesheet"
       href="http://netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css"/>
 <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-<script src="http://paris.urbansim.org/angular-slider/Bing.js"></script>
+<script src="http://paris.urbansim.org/js/Bing.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.js"></script>
-<script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
-<script src="http://paris.urbansim.org/angular-slider/slider.js"></script>
+<script src="http://paris.urbansim.org/js/colorbrewer.js"></script>
+<script src="http://paris.urbansim.org/js/angular-slider/slider.js"></script>
 <script src="http://trifacta.github.io/vega/vega.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/leaflet.markercluster.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.0/leaflet.awesome-markers.min.js"></script>
+<!--<script
+        src="//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.0/leaflet.awesome-markers.min.js"></script>-->
+<script src="//js.pusher.com/2.2/pusher.min.js" type="text/javascript"></script>
+<script src="http://paris.urbansim.org/js/TileLayer.GeoJSON.js"></script>
 <link rel="stylesheet"
-      href="http://paris.urbansim.org/angular-slider/slider.css"/>
+      href="http://paris.urbansim.org/js/angular-slider/slider.css"/>
 <link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/0.4.0/MarkerCluster.Default.css"/>
+<link rel="stylesheet"
+      href="http://paris.urbansim.org/js/Leaflet.ExtraMarkers/src/leaflet.extra-markers.css"/>
+<script src="http://paris.urbansim.org/js/Leaflet.ExtraMarkers/src/leaflet.extra-markers.js"></script>
+
 <script type="text/javascript">
 
 SHAPE_JSON = "{{shape_json}}";
@@ -77,7 +94,10 @@ JOINNAME = "{{join_name}}";
 ROOT = "http://localhost:8765/"
 
 MAP = null;
+var parcel_data = null;
 var shapeLayer = null;
+var aerialwlabels = aerial = null;
+var resMarkers = nonresMarkers = null;
 var data = null;
 var lastlegend = null;
 
@@ -85,131 +105,311 @@ var buckets = 7;
 var color = 'YlGnBu';
 var q = null;
 
+console.log("Access all available parcel data on a parcel_id by typing 'parcel_data[parcel_id]'")
+
 app = angular.module('app', ['ui.slider']);
+
+function renderResCluster(cluster) {
+    var markers = cluster.getAllChildMarkers();
+    var n = 0;
+    for (var i = 0; i < markers.length; i++) {
+        n += markers[i].number;
+    }
+    w = 40;
+    if(n >= 1000000) {
+        n = (n/1000000).toFixed(2)+'M';
+    }
+    else if(n >= 100000) {
+        w = 60;
+        n = (n/1000).toFixed(0)+'k';
+    }
+    else if(n >= 10000) {
+        n = (n/1000).toFixed(0)+'k';
+        w = 50;
+    }
+    else if(n >= 1000) {
+        n = (n/1000).toFixed(1)+'k';
+        w = 50;
+    }
+    else if(n >= 100) w = 47;
+    return L.divIcon({ html: n, className: 'rescluster', iconSize:
+            L.point(w, 35) });
+}
+
+function renderNonresCluster(cluster) {
+    var markers = cluster.getAllChildMarkers();
+    var n = 0;
+    for (var i = 0; i < markers.length; i++) {
+        n += markers[i].number;
+    }
+    w = 40;
+    if(n >= 10000000) {
+        n = (n/1000000).toFixed(1)+'M';
+        w = 70;
+    }
+    if(n >= 1000000) {
+        n = (n/1000000).toFixed(1)+'M';
+        w = 60;
+    }
+    else if(n >= 100000) {
+        w = 60;
+        n = (n/1000).toFixed(0)+'k';
+    }
+    else if(n >= 10000) {
+        n = (n/1000).toFixed(0)+'k';
+        w = 50;
+    }
+    else if(n >= 1000) {
+        n = (n/1000).toFixed(1)+'k';
+        w = 50;
+    }
+    else if(n >= 100) w = 47;
+    return L.divIcon({ html: n, className: 'nonrescluster', iconSize:
+            L.point(w, 35) });
+}
 
 app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
     var MAP = L.map("map").setView(CENTER, ZOOM);
-    var markers = new L.MarkerClusterGroup({
-            disableClusteringAtZoom: 17,
-            iconCreateFunction: function (cluster) {
-				var markers = cluster.getAllChildMarkers();
-				var n = 0;
-				for (var i = 0; i < markers.length; i++) {
-					n += markers[i].number;
-				}
-                w = 40;
-                if(n >= 1000000) {
-                    n = (n/1000000).toFixed(2)+'M';
+
+    var tblname = 'bayarea_parcels';
+    var geojsonURL = 'http://paris.urbansim.org:8763/'+tblname+'/{z}/{x}/{y}.geojson';
+
+    var defstyle = {
+        "clickable": true,
+        "color": "#00D",
+        "fillColor": "#00D",
+        "weight": 1.0,
+        "opacity": 0.3,
+        "fillOpacity": 0.1
+    }
+
+    function parcel_style(feature) {
+        return defstyle;
+    }
+
+    var geojsonTileLayer = new L.TileLayer.GeoJSON(geojsonURL, {
+            clipTiles: true,
+            minZoom: 18,
+            unique: function (feature) {
+                return feature.id;
+            }
+        }, {
+            style: parcel_style,
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    var popupString = '<div class="popup">';
+                    for (var k in feature.properties) {
+                        var v = feature.properties[k];
+                        popupString += k + ': ' + v + '<br />';
+                    }
+                    popupString += '</div>';
+                    layer.bindPopup(popupString);
                 }
-                else if(n >= 100000) {
-                    w = 60;
-                    n = (n/1000).toFixed(0)+'k';
-                }
-                else if(n >= 10000) {
-                    n = (n/1000).toFixed(0)+'k';
-                    w = 50;
-                }
-                else if(n >= 1000) {
-                    n = (n/1000).toFixed(1)+'k';
-                    w = 50;
-                }
-                else if(n >= 100) w = 47;
-				return L.divIcon({ html: n, className: 'mycluster', iconSize:
-                        L.point(w, 35) });
-			}
+            }
         }
     );
+    MAP.addLayer(geojsonTileLayer);
 
     //L.tileLayer("http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg",
     //       {subdomains: '1234',type:'map',minZoom:8,maxZoom:18}).addTo(MAP);
 
     var key =
             "Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3";
-    MAP.addLayer(L.bingLayer(key, {type: 'AerialWithLabels'}));
+    aerialwlabels = L.bingLayer(key, {type: 'AerialWithLabels'});
+    aerial = L.bingLayer(key, {type: 'Aerial'});
+    if (MAP.getZoom() >= 15) {
+        MAP.addLayer(aerialwlabels);
+    } else {
+        MAP.addLayer(aerial);
+    }
 
     $scope.timeout = $timeout;
     $scope.sim_output = null;
 
-    d3.json(SIM_OUTPUT_FILE, function(error, sim_output) {
-        $scope.sim_output = sim_output;
+    function read_sim_output_file() {
+        d3.json(SIM_OUTPUT_FILE, function (error, sim_output) {
+            $scope.sim_output = sim_output;
 
-        $scope.years = $scope.sim_output["years"];
-        $scope.year_range = {
-            low: $scope.years[0],
-            high: $scope.years[$scope.years.length - 1]
-        };
-        $scope.field_names = [];
-        $scope.norm_field_names = ['Normalize by', 'Column total'];
-        Object.keys($scope.sim_output).forEach(function (a) {
-            if (a != "index" && a != "years") {
-                $scope.field_names.push(a);
-                $scope.norm_field_names.push(a);
-            }
+            $scope.years = $scope.sim_output["years"];
+            $scope.year_range = {
+                low: $scope.years[0],
+                high: $scope.years[$scope.years.length - 1]
+            };
+            $scope.field_names = [];
+            $scope.norm_field_names = ['Normalize by', 'Column total'];
+            Object.keys($scope.sim_output).forEach(function (a) {
+                if (a != "index" && a != "years") {
+                    $scope.field_names.push(a);
+                    $scope.norm_field_names.push(a);
+                }
+            });
+            $scope.field_names.push("CLEAR");
+            $scope.field_name = $scope.field_names[0];
+            $scope.norm_field_name = $scope.norm_field_names[0];
         });
-        $scope.field_name = $scope.field_names[0];
-        $scope.norm_field_name = $scope.norm_field_names[0];
+    }
+    read_sim_output_file();
+
+    function read_parcel_output_file() {
+        if (PARCEL_OUTPUT_FILE != '') {
+            d3.csv(PARCEL_OUTPUT_FILE, function (error, parcel_output) {
+                parcel_data = {};
+                console.log(parcel_output[0]);
+
+                parcel_output.forEach(function (r) {
+                    parcel_data[(+r.parcel_id).toFixed(0)] = r;
+                });
+                $scope.organizeMarkers();
+            });
+        }
+    }
+    read_parcel_output_file();
+
+    var pusher = new Pusher('2fb2b9562f4629e7e87c');
+    var channel = pusher.subscribe('urbansim');
+    channel.bind('simulation_year_completed', function(data) {
+      s = "Finished run number "+data.run_number+" and year "+data.year;
+      alert(s);
+      PARCEL_OUTPUT_FILE = data.parcel_output;
+      read_parcel_output_file();
+      SIM_OUTPUT_FILE = data.sim_output;
+      read_sim_output_file();
     });
 
-    $scope.parcel_output = null;
-    if(PARCEL_OUTPUT_FILE != '') {
-        d3.csv(PARCEL_OUTPUT_FILE, function (error, parcel_output) {
-            $scope.parcel_output = parcel_output;
-            console.log(parcel_output[0]);
+    $scope.organizeMarkers = function() {
+        if(parcel_data == undefined) return;
+        if($scope.year_range == undefined) return;
 
-            var redMarker = L.AwesomeMarkers.icon({icon: 'building',
-                markerColor: 'red', prefix: 'fa'})
-            var yellowMarker = L.AwesomeMarkers.icon({icon: 'building',
-                markerColor: 'green', prefix: 'fa'})
-            var blueMarker = L.AwesomeMarkers.icon({icon: 'building',
-                markerColor: 'blue', prefix: 'fa'})
-            var purpleMarker = L.AwesomeMarkers.icon({icon: 'building',
-                markerColor: 'purple', prefix: 'fa'})
-            var orangeMarker = L.AwesomeMarkers.icon({icon: 'building',
-                markerColor: 'orange', prefix: 'fa'})
-            var marker_map = {
-                "residential": yellowMarker,
-                "office": blueMarker,
-                "retail": redMarker,
-                "industrial": purpleMarker
+        if(resMarkers != undefined) {
+            MAP.removeLayer(resMarkers);
+        }
+        if(nonresMarkers != undefined) {
+            MAP.removeLayer(nonresMarkers);
+        }
+
+        resMarkers = new L.MarkerClusterGroup({
+                disableClusteringAtZoom: 15,
+                iconCreateFunction: renderResCluster
+            }
+        );
+        nonresMarkers = new L.MarkerClusterGroup({
+                disableClusteringAtZoom: 15,
+                iconCreateFunction: renderNonresCluster
+            }
+        );
+
+        function leftright(left, right) {
+            return left + right + "<br>";
+                    //'<span><span style="float:left">'+left+
+                   // '</span><span style="float:right">'+right+'</span><br>'
+        }
+
+        Object.keys(parcel_data).forEach(function(pid) {
+            r = parcel_data[pid];
+
+            year = +r.year_built;
+            if($scope.slider_type == "total") {
+                if(year != $scope.year) return;
+            } else {
+                if(year < $scope.year_range.low ||
+                   year > $scope.year_range.high) return;
             }
 
-            function leftright(left, right) {
-                return left + right + "<br>";
-                        //'<span><span style="float:left">'+left+
-                       // '</span><span style="float:right">'+right+'</span><br>'
-            }
-
-            parcel_output.forEach(function(r) {
+            if(r.form == "residential") {
                 popup = leftright("Parcel Id: ",
-                                (+r.parcel_id).toFixed(0)) +
+                                 (+r.parcel_id).toFixed(0)) +
+                        leftright("Land use: ", r.form) +
+                        leftright("Building type: ",
+                                (+r.building_type_id).toFixed(0)) +
+                        leftright("Year Built: ",
+                                 (+r.year_built).toFixed(0)) +
                         leftright("Residential units: ",
-                                        (+r.residential_units).toFixed(0))+
+                                 (+r.residential_units).toFixed(0)) +
                         leftright("Parcel sqft: ",
-                                        ((+r.parcel_size)).toFixed(0))+
-                        leftright("Max far: ", (+r.max_far).toFixed(1))+
-                        leftright("Max dua: ", (+r.max_dua).toFixed(1))+
+                                 ((+r.parcel_size)).toFixed(0)) +
+                        //leftright("Max far: ", (+r.max_far).toFixed(1)) +
+                        leftright("Max dua: ", (+r.max_dua).toFixed(1)) +
                         leftright("Old building sqft: ",
-                                        (+r.total_sqft).toFixed(0))+
+                                 (+r.total_sqft).toFixed(0)) +
                         leftright("New building sqft: ",
-                                        (+r.building_sqft).toFixed(0))+
-                        leftright("Net units: ", (+r.net_units).toFixed(0))+
+                                 (+r.building_sqft).toFixed(0)) +
+                        leftright("Net units: ", (+r.net_units).toFixed(0)) +
+                        leftright("Stories: ", (+r.stories).toFixed(0)) +
                         leftright("Land cost: $",
-                                (+r.land_cost/1000000).toFixed(2)+"M")+
+                                 (+r.land_cost / 1000000).toFixed(2) + "M") +
                         leftright("Construction cost: $",
-                                (+r.building_cost/1000000).toFixed(2)+"M")+
+                                 (+r.building_cost / 1000000).toFixed(2) + "M") +
                         leftright("Building revenue: $",
-                                (+r.building_revenue/1000000).toFixed(2)+"M")+
-                        leftright("Oldest redev bldg: ",(+r.oldest_building).toFixed(0))
+                                 (+r.building_revenue / 1000000).toFixed(2) + "M") +
+                        leftright("Residential rent: $",
+                                 (+r.residential).toFixed(0)) +
+                        leftright("Oldest redev bldg: ",
+                                 (+r.oldest_building).toFixed(0))
                 ;
-                //popup = "<div style='width: 350px;'>"+popup+"</div>"
-                var mark = L.marker([+r.y, +r.x], {
-                    icon: marker_map[r.form] || orangeMarker
-                }).bindPopup(popup);
+            } else {
+                popup = leftright("Parcel Id: ",
+                                 (+r.parcel_id).toFixed(0)) +
+                        leftright("Land use: ", r.form) +
+                        leftright("Year Built: ",
+                                 (+r.year_built).toFixed(0)) +
+                        leftright("Job Spaces: ",
+                                 (+r.job_spaces).toFixed(0)) +
+                        leftright("Parcel sqft: ",
+                                 ((+r.parcel_size)).toFixed(0)) +
+                        leftright("Max far: ", (+r.max_far).toFixed(1)) +
+                        //leftright("Max dua: ", (+r.max_dua).toFixed(1)) +
+                        leftright("Old building sqft: ",
+                                 (+r.total_sqft).toFixed(0)) +
+                        leftright("New building sqft: ",
+                                 (+r.building_sqft).toFixed(0)) +
+                        leftright("Net job spaces: ",
+                                (+r.net_units).toFixed(0)) +
+                        leftright("Stories: ", (+r.stories).toFixed(0)) +
+                        leftright("Land cost: $",
+                                 (+r.land_cost / 1000000).toFixed(2) + "M") +
+                        leftright("Construction cost: $",
+                                 (+r.building_cost / 1000000).toFixed(2) + "M") +
+                        leftright("Building revenue: $",
+                                 (+r.building_revenue / 1000000).toFixed(2) + "M") +
+                        leftright("Oldest redev bldg: ",
+                                 (+r.oldest_building).toFixed(0))
+                ;
+            }
+
+            var marker_color_map = {
+                "residential": "yellow",
+                "office": "blue",
+                "retail": "red",
+                "industrial": "purple"
+            };
+
+            var marker_shape_map = {
+                1: 'star',
+                2: 'square',
+                3: 'circle',
+                12: 'penta'
+            };
+
+            var icon = L.ExtraMarkers.icon({
+                icon: 'fa-building',
+                markerColor: marker_color_map[r.form] || 'orange',
+                shape: marker_shape_map[r.building_type_id] || 'circle',
+                prefix: 'fa'});
+
+            var mark = L.marker([+r.y, +r.x], {
+                icon: icon
+            }).bindPopup(popup);
+
+            if(r.form == "residential") {
                 mark.number = +r.residential_units;
-                markers.addLayer(mark)
-            });
-            MAP.addLayer(markers);
+                resMarkers.addLayer(mark);
+            } else {
+                mark.number = +r.non_residential_sqft;
+                nonresMarkers.addLayer(mark);
+            }
         });
+        MAP.addLayer(resMarkers);
+        MAP.addLayer(nonresMarkers);
     }
 
     $scope.colors = Object.keys(colorbrewer);
@@ -222,6 +422,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
                     'norm_field_name',
             function(nv, ov) {
         $scope.runQuery();
+        $scope.organizeMarkers();
     });
 
     $scope.$watch('slider_type', function(nv, ov) {
@@ -233,6 +434,7 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
             }
         });
         $scope.runQuery();
+        $scope.organizeMarkers();
     });
 
     $scope.$watch('color', function(nv, ov) {
@@ -437,6 +639,10 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
 
         // don't even need to call a query here since all the results are just
         // embedded in this html file
+        if($scope.field_name == "CLEAR") {
+            $scope["data"] = {};
+            return;
+        }
         keys = $scope.sim_output["index"];
         year_high = $scope.slider_type == "total" ?
                 $scope.year : $scope.year_range.high;
@@ -488,6 +694,24 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
         });
     };
 
+    $scope.nonresmarkers_on = true;
+    $scope.resmarkers_change = function () {
+        if($scope.resmarkers_on) {
+            MAP.addLayer(resMarkers);
+        } else {
+            MAP.removeLayer(resMarkers);
+        }
+    };
+
+    $scope.resmarkers_on = true;
+    $scope.nonresmarkers_change = function () {
+        if($scope.nonresmarkers_on) {
+            MAP.addLayer(nonresMarkers);
+        } else {
+            MAP.removeLayer(nonresMarkers);
+        }
+    };
+
     $scope.advance = function (i) {
         if(i >= $scope.years.length) return;
         $scope.safeApply(function() {
@@ -507,8 +731,12 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
     MAP.on('zoomend', function(e) {
         if (MAP.getZoom() >= 15) {
             MAP.removeLayer(shapeLayer);
+            MAP.removeLayer(aerial);
+            MAP.addLayer(aerialwlabels);
         } else {
             MAP.addLayer(shapeLayer);
+            MAP.removeLayer(aerialwlabels);
+            MAP.addLayer(aerial);
         }
     });
 
@@ -603,6 +831,14 @@ app.controller('SimCtrl', ['$scope', function controller($scope, $timeout) {
 <select style="position:absolute; right: 10px; top: 145px; width: 150px;"
         ng-options="name for name in norm_field_names"
         ng-model="norm_field_name"></select>
+
+<input style="position:absolute; right: 170; top: 45px;"
+       type="checkbox" ng-model="resmarkers_on"
+       ng-change="resmarkers_change()">
+
+<input style="position:absolute; right: 190px; top: 45px;"
+       type="checkbox" ng-model="nonresmarkers_on"
+       ng-change="nonresmarkers_change()">
 
 <div id="chart" ng-show="chart_show" class="info legend leaflet-control"
      style="position:absolute; left: 10px; bottom: 10px;">

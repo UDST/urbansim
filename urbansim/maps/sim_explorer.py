@@ -116,15 +116,22 @@ def start(sim_output,
 
 '''
 TODO
-add internal indicators (prices, dev, and such)
-add parcels development info
-sub out aerial for aerialwlabels
+REMOVE BUILDINGS AND REMOVE PEOPLE FROM BUILDINGS
+
+sfdu and mfdu don't add up to residential_units
+no sf development at all really
+are we accounting for parking in number of units output
+get actual price that is used into parcel output
+res and nonres building types need to be better (different markers for res?)
+separate indicators by source tables in the interface
+logsums in hedonic
+
+add internal indicators (prices, dev, and such) do they look ok?
 
 d3 transitions on the shapes
 play forever in a loop (randomize inputs)
 
-probably need to get the pdf of the lcms as an indicator
-separate indicators by source tables in the interface
+probably need to get the pdf of the lcms in there
 pass in a second scenario to do comparison
 meta information
 
