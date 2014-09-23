@@ -572,7 +572,6 @@ class SqFtProForma(object):
         else:
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
 
-        df.to_csv('developer_debug.csv')
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
 
