@@ -1325,7 +1325,8 @@ def run(models, years=None, data_out=None, out_interval=1):
                       model_name, time.time()-t2))
 
         print("Total time to execute{}: {:.2f}s".format(
-            " year %d" % year if year is not None else '', time.time()-t1))
+            " year {}".format(year) if year is not None else '',
+            time.time()-t1))
 
         if data_out and year_counter == out_interval:
             write_tables(data_out, models, year)

@@ -116,27 +116,24 @@ def start(sim_output,
 
 '''
 TODO
-REMOVE BUILDINGS AND REMOVE PEOPLE FROM BUILDINGS
+* bugs in updating years in the web interface
+* get usui working locally
+* travis build is broken
+* are we accounting for parking in number of units output (I think so - can we
+                                            add parking spaces to output?)?
+* REMOVE BUILDINGS AND REMOVE PEOPLE FROM BUILDINGS
+* check in everything to github (make live map on the web)
 
-sfdu and mfdu don't add up to residential_units
-no sf development at all really
-are we accounting for parking in number of units output
-get actual price that is used into parcel output
-res and nonres building types need to be better (different markers for res?)
-separate indicators by source tables in the interface
-logsums in hedonic
+* NOTES ON:
+no sf development at all really (need separate prices and higher prices for sf?)
+non-res debugging and building types?
 
-add internal indicators (prices, dev, and such) do they look ok?
 
-d3 transitions on the shapes
-play forever in a loop (randomize inputs)
 
-probably need to get the pdf of the lcms in there
 pass in a second scenario to do comparison
 meta information
 
 counties/cities (mapping of zones to counties/cities)
 add another shape (e.g. transit lines)
 county to county flows
-parcel data api?
 '''
