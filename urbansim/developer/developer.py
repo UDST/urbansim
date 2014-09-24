@@ -150,6 +150,10 @@ class Developer(object):
             DataFrame that is returned from feasibility.
         """
 
+        if len(self.feasibility) == 0:
+            # no feasible buldings, might as well bail
+            return None
+
         if isinstance(form, list):
             df = self.keep_form_with_max_profit(form)
         else:
