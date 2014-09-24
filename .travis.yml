@@ -2,12 +2,25 @@ language: python
 python:
 - '2.7'
 install:
-- sudo pip install conda
-- sudo conda init
-- sudo conda update --yes conda
-- |
-  conda create -p $HOME/py --yes ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pandana pytables pytest pyyaml toolz "python=$TRAVIS_PYTHON_VERSION" -c "synthicity"
-- export PATH=$HOME/py/bin:$PATH
+- sudo apt-get update
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+    wget http://repo.continuum.io/miniconda/Miniconda-3.7.0-Linux-x86_64.sh -O miniconda.sh;
+  else
+    wget http://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O miniconda.sh;
+  fi
+- bash miniconda.sh -b -p $HOME/miniconda
+- export PATH="$HOME/miniconda/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda update -q conda
+# Useful for debugging any issues with conda
+- conda info -a
+- >
+  conda create -q -c synthicity -n test-environment
+  python=$TRAVIS_PYTHON_VERSION
+  ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels
+  pandana pytables pytest pyyaml toolz
+- source activate test-environment
 - pip install simplejson bottle
 - pip install pytest-cov coveralls pep8
 - pip install .
