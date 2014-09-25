@@ -504,14 +504,15 @@ class MNLLocationChoiceModel(object):
         movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
-            A dataframe of locations which the choosers are locating in and which
-            have a supply.
+            A dataframe of locations which the choosers are locating in and
+            which have a supply.
         cfgname : string
             The name of the yaml config file from which to read the location
             choice model.
         location_ratio : float
-            Above the location ratio (default of 2.0) of locations to choosers, the
-            locations will be sampled to meet this ratio (for performance reasons).
+            Above the location ratio (default of 2.0) of locations to choosers,
+            the locations will be sampled to meet this ratio
+            (for performance reasons).
         debug : boolean, optional (default False)
             Whether to generate debug information on the model.
 
@@ -527,12 +528,16 @@ class MNLLocationChoiceModel(object):
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
         if len(locations) > len(movers) * location_ratio:
-            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
-                        (len(locations), len(movers)))
-            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
-                                     replace=False)
+            logger.info(
+                "Location ratio exceeded: %d locations and only %d choosers" %
+                (len(locations), len(movers)))
+            idxes = np.random.choice(
+                locations.index, size=len(movers) * location_ratio,
+                replace=False)
             locations = locations.loc[idxes]
-            logger.info("  after sampling %d locations are available\n" % len(locations))
+            logger.info(
+                "  after sampling %d locations are available\n" %
+                len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.dropna()))
@@ -1175,14 +1180,15 @@ class SegmentedMNLLocationChoiceModel(object):
         movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
-            A dataframe of locations which the choosers are locating in and which
-            have a supply.
+            A dataframe of locations which the choosers are locating in and
+            which have a supply.
         cfgname : string
             The name of the yaml config file from which to read the location
             choice model.
         location_ratio : float
-            Above the location ratio (default of 2.0) of locations to choosers, the
-            locations will be sampled to meet this ratio (for performance reasons).
+            Above the location ratio (default of 2.0) of locations to choosers,
+            the locations will be sampled to meet this ratio
+            (for performance reasons).
 
         Returns
         -------
@@ -1196,12 +1202,16 @@ class SegmentedMNLLocationChoiceModel(object):
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
         if len(locations) > len(movers) * location_ratio:
-            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
-                        (len(locations), len(movers)))
-            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
-                                     replace=False)
+            logger.info(
+                "Location ratio exceeded: %d locations and only %d choosers" %
+                (len(locations), len(movers)))
+            idxes = np.random.choice(
+                locations.index, size=len(movers) * location_ratio,
+                replace=False)
             locations = locations.loc[idxes]
-            logger.info("  after sampling %d locations are available\n" % len(locations))
+            logger.info(
+                "  after sampling %d locations are available\n"
+                % len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.dropna()))
