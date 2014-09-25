@@ -118,7 +118,9 @@ class SqFtProFormaConfig(object):
 
     def _reset_defaults(self):
         self.parcel_sizes = [10000.0]
-        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 11.0]
+        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 2.25, 2.5, 2.75,
+                     3.0, 3.25, 3.5, 3.75, 4.0, 4.5,
+                     5.0, 5.5, 6.0, 6.5, 7.0, 9.0, 11.0]
         self.uses = ['retail', 'industrial', 'office', 'residential']
         self.residential_uses = [False, False, False, True]
         self.forms = {
@@ -610,8 +612,7 @@ class SqFtProForma(object):
             'total_cost': twod_get(maxprofitind, total_costs),
             'building_revenue': twod_get(maxprofitind, building_revenue),
             'max_profit_far': twod_get(maxprofitind, fars),
-            'max_profit': twod_get(maxprofitind, profit),
-            'min_max_fars': df['min_max_fars']
+            'max_profit': twod_get(maxprofitind, profit)
         }, index=df.index)
 
         if pass_through:
