@@ -101,6 +101,10 @@ def test_mnl_lcm(choosers, alternatives):
     assert len(probs) == len(alt_choices)
     assert len(probs) == len(alternatives)
 
+    sprobs = model.summed_probabilities(choosers, alternatives)
+    assert len(sprobs) == len(alt_choices)
+    assert len(sprobs) == len(alternatives)
+
     choices = model.predict(choosers.iloc[1:], alternatives)
 
     pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
