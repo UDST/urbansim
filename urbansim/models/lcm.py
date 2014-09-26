@@ -316,8 +316,8 @@ class MNLLocationChoiceModel(object):
         Returns
         -------
         probabilities : array
-            Will have index of `alternatives` with values being the
-            probability of selecting that alt.
+            Probability of selection associated with each item
+            in `alt_choices`.
         alt_choices : pandas.Series or pandas.Index
             The alternatives corresponding to `probabilities`.
 
@@ -359,6 +359,28 @@ class MNLLocationChoiceModel(object):
         logger.debug('finish: calculate probabilities for LCM model {}'.format(
             self.name))
         return probabilities, alt_choices
+
+    def summed_probabilities(self, choosers, alternatives):
+        """
+        Calculate probabilities multiplied by the number of choosers.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in this table is used for determining
+            agent probabilities of choosing alternatives.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        probs : array
+            Probabilities normalized and multiplied by the number of choosers.
+
+        """
+        p = self.probabilities(choosers, alternatives)[0]
+        return p / p.sum() * len(choosers)
 
     def predict(self, choosers, alternatives, debug=False):
         """
@@ -774,8 +796,8 @@ class MNLLocationChoiceModelGroup(object):
         probs = []
 
         for name, df in self._iter_groups(choosers):
-            p = self.models[name].probabilities(df, alternatives)[0]
-            probs.append((p / p.sum()) * len(df))
+            probs.append(
+                self.models[name].summed_probabilities(df, alternatives))
         logger.debug(
             'finish: calculate summed probabilities in LCM group {}'.format(
                 self.name))
