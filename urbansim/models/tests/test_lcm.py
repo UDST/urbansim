@@ -97,6 +97,10 @@ def test_mnl_lcm(choosers, alternatives):
     assert len(model.fit_parameters) == 2
     assert len(model.fit_parameters.columns) == 3
 
+    probs, alt_choices = model.probabilities(choosers, alternatives)
+    assert len(probs) == len(alt_choices)
+    assert len(probs) == len(alternatives)
+
     choices = model.predict(choosers.iloc[1:], alternatives)
 
     pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
@@ -166,6 +170,14 @@ def test_mnl_lcm_group(grouped_choosers, alternatives):
     assert 'x' in logliks and 'y' in logliks
     assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
 
+    probs = group.probabilities(grouped_choosers, alternatives)
+    for name, _ in grouped_choosers.groupby('group'):
+        assert name in probs
+        assert len(probs[name]) == len(alternatives)
+
+    sprobs = group.summed_probabilities(grouped_choosers, alternatives)
+    assert len(sprobs) == len(alternatives)
+
     choices = group.predict(grouped_choosers, alternatives)
 
     assert len(choices.unique()) == len(choices)
@@ -199,6 +211,14 @@ def test_mnl_lcm_segmented(grouped_choosers, alternatives):
 
     assert 'x' in logliks and 'y' in logliks
     assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
+
+    probs = group.probabilities(grouped_choosers, alternatives)
+    for name, _ in grouped_choosers.groupby('group'):
+        assert name in probs
+        assert len(probs[name]) == len(alternatives)
+
+    sprobs = group.summed_probabilities(grouped_choosers, alternatives)
+    assert len(sprobs) == len(alternatives)
 
     choices = group.predict(grouped_choosers, alternatives)
 
@@ -311,9 +331,10 @@ def test_fit_from_cfg(choosers, alternatives):
 
     cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     model.to_yaml(cfgname)
-    lcm.MNLLocationChoiceModel.fit_from_cfg(choosers, "thing_id", alternatives,
-                                            cfgname)
-    lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives, cfgname)
+    lcm.MNLLocationChoiceModel.fit_from_cfg(
+        choosers, "thing_id", alternatives, cfgname)
+    lcm.MNLLocationChoiceModel.predict_from_cfg(
+        choosers, alternatives, cfgname)
 
     lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives,
                                                 cfgname, .2)
