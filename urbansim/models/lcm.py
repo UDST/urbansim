@@ -786,8 +786,8 @@ class MNLLocationChoiceModelGroup(object):
 
         Returns
         -------
-        probs : dict
-            Keys will be segment names, values will be arrays of probabilities.
+        probs : array
+            Summed probabilities from each segment added together.
 
         """
         logger.debug(
@@ -1146,8 +1146,8 @@ class SegmentedMNLLocationChoiceModel(object):
 
         Returns
         -------
-        probs : dict
-            Keys will be segment names, values will be arrays of probabilities.
+        probs : array
+            Summed probabilities from each segment added together.
 
         """
         logger.debug(
