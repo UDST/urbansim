@@ -2,8 +2,12 @@
 Tools for modeling how supply and demand affect real estate prices.
 
 """
+import logging
+
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def _calculate_adjustment_ratio(
@@ -35,6 +39,7 @@ def _calculate_adjustment_ratio(
         and `clip_change_high`.
 
     """
+    logger.debug('start: calculate supply and demand price adjustment ratio')
     # probabilities of agents choosing * number of agents = demand
     demand = pd.Series(lcm.summed_probabilities(choosers, alternatives))
     # group by submarket
@@ -49,6 +54,9 @@ def _calculate_adjustment_ratio(
     ratio = ratio.loc[alt_segmenter]
     ratio.index = alt_segmenter.index
 
+    logger.debug(
+        ('finish: calculate supply and demand price adjustment ratio '
+         'with mean ratio {}').format(ratio.mean()))
     return ratio
 
 
@@ -86,6 +94,7 @@ def supply_and_demand(
         Equivalent of the `price_col` in `alternatives`.
 
     """
+    logger.debug('start: calculating supply and demand price adjustment')
     # copy alternatives so we don't modify the user's original
     alternatives = alternatives.copy()
 
@@ -101,4 +110,5 @@ def supply_and_demand(
             clip_change_low, clip_change_high)
         alternatives[price_col] = alternatives[price_col] * ratio
 
+    logger.debug('finish: calculating supply and demand price adjustment')
     return alternatives[price_col]
