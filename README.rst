@@ -72,7 +72,7 @@ set of hedonic price models, location choice models, relocation and
 transition models, as well as a new real estate development model using
 proforma analysis.
 
-We do strongly recommend that you contact info@synthicity.org about your
+We do strongly recommend that you contact info@synthicity.com about your
 project to make sure you can get professional support when you need it,
 and know what you are getting into. For major applied projects,
 professional support is highly recommended.

@@ -118,7 +118,9 @@ class SqFtProFormaConfig(object):
 
     def _reset_defaults(self):
         self.parcel_sizes = [10000.0]
-        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 11.0]
+        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 2.25, 2.5, 2.75,
+                     3.0, 3.25, 3.5, 3.75, 4.0, 4.5,
+                     5.0, 5.5, 6.0, 6.5, 7.0, 9.0, 11.0]
         self.uses = ['retail', 'industrial', 'office', 'residential']
         self.residential_uses = [False, False, False, True]
         self.forms = {
@@ -456,7 +458,7 @@ class SqFtProForma(object):
         """
         return self.min_ave_cost_d[form]
 
-    def lookup(self, form, df, only_built=True):
+    def lookup(self, form, df, only_built=True, pass_through=None):
         """
         This function does the developer model lookups for all the actual input data.
 
@@ -472,6 +474,11 @@ class SqFtProForma(object):
             by zoning, or whether to return as much information as possible, even if
             unlikely to be built (can be used when development might be subsidized
             or when debugging)
+        pass_through : list of strings
+            List of field names to take from the input parcel frame and pass
+            to the output feasibility frame - is usually used for debugging
+            purposes - these fields will be passed all the way through
+            developer
 
         Input Dataframe Columns
         rent : dataframe
@@ -541,14 +548,27 @@ class SqFtProForma(object):
         df['max_far_from_heights'] = df.max_height / c.height_per_story * \
             c.parcel_coverage
 
-        # now also minimize with max_dua from zoning - since this pro forma is really geared
-        # toward per sqft metrics, this is a bit tricky.  dua is converted to floorspace and
-        # everything just works (floor space will get covered back to units in developer.pick()
-        # but we need to test the profitability of the floorspace allowed by max_dua here.
+        # now also minimize with max_dua from zoning - since this pro forma is
+        # really geared toward per sqft metrics, this is a bit tricky.  dua
+        # is converted to floorspace and everything just works (floor space
+        # will get covered back to units in developer.pick() but we need to
+        # test the profitability of the floorspace allowed by max_dua here.
         if 'max_dua' in df.columns:
-            # if max_dua is in the data frame, ave_unit_size must also be present
+            # if max_dua is in the data frame, ave_unit_size must also be there
             assert 'ave_unit_size' in df.columns
-            df['max_far_from_dua'] = df.max_dua * df.ave_unit_size / self.config.building_efficiency
+            # so this is the max_dua times the parcel size in acres, which gives
+            # the number of units that are allowable on the parcel, times
+            # by the average unit size which gives the square footage of
+            # those units, divided by the building efficiency which is a
+            # factor that indicates that the actual units are not the whole
+            # FAR of the building and then divided by the parcel size again
+            # in order to get FAR - I recognize that parcel_size actually
+            # cancels here as it should, but the calc was hard to get right
+            # and it's just so much more transparent to have it in there twice
+            df['max_far_from_dua'] = df.max_dua * \
+                (df.parcel_size / 43560) * \
+                df.ave_unit_size / self.config.building_efficiency / \
+                df.parcel_size
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
                                      'max_far_from_dua']].min(axis=1)
         else:
@@ -594,6 +614,9 @@ class SqFtProForma(object):
             'max_profit_far': twod_get(maxprofitind, fars),
             'max_profit': twod_get(maxprofitind, profit)
         }, index=df.index)
+
+        if pass_through:
+            outdf[pass_through] = df[pass_through]
 
         if only_built:
             outdf = outdf.query('max_profit > 0')
