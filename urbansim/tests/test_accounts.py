@@ -1,4 +1,6 @@
+import pandas as pd
 import pytest
+from pandas.util import testing as pdt
 
 from .. import accounts
 
@@ -47,3 +49,26 @@ def test_add_transactions(acc, acc_bal):
 
     assert len(acc.transactions) == 2
     assert acc.balance == acc_bal + t1[0] + t2[0]
+
+
+def test_column_names_from_metadata():
+    cnfm = accounts._column_names_from_metadata
+
+    assert cnfm([]) == []
+    assert cnfm([{'a': 1, 'b': 2}]) == ['a', 'b']
+    assert cnfm([{'a': 1}, {'b': 2}]) == ['a', 'b']
+    assert cnfm([{'a': 1, 'b': 2}, {'a': 3, 'b': 4}]) == ['a', 'b']
+
+
+def test_to_frame(acc, acc_bal):
+    t1 = accounts.Transaction(200, ('a', 'b', 'c'), None)
+    t2 = (-50, None, {'to': 'Acme Corp.'})
+    acc.add_transactions((t1, t2))
+
+    expected = pd.DataFrame(
+        [[200, ('a', 'b', 'c'), None],
+         [-50, None, 'Acme Corp.']],
+        columns=['amount', 'subaccount', 'to'])
+
+    df = acc.to_frame()
+    pdt.assert_frame_equal(df, expected)

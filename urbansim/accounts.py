@@ -4,8 +4,32 @@ An Account class for tracking monetary transactions during UrbanSim runs.
 """
 from collections import namedtuple
 
+import pandas as pd
+import toolz
+
 
 Transaction = namedtuple('Transaction', ('amount', 'subaccount', 'metadata'))
+
+# column names that are always present in DataFrames of transactions
+COLS = ['amount', 'subaccount']
+
+
+def _column_names_from_metadata(dicts):
+    """
+    Get the unique set of keys from a list of dictionaries.
+
+    Parameters
+    ----------
+    dicts : iterable
+        Sequence of dictionaries.
+
+    Returns
+    -------
+    keys : list
+        Unique set of keys.
+
+    """
+    return list(toolz.unique(toolz.concat(dicts)))
 
 
 class Account(object):
@@ -38,11 +62,11 @@ class Account(object):
         metadata : dict, optional
             Any extra metadata to record with the transaction.
             (E.g. Info about where the money is coming from or going.)
+            May not contain keys 'amount' or 'subaccount'.
 
         """
         metadata = metadata or {}
-        t = Transaction(amount, subaccount, metadata)
-        self.transactions.append(t)
+        self.transactions.append(Transaction(amount, subaccount, metadata))
         self.balance += amount
 
     def add_transactions(self, transactions):
@@ -58,3 +82,19 @@ class Account(object):
         """
         for t in transactions:
             self.add_transaction(*t)
+
+    def to_frame(self):
+        """
+        Return transactions as a pandas DataFrame.
+
+        """
+        col_names = _column_names_from_metadata(
+            t.metadata for t in self.transactions)
+
+        trow = lambda t: (
+            toolz.concatv(
+                (t.amount, t.subaccount),
+                (t.metadata.get(c) for c in col_names)))
+        rows = [trow(t) for t in self.transactions]
+
+        return pd.DataFrame(rows, columns=COLS + col_names)
