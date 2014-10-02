@@ -35,7 +35,7 @@ def from_yaml(net, cfgname):
         flds.append(node_col)
         if "filters" in variable:
             flds += util.columns_in_filters(variable["filters"])
-        logger.info("    Fields available to aggregate =", ', '.join(flds))
+        logger.info("    Fields available to aggregate = " + ', '.join(flds))
 
         df = sim.get_table(dfname).to_frame(flds)
 
