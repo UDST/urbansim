@@ -41,27 +41,27 @@ def lcm():
     return _TestLCM()
 
 
-def test_calculate_adjustment_ratio_clips(
+def test_calculate_adjustment_clips(
         lcm, choosers, alternatives, alt_segmenter):
     clip = 1
 
-    alt_ratio, submarket_ratio = supdem._calculate_adjustment_ratio(
+    alts_multiplier, submarkets_multiplier = supdem._calculate_adjustment(
         lcm, choosers, alternatives, alternatives[alt_segmenter], clip, clip)
 
     pdt.assert_series_equal(
-        alt_ratio, pd.Series([1] * 10, index=alternatives.index),
+        alts_multiplier, pd.Series([1] * 10, index=alternatives.index),
         check_dtype=False)
     pdt.assert_series_equal(
-        submarket_ratio, pd.Series([1] * 4, index=['w', 'x', 'y', 'z']),
+        submarkets_multiplier, pd.Series([1] * 4, index=['w', 'x', 'y', 'z']),
         check_dtype=False)
 
 
-def test_calculate_adjustment_ratio(
+def test_calculate_adjustment(
         lcm, choosers, alternatives, alt_segmenter):
     clip_low = 0
     clip_high = 2
 
-    alt_ratio, submarket_ratio = supdem._calculate_adjustment_ratio(
+    alts_multiplier, submarkets_multiplier = supdem._calculate_adjustment(
         lcm, choosers, alternatives, alternatives[alt_segmenter],
         clip_low, clip_high)
 
@@ -71,11 +71,11 @@ def test_calculate_adjustment_ratio(
     z = 3 / 2
 
     pdt.assert_series_equal(
-        alt_ratio,
+        alts_multiplier,
         pd.Series([w, x, y, z, z, x, y, w, y, y],
                   index=alternatives.index))
     pdt.assert_series_equal(
-        submarket_ratio,
+        submarkets_multiplier,
         pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z']))
 
 
@@ -90,7 +90,7 @@ def test_supply_and_demand(
     y = 1.25
     z = 3 / 2
 
-    new_price, submarket_ratio = supdem.supply_and_demand(
+    new_price, submarkets_multiplier = supdem.supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
         clip_change_low=clip_low, clip_change_high=clip_high)
 
@@ -100,7 +100,7 @@ def test_supply_and_demand(
             [w, x, y, z, z, x, y, w, y, y],
             index=alternatives.index) ** 5)
     pdt.assert_series_equal(
-        submarket_ratio,
+        submarkets_multiplier,
         pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z']))
 
 
@@ -115,11 +115,11 @@ def test_supply_and_demand_base_ratio(
     y = 1.25
     z = 3 / 2
 
-    base_ratio = pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z'])
+    base_multiplier = pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z'])
 
-    new_price, submarket_ratio = supdem.supply_and_demand(
+    new_price, submarkets_multiplier = supdem.supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
-        base_ratio, clip_low, clip_high)
+        base_multiplier, clip_low, clip_high)
 
     pdt.assert_series_equal(
         new_price,
@@ -127,5 +127,5 @@ def test_supply_and_demand_base_ratio(
             [w, x, y, z, z, x, y, w, y, y],
             index=alternatives.index) ** 6)
     pdt.assert_series_equal(
-        submarket_ratio,
+        submarkets_multiplier,
         pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z']) ** 2)
