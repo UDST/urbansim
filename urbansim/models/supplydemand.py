@@ -35,6 +35,9 @@ def _calculate_adjustment_ratio(
     Returns
     -------
     ratio : pandas.Series
+        Index is unique values from `alt_segmenter`, values are the ratio
+        for each segment in `alt_segmenter`.
+    alt_idx_ratio : pandas.Series
         Same index as `alternatives`, values clipped to `clip_change_low`
         and `clip_change_high`.
 
@@ -51,13 +54,13 @@ def _calculate_adjustment_ratio(
     ratio = (demand / supply).clip(clip_change_low, clip_change_high)
 
     # broadcast ratio back to alternatives index
-    ratio = ratio.loc[alt_segmenter]
-    ratio.index = alt_segmenter.index
+    alt_idx_ratio = ratio.loc[alt_segmenter]
+    alt_idx_ratio.index = alt_segmenter.index
 
     logger.debug(
         ('finish: calculate supply and demand price adjustment ratio '
          'with mean ratio {}').format(ratio.mean()))
-    return ratio
+    return alt_idx_ratio, ratio
 
 
 def supply_and_demand(
@@ -92,6 +95,8 @@ def supply_and_demand(
     -------
     new_prices : pandas.Series
         Equivalent of the `price_col` in `alternatives`.
+    submarkets_ratios : pandas.Series
+        Price adjustment ratio for each submarket.
 
     """
     logger.debug('start: calculating supply and demand price adjustment')
@@ -105,10 +110,10 @@ def supply_and_demand(
         alt_segmenter = pd.Series(alt_segmenter)
 
     for _ in range(iterations):
-        ratio = _calculate_adjustment_ratio(
+        alt_idx_ratio, submarkets_ratio = _calculate_adjustment_ratio(
             lcm, choosers, alternatives, alt_segmenter,
             clip_change_low, clip_change_high)
-        alternatives[price_col] = alternatives[price_col] * ratio
+        alternatives[price_col] = alternatives[price_col] * alt_idx_ratio
 
     logger.debug('finish: calculating supply and demand price adjustment')
-    return alternatives[price_col]
+    return alternatives[price_col], submarkets_ratio
