@@ -97,13 +97,16 @@ def test_mnl_lcm(choosers, alternatives):
     assert len(model.fit_parameters) == 2
     assert len(model.fit_parameters.columns) == 3
 
+    filtered_choosers, filtered_alts = model.apply_predict_filters(
+        choosers, alternatives)
+
     probs, alt_choices = model.probabilities(choosers, alternatives)
     assert len(probs) == len(alt_choices)
-    assert len(probs) == len(alternatives)
+    assert len(probs) == len(filtered_alts)
 
     sprobs = model.summed_probabilities(choosers, alternatives)
     assert len(sprobs) == len(alt_choices)
-    assert len(sprobs) == len(alternatives)
+    assert len(sprobs) == len(filtered_alts)
 
     choices = model.predict(choosers.iloc[1:], alternatives)
 
@@ -157,13 +160,18 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
 def test_mnl_lcm_group(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
+    choosers_predict_filters = ['var1 != 7']
+    alts_predict_filters = ['var2 != 14']
 
     group = lcm.MNLLocationChoiceModelGroup('group')
-    group.add_model_from_params('x', model_exp, sample_size)
-    group.add_model_from_params('y', model_exp, sample_size)
+    group.add_model_from_params(
+        'x', model_exp, sample_size,
+        choosers_predict_filters=choosers_predict_filters)
+    group.add_model_from_params(
+        'y', model_exp, sample_size, alts_predict_filters=alts_predict_filters)
 
-    assert group.choosers_columns_used() == []
-    assert group.alts_columns_used() == []
+    assert group.choosers_columns_used() == ['var1']
+    assert group.alts_columns_used() == ['var2']
     assert set(group.interaction_columns_used()) == {'var1', 'var2', 'var3'}
     assert set(group.columns_used()) == {'var1', 'var2', 'var3'}
 
@@ -175,12 +183,17 @@ def test_mnl_lcm_group(grouped_choosers, alternatives):
     assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
 
     probs = group.probabilities(grouped_choosers, alternatives)
-    for name, _ in grouped_choosers.groupby('group'):
+    for name, df in grouped_choosers.groupby('group'):
         assert name in probs
-        assert len(probs[name]) == len(alternatives)
+        filtered_choosers, filtered_alts = \
+            group.models[name].apply_predict_filters(df, alternatives)
+        assert len(probs[name]) == len(filtered_alts)
+
+    filtered_choosers, filtered_alts = group.apply_predict_filters(
+        grouped_choosers, alternatives)
 
     sprobs = group.summed_probabilities(grouped_choosers, alternatives)
-    assert len(sprobs) == len(alternatives)
+    assert len(sprobs) == len(filtered_alts)
 
     choices = group.predict(grouped_choosers, alternatives)
 
