@@ -81,7 +81,8 @@ def supply_and_demand(
         Will be used to segment alternatives and probabilities to do
         comparisons of supply and demand by submarket.
         If a string, it is expected to be the name of a column
-        in `alternatives`.
+        in `alternatives`. If a Series it should have the same index
+        as `alternatives`.
     price_col : str
         The name of the column in `alternatives` that corresponds to price.
         This column is what is adjusted by this model.
@@ -113,7 +114,10 @@ def supply_and_demand(
     if isinstance(alt_segmenter, str):
         alt_segmenter = alternatives[alt_segmenter]
     elif isinstance(alt_segmenter, np.array):
-        alt_segmenter = pd.Series(alt_segmenter)
+        alt_segmenter = pd.Series(alt_segmenter, index=alternatives.index)
+
+    choosers, alternatives = lcm.apply_predict_filters(choosers, alternatives)
+    alt_segmenter = alt_segmenter.loc[alternatives.index]
 
     # check base ratio and apply it to prices if given
     if base_multiplier is not None:
