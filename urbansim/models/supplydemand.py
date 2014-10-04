@@ -44,9 +44,9 @@ def _calculate_adjustment(
     """
     logger.debug('start: calculate supply and demand price adjustment ratio')
     # probabilities of agents choosing * number of agents = demand
-    demand = pd.Series(lcm.summed_probabilities(choosers, alternatives))
+    demand = lcm.summed_probabilities(choosers, alternatives)
     # group by submarket
-    demand = demand.groupby(alt_segmenter.values).sum()
+    demand = demand.groupby(alt_segmenter.loc[demand.index].values).sum()
 
     # number of alternatives
     supply = alt_segmenter.value_counts()
