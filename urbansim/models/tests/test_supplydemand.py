@@ -36,9 +36,9 @@ class _TestLCM(object):
         return choosers, alternatives
 
     def summed_probabilities(self, choosers, alternatives):
-        return [
-            1, 0.25, 1, 2, 0.75, 2, 1, 1.5, 0.5]
-        #   w, x,    y, z, x,    y, w, y,   y
+        return pd.Series(
+            [1, 0.25, 1, 2, 0.75, 2, 1, 1.5, 0.5],
+            index=['a', 'b', 'c', 'd', 'f', 'g', 'h', 'i', 'j'])
 
 
 @pytest.fixture(scope='module')
