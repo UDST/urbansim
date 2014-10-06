@@ -124,6 +124,7 @@ def supply_and_demand(
         bm = base_multiplier.loc[alt_segmenter]
         bm.index = alt_segmenter.index
         alternatives[price_col] = alternatives[price_col] * bm
+        base_multiplier = base_multiplier.copy()
 
     for _ in range(iterations):
         alts_muliplier, submarkets_multiplier = _calculate_adjustment(
@@ -131,9 +132,13 @@ def supply_and_demand(
             clip_change_low, clip_change_high)
         alternatives[price_col] = alternatives[price_col] * alts_muliplier
 
-    # if we started with a base ratio, return a cumulative ratio
-    if base_multiplier is not None:
-        submarkets_multiplier *= base_multiplier
+        # might need to initialize this for holding cumulative multiplier
+        if base_multiplier is None:
+            base_multiplier = pd.Series(
+                np.ones(len(submarkets_multiplier)),
+                index=submarkets_multiplier.index)
+
+        base_multiplier *= submarkets_multiplier
 
     logger.debug('finish: calculating supply and demand price adjustment')
-    return alternatives[price_col], submarkets_multiplier
+    return alternatives[price_col], base_multiplier
