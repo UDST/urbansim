@@ -388,11 +388,17 @@ def test_injectables():
     def inj_func4(func1):
         return func1 / 2
 
+    assert sim._INJECTABLES['answer'] == 42
+    assert sim._INJECTABLES['func1']() == 42 * 2
+    assert sim._INJECTABLES['func2'](4) == 2
+    assert sim._INJECTABLES['func3']() == 2
+    assert sim._INJECTABLES['func4']() == 42
+
     assert sim.get_injectable('answer') == 42
-    assert sim.get_injectable('func1')() == 42 * 2
+    assert sim.get_injectable('func1') == 42 * 2
     assert sim.get_injectable('func2')(4) == 2
-    assert sim.get_injectable('func3')() == 2
-    assert sim.get_injectable('func4')() == 42
+    assert sim.get_injectable('func3') == 2
+    assert sim.get_injectable('func4') == 42
 
     assert set(sim.list_injectables()) == \
         {'answer', 'func1', 'func2', 'func3', 'func4'}
@@ -428,7 +434,7 @@ def test_injectables_cache():
     def inj():
         return x * x
 
-    i = lambda: sim.get_injectable('inj')
+    i = lambda: sim._INJECTABLES['inj']
 
     assert i()() == 4
     x = 3
@@ -452,7 +458,7 @@ def test_injectables_cache_disabled():
     def inj():
         return x * x
 
-    i = lambda: sim.get_injectable('inj')
+    i = lambda: sim._INJECTABLES['inj']
 
     sim.disable_cache()
 
