@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def _calculate_adjustment(
         lcm, choosers, alternatives, alt_segmenter,
-        clip_change_low, clip_change_high):
+        clip_change_low, clip_change_high, map_func=None):
     """
     Calculate adjustments to prices to compensate for
     supply and demand effects.
@@ -31,6 +31,9 @@ def _calculate_adjustment(
         The minimum amount by which to multiply prices each iteration.
     clip_change_high : float
         The maximum amount by which to multiply prices each iteration.
+    map_func : function
+        A function which takes the ratio of demand to supply and returns the
+        ratio of new price to old price - by default the ratios are the same
 
     Returns
     -------
@@ -51,7 +54,11 @@ def _calculate_adjustment(
     # number of alternatives
     supply = alt_segmenter.value_counts()
 
-    multiplier = (demand / supply).clip(clip_change_low, clip_change_high)
+    multiplier = (demand / supply)
+    finished = False
+    if map_func is not None:
+        multiplier, finished = map_func(multiplier)
+    multiplier = multiplier.clip(clip_change_low, clip_change_high)
 
     # broadcast multiplier back to alternatives index
     alts_muliplier = multiplier.loc[alt_segmenter]
@@ -60,13 +67,13 @@ def _calculate_adjustment(
     logger.debug(
         ('finish: calculate supply and demand price adjustment multiplier '
          'with mean multiplier {}').format(multiplier.mean()))
-    return alts_muliplier, multiplier
+    return alts_muliplier, multiplier, finished
 
 
 def supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
         base_multiplier=None, clip_change_low=0.75, clip_change_high=1.25,
-        iterations=5):
+        iterations=5, map_func=None):
     """
     Adjust real estate prices to compensate for supply and demand effects.
 
@@ -95,6 +102,9 @@ def supply_and_demand(
         The maximum amount by which to multiply prices each iteration.
     iterations : int, optional
         Number of times to update prices based on supply/demand comparisons.
+    map_func : function
+        A function which takes the ratio of demand to supply and returns the
+        ratio of new price to old price - by default the ratios are the same
 
     Returns
     -------
@@ -127,9 +137,9 @@ def supply_and_demand(
         base_multiplier = base_multiplier.copy()
 
     for _ in range(iterations):
-        alts_muliplier, submarkets_multiplier = _calculate_adjustment(
+        alts_muliplier, submarkets_multiplier, finished = _calculate_adjustment(
             lcm, choosers, alternatives, alt_segmenter,
-            clip_change_low, clip_change_high)
+            clip_change_low, clip_change_high, map_func=map_func)
         alternatives[price_col] = alternatives[price_col] * alts_muliplier
 
         # might need to initialize this for holding cumulative multiplier
@@ -139,6 +149,9 @@ def supply_and_demand(
                 index=submarkets_multiplier.index)
 
         base_multiplier *= submarkets_multiplier
+        
+        if finished:
+            break
 
     logger.debug('finish: calculating supply and demand price adjustment')
     return alternatives[price_col], base_multiplier
