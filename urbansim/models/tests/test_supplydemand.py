@@ -65,7 +65,8 @@ def test_calculate_adjustment_clips(lcm, filtered, alt_segmenter):
 
     choosers, alternatives = filtered
 
-    alts_multiplier, submarkets_multiplier = supdem._calculate_adjustment(
+    alts_multiplier, submarkets_multiplier, finished = \
+        supdem._calculate_adjustment(
         lcm, choosers, alternatives, alternatives[alt_segmenter], clip, clip)
 
     pdt.assert_series_equal(
@@ -82,7 +83,8 @@ def test_calculate_adjustment(lcm, filtered, alt_segmenter, wxyz):
 
     choosers, alternatives = filtered
 
-    alts_multiplier, submarkets_multiplier = supdem._calculate_adjustment(
+    alts_multiplier, submarkets_multiplier, finished = \
+        supdem._calculate_adjustment(
         lcm, choosers, alternatives, alternatives[alt_segmenter],
         clip_low, clip_high)
 
