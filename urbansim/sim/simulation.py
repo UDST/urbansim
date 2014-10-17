@@ -971,11 +971,12 @@ def get_injectable(name):
     Returns
     -------
     injectable
-        Original value or _InjectableFuncWrapper if autocall was True.
+        Original value or evaluated value of an _InjectableFuncWrapper.
 
     """
     if name in _INJECTABLES:
-        return _INJECTABLES[name]
+        i = _INJECTABLES[name]
+        return i() if isinstance(i, _InjectableFuncWrapper) else i
     else:
         raise KeyError('injectable not found: {}'.format(name))
 
