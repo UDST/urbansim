@@ -31,9 +31,12 @@ def _calculate_adjustment(
         The minimum amount by which to multiply prices each iteration.
     clip_change_high : float
         The maximum amount by which to multiply prices each iteration.
-    map_func : function
-        A function which takes the ratio of demand to supply and returns the
-        ratio of new price to old price - by default the ratios are the same
+    map_func : function (returns Series, boolean)
+        A function which takes the ratio of demand to supply and returns a 
+        tuple where the first item is the ratio of new price to old price - 
+        by default the ratios are the same.  The second return value is a
+        boolean which when True tells this module to stop looping (that
+        convergence has been satisfied)
 
     Returns
     -------
@@ -102,9 +105,12 @@ def supply_and_demand(
         The maximum amount by which to multiply prices each iteration.
     iterations : int, optional
         Number of times to update prices based on supply/demand comparisons.
-    map_func : function
-        A function which takes the ratio of demand to supply and returns the
-        ratio of new price to old price - by default the ratios are the same
+    map_func : function (returns Series, boolean)
+        A function which takes the ratio of demand to supply and returns a 
+        tuple where the first item is the ratio of new price to old price - 
+        by default the ratios are the same.  The second return value is a
+        boolean which when True tells this module to stop looping (that
+        convergence has been satisfied)
 
     Returns
     -------
