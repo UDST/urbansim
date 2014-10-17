@@ -46,6 +46,10 @@ def _calculate_adjustment(
     submarkets_multiplier : pandas.Series
         Index is unique values from `alt_segmenter`, values are the ratio
         of demand / supply for each segment in `alt_segmenter`.
+    finished : boolean
+        boolean indicator that this adjustment should be considered the
+        final adjustment (if True).  If false, the iterative algorithm
+        should continue.
 
     """
     logger.debug('start: calculate supply and demand price adjustment ratio')
