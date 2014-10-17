@@ -149,7 +149,7 @@ def supply_and_demand(
                 index=submarkets_multiplier.index)
 
         base_multiplier *= submarkets_multiplier
-        
+
         if finished:
             break
 
