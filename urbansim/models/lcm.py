@@ -5,6 +5,7 @@ multinomial logit and make subsequent choice predictions.
 """
 from __future__ import print_function, division
 
+import abc
 import logging
 
 import numpy as np
@@ -84,7 +85,68 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
     return choices
 
 
-class MNLLocationChoiceModel(object):
+# define the minimum interface a class must have in order to
+# look like we expect LCMs to look
+class LocationChoiceModel(object):
+    """
+    Abstract base class for location choice models.
+
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def apply_fit_filters(self, choosers, alternatives):
+        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+        alternatives = util.apply_filter_query(
+            alternatives, self.alts_fit_filters)
+        return choosers, alternatives
+
+    @abc.abstractmethod
+    def apply_predict_filters(self, choosers, alternatives):
+        choosers = util.apply_filter_query(
+            choosers, self.choosers_predict_filters)
+        alternatives = util.apply_filter_query(
+            alternatives, self.alts_predict_filters)
+        return choosers, alternatives
+
+    @abc.abstractproperty
+    def fitted(self):
+        pass
+
+    @abc.abstractmethod
+    def probabilities(self):
+        pass
+
+    @abc.abstractmethod
+    def summed_probabilities(self):
+        pass
+
+    @abc.abstractmethod
+    def fit(self):
+        pass
+
+    @abc.abstractmethod
+    def predict(self):
+        pass
+
+    @abc.abstractmethod
+    def choosers_columns_used(self):
+        pass
+
+    @abc.abstractmethod
+    def alts_columns_used(self):
+        pass
+
+    @abc.abstractmethod
+    def interaction_columns_used(self):
+        pass
+
+    @abc.abstractmethod
+    def columns_used(self):
+        pass
+
+
+class MNLLocationChoiceModel(LocationChoiceModel):
     """
     A location choice model with the ability to store an estimated
     model and predict new data based on the model.
@@ -192,6 +254,46 @@ class MNLLocationChoiceModel(object):
         return util.str_model_expression(
             self.model_expression, add_constant=False)
 
+    def apply_fit_filters(self, choosers, alternatives):
+        """
+        Filter `choosers` and `alternatives` for fitting.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+
+        Returns
+        -------
+        filtered_choosers, filtered_alts : pandas.DataFrame
+
+        """
+        return super(MNLLocationChoiceModel, self).apply_fit_filters(
+            choosers, alternatives)
+
+    def apply_predict_filters(self, choosers, alternatives):
+        """
+        Filter `choosers` and `alternatives` for prediction.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+
+        Returns
+        -------
+        filtered_choosers, filtered_alts : pandas.DataFrame
+
+        """
+        return super(MNLLocationChoiceModel, self).apply_predict_filters(
+            choosers, alternatives)
+
     def fit(self, choosers, alternatives, current_choice):
         """
         Fit and save model parameters based on given data.
@@ -222,7 +324,7 @@ class MNLLocationChoiceModel(object):
         if not isinstance(current_choice, pd.Series):
             current_choice = choosers[current_choice]
 
-        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
+        choosers, alternatives = self.apply_fit_filters(choosers, alternatives)
 
         if self.estimation_sample_size:
             choosers = choosers.loc[np.random.choice(
@@ -231,9 +333,6 @@ class MNLLocationChoiceModel(object):
                 replace=False)]
 
         current_choice = current_choice.loc[choosers.index]
-
-        alternatives = util.apply_filter_query(
-            alternatives, self.alts_fit_filters)
 
         _, merged, chosen = interaction.mnl_interaction_dataset(
             choosers, alternatives, self.sample_size, current_choice)
@@ -298,6 +397,104 @@ class MNLLocationChoiceModel(object):
 
         print(tbl)
 
+    def probabilities(self, choosers, alternatives, filter_tables=True):
+        """
+        Returns the probabilities for a set of choosers to choose
+        from among a set of alternatives.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in this table is used for determining
+            agent probabilities of choosing alternatives.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+        filter_tables : bool, optional
+            If True, filter `choosers` and `alternatives` with prediction
+            filters before calculating probabilities.
+
+        Returns
+        -------
+        probabilities : pandas.Series
+            Probability of selection associated with each item
+            in `alt_choices`. Index will be `alt_choices` if `alt_choices`
+            is an Index, otherwise it will be the index of `alt_choices`.
+        alt_choices : pandas.Series or pandas.Index
+            The alternatives corresponding to `probabilities`.
+
+        """
+        logger.debug('start: calculate probabilities for LCM model {}'.format(
+            self.name))
+        self.assert_fitted()
+
+        if filter_tables:
+            choosers, alternatives = self.apply_predict_filters(
+                choosers, alternatives)
+
+        # TODO: only using 1st item in choosers for determining probabilities.
+        # Need to expand options around this.
+        num_choosers = 1
+        _, merged, _ = interaction.mnl_interaction_dataset(
+            choosers.head(num_choosers), alternatives, len(alternatives))
+        merged = util.apply_filter_query(
+            merged, self.interaction_predict_filters)
+        model_design = dmatrix(
+            self.str_model_expression, data=merged, return_type='dataframe')
+
+        if len(merged) != model_design.as_matrix().shape[0]:
+            raise ModelEvaluationError(
+                'Simulated data does not have the same length as input.  '
+                'This suggests there are null values in one or more of '
+                'the input columns.')
+
+        coeffs = [self.fit_parameters['Coefficient'][x]
+                  for x in model_design.columns]
+
+        # probabilities are returned from mnl_simulate as a 2d array
+        # and need to be flatted for use in unit_choice.
+        probabilities = mnl.mnl_simulate(
+            model_design.as_matrix(),
+            coeffs,
+            numalts=len(merged), returnprobs=True).flatten()
+
+        # figure out which set choices are drawn from
+        alt_choices = (
+            merged[self.choice_column] if self.choice_column else merged.index)
+
+        if self.choice_column:
+            alt_choices = merged[self.choice_column]
+            probabilities = pd.Series(probabilities, index=alt_choices.index)
+        else:
+            alt_choices = merged.index
+            probabilities = pd.Series(probabilities, index=alt_choices)
+
+        logger.debug('finish: calculate probabilities for LCM model {}'.format(
+            self.name))
+        return probabilities, alt_choices
+
+    def summed_probabilities(self, choosers, alternatives):
+        """
+        Calculate probabilities multiplied by the number of choosers.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in this table is used for determining
+            agent probabilities of choosing alternatives.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        probs : pandas.Series
+            Probabilities normalized and multiplied by the number of choosers.
+
+        """
+        p = self.probabilities(choosers, alternatives)[0]
+        return p / p.sum() * len(choosers)
+
     def predict(self, choosers, alternatives, debug=False):
         """
         Choose from among alternatives for a group of agents.
@@ -326,10 +523,8 @@ class MNLLocationChoiceModel(object):
         self.assert_fitted()
         logger.debug('start: predict LCM model {}'.format(self.name))
 
-        choosers = util.apply_filter_query(
-            choosers, self.choosers_predict_filters)
-        alternatives = util.apply_filter_query(
-            alternatives, self.alts_predict_filters)
+        choosers, alternatives = self.apply_predict_filters(
+            choosers, alternatives)
 
         if len(choosers) == 0:
             return pd.Series()
@@ -337,40 +532,11 @@ class MNLLocationChoiceModel(object):
         if len(alternatives) == 0:
             return pd.Series(index=choosers.index)
 
-        # TODO: only using 1st item in choosers for determining probabilities.
-        # Need to expand options around this.
-        num_choosers = 1
-        _, merged, _ = interaction.mnl_interaction_dataset(
-            choosers.head(num_choosers), alternatives, len(alternatives))
-        merged = util.apply_filter_query(
-            merged, self.interaction_predict_filters)
-        model_design = dmatrix(
-            self.str_model_expression, data=merged, return_type='dataframe')
-
-        if len(merged) != model_design.as_matrix().shape[0]:
-            raise ModelEvaluationError(
-                'Simulated data does not have the same length as input.  '
-                'This suggests there are null values in one or more of '
-                'the input columns.')
-
-        coeffs = [self.fit_parameters['Coefficient'][x]
-                  for x in model_design.columns]
-
-        # probabilities are returned from mnl_simulate as a 2d array
-        # and need to be flatted for use in unit_choice.
-        probabilities = mnl.mnl_simulate(
-            model_design.as_matrix(),
-            coeffs,
-            numalts=len(merged), returnprobs=True).flatten()
+        probabilities, alt_choices = self.probabilities(
+            choosers, alternatives, filter_tables=False)
 
         if debug:
-            # when we're not doing 1st item of choosers, this will break!
-            assert num_choosers == 1
-            self.sim_pdf = pd.Series(probabilities, index=merged.index)
-
-        # figure out exactly which things from which choices are drawn
-        alt_choices = (
-            merged[self.choice_column] if self.choice_column else merged.index)
+            self.sim_pdf = probabilities
 
         result = unit_choice(
             choosers.index, alt_choices, probabilities)
@@ -504,14 +670,15 @@ class MNLLocationChoiceModel(object):
         movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
-            A dataframe of locations which the choosers are locating in and which
-            have a supply.
+            A dataframe of locations which the choosers are locating in and
+            which have a supply.
         cfgname : string
             The name of the yaml config file from which to read the location
             choice model.
         location_ratio : float
-            Above the location ratio (default of 2.0) of locations to choosers, the
-            locations will be sampled to meet this ratio (for performance reasons).
+            Above the location ratio (default of 2.0) of locations to choosers,
+            the locations will be sampled to meet this ratio
+            (for performance reasons).
         debug : boolean, optional (default False)
             Whether to generate debug information on the model.
 
@@ -527,12 +694,16 @@ class MNLLocationChoiceModel(object):
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
         if len(locations) > len(movers) * location_ratio:
-            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
-                        (len(locations), len(movers)))
-            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
-                                     replace=False)
+            logger.info(
+                "Location ratio exceeded: %d locations and only %d choosers" %
+                (len(locations), len(movers)))
+            idxes = np.random.choice(
+                locations.index, size=len(movers) * location_ratio,
+                replace=False)
             locations = locations.loc[idxes]
-            logger.info("  after sampling %d locations are available\n" % len(locations))
+            logger.info(
+                "  after sampling %d locations are available\n" %
+                len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.dropna()))
@@ -540,7 +711,7 @@ class MNLLocationChoiceModel(object):
         return new_units, lcm
 
 
-class MNLLocationChoiceModelGroup(object):
+class MNLLocationChoiceModelGroup(LocationChoiceModel):
     """
     Manages a group of location choice models that refer to different
     segments of choosers.
@@ -638,9 +809,74 @@ class MNLLocationChoiceModelGroup(object):
         groups = data.groupby(self.segmentation_col)
 
         for name, group in groups:
+            if name not in self.models:
+                continue
             logger.debug(
                 'returning group {} in LCM group {}'.format(name, self.name))
             yield name, group
+
+    def apply_fit_filters(self, choosers, alternatives):
+        """
+        Filter `choosers` and `alternatives` for fitting.
+        This is done by filtering each submodel and concatenating
+        the results.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+
+        Returns
+        -------
+        filtered_choosers, filtered_alts : pandas.DataFrame
+
+        """
+        ch = []
+        alts = []
+
+        for name, df in self._iter_groups(choosers):
+            filtered_choosers, filtered_alts = \
+                self.models[name].apply_fit_filters(df, alternatives)
+            ch.append(filtered_choosers)
+            alts.append(filtered_alts)
+
+        return pd.concat(ch), pd.concat(alts)
+
+    def apply_predict_filters(self, choosers, alternatives):
+        """
+        Filter `choosers` and `alternatives` for prediction.
+        This is done by filtering each submodel and concatenating
+        the results.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+
+        Returns
+        -------
+        filtered_choosers, filtered_alts : pandas.DataFrame
+
+        """
+        ch = []
+        alts = []
+
+        for name, df in self._iter_groups(choosers):
+            filtered_choosers, filtered_alts = \
+                self.models[name].apply_predict_filters(df, alternatives)
+            ch.append(filtered_choosers)
+            alts.append(filtered_alts)
+
+        filtered_choosers = pd.concat(ch)
+        filtered_alts = pd.concat(alts)
+
+        return filtered_choosers, filtered_alts.drop_duplicates()
 
     def fit(self, choosers, alternatives, current_choice):
         """
@@ -682,6 +918,76 @@ class MNLLocationChoiceModelGroup(object):
         return (all(m.fitted for m in self.models.values())
                 if self.models else False)
 
+    def probabilities(self, choosers, alternatives):
+        """
+        Returns alternative probabilties for each chooser segment as
+        a dictionary keyed by segment name.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in each segment in this table is used for
+            determining agent probabilities of choosing alternatives.
+            Must have a column matching the .segmentation_col attribute.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        probabilties : dict of pandas.Series
+
+        """
+        logger.debug(
+            'start: calculate probabilities in LCM group {}'.format(self.name))
+        probs = {}
+
+        for name, df in self._iter_groups(choosers):
+            probs[name] = self.models[name].probabilities(df, alternatives)[0]
+
+        logger.debug(
+            'finish: calculate probabilities in LCM group {}'.format(
+                self.name))
+        return probs
+
+    def summed_probabilities(self, choosers, alternatives):
+        """
+        Returns the sum of probabilities for alternatives across all
+        chooser segments.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in each segment in this table is used for
+            determining agent probabilities of choosing alternatives.
+            Must have a column matching the .segmentation_col attribute.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        probs : pandas.Series
+            Summed probabilities from each segment added together.
+
+        """
+        logger.debug(
+            'start: calculate summed probabilities in LCM group {}'.format(
+                self.name))
+        probs = []
+
+        for name, df in self._iter_groups(choosers):
+            probs.append(
+                self.models[name].summed_probabilities(df, alternatives))
+
+        add = toolz.curry(pd.Series.add, fill_value=0)
+        probs = toolz.reduce(add, probs)
+
+        logger.debug(
+            'finish: calculate summed probabilities in LCM group {}'.format(
+                self.name))
+        return probs
+
     def predict(self, choosers, alternatives, debug=False):
         """
         Choose from among alternatives for a group of agents after
@@ -691,8 +997,8 @@ class MNLLocationChoiceModelGroup(object):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in this table is used for determining
-            agent probabilities of choosing alternatives.
+            Only the first item in each segment in this table is used for
+            determining agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
@@ -758,7 +1064,7 @@ class MNLLocationChoiceModelGroup(object):
             m.columns_used() for m in self.models.values())))
 
 
-class SegmentedMNLLocationChoiceModel(object):
+class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
     """
     An MNL LCM group that allows segments to have different model expressions
     but otherwise share configurations.
@@ -911,6 +1217,47 @@ class SegmentedMNLLocationChoiceModel(object):
             estimation_sample_size=self.estimation_sample_size,
             choice_column=self.choice_column)
 
+    def apply_fit_filters(self, choosers, alternatives):
+        """
+        Filter `choosers` and `alternatives` for fitting.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+
+        Returns
+        -------
+        filtered_choosers, filtered_alts : pandas.DataFrame
+
+        """
+        return super(SegmentedMNLLocationChoiceModel, self).apply_fit_filters(
+            choosers, alternatives)
+
+    def apply_predict_filters(self, choosers, alternatives):
+        """
+        Filter `choosers` and `alternatives` for prediction.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing,
+            e.g. buildings.
+
+        Returns
+        -------
+        filtered_choosers, filtered_alts : pandas.DataFrame
+
+        """
+        return super(
+            SegmentedMNLLocationChoiceModel, self
+            ).apply_predict_filters(choosers, alternatives)
+
     def fit(self, choosers, alternatives, current_choice):
         """
         Fit and save models based on given data after segmenting
@@ -938,8 +1285,8 @@ class SegmentedMNLLocationChoiceModel(object):
 
         """
         logger.debug('start: fit models in segmented LCM {}'.format(self.name))
-        choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
 
+        choosers, alternatives = self.apply_fit_filters(choosers, alternatives)
         unique = choosers[self.segmentation_col].unique()
 
         # Remove any existing segments that may no longer have counterparts
@@ -954,9 +1301,6 @@ class SegmentedMNLLocationChoiceModel(object):
             if x not in self._group.models:
                 self.add_segment(x)
 
-        alternatives = util.apply_filter_query(
-            alternatives, self.alts_fit_filters)
-
         results = self._group.fit(choosers, alternatives, current_choice)
         logger.debug(
             'finish: fit models in segmented LCM {}'.format(self.name))
@@ -969,6 +1313,80 @@ class SegmentedMNLLocationChoiceModel(object):
 
         """
         return self._group.fitted
+
+    def _filter_choosers_alts(self, choosers, alternatives):
+        """
+        Apply filters to the choosers and alts tables.
+
+        """
+        return (
+            util.apply_filter_query(
+                choosers, self.choosers_predict_filters),
+            util.apply_filter_query(
+                alternatives, self.alts_predict_filters))
+
+    def probabilities(self, choosers, alternatives):
+        """
+        Returns alternative probabilties for each chooser segment as
+        a dictionary keyed by segment name.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in each segment in this table is used for
+            determining agent probabilities of choosing alternatives.
+            Must have a column matching the .segmentation_col attribute.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        probabilties : pandas.Series
+
+        """
+        logger.debug(
+            'start: calculate probabilities in segmented LCM {}'.format(
+                self.name))
+        choosers, alternatives = self.apply_predict_filters(
+            choosers, alternatives)
+        result = self._group.probabilities(choosers, alternatives)
+        logger.debug(
+            'finish: calculate probabilities in segmented LCM {}'.format(
+                self.name))
+        return result
+
+    def summed_probabilities(self, choosers, alternatives):
+        """
+        Returns the sum of probabilities for alternatives across all
+        chooser segments.
+
+        Parameters
+        ----------
+        choosers : pandas.DataFrame
+            Table describing the agents making choices, e.g. households.
+            Only the first item in each segment in this table is used for
+            determining agent probabilities of choosing alternatives.
+            Must have a column matching the .segmentation_col attribute.
+        alternatives : pandas.DataFrame
+            Table describing the things from which agents are choosing.
+
+        Returns
+        -------
+        probs : pandas.Series
+            Summed probabilities from each segment added together.
+
+        """
+        logger.debug(
+            'start: calculate summed probabilities in segmented LCM {}'.format(
+                self.name))
+        choosers, alternatives = self.apply_predict_filters(
+            choosers, alternatives)
+        result = self._group.summed_probabilities(choosers, alternatives)
+        logger.debug(
+            ('finish: calculate summed probabilities in segmented LCM {}'
+             ).format(self.name))
+        return result
 
     def predict(self, choosers, alternatives, debug=False):
         """
@@ -999,10 +1417,8 @@ class SegmentedMNLLocationChoiceModel(object):
         """
         logger.debug(
             'start: predict models in segmented LCM {}'.format(self.name))
-        choosers = util.apply_filter_query(
-            choosers, self.choosers_predict_filters)
-        alternatives = util.apply_filter_query(
-            alternatives, self.alts_predict_filters)
+        choosers, alternatives = self._filter_choosers_alts(
+            choosers, alternatives)
 
         results = self._group.predict(choosers, alternatives, debug=debug)
         logger.debug(
@@ -1175,14 +1591,15 @@ class SegmentedMNLLocationChoiceModel(object):
         movers : DataFrame
             A dataframe of agents doing the choosing.
         locations : DataFrame
-            A dataframe of locations which the choosers are locating in and which
-            have a supply.
+            A dataframe of locations which the choosers are locating in and
+            which have a supply.
         cfgname : string
             The name of the yaml config file from which to read the location
             choice model.
         location_ratio : float
-            Above the location ratio (default of 2.0) of locations to choosers, the
-            locations will be sampled to meet this ratio (for performance reasons).
+            Above the location ratio (default of 2.0) of locations to choosers,
+            the locations will be sampled to meet this ratio
+            (for performance reasons).
 
         Returns
         -------
@@ -1196,12 +1613,16 @@ class SegmentedMNLLocationChoiceModel(object):
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
         if len(locations) > len(movers) * location_ratio:
-            logger.info("Location ratio exceeded: %d locations and only %d choosers" %
-                        (len(locations), len(movers)))
-            idxes = np.random.choice(locations.index, size=len(movers) * location_ratio,
-                                     replace=False)
+            logger.info(
+                "Location ratio exceeded: %d locations and only %d choosers" %
+                (len(locations), len(movers)))
+            idxes = np.random.choice(
+                locations.index, size=len(movers) * location_ratio,
+                replace=False)
             locations = locations.loc[idxes]
-            logger.info("  after sampling %d locations are available\n" % len(locations))
+            logger.info(
+                "  after sampling %d locations are available\n"
+                % len(locations))
 
         new_units = lcm.predict(movers, locations, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.dropna()))
