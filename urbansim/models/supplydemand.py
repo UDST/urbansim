@@ -32,9 +32,9 @@ def _calculate_adjustment(
     clip_change_high : float
         The maximum amount by which to multiply prices each iteration.
     multiplier_func : function (returns Series, boolean)
-        A function which takes separate demand and supply Series 
-        and returns a tuple where the first item is a Series with the 
-        ratio of new price to old price (all indexes should be the same) - 
+        A function which takes separate demand and supply Series
+        and returns a tuple where the first item is a Series with the
+        ratio of new price to old price (all indexes should be the same) -
         by default the ratio of demand to supply is the ratio of the new
         price to the old price.  The second return value is a
         boolean which when True tells this module to stop looping (that
@@ -112,9 +112,9 @@ def supply_and_demand(
     iterations : int, optional
         Number of times to update prices based on supply/demand comparisons.
     multiplier_func : function (returns Series, boolean)
-        A function which takes separate demand and supply Series 
-        and returns a tuple where the first item is a Series with the 
-        ratio of new price to old price (all indexes should be the same) - 
+        A function which takes separate demand and supply Series
+        and returns a tuple where the first item is a Series with the
+        ratio of new price to old price (all indexes should be the same) -
         by default the ratio of demand to supply is the ratio of the new
         price to the old price.  The second return value is a
         boolean which when True tells this module to stop looping (that
