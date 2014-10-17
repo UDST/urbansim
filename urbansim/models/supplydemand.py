@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def _calculate_adjustment(
         lcm, choosers, alternatives, alt_segmenter,
-        clip_change_low, clip_change_high, map_func=None):
+        clip_change_low, clip_change_high, multiplier_func=None):
     """
     Calculate adjustments to prices to compensate for
     supply and demand effects.
@@ -31,10 +31,12 @@ def _calculate_adjustment(
         The minimum amount by which to multiply prices each iteration.
     clip_change_high : float
         The maximum amount by which to multiply prices each iteration.
-    map_func : function (returns Series, boolean)
-        A function which takes the ratio of demand to supply and returns a 
-        tuple where the first item is the ratio of new price to old price - 
-        by default the ratios are the same.  The second return value is a
+    multiplier_func : function (returns Series, boolean)
+        A function which takes separate demand and supply Series 
+        and returns a tuple where the first item is a Series with the 
+        ratio of new price to old price (all indexes should be the same) - 
+        by default the ratio of demand to supply is the ratio of the new
+        price to the old price.  The second return value is a
         boolean which when True tells this module to stop looping (that
         convergence has been satisfied)
 
@@ -61,10 +63,10 @@ def _calculate_adjustment(
     # number of alternatives
     supply = alt_segmenter.value_counts()
 
-    multiplier = (demand / supply)
-    finished = False
-    if map_func is not None:
-        multiplier, finished = map_func(multiplier)
+    if multiplier_func is not None:
+        multiplier, finished = multiplier_func(demand, supply)
+    else:
+        multiplier, finished = (demand / supply), False
     multiplier = multiplier.clip(clip_change_low, clip_change_high)
 
     # broadcast multiplier back to alternatives index
@@ -80,7 +82,7 @@ def _calculate_adjustment(
 def supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
         base_multiplier=None, clip_change_low=0.75, clip_change_high=1.25,
-        iterations=5, map_func=None):
+        iterations=5, multiplier_func=None):
     """
     Adjust real estate prices to compensate for supply and demand effects.
 
@@ -109,10 +111,12 @@ def supply_and_demand(
         The maximum amount by which to multiply prices each iteration.
     iterations : int, optional
         Number of times to update prices based on supply/demand comparisons.
-    map_func : function (returns Series, boolean)
-        A function which takes the ratio of demand to supply and returns a 
-        tuple where the first item is the ratio of new price to old price - 
-        by default the ratios are the same.  The second return value is a
+    multiplier_func : function (returns Series, boolean)
+        A function which takes separate demand and supply Series 
+        and returns a tuple where the first item is a Series with the 
+        ratio of new price to old price (all indexes should be the same) - 
+        by default the ratio of demand to supply is the ratio of the new
+        price to the old price.  The second return value is a
         boolean which when True tells this module to stop looping (that
         convergence has been satisfied)
 
@@ -149,7 +153,7 @@ def supply_and_demand(
     for _ in range(iterations):
         alts_muliplier, submarkets_multiplier, finished = _calculate_adjustment(
             lcm, choosers, alternatives, alt_segmenter,
-            clip_change_low, clip_change_high, map_func=map_func)
+            clip_change_low, clip_change_high, multiplier_func=multiplier_func)
         alternatives[price_col] = alternatives[price_col] * alts_muliplier
 
         # might need to initialize this for holding cumulative multiplier
