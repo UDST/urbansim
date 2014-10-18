@@ -1,30 +1,37 @@
 """
-Use the ``AllocationModel`` class to distribute amounts/quantities
-to rows in a target table based on a weights while respecting
-capacity constraints. Also might be thought of as a
-'pro-rating' model.
+The allocation classes are used for distributing
+amounts or locating agents based on shares or
+weights while optionally respecting capacities.
+May also be thought of as pro-rating or benching
+models.
 
 """
+import logging
+
 import numpy as np
 import pandas as pd
-import urbansim.models.util as us_util
+
+from . import util as us_util
+from ..utils.logutil import log_start_finish
+
+logger = logging.getLogger(__name__)
 
 
 class AllocationModel(object):
     """
-    Used to allocate quantities/amounts to
-    rows in data frame.
+    Used to allocate quantities or amounts to
+    rows in a data frame.
 
     Parameters:
     ----------
     amounts_df: pandas.DataFrame
-        Data frame containing amounts/quantities
+        Data frame containing amounts or quantities
         to allocate from. Assumed to be indexed
         by year.
     amounts_col: string
         Name of column in the amounts data frame
         to allocate from.
-    target_col:
+    target_col: string
         Name of column in the targets data frame
         to allocate to.
     weight_col: string, optional
@@ -39,7 +46,7 @@ class AllocationModel(object):
         If True, allocation values will be integerized to match
         the allocation amount exactly. If False then floating
         point values will be returned.
-    as_delta: bool optional, default False
+    as_delta: bool, optional, default False
         If True, the allocation will assume that the amount being
         distributed represents change. The resulting series
         will retain the original column values (presumably from
@@ -53,18 +60,19 @@ class AllocationModel(object):
         by comparing the amount with the previous year.
     segment_cols: list <string>
         List of field names that will be used for segmentation.
-        Each segment will have its own allocation.
-    minimum_col: string optional, default None
-        Name of column in the target frame with minimum values
-        that need to be respected. If not provided the
-        minimum_value argument will be used. Note this is not
-        a hard minimum but is the minimum value when applying
-        declining controls.
-    minimum_value: int optional, default 0
-        A global minimum value for row allocations. Superseded
-        by the minimum_col argument. Note this is not
-        a hard minimum but is the minimum value when applying
-        declining controls.
+        Each segment will have its own allocation. The segment columns
+        must exist, with the same names, on both the amounts and
+        target data frames.
+    floor_col: string optional, default None
+        Name of column in the target frame defining the lowest
+        allocation value that can be assigned to a given row
+        (sort of like the inverse of capacity) when allocating changes.
+        If not provided the floor_value argument will be used.
+    floor_value: int optional, default 0
+        Superseded by the floor_col argument. Defines the lowest
+        possible value that can be assigned to any row in the allocation
+        when allocating changes. This is important for declining amounts
+        so that allocations will not fall below a given amount.
 
     """
     def __init__(self,
@@ -77,8 +85,8 @@ class AllocationModel(object):
                  as_delta=False,
                  compute_delta=False,
                  segment_cols=None,
-                 minimum_col=None,
-                 minimum_value=0):
+                 floor_col=None,
+                 floor_value=0):
         self.amounts_df = amounts_df
         self.amounts_col = amounts_col
         self.target_col = target_col
@@ -88,8 +96,8 @@ class AllocationModel(object):
         self.as_delta = as_delta
         self.compute_delta = compute_delta
         self.segment_cols = segment_cols
-        self.minimum_col = minimum_col
-        self.minimum_value = minimum_value
+        self.floor_col = floor_col
+        self.floor_value = floor_value
 
         # handle segmentation columns
         if segment_cols is not None:
@@ -109,7 +117,7 @@ class AllocationModel(object):
 
     def allocate(self, data, year):
         """
-        Performs the allocation.
+        Performs the allocation for a given year.
 
         Parameters:
         ----------
@@ -118,14 +126,25 @@ class AllocationModel(object):
         year: int
             Simulation year.
 
-        """
+        Returns
+        --------
+        pandas.Series w/ allocated results.
 
-        # set up the output data frame
-        data = data.copy()
-        if data is None or len(data) == 0 or year not in self.amounts_df.index:
-            return data
-        if not self.as_delta:
-            data[self.target_col] = 0
+        """
+        logger.debug('start allocation for year {}'.format(year))
+        if len(data) == 0 or data is None:
+            return None
+
+        # set up the output series
+        target_dtype = data[self.target_col].dtype
+        if self.target_col in data and (self.as_delta or year not in self.amounts_df.index):
+            results = data[self.target_col].copy()
+        else:
+            results = pd.Series(np.zeros(len(data), dtype=target_dtype), index=data.index)
+
+        # maintain previous allocation if no amount provided for current year
+        if year not in self.amounts_df.index:
+            return results
 
         # loop through the amounts for the current year
         for _, curr_row in self.amounts_df.loc[[year]].iterrows():
@@ -156,8 +175,13 @@ class AllocationModel(object):
             # get the subset of rows for the current segment
             if self.segment_cols is None:
                 subset = data
+                logger.debug('amount to allocate: {}'.format(amount))
             else:
                 subset = us_util.filter_table(data, curr_row, ignore=self.ignore_cols)
+                segment_str = ''
+                for curr_seg in self.segment_cols:
+                    segment_str += ' ' + str(curr_seg)
+                logger.debug('on segment {}, amount to allocate: {}'.format(segment_str, amount))
 
             # get the existing series
             if self.as_delta:
@@ -183,86 +207,97 @@ class AllocationModel(object):
             else:
                 is_positive = False
                 amount *= -1
-                if self.minimum_col is not None:
-                    c = subset[self.minimum_col]
+                if self.floor_col is not None:
+                    c = subset[self.floor_col]
                 else:
-                    c = pd.Series(np.ones(len(subset)) * self.minimum_value, index=subset.index)
+                    c = pd.Series(np.ones(len(subset)) * self.floor_value, index=subset.index)
                 c = e - c
 
-            # throw an exception if not enough capacity
-            # TODO: set all rows to their capacity and log the issue?
             if c.sum() < amount:
-                print "!!!!!!!!!!!! CAPACITY ISSUE !!!!!!!!!!!!!!!!!!!"
-                print curr_row
-                print "amount (change): " + str(amount)
-                print "cap (change):" + str(c.sum())
-                continue
-                #raise ValueError('Amount exceeds the available capacity')
-
-            # perform the initial allocation
-            a = pd.Series(np.zeros(len(subset)), index=subset.index)
-            while True:
-                # allocate remaining amount to rows with capacity
-                curr_amount = amount - a.sum()
-                have_cap = a < c
-                if have_cap.any() > 0:
-                    w_sum = w[have_cap].sum()
-                    if w_sum != 0:
-                        a[have_cap] = a + (curr_amount * (w / w_sum))
-                    else:
-                        a[have_cap] = a + (curr_amount / len(a[have_cap]))
-
-                # set allocation result to capacity for overages
-                over = a > c
-                if over.any():
-                    a[over] = c
+                # if not enough capacity, set all rows to their capacity
+                a = c
+                if is_positive:
+                    logger.debug('Amount exceeds total available capacity ({})'.format(c.sum()))
                 else:
-                    break
-
-            # integerize using stochastic rounding
-            if self.as_integer:
-                # make sure the amount is an integer
-                if amount % 1 != 0:
-                    raise ValueError('Cannot integerize and match non-integer amount')
-
-                # only non-zero rows with capacity are eligible for rounding
-                to_round_idx = a[(a < c) & (a != 0)].index.values
-                to_round_vals = a[to_round_idx].values
-
-                # get the fractional components
-                fract = to_round_vals % 1
-                fract_sum = fract.sum()
-                if fract_sum > 0:
-                    # round everything down
-                    floor = np.floor(to_round_vals)
-                    a[to_round_idx] = floor
-
-                    # determine how many rows need to get rounded up
-                    round_up_cnt = amount - a[a == c].sum() - floor.sum()
-
-                    # randomly choose items to round up, weighted by their fractional part
-                    fract_w = fract / fract_sum
-                    idx_to_round_up = np.random.choice(to_round_idx, round_up_cnt, False, fract_w)
-                    a[idx_to_round_up] += 1
-
-            # update the data frame with the current allocation
-            if is_positive:
-                data[self.target_col].loc[subset.index.values] = e + a
+                    logger.debug('Attempting to remove more than is available ({})'.format(c.sum()))
             else:
-                data[self.target_col].loc[subset.index.values] = e - a
-        return data
+                # perform the initial allocation
+                a = pd.Series(np.zeros(len(subset)), index=subset.index)
+                while True:
+                    # allocate remaining amount to rows with capacity
+                    curr_amount = amount - a.sum()
+                    have_cap = a < c
+                    if have_cap.any() > 0:
+                        w_sum = w[have_cap].sum()
+                        if w_sum != 0:
+                            a[have_cap] = a + (curr_amount * (w / w_sum))
+                        else:
+                            a[have_cap] = a + (curr_amount / len(a[have_cap]))
+
+                    # set allocation result to capacity for overages
+                    over = a > c
+                    if over.any():
+                        a[over] = c
+                    else:
+                        break
+
+                # integerize using stochastic rounding
+                if self.as_integer:
+                    # make sure the amount is an integer
+                    if amount % 1 != 0:
+                        raise ValueError('Cannot integerize and match non-integer amount')
+
+                    # only non-zero rows with capacity are eligible for rounding
+                    to_round_idx = a[(a < c) & (a != 0)].index.values
+                    to_round_vals = a[to_round_idx].values
+
+                    # get the fractional components
+                    fract = to_round_vals % 1
+                    fract_sum = fract.sum()
+                    if fract_sum > 0:
+                        # round everything down
+                        floor = np.floor(to_round_vals)
+                        a[to_round_idx] = floor
+
+                        # determine how many rows need to get rounded up
+                        round_up_cnt = amount - a[a == c].sum() - floor.sum()
+
+                        # randomly choose items to round up, weighted by their fractional part
+                        fract_w = fract / fract_sum
+                        idx_to_round_up = np.random.choice(
+                            to_round_idx, round_up_cnt, False, fract_w)
+                        a[idx_to_round_up] += 1
+
+            # update the results with the current allocation
+            if is_positive:
+                results[subset.index.values] = e + a
+            else:
+                results[subset.index.values] = e - a
+
+        logger.debug('done with allocation')
+        return results.astype(target_dtype)
 
 
 class AgentAllocationModel(object):
     """
-    Used to locate a set of agents to locations, based on weights
-    and capacities.
+    Used to assign a set of agents to a set locations, based on
+    locational weights and capacities. Similar in spirit  to the
+    OPUS ScalingJobsModel and CapacityLocationModel models.
+
+    Intended for location choice problems in which we (a) have
+    limited data and therefore cannot estimate an MNL choice
+    model, (b) the choice sets are fairly constrained or trivial
+    or (c) there are specific, predefined controls or patterns
+    that need to be realized by the simulation.
 
     Parameters:
     ----------
     location_col: string
         Name of the column on the agents data frame with foreign
         key reference to index on locations data frame.
+    allocation_col: string
+        Name of allocation column on locations data frame
+        used to assign allocation results.
     weight_col: string, optional
         Name of the column in the locations data frame used to
         weight the allocation. If not provided all
@@ -278,10 +313,12 @@ class AgentAllocationModel(object):
     """
     def __init__(self,
                  location_col,
-                 segment_cols=None,
+                 allocation_col,
                  weight_col=None,
-                 capacity_col=None):
+                 capacity_col=None,
+                 segment_cols=None):
         self.location_col = location_col
+        self.allocation_col = allocation_col
         self.weight_col = weight_col
         self.capacity_col = capacity_col
         self.segment_cols = segment_cols
@@ -301,14 +338,25 @@ class AgentAllocationModel(object):
             Simulation year. Not really used except to be
             consistent with other modules.
 
-        """
-        agents = agents.copy()
-        agents[self.location_col] = np.nan
+        Returns
+        --------
+        agent_loc_ids: pandas.Series
+            Series containing the locations assigned to the agents.
+        location_allocation: pandas.Series
+            Series containing the updated number of agents assigned to each
+            location. This is cumulative, the original values will be retained
+            and additional agents located here will be added to these totals. The
+            series must be applied to update the locations data frame in order for
+            capacity constraints to be respected over multiple simulation years.
 
-        # create the controls from the agent distribution
+        """
+        # init the agent locations with NaNs
+        agent_loc_ids = pd.Series(np.ones(len(agents)) * np.nan, index=agents.index)
+
+        # create the allocation controls from the agent distribution
         if self.segment_cols is None:
             amounts_df = pd.DataFrame(
-                {'amount:' [len(agents)]},
+                {'amount': [len(agents)]},
                 index=[year]
                 )
         else:
@@ -319,27 +367,27 @@ class AgentAllocationModel(object):
         # allocate agent quantities to locations
         a_mod = AllocationModel(amounts_df,
                                 'amount',
-                                'allo',
+                                self.allocation_col,
                                 self.weight_col,
                                 self.capacity_col,
                                 segment_cols=self.segment_cols)
-        a_res = a_mod.allocate(locations, year)
+        location_allocation = a_mod.allocate(locations, year)
 
-        # randomly assign agents to locations based on the allocation results
-        for _, curr_row in amounts_df.loc[year:year].iterrows():
+        # assign location IDs to agents for each segment
+        for _, curr_row in amounts_df.loc[[year]].iterrows():
 
             # get agents and locations for current segment
             if self.segment_cols is not None:
                 agent_subset = us_util.filter_table(agents, curr_row, ignore=a_mod.ignore_cols)
-                loc_subset = us_util.filter_table(a_res, curr_row, ignore=a_mod.ignore_cols)
+                loc_subset = us_util.filter_table(locations, curr_row, ignore=a_mod.ignore_cols)
             else:
                 agent_subset = agents
-                loc_subset = a_res
+                loc_subset = locations
 
             # assign the location IDs to the agents randomly
-            loc_idx = np.repeat(loc_subset.index.values, loc_subset['allo'])
-            np.random.shuffle(loc_idx)
-            loc_series = pd.Series(loc_idx, index=agent_subset.index)
-            agents[self.location_col].loc[agent_subset.index.values] = loc_series
+            loc_subset_idx = loc_subset.index.values
+            loc_repeat = np.repeat(loc_subset_idx, location_allocation[loc_subset_idx])
+            np.random.shuffle(loc_repeat)
+            agent_loc_ids[agent_subset.index.values] = loc_repeat
 
-        return agents
+        return agent_loc_ids, location_allocation

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from urbansim.models.allocation import AllocationModel
+from urbansim.models.allocation import AllocationModel, AgentAllocationModel
 
 
 @pytest.fixture(scope='function')
@@ -26,7 +26,7 @@ def rows_df():
             'weight': [50, 0, 25],
             'capacity': [60, 70, 80],
             'existing': [10, 11, 12],
-            'min': [-1, 0, 1]
+            'floor': [-1, 0, 1]
         })
 
 
@@ -79,34 +79,33 @@ def seg_rows_df():
 
 def assert_totals_match(amounts_df,
                         amounts_col,
-                        results_df,
+                        results,
                         target_col,
                         year):
     curr_amount = amounts_df[amounts_col][year]
-    assert curr_amount == results_df[target_col].sum()
+    assert curr_amount == results.sum()
 
 
 def assert_totals_match_delta(amounts_df,
                               amounts_col,
                               orig_df,
-                              results_df,
+                              results,
                               target_col,
                               year):
     amount = amounts_df[amounts_col][year]
     prev_amount = amounts_df[amounts_col][year - 1]
     expected_change = amount - prev_amount
-    observed_change = results_df[target_col].sum() - orig_df[target_col].sum()
+    observed_change = results.sum() - orig_df[target_col].sum()
     assert expected_change == observed_change
 
 
-def assert_capacities(results_df, target_col, capacity_col, min_col=None):
-    c = results_df[capacity_col]
-    a = results_df[target_col]
-    over = a > c
-    if min_col is not None:
-        under = a < results_df[min_col]
+def assert_capacities(results, orig_df, capacity_col, floor_col=None):
+    c = orig_df[capacity_col]
+    over = results > c
+    if floor_col is not None:
+        under = results < orig_df[floor_col]
     else:
-        under = a < 0
+        under = results < 0
     assert not (over.any() or under.any())
 
 
@@ -116,8 +115,8 @@ def test_noWeights_noCapacity(amounts_df,
                               target_col):
     year = 2010
     am = AllocationModel(amounts_df, amounts_col, target_col)
-    results_df = am.allocate(rows_df, year)
-    assert_totals_match(amounts_df, amounts_col, results_df, target_col, year)
+    results = am.allocate(rows_df, year)
+    assert_totals_match(amounts_df, amounts_col, results, target_col, year)
 
 
 def test_noWeights_noCapacity__delta(amounts_df,
@@ -131,8 +130,8 @@ def test_noWeights_noCapacity__delta(amounts_df,
         target_col,
         as_delta=True,
         compute_delta=True)
-    results_df = am.allocate(rows_df, year)
-    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results_df, target_col, year)
+    results = am.allocate(rows_df, year)
+    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results, target_col, year)
 
 
 def test_hasWeights_noCapacity(amounts_df,
@@ -142,8 +141,8 @@ def test_hasWeights_noCapacity(amounts_df,
                                weights_col):
     year = 2010
     am = AllocationModel(amounts_df, amounts_col, target_col, weights_col)
-    results_df = am.allocate(rows_df, year)
-    assert_totals_match(amounts_df, amounts_col, results_df, target_col, year)
+    results = am.allocate(rows_df, year)
+    assert_totals_match(amounts_df, amounts_col, results, target_col, year)
 
 
 def test_hasWeights_noCapacity__delta(amounts_df,
@@ -159,8 +158,8 @@ def test_hasWeights_noCapacity__delta(amounts_df,
         weights_col,
         as_delta=True,
         compute_delta=True)
-    results_df = am.allocate(rows_df, year)
-    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results_df, target_col, year)
+    results = am.allocate(rows_df, year)
+    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results, target_col, year)
 
 
 def test_hasWeights_hasCapacity(amounts_df,
@@ -176,9 +175,9 @@ def test_hasWeights_hasCapacity(amounts_df,
         target_col,
         weights_col,
         capacity_col)
-    results_df = am.allocate(rows_df, year)
-    assert_totals_match(amounts_df, amounts_col, results_df, target_col, year)
-    assert_capacities(results_df, target_col, capacity_col)
+    results = am.allocate(rows_df, year)
+    assert_totals_match(amounts_df, amounts_col, results, target_col, year)
+    assert_capacities(results, rows_df, capacity_col)
 
 
 def test_hasWeights_hasCapacity__delta(amounts_df,
@@ -196,9 +195,9 @@ def test_hasWeights_hasCapacity__delta(amounts_df,
         capacity_col,
         as_delta=True,
         compute_delta=True)
-    results_df = am.allocate(rows_df, year)
-    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results_df, target_col, year)
-    assert_capacities(results_df, target_col, capacity_col)
+    results = am.allocate(rows_df, year)
+    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results, target_col, year)
+    assert_capacities(results, rows_df, capacity_col)
 
 
 def test_segmentation(seg_amounts_df,
@@ -216,9 +215,11 @@ def test_segmentation(seg_amounts_df,
         weights_col,
         capacity_col,
         segment_cols=segment_cols)
-    results_df = amod.allocate(seg_rows_df, year)
+    results = amod.allocate(seg_rows_df, year)
 
     # check resulting sums by segments
+    results_df = seg_rows_df.copy()
+    results_df[target_col] = results
     result_sums = results_df.groupby(segment_cols).sum()
     join = pd.merge(
         left=result_sums,
@@ -252,7 +253,9 @@ def test_segmentation__delta(seg_amounts_df,
 
     # get the allocated change
     orig_sums = seg_rows_df.groupby(segment_cols).sum()
-    results_df = amod.allocate(seg_rows_df, year)
+    results = amod.allocate(seg_rows_df, year)
+    results_df = seg_rows_df.copy()
+    results_df[target_col] = results
     result_sums = results_df.groupby(segment_cols).sum()
     change_sums = result_sums - orig_sums
 
@@ -279,9 +282,9 @@ def test_missing_year(amounts_df, amounts_col, rows_df, target_col):
     am = AllocationModel(amounts_df, amounts_col, target_col)
     orig_cnt = len(rows_df)
     orig_sum = rows_df[target_col].sum()
-    results_df = am.allocate(rows_df, year)
-    assert orig_cnt == len(results_df)
-    assert orig_sum == results_df[target_col].sum()
+    results = am.allocate(rows_df, year)
+    assert orig_cnt == len(results)
+    assert orig_sum == results.sum()
 
 
 def test_declining_amount_delta(amounts_df_decline,
@@ -299,18 +302,18 @@ def test_declining_amount_delta(amounts_df_decline,
         capacity_col,
         as_delta=True,
         compute_delta=True)
-    results_df = am.allocate(rows_df, year)
+    results = am.allocate(rows_df, year)
     assert_totals_match_delta(
-        amounts_df_decline, amounts_col, rows_df, results_df, target_col, year)
-    assert_capacities(rows_df, target_col, capacity_col)
+        amounts_df_decline, amounts_col, rows_df, results, target_col, year)
+    assert_capacities(results, rows_df, capacity_col)
 
 
-def test_with_min_columns(amounts_df_decline,
-                          amounts_col,
-                          rows_df,
-                          target_col,
-                          weights_col,
-                          capacity_col):
+def test_with_floor_column(amounts_df_decline,
+                           amounts_col,
+                           rows_df,
+                           target_col,
+                           weights_col,
+                           capacity_col):
     year = 2011
     am = AllocationModel(
         amounts_df_decline,
@@ -320,11 +323,11 @@ def test_with_min_columns(amounts_df_decline,
         capacity_col,
         as_delta=True,
         compute_delta=True,
-        minimum_col='min')
-    results_df = am.allocate(rows_df, year)
+        floor_col='floor')
+    results = am.allocate(rows_df, year)
     assert_totals_match_delta(
-        amounts_df_decline, amounts_col, rows_df, results_df, target_col, year)
-    assert_capacities(rows_df, target_col, capacity_col)
+        amounts_df_decline, amounts_col, rows_df, results, target_col, year)
+    assert_capacities(results, rows_df, capacity_col, 'floor')
 
 
 def test_raise_too_many_years(amounts_df,
@@ -336,12 +339,12 @@ def test_raise_too_many_years(amounts_df,
         am = AllocationModel(amounts_df, amounts_col, target_col)
 
 
-def test_raise_not_enough_capacity(amounts_df,
-                                   amounts_col,
-                                   rows_df,
-                                   target_col,
-                                   weights_col,
-                                   capacity_col):
+def test_not_enough_capacity(amounts_df,
+                             amounts_col,
+                             rows_df,
+                             target_col,
+                             weights_col,
+                             capacity_col):
     year = 2010
     amounts_df[amounts_col][year] = 10000
     am = AllocationModel(
@@ -350,8 +353,9 @@ def test_raise_not_enough_capacity(amounts_df,
         target_col,
         weights_col,
         capacity_col)
-    with pytest.raises(ValueError):
-        am.allocate(rows_df, year)
+    results = am.allocate(rows_df, year)
+    assert_capacities(results, rows_df, capacity_col)
+    # add check to make sure allocation = capacities?
 
 
 def test_raise_not_enough_capacity_decline(amounts_df,
@@ -368,8 +372,9 @@ def test_raise_not_enough_capacity_decline(amounts_df,
         target_col,
         weights_col,
         capacity_col)
-    with pytest.raises(ValueError):
-        am.allocate(rows_df, year)
+    results = am.allocate(rows_df, year)
+    assert_capacities(results, rows_df, capacity_col)
+    # add check to make sure allocation = capacities?
 
 
 def test_raise_float_amount_as_int(amounts_df,
