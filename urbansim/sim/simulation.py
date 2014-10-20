@@ -618,13 +618,11 @@ class _ModelFuncWrapper(object):
     """
     def __init__(self, model_name, func):
         self.name = model_name
-        #self._func = func
-        #self._arg_list = set(inspect.getargspec(func).args)
+
         if inspect.isfunction(func):
             self._func = func
             self._arg_list = set(inspect.getargspec(func).args)
         else:
-            # initialize an instance of the class
             if callable(func):
                 # create an instance of the class
                 init_args = set(inspect.getargspec(func.__init__).args)
@@ -632,7 +630,7 @@ class _ModelFuncWrapper(object):
                 kwargs = _collect_injectables(init_args)
                 self._func = func(**kwargs)
 
-                # define the callabale arguments
+                # define the callable arguments
                 self._arg_list = set(inspect.getargspec(func.__call__).args)
                 self._arg_list = self._arg_list - set(['self'])
 
