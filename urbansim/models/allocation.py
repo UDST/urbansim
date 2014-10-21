@@ -199,11 +199,9 @@ class AllocationModel(object):
             if amount > 0:
                 is_positive = True
                 if self.capacity_col is not None:
-                    c = subset[self.capacity_col]
+                    c = subset[self.capacity_col] - e
                 else:
                     c = pd.Series(np.ones(len(subset)) * amount, index=subset.index)
-                c = c - e
-                amount_factor = 1
             else:
                 is_positive = False
                 amount *= -1
@@ -312,12 +310,10 @@ class AgentAllocationModel(object):
 
     """
     def __init__(self,
-                 location_col,
                  allocation_col,
                  weight_col=None,
                  capacity_col=None,
                  segment_cols=None):
-        self.location_col = location_col
         self.allocation_col = allocation_col
         self.weight_col = weight_col
         self.capacity_col = capacity_col
@@ -364,18 +360,19 @@ class AgentAllocationModel(object):
             amounts_df = agent_cnts.reset_index(name='amount')
             amounts_df.index = pd.Index(np.ones(len(amounts_df)) * year)
 
-        # allocate agent quantities to locations
+        # allocate agent quantities to locations (cumulative)
         a_mod = AllocationModel(amounts_df,
                                 'amount',
                                 self.allocation_col,
                                 self.weight_col,
                                 self.capacity_col,
+                                as_delta=True,
                                 segment_cols=self.segment_cols)
         location_allocation = a_mod.allocate(locations, year)
+        curr_allocation = location_allocation - locations[self.allocation_col]
 
         # assign location IDs to agents for each segment
         for _, curr_row in amounts_df.loc[[year]].iterrows():
-
             # get agents and locations for current segment
             if self.segment_cols is not None:
                 agent_subset = us_util.filter_table(agents, curr_row, ignore=a_mod.ignore_cols)
@@ -386,8 +383,14 @@ class AgentAllocationModel(object):
 
             # assign the location IDs to the agents randomly
             loc_subset_idx = loc_subset.index.values
-            loc_repeat = np.repeat(loc_subset_idx, location_allocation[loc_subset_idx])
-            np.random.shuffle(loc_repeat)
-            agent_loc_ids[agent_subset.index.values] = loc_repeat
+            loc_repeat = np.repeat(loc_subset_idx, curr_allocation[loc_subset_idx])
+
+            agent_idx = agent_subset.index.values
+            agent_idx = np.random.permutation(agent_idx)
+            agent_overage = len(agent_subset) - curr_allocation[loc_subset.index.values].sum()
+            if agent_overage > 0:
+                # not enough capacity, keep some agents un-located
+                agent_idx = agent_idx[agent_overage:]
+            agent_loc_ids[agent_idx] = loc_repeat
 
         return agent_loc_ids, location_allocation

@@ -77,6 +77,29 @@ def seg_rows_df():
         })
 
 
+@pytest.fixture
+def agents_df():
+    return pd.DataFrame(
+        {
+            'taz': [1, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+            'district': ['a', 'b', 'b', 'b', 'b', 'b', 'c', 'c', 'c', 'c']
+        },
+        index=pd.Index(range(100, 110)))
+
+
+@pytest.fixture
+def locations_df():
+    return pd.DataFrame(
+        {
+            'taz': [1, 1, 1, 2, 2, 2],
+            'district': ['a', 'a', 'b', 'b', 'c', 'c'],
+            'weight': [50, 0, 25, 10, 20, 30],
+            'capacity': [1, 5, 5, 5, 5, 3],
+            'existing': [1, 0, 0, 0, 0, 2]
+        },
+        index=pd.Index(range(300, 306)))
+
+
 def assert_totals_match(amounts_df,
                         amounts_col,
                         results,
@@ -107,6 +130,11 @@ def assert_capacities(results, orig_df, capacity_col, floor_col=None):
     else:
         under = results < 0
     assert not (over.any() or under.any())
+
+
+def assert_agent_locations(agent_loc_ids, locations_df):
+    assert agent_loc_ids.notnull().any
+    assert np.in1d(agent_loc_ids, locations_df.index.values).all()
 
 
 def test_noWeights_noCapacity(amounts_df,
@@ -358,12 +386,12 @@ def test_not_enough_capacity(amounts_df,
     # add check to make sure allocation = capacities?
 
 
-def test_raise_not_enough_capacity_decline(amounts_df,
-                                           amounts_col,
-                                           rows_df,
-                                           target_col,
-                                           weights_col,
-                                           capacity_col):
+def test_not_enough_capacity_decline(amounts_df,
+                                     amounts_col,
+                                     rows_df,
+                                     target_col,
+                                     weights_col,
+                                     capacity_col):
     year = 2010
     amounts_df[amounts_col][year] = -10000
     am = AllocationModel(
@@ -389,3 +417,32 @@ def test_raise_float_amount_as_int(amounts_df,
         target_col)
     with pytest.raises(ValueError):
         am.allocate(rows_df, year)
+
+
+def test_agent_allocation(agents_df, locations_df):
+    aa = AgentAllocationModel('existing', 'weight', 'capacity')
+    loc_ids, loc_allo = aa.locate_agents(locations_df, agents_df, 2010)
+    assert_agent_locations(loc_ids, locations_df)
+    assert_capacities(loc_allo, locations_df, 'capacity')
+
+
+def test_agent_allocation_segmented(agents_df, locations_df):
+    segment_cols = ['taz', 'district']
+    aa = AgentAllocationModel('existing', 'weight', 'capacity', segment_cols=segment_cols)
+    loc_ids, loc_allo = aa.locate_agents(locations_df, agents_df, 2010)
+    assert_agent_locations(loc_ids, locations_df)
+    assert_capacities(loc_allo, locations_df, 'capacity')
+
+    agents_df['loc_id'] = loc_ids
+    m = pd.merge(agents_df, locations_df, left_on='loc_id', right_index=True)
+    for curr_seg_col in segment_cols:
+        assert not (m[curr_seg_col + '_x'] != m[curr_seg_col + '_y']).any()
+
+
+def test_agent_allocation_not_enough_capacity():
+    locations_df = pd.DataFrame({'existing': [0], 'capacity': [8]})
+    agents_df = pd.DataFrame(np.arange(10), columns=['test'])
+    aa = AgentAllocationModel('existing', capacity_col='capacity')
+    loc_ids, loc_allo = aa.locate_agents(locations_df, agents_df, 2010)
+    assert len(loc_ids[loc_ids.isnull()]) == 2
+    assert loc_allo.sum() == 8
