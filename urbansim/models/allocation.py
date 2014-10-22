@@ -32,7 +32,7 @@ class AllocationModel(object):
         Name of column in the amounts data frame
         to allocate from.
     target_col: string
-        Name of column in the targets data frame
+        Name of column in the target data frame
         to allocate to.
     weight_col: string, optional
         Name of the column in the target data frame used to
@@ -49,15 +49,15 @@ class AllocationModel(object):
     as_delta: bool, optional, default False
         If True, the allocation will assume that the amount being
         distributed represents change. The resulting series
-        will retain the original column values (presumably from
-        the previous year) and will increment the column by
-        the allocated change. If False, the allocation
+        will retain the original column values and will increment
+        the column by the allocated change. If False, the allocation
         will be treated as a total and the target column will
         be entirely re-generated each year.
     compute_delta: bool optional, default False
         If True, the amounts are assumed
         to represent totals and changes will be computed
-        by comparing the amount with the previous year.
+        by comparing the amount with the previous year, if
+        available, or the most recent, previous allocation.
     segment_cols: list <string>
         List of field names that will be used for segmentation.
         Each segment will have its own allocation. The segment columns
@@ -72,7 +72,7 @@ class AllocationModel(object):
         Superseded by the floor_col argument. Defines the lowest
         possible value that can be assigned to any row in the allocation
         when allocating changes. This is important for declining amounts
-        so that allocations will not fall below a given amount.
+        so that allocations will not fall below a given amount (usually 0).
 
     """
     def __init__(self,
@@ -115,6 +115,13 @@ class AllocationModel(object):
             raise ValueError("Duplicate entries in amounts table")
         del temp
 
+        # retain the previous amount for computing amount changes for missing years
+        if segment_cols is None:
+            self.prev_amount = 0
+        else:
+            pa = amounts_df.groupby(segment_cols).size() * 0
+            self.prev_amount = pa.reset_index(name='amount')
+
     def allocate(self, data, year):
         """
         Performs the allocation for a given year.
@@ -132,7 +139,7 @@ class AllocationModel(object):
 
         """
         logger.debug('start allocation for year {}'.format(year))
-        if len(data) == 0 or data is None:
+        if data is None or len(data) == 0:
             return None
 
         # set up the output series
@@ -154,20 +161,42 @@ class AllocationModel(object):
 
             # adjust the amount for deltas
             if self.compute_delta:
-                if year - 1 in self.amounts_df.index:
-                    if self.segment_cols is None:
+                amount_total = amount
+
+                if self.segment_cols is None:
+                    if year - 1 in self.amounts_df.index:
+                        # use the previous year if available
                         amount = amount - self.amounts_df.loc[year - 1][self.amounts_col]
                     else:
-                        prev_q = ""
-                        for seg_col in self.segment_cols:
-                            curr_val = curr_row[seg_col]
-                            if isinstance(curr_val, basestring):
-                                prev_q += "{} == '{}' and ".format(seg_col, curr_val)
-                            else:
-                                prev_q += "{} == {} and ".format(seg_col, curr_val)
-                        prev_q = prev_q[:-4]
+                        # otherwise use the most recent amount
+                        amount = amount - self.prev_amount
+
+                    # update the most recent amount
+                    self.prev_amount = amount_total
+                else:
+                    # build a query for the current segmentation
+                    prev_q = ""
+                    for seg_col in self.segment_cols:
+                        curr_val = curr_row[seg_col]
+                        if isinstance(curr_val, basestring):
+                            prev_q += "{} == '{}' and ".format(seg_col, curr_val)
+                        else:
+                            prev_q += "{} == {} and ".format(seg_col, curr_val)
+                    prev_q = prev_q[:-4]
+
+                    # get the index for the most recent amount w/ same segments
+                    prev_row_idx = self.prev_amount.query(prev_q).index.values[0]
+
+                    if year - 1 in self.amounts_df.index:
+                        # use the previous year if available
                         prev_rows = self.amounts_df.query(prev_q)
                         amount = amount - prev_rows[self.amounts_col][year - 1]
+                    else:
+                        # otherwise use the most recent amount
+                        amount = amount - self.prev_amount['amount'][prev_row_idx]
+
+                    # update the most recent amount
+                    self.prev_amount['amount'].loc[prev_row_idx] = amount_total
 
             if amount == 0:
                 continue

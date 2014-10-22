@@ -52,32 +52,33 @@ def capacity_col():
 
 @pytest.fixture
 def segment_cols():
-    return ['taz']
+    return ['taz', 'district']
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def seg_amounts_df():
     return pd.DataFrame(
         {
-            'taz': [1, 2, 1, 2],
-            'amount': [100, 200, 150, 250],
-            'another_amount': [10, 20, 15, 25]
+            'taz': [1, 2, 3, 3, 1, 2, 3, 3],
+            'district': ['a', 'b', 'c', 'd', 'a', 'b', 'c', 'd'],
+            'amount': [100, 200, 20, 20, 150, 250, 20, 10]
         },
-        index=pd.Index([2010, 2010, 2011, 2011]))
+        index=pd.Index([2010, 2010, 2010, 2010, 2011, 2011, 2011, 2011]))
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def seg_rows_df():
     return pd.DataFrame(
         {
-            'taz': [1, 1, 1, 2, 2, 2],
-            'weight': [50, 0, 25, 10, 20, 30],
-            'capacity': [60, 70, 80, 100, 110, 120],
-            'existing': [10, 11, 12, 20, 21, 22]
+            'taz': [1, 1, 1, 2, 2, 2, 3, 3],
+            'district': ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'd'],
+            'weight': [50, 0, 25, 10, 20, 30, 10, 0],
+            'capacity': [60, 70, 80, 100, 110, 120, 100, 100],
+            'existing': [10, 11, 12, 20, 21, 22, 20, 20]
         })
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def agents_df():
     return pd.DataFrame(
         {
@@ -87,7 +88,7 @@ def agents_df():
         index=pd.Index(range(100, 110)))
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def locations_df():
     return pd.DataFrame(
         {
@@ -100,11 +101,7 @@ def locations_df():
         index=pd.Index(range(300, 306)))
 
 
-def assert_totals_match(amounts_df,
-                        amounts_col,
-                        results,
-                        target_col,
-                        year):
+def assert_totals_match(amounts_df, amounts_col, results, target_col, year):
     curr_amount = amounts_df[amounts_col][year]
     assert curr_amount == results.sum()
 
@@ -114,12 +111,52 @@ def assert_totals_match_delta(amounts_df,
                               orig_df,
                               results,
                               target_col,
-                              year):
+                              year,
+                              previous_year=9999):
+    if previous_year == 9999:
+        previous_year = year - 1
     amount = amounts_df[amounts_col][year]
-    prev_amount = amounts_df[amounts_col][year - 1]
+    prev_amount = amounts_df[amounts_col][previous_year]
     expected_change = amount - prev_amount
     observed_change = results.sum() - orig_df[target_col].sum()
     assert expected_change == observed_change
+
+
+def assert_segmentation_totals_match_delta(amounts_df,
+                                           amounts_col,
+                                           orig_df,
+                                           results,
+                                           target_col,
+                                           segment_cols,
+                                           year,
+                                           previous_year=9999):
+    # get the allocated change
+    orig_sums = orig_df.groupby(segment_cols).sum()
+    results_df = orig_df.copy()
+    results_df[target_col] = results
+    result_sums = results_df.groupby(segment_cols).sum()
+    change_sums = result_sums - orig_sums
+
+    # join the amounts for the two years
+    if previous_year == 9999:
+        previous_year = year - 1
+    amount_join = pd.merge(
+        left=amounts_df.loc[year],
+        right=amounts_df.loc[previous_year],
+        on=segment_cols,
+        how='outer')
+
+    # join the amounts w/ the observed change
+    join2 = pd.merge(
+        left=change_sums,
+        right=amount_join,
+        left_index=True,
+        right_on=segment_cols,
+        how='outer')
+
+    amount_change = join2[amounts_col + '_x'] - join2[amounts_col + '_y']
+    mismatches = len(join2[join2[target_col] != amount_change])
+    assert mismatches == 0
 
 
 def assert_capacities(results, orig_df, capacity_col, floor_col=None):
@@ -129,6 +166,7 @@ def assert_capacities(results, orig_df, capacity_col, floor_col=None):
         under = results < orig_df[floor_col]
     else:
         under = results < 0
+    print results[over]
     assert not (over.any() or under.any())
 
 
@@ -137,10 +175,12 @@ def assert_agent_locations(agent_loc_ids, locations_df):
     assert np.in1d(agent_loc_ids, locations_df.index.values).all()
 
 
-def test_noWeights_noCapacity(amounts_df,
-                              amounts_col,
-                              rows_df,
-                              target_col):
+def test_null_data_frame(amounts_df, amounts_col, target_col):
+    am = AllocationModel(amounts_df, amounts_col, target_col)
+    assert am.allocate(None, 2010) is None
+
+
+def test_noWeights_noCapacity(amounts_df, amounts_col, rows_df, target_col):
     year = 2010
     am = AllocationModel(amounts_df, amounts_col, target_col)
     results = am.allocate(rows_df, year)
@@ -159,7 +199,8 @@ def test_noWeights_noCapacity__delta(amounts_df,
         as_delta=True,
         compute_delta=True)
     results = am.allocate(rows_df, year)
-    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results, target_col, year)
+    assert_totals_match_delta(
+        amounts_df, amounts_col, rows_df, results, target_col, year)
 
 
 def test_hasWeights_noCapacity(amounts_df,
@@ -187,7 +228,8 @@ def test_hasWeights_noCapacity__delta(amounts_df,
         as_delta=True,
         compute_delta=True)
     results = am.allocate(rows_df, year)
-    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results, target_col, year)
+    assert_totals_match_delta(
+        amounts_df, amounts_col, rows_df, results, target_col, year)
 
 
 def test_hasWeights_hasCapacity(amounts_df,
@@ -224,7 +266,8 @@ def test_hasWeights_hasCapacity__delta(amounts_df,
         as_delta=True,
         compute_delta=True)
     results = am.allocate(rows_df, year)
-    assert_totals_match_delta(amounts_df, amounts_col, rows_df, results, target_col, year)
+    assert_totals_match_delta(
+        amounts_df, amounts_col, rows_df, results, target_col, year)
     assert_capacities(results, rows_df, capacity_col)
 
 
@@ -278,31 +321,9 @@ def test_segmentation__delta(seg_amounts_df,
         as_delta=True,
         compute_delta=True,
         segment_cols=segment_cols)
-
-    # get the allocated change
-    orig_sums = seg_rows_df.groupby(segment_cols).sum()
     results = amod.allocate(seg_rows_df, year)
-    results_df = seg_rows_df.copy()
-    results_df[target_col] = results
-    result_sums = results_df.groupby(segment_cols).sum()
-    change_sums = result_sums - orig_sums
-
-    # check resulting sums by segments
-    join1 = pd.merge(
-        left=seg_amounts_df.loc[year],
-        right=seg_amounts_df.loc[year - 1],
-        on=segment_cols,
-        how='outer')
-
-    join2 = pd.merge(
-        left=change_sums,
-        right=join1,
-        left_index=True,
-        right_on=segment_cols,
-        how='outer')
-    amount_change = join2[amounts_col + '_x'] - join2[amounts_col + '_y']
-    mismatches = len(join2[join2[target_col] != amount_change])
-    assert mismatches == 0
+    assert_segmentation_totals_match_delta(
+        seg_amounts_df, amounts_col, seg_rows_df, results, target_col, segment_cols, year)
 
 
 def test_missing_year(amounts_df, amounts_col, rows_df, target_col):
@@ -313,6 +334,62 @@ def test_missing_year(amounts_df, amounts_col, rows_df, target_col):
     results = am.allocate(rows_df, year)
     assert orig_cnt == len(results)
     assert orig_sum == results.sum()
+
+
+def test_missing_year_delta(rows_df, target_col):
+    # set up the allocation model
+    amounts_col = 'amount'
+    amounts_df = pd.DataFrame(
+        {amounts_col: [150, 250, 300]},
+        index=[2010, 2011, 2020])
+    am = AllocationModel(
+        amounts_df,
+        amounts_col,
+        target_col,
+        as_delta=True,
+        compute_delta=True)
+
+    # get 2011 results to serve as baseline
+    results_2011 = am.allocate(rows_df, 2011)
+    rows_df[target_col] = results_2011
+
+    # test 2020
+    results_2020 = am.allocate(rows_df, 2020)
+    assert_totals_match_delta(
+        amounts_df, amounts_col, rows_df, results_2020, target_col, 2020, 2011)
+
+
+def test_missing_year_delta_segmentation():
+    # set up the allocation model
+    amounts_df = pd.DataFrame(
+        {
+            'taz': [1, 2, 1, 2, 1, 2],
+            'amount': [100, 200, 150, 250, 300, 500]
+        },
+        index=pd.Index([2010, 2010, 2011, 2011, 2020, 2020]))
+    rows_df = pd.DataFrame(
+        {
+            'taz': [1, 1, 1, 2, 2, 2, 1, 1],
+            'weight': [50, 0, 25, 10, 20, 30, 10, 0],
+            'existing': [10, 11, 12, 20, 21, 22, 20, 20]
+        })
+    am = AllocationModel(
+        amounts_df,
+        'amount',
+        'existing',
+        'weight',
+        as_delta=True,
+        compute_delta=True,
+        segment_cols=['taz'])
+
+    # get 2011 results to serve as baseline
+    results_2011 = am.allocate(rows_df, 2011)
+    rows_df[target_col] = results_2011
+
+    # test 2020
+    results_2020 = am.allocate(rows_df, 2020)
+    assert_segmentation_totals_match_delta(
+        amounts_df, 'amount', rows_df, results_2020, 'existing', ['taz'], 2020, 2011)
 
 
 def test_declining_amount_delta(amounts_df_decline,
@@ -383,7 +460,6 @@ def test_not_enough_capacity(amounts_df,
         capacity_col)
     results = am.allocate(rows_df, year)
     assert_capacities(results, rows_df, capacity_col)
-    # add check to make sure allocation = capacities?
 
 
 def test_not_enough_capacity_decline(amounts_df,
@@ -405,16 +481,10 @@ def test_not_enough_capacity_decline(amounts_df,
     # add check to make sure allocation = capacities?
 
 
-def test_raise_float_amount_as_int(amounts_df,
-                                   amounts_col,
-                                   rows_df,
-                                   target_col):
+def test_raise_float_amount(amounts_df, amounts_col, rows_df, target_col):
     year = 2010
     amounts_df[amounts_col] = pd.Series([100.56, 200.56, 300.56])
-    am = AllocationModel(
-        amounts_df,
-        amounts_col,
-        target_col)
+    am = AllocationModel(amounts_df, amounts_col, target_col)
     with pytest.raises(ValueError):
         am.allocate(rows_df, year)
 
@@ -428,7 +498,11 @@ def test_agent_allocation(agents_df, locations_df):
 
 def test_agent_allocation_segmented(agents_df, locations_df):
     segment_cols = ['taz', 'district']
-    aa = AgentAllocationModel('existing', 'weight', 'capacity', segment_cols=segment_cols)
+    aa = AgentAllocationModel(
+        'existing',
+        'weight',
+        'capacity',
+        segment_cols=segment_cols)
     loc_ids, loc_allo = aa.locate_agents(locations_df, agents_df, 2010)
     assert_agent_locations(loc_ids, locations_df)
     assert_capacities(loc_allo, locations_df, 'capacity')
