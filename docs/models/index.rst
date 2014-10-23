@@ -14,6 +14,10 @@ with other operations. The model selections include:
     and a location choice model for matching choosers to their
     likely selections.
 
+* :ref:`supply-and-demand`
+
+  * Adjust real estate prices to account for suppy and demand effects.
+
 * :ref:`transition-relocation`
 
   * For adding/removing members from a population and choosing movers.
@@ -25,6 +29,7 @@ Contents
    :maxdepth: 2
 
    statistical
+   supplydemand
    transrelo
    util
    urbanchoice
