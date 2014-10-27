@@ -1,7 +1,7 @@
 import os.path
 
 from ez_setup import use_setuptools
-use_setuptools(min_version='0.6')
+use_setuptools()
 
 from setuptools import setup, find_packages
 

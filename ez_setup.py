@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Bootstrap setuptools installation - MODIFIED to support min_version arg
+"""Bootstrap setuptools installation
 
 To use setuptools in your package's setup.py, include this
 file in the same directory and add this to the top of your setup.py::
@@ -130,7 +130,7 @@ def _do_download(version, download_base, to_dir, download_delay):
 
 
 def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
-        to_dir=os.curdir, download_delay=15, min_version=None):
+        to_dir=os.curdir, download_delay=15):
     to_dir = os.path.abspath(to_dir)
     rep_modules = 'pkg_resources', 'setuptools'
     imported = set(sys.modules).intersection(rep_modules)
@@ -139,9 +139,7 @@ def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
     except ImportError:
         return _do_download(version, download_base, to_dir, download_delay)
     try:
-        if not min_version:
-            min_version = version
-        pkg_resources.require("setuptools>=" + min_version)
+        pkg_resources.require("setuptools>=" + version)
         return
     except pkg_resources.DistributionNotFound:
         return _do_download(version, download_base, to_dir, download_delay)
@@ -154,7 +152,7 @@ def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
                 'easy_install -U setuptools'.
 
                 (Currently using {VC_err.args[0]!r})
-                """).format(VC_err=VC_err, version=min_version)
+                """).format(VC_err=VC_err, version=version)
             sys.stderr.write(msg)
             sys.exit(2)
 
