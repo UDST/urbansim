@@ -521,9 +521,8 @@ class _SeriesWrapper(object):
         Table with which the column will be associated.
     column_name : str
         Name for the column.
-    func : callable
-        Should return a Series that has an
-        index matching the table to which it is being added.
+    series : pandas.Series
+        Series with index matching the table to which it is being added.
 
     Attributes
     ----------
