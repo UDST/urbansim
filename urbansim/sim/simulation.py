@@ -702,22 +702,33 @@ def _collect_injectables(names):
         or the injectable function is evaluated.
 
     """
-    names = set(names)
-    dicts = toolz.keyfilter(
-        lambda x: x in names, toolz.merge(_INJECTABLES, _TABLES))
+    # Use table names for columns, when filtering injectables.
+    parent_names = set([name.split('__')[0] for name in names])
+    maps = toolz.keyfilter(
+        lambda x: x in parent_names, toolz.merge(_INJECTABLES, _TABLES))
 
-    if set(dicts.keys()) != names:
+    if set(maps.keys()) != parent_names:
         raise KeyError(
             'not all injectables found. '
-            'missing: {}'.format(names - set(dicts.keys())))
+            'missing: {}'.format(names - set(maps.keys())))
 
-    for name, thing in dicts.items():
-        if isinstance(thing, _InjectableFuncWrapper):
-            dicts[name] = thing()
-        elif isinstance(thing, _TableSourceWrapper):
-            dicts[name] = thing.convert()
+    injectables = {}
+    for name in names:
+        if '__' in name:
+            # Injectable is column.
+            table_name, column_name = name.split('__')
+            table = maps[table_name]
+            injectables[name] = table.get_column(column_name)
+        else:
+            thing = maps[name]
+            if isinstance(thing, _InjectableFuncWrapper):
+                # Injectable is function.
+                injectables[name] = thing()
+            elif isinstance(thing, _TableSourceWrapper):
+                # Injectable is table.
+                injectables[name] = thing.convert()
 
-    return dicts
+    return injectables
 
 
 def add_table(table_name, table, cache=False):
@@ -762,7 +773,7 @@ def table(table_name, cache=False):
     Decorator version of `add_table` used for decorating functions
     that return DataFrames.
 
-    Decorated function argument names will be matched to known tables,
+    Function argument names will be matched to known injectables,
     which will be injected when this function is called.
 
     """
@@ -874,8 +885,8 @@ def column(table_name, column_name, cache=False):
     Decorator version of `add_column` used for decorating functions
     that return a Series with an index matching the named table.
 
-    The argument names of the function should match known tables, which
-    will be injected.
+    Function argument names will be matched to known injectables,
+    which will be injected when this function is called.
 
     """
     def decorator(func):
