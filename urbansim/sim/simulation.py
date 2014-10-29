@@ -636,7 +636,7 @@ class _ModelFuncWrapper(object):
 
         Returns
         -------
-        tables : list of str
+        tables : set of str
 
         """
         args = self._argspec.args
@@ -646,7 +646,12 @@ class _ModelFuncWrapper(object):
             default_args = []
         # Combine names from argument names and argument default values.
         names = args[:len(args) - len(default_args)] + default_args
-        return [x for x in names if _is_table(x)]
+        tables = set()
+        for name in names:
+            parent_name = name.split('.')[0]
+            if _is_table(parent_name):
+                tables.add(parent_name)
+        return tables
 
 
 def _is_table(name):

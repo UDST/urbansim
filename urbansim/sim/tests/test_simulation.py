@@ -262,7 +262,7 @@ def test_models(df):
         test_table['a'] = tt['a'] + tt['b']
 
     model = sim.get_model('test_model')
-    assert model._tables_used() == ['test_table']
+    assert model._tables_used() == set(['test_table'])
     model()
 
     table = sim.get_table('test_table')
