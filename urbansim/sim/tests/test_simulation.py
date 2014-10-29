@@ -337,7 +337,7 @@ def test_get_broadcasts():
         {('a', 'b'), ('b', 'c'), ('z', 'b'), ('f', 'g')}
 
 
-def test_collect_injectables(df):
+def test_collect_variables(df):
     sim.add_table('df', df)
 
     @sim.table('df_func')
@@ -359,10 +359,10 @@ def test_collect_injectables(df):
         return df
 
     with pytest.raises(KeyError):
-        sim._collect_injectables(['asdf'])
+        sim._collect_variables(['asdf'])
 
     names = ['df', 'df_func', 'answer', 'injected', 'source']
-    things = sim._collect_injectables(names)
+    things = sim._collect_variables(names)
 
     assert set(things.keys()) == set(names)
     assert isinstance(things['source'], sim.DataFrameWrapper)

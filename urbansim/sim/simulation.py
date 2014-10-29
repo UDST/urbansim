@@ -57,8 +57,8 @@ def clear_cache():
 
 def enable_cache():
     """
-    Allow caching of computed tables, columns, and injectables that
-    explicitly have caching enabled.
+    Allow caching of registered variables that explicitly have
+    caching enabled.
 
     """
     global _CACHING
@@ -67,8 +67,8 @@ def enable_cache():
 
 def disable_cache():
     """
-    Turn off caching across the simulation, even for computed tables,
-    columns, and injectables that have caching enabled.
+    Turn off caching across the simulation, even for registered variables
+    that have caching enabled.
 
     """
     global _CACHING
@@ -323,8 +323,8 @@ class TableFuncWrapper(object):
                 'call function to get frame for table {!r}'.format(
                     self.name),
                 logger):
-            kwargs = _collect_injectables(names=self._argspec.args,
-                                          expressions=self._argspec.defaults)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             frame = self._func(**kwargs)
 
         if self.cache:
@@ -489,8 +489,8 @@ class _ColumnFuncWrapper(object):
         with log_start_finish(
                 ('call function to provide column {!r} for table {!r}'
                  ).format(self.name, self.table_name), logger):
-            kwargs = _collect_injectables(names=self._argspec.args,
-                                          expressions=self._argspec.defaults)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             col = self._func(**kwargs)
 
         if self.cache:
@@ -584,8 +584,8 @@ class _InjectableFuncWrapper(object):
         with log_start_finish(
                 'call function to provide injectable {!r}'.format(self.name),
                 logger):
-            kwargs = _collect_injectables(names=self._argspec.args,
-                                          expressions=self._argspec.defaults)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             result = self._func(**kwargs)
 
         if self.cache:
@@ -626,8 +626,8 @@ class _ModelFuncWrapper(object):
 
     def __call__(self):
         with log_start_finish('calling model {!r}'.format(self.name), logger):
-            kwargs = _collect_injectables(names=self._argspec.args,
-                                          expressions=self._argspec.defaults)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             return self._func(**kwargs)
 
     def _tables_used(self):
@@ -697,14 +697,14 @@ def list_broadcasts():
     return list(_BROADCASTS.keys())
 
 
-def _collect_injectables(names, expressions=None):
+def _collect_variables(names, expressions=None):
     """
-    Find all the injectables specified by `names` and `expressions`.
+    Map labels and expressions to registered variables.
 
     Example:
 
-        _collect_injectables(names=[zones, zone_id],
-                             expressions=['parcels.zone_id'])
+        _collect_variables(names=['zones', 'zone_id'],
+                           expressions=['parcels.zone_id'])
 
     Would return a dict representing:
 
@@ -714,49 +714,49 @@ def _collect_injectables(names, expressions=None):
     Parameters
     ----------
     names : list of str
-        List of injectable names and/or labels. If mixing names and labels,
-        labels must come at the end.
+        List of registered variable names and/or labels.
+        If mixing names and labels, labels must come at the end.
     expressions : list of str, optional
-        List of injectable expressions for labels defined at end of `names`.
-        Length must match the number of labels.
+        List of registered variable expressions for labels defined
+        at end of `names`. Length must match the number of labels.
 
     Returns
     -------
-    injectables : dict
-        Keys are the names, values are wrappers if the injectable
-        is a table. If it's a plain injectable the value itself is given
-        or the injectable function is evaluated.
+    variables : dict
+        Keys match `names`. Values correspond to registered variables,
+        which may be wrappers or evaluated functions if appropriate.
 
     """
-    # Map injectable labels to injectable expressions.
+    # Map registered variable labels to expressions.
     if not expressions:
         expressions = []
     offset = len(names) - len(expressions)
     labels_map = dict(zip(names[:offset], names[:offset])
                       + zip(names[offset:], expressions))
 
-    all_injectables = toolz.merge(_INJECTABLES, _TABLES)
-    injectables = {}
+    all_variables = toolz.merge(_INJECTABLES, _TABLES)
+    variables = {}
     for label, expression in labels_map.items():
-        # In the future, more injectable expressions could be supported.
-        # Currently supports injectable names and column references.
+        # In the future, more registered variable expressions could be
+        # supported. Currently supports names of registered variables
+        # and references to table columns.
         if '.' in expression:
-            # Injectable expression refers to column.
+            # Registered variable expression refers to column.
             table_name, column_name = expression.split('.')
             table = _TABLES[table_name]
-            injectables[label] = table.get_column(column_name)
+            variables[label] = table.get_column(column_name)
         else:
-            thing = all_injectables[expression]
+            thing = all_variables[expression]
             if isinstance(thing, _InjectableFuncWrapper):
-                # Injectable object is function.
-                injectables[label] = thing()
+                # Registered variable object is function.
+                variables[label] = thing()
             elif isinstance(thing, _TableSourceWrapper):
-                # Injectable object is table.
-                injectables[label] = thing.convert()
+                # Registered variable object is table.
+                variables[label] = thing.convert()
             else:
-                injectables[label] = thing
+                variables[label] = thing
 
-    return injectables
+    return variables
 
 
 def add_table(table_name, table, cache=False):
@@ -769,8 +769,8 @@ def add_table(table_name, table, cache=False):
         Should be globally unique to this table.
     table : pandas.DataFrame or function
         If a function it should return a DataFrame. Function argument
-        names will be matched to known tables, which will be injected
-        when this function is called.
+        names will be matched to registered variables, which will be
+        injected when this function is called.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
@@ -801,8 +801,8 @@ def table(table_name, cache=False):
     Decorator version of `add_table` used for decorating functions
     that return DataFrames.
 
-    Decorated function argument names will be matched to known tables,
-    which will be injected when this function is called.
+    Decorated function argument names will be matched to registered
+    variables, which will be injected when this function is called.
 
     """
     def decorator(func):
@@ -821,7 +821,7 @@ def add_table_source(table_name, func):
     ----------
     table_name : str
     func : callable
-        Function argument names will be matched to known injectables,
+        Function argument names will be matched to registered variables,
         which will be injected when this function is called.
 
     Returns
@@ -913,8 +913,8 @@ def column(table_name, column_name, cache=False):
     Decorator version of `add_column` used for decorating functions
     that return a Series with an index matching the named table.
 
-    The argument names of the function should match known tables, which
-    will be injected.
+    The argument names of the function should match registered variables,
+    which will be injected.
 
     """
     def decorator(func):
@@ -1024,7 +1024,7 @@ def add_model(model_name, func):
     """
     Add a model function to the simulation.
 
-    Model argument names are used for injecting known tables of the same name.
+    Model argument names are used for injecting registered variables.
     The argument name "year" may be used to have the current simulation
     year injected.
 
