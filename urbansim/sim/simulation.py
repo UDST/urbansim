@@ -639,9 +639,9 @@ class _ModelFuncWrapper(object):
         tables : set of str
 
         """
-        args = self._argspec.args
+        args = list(self._argspec.args)
         if self._argspec.defaults:
-            default_args = self._argspec.defaults
+            default_args = list(self._argspec.defaults)
         else:
             default_args = []
         # Combine names from argument names and argument default values.
