@@ -141,16 +141,20 @@ def test_columns_and_tables(df):
     def col_d(test_func):
         return test_func.to_frame(columns=['b'])['b'] * 2
 
+    @sim.column('test_func', 'e')
+    def col_e(column='test_func.d'):
+        return column + 1
+
     test_frame = sim.get_table('test_frame')
-    assert test_frame.columns == ['a', 'b', 'c']
-    pdt.assert_frame_equal(
+    assert set(test_frame.columns) == set(['a', 'b', 'c'])
+    assert_frames_equal(
         test_frame.to_frame(),
         pd.DataFrame(
             {'a': [1, 2, 3],
              'b': [4, 5, 6],
              'c': [7, 8, 9]},
             index=['x', 'y', 'z']))
-    pdt.assert_frame_equal(
+    assert_frames_equal(
         test_frame.to_frame(columns=['a', 'c']),
         pd.DataFrame(
             {'a': [1, 2, 3],
@@ -158,24 +162,26 @@ def test_columns_and_tables(df):
             index=['x', 'y', 'z']))
 
     test_func_df = sim.get_table('test_func')
-    assert test_func_df.columns == ['d']
-    pdt.assert_frame_equal(
+    assert set(test_func_df.columns) == set(['d', 'e'])
+    assert_frames_equal(
         test_func_df.to_frame(),
         pd.DataFrame(
             {'a': [0.5, 1, 1.5],
              'b': [2, 2.5, 3],
              'c': [3.5, 4, 4.5],
-             'd': [4., 5., 6.]},
+             'd': [4., 5., 6.],
+             'e': [5., 6., 7.]},
             index=['x', 'y', 'z']))
-    pdt.assert_frame_equal(
+    assert_frames_equal(
         test_func_df.to_frame(columns=['b', 'd']),
         pd.DataFrame(
             {'b': [2, 2.5, 3],
              'd': [4., 5., 6.]},
             index=['x', 'y', 'z']))
-    assert test_func_df.columns == ['a', 'b', 'c', 'd']
+    assert set(test_func_df.columns) == set(['a', 'b', 'c', 'd', 'e'])
 
-    assert set(sim.list_columns()) == {('test_frame', 'c'), ('test_func', 'd')}
+    assert set(sim.list_columns()) == {('test_frame', 'c'), ('test_func', 'd'),
+                                       ('test_func', 'e')}
 
 
 def test_column_cache(df):
