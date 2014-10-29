@@ -361,7 +361,7 @@ def test_collect_variables(df):
     def injected():
         return 'injected'
 
-    @sim.table_source('source')
+    @sim.table_source('source table')
     def source():
         return df
 
@@ -372,7 +372,7 @@ def test_collect_variables(df):
         sim._collect_variables(names=['df'], expressions=['asdf'])
 
     names = ['df', 'df_func', 'answer', 'injected', 'source_label', 'df_a']
-    expressions = ['source', 'df.a']
+    expressions = ['source table', 'df.a']
     things = sim._collect_variables(names, expressions)
 
     assert set(things.keys()) == set(names)
