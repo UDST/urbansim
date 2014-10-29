@@ -272,7 +272,7 @@ class TableFuncWrapper(object):
     def __init__(self, name, func, cache=False):
         self.name = name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
         self.cache = cache
         self._columns = []
         self._index = None
@@ -323,7 +323,8 @@ class TableFuncWrapper(object):
                 'call function to get frame for table {!r}'.format(
                     self.name),
                 logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_injectables(names=self._argspec.args,
+                                          expressions=self._argspec.defaults)
             frame = self._func(**kwargs)
 
         if self.cache:
@@ -469,7 +470,7 @@ class _ColumnFuncWrapper(object):
         self.table_name = table_name
         self.name = column_name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
         self.cache = cache
 
     def __call__(self):
@@ -488,7 +489,8 @@ class _ColumnFuncWrapper(object):
         with log_start_finish(
                 ('call function to provide column {!r} for table {!r}'
                  ).format(self.name, self.table_name), logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_injectables(names=self._argspec.args,
+                                          expressions=self._argspec.defaults)
             col = self._func(**kwargs)
 
         if self.cache:
@@ -570,7 +572,7 @@ class _InjectableFuncWrapper(object):
     def __init__(self, name, func, cache=False):
         self.name = name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
         self.cache = cache
 
     def __call__(self):
@@ -582,7 +584,8 @@ class _InjectableFuncWrapper(object):
         with log_start_finish(
                 'call function to provide injectable {!r}'.format(self.name),
                 logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_injectables(names=self._argspec.args,
+                                          expressions=self._argspec.defaults)
             result = self._func(**kwargs)
 
         if self.cache:
@@ -619,11 +622,12 @@ class _ModelFuncWrapper(object):
     def __init__(self, model_name, func):
         self.name = model_name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
 
     def __call__(self):
         with log_start_finish('calling model {!r}'.format(self.name), logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_injectables(names=self._argspec.args,
+                                          expressions=self._argspec.defaults)
             return self._func(**kwargs)
 
     def _tables_used(self):
@@ -635,7 +639,14 @@ class _ModelFuncWrapper(object):
         tables : list of str
 
         """
-        return [x for x in self._arg_list if _is_table(x)]
+        args = self._argspec.args
+        if self._argspec.defaults:
+            default_args = self._argspec.defaults
+        else:
+            default_args = []
+        # Combine names from argument names and argument default values.
+        names = args[:len(args) - len(default_args)] + default_args
+        return [x for x in names if _is_table(x)]
 
 
 def _is_table(name):
@@ -686,13 +697,28 @@ def list_broadcasts():
     return list(_BROADCASTS.keys())
 
 
-def _collect_injectables(names):
+def _collect_injectables(names, expressions=None):
     """
-    Find all the injectables specified in `names`.
+    Find all the injectables specified by `names` and `expressions`.
+
+    Example:
+
+        _collect_injectables(names=[zones, zone_id],
+                             expressions=['parcels.zone_id'])
+
+    Would return a dict representing:
+
+        {'parcels': <DataFrameWrapper for zones>,
+         'zone_id': <pandas.Series for parcels.zone_id>}
 
     Parameters
     ----------
     names : list of str
+        List of injectable names and/or labels. If mixing names and labels,
+        labels must come at the end.
+    expressions : list of str, optional
+        List of injectable expressions for labels defined at end of `names`.
+        Length must match the number of labels.
 
     Returns
     -------
@@ -702,22 +728,35 @@ def _collect_injectables(names):
         or the injectable function is evaluated.
 
     """
-    names = set(names)
-    dicts = toolz.keyfilter(
-        lambda x: x in names, toolz.merge(_INJECTABLES, _TABLES))
+    # Map injectable labels to injectable expressions.
+    if not expressions:
+        expressions = []
+    offset = len(names) - len(expressions)
+    labels_map = dict(zip(names[:offset], names[:offset])
+                      + zip(names[offset:], expressions))
 
-    if set(dicts.keys()) != names:
-        raise KeyError(
-            'not all injectables found. '
-            'missing: {}'.format(names - set(dicts.keys())))
+    all_injectables = toolz.merge(_INJECTABLES, _TABLES)
+    injectables = {}
+    for label, expression in labels_map.items():
+        # In the future, more injectable expressions could be supported.
+        # Currently supports injectable names and column references.
+        if '.' in expression:
+            # Injectable expression refers to column.
+            table_name, column_name = expression.split('.')
+            table = _TABLES[table_name]
+            injectables[label] = table.get_column(column_name)
+        else:
+            thing = all_injectables[expression]
+            if isinstance(thing, _InjectableFuncWrapper):
+                # Injectable object is function.
+                injectables[label] = thing()
+            elif isinstance(thing, _TableSourceWrapper):
+                # Injectable object is table.
+                injectables[label] = thing.convert()
+            else:
+                injectables[label] = thing
 
-    for name, thing in dicts.items():
-        if isinstance(thing, _InjectableFuncWrapper):
-            dicts[name] = thing()
-        elif isinstance(thing, _TableSourceWrapper):
-            dicts[name] = thing.convert()
-
-    return dicts
+    return injectables
 
 
 def add_table(table_name, table, cache=False):
