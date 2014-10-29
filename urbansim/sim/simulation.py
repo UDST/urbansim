@@ -802,9 +802,12 @@ def add_table(table_name, table, cache=False):
     return table
 
 
-def table(table_name, cache=False):
+def table(table_name=None, cache=False):
     """
-    Decorator version of `add_table`, for functions returning DataFrames.
+    Decorates functions that return DataFrames.
+
+    Decorator version of `add_table`. Table name defaults to
+    name of function.
 
     The function's argument names and keyword argument values
     will be matched to registered variables when the function
@@ -812,7 +815,11 @@ def table(table_name, cache=False):
 
     """
     def decorator(func):
-        add_table(table_name, func, cache=cache)
+        if table_name:
+            name = table_name
+        else:
+            name = func.__name__
+        add_table(name, func, cache=cache)
         return func
     return decorator
 
@@ -843,12 +850,13 @@ def add_table_source(table_name, func):
     return wrapped
 
 
-def table_source(table_name):
+def table_source(table_name=None):
     """
-    Decorator version of `add_table_source`.
+    Decorates functions that return DataFrames.
 
-    Use it to decorate a function that returns a DataFrame. The function
-    will be evaluated only once and the DataFrame will replace it.
+    Decorator version of `add_table_source`. Function will be
+    evaluated only once and the DataFrame will replace it. Table name
+    defaults to name of function.
 
     The function's argument names and keyword argument values
     will be matched to registered variables when the function
@@ -856,7 +864,11 @@ def table_source(table_name):
 
     """
     def decorator(func):
-        add_table_source(table_name, func)
+        if table_name:
+            name = table_name
+        else:
+            name = func.__name__
+        add_table_source(name, func)
         return func
     return decorator
 
@@ -925,9 +937,12 @@ def add_column(table_name, column_name, column, cache=False):
     return column
 
 
-def column(table_name, column_name, cache=False):
+def column(table_name, column_name=None, cache=False):
     """
-    Decorator version of `add_column`, for functions returning Series.
+    Decorates functions that return a Series.
+
+    Decorator version of `add_column`. Series index must match
+    the named table. Column name defaults to name of function.
 
     The function's argument names and keyword argument values
     will be matched to registered variables when the function
@@ -936,7 +951,11 @@ def column(table_name, column_name, cache=False):
 
     """
     def decorator(func):
-        add_column(table_name, column_name, func, cache=cache)
+        if column_name:
+            name = column_name
+        else:
+            name = func.__name__
+        add_column(table_name, name, func, cache=cache)
         return func
     return decorator
 
@@ -1007,9 +1026,12 @@ def add_injectable(name, value, autocall=True, cache=False):
     _INJECTABLES[name] = value
 
 
-def injectable(name, autocall=True, cache=False):
+def injectable(name=None, autocall=True, cache=False):
     """
-    Decorator version of `add_injectable`.
+    Decorates functions that will be injected into other functions.
+
+    Decorator version of `add_injectable`. Name defaults to
+    name of function.
 
     The function's argument names and keyword argument values
     will be matched to registered variables when the function
@@ -1017,7 +1039,11 @@ def injectable(name, autocall=True, cache=False):
 
     """
     def decorator(func):
-        add_injectable(name, func, autocall=autocall, cache=cache)
+        if name:
+            n = name
+        else:
+            n = func.__name__
+        add_injectable(n, func, autocall=autocall, cache=cache)
         return func
     return decorator
 
@@ -1066,9 +1092,12 @@ def add_model(model_name, func):
         raise TypeError('func must be a callable')
 
 
-def model(model_name):
+def model(model_name=None):
     """
-    Decorator version of `add_model`, for functions executed by `run`.
+    Decorates functions that will be called by the `run` function.
+
+    Decorator version of `add_model`. Model name defaults to
+    name of function.
 
     The function's argument names and keyword argument values
     will be matched to registered variables when the function
@@ -1078,7 +1107,11 @@ def model(model_name):
 
     """
     def decorator(func):
-        add_model(model_name, func)
+        if model_name:
+            name = model_name
+        else:
+            name = func.__name__
+        add_model(name, func)
         return func
     return decorator
 
