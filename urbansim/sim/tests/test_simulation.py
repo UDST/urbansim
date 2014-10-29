@@ -64,8 +64,8 @@ def test_table_func_cache(df):
     sim.add_injectable('x', 2)
 
     @sim.table('table', cache=True)
-    def table(x):
-        return df * x
+    def table(variable='x'):
+        return df * variable
 
     pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 2)
     sim.add_injectable('x', 3)
@@ -188,8 +188,8 @@ def test_column_cache(df):
         return df
 
     @sim.column(*key, cache=True)
-    def col(x):
-        return series * x
+    def col(variable='x'):
+        return series * variable
 
     c = lambda: sim._COLUMNS[key]
 
@@ -256,13 +256,20 @@ def test_update_col(df):
 def test_models(df):
     sim.add_table('test_table', df)
 
+    df2 = df / 2
+    sim.add_table('test_table2', df2)
+
     @sim.model('test_model')
-    def test_model(test_table):
+    def test_model(test_table, test_column='test_table2.b'):
         tt = test_table.to_frame()
         test_table['a'] = tt['a'] + tt['b']
+        pdt.assert_series_equal(test_column, df2['b'])
+
+    with pytest.raises(KeyError):
+        sim.get_model('asdf')
 
     model = sim.get_model('test_model')
-    assert model._tables_used() == set(['test_table'])
+    assert model._tables_used() == set(['test_table', 'test_table2'])
     model()
 
     table = sim.get_table('test_table')
@@ -297,9 +304,9 @@ def test_model_run(df):
         test_table[year] = tf['new_col'] + year
 
     @sim.model('test_model2')
-    def test_model2(test_table):
-        tt = test_table.to_frame()
-        test_table['a'] = tt['a'] ** 2
+    def test_model2(table='test_table'):
+        tt = table.to_frame()
+        table['a'] = tt['a'] ** 2
 
     sim.run(models=['test_model1', 'test_model2'], years=[2000, 3000])
 
@@ -361,12 +368,18 @@ def test_collect_variables(df):
     with pytest.raises(KeyError):
         sim._collect_variables(['asdf'])
 
-    names = ['df', 'df_func', 'answer', 'injected', 'source']
-    things = sim._collect_variables(names)
+    with pytest.raises(KeyError):
+        sim._collect_variables(names=['df'], expressions=['asdf'])
+
+    names = ['df', 'df_func', 'answer', 'injected', 'source_label', 'df_a']
+    expressions = ['source', 'df.a']
+    things = sim._collect_variables(names, expressions)
 
     assert set(things.keys()) == set(names)
-    assert isinstance(things['source'], sim.DataFrameWrapper)
-    pdt.assert_frame_equal(things['source']._frame, df)
+    assert isinstance(things['source_label'], sim.DataFrameWrapper)
+    pdt.assert_frame_equal(things['source_label']._frame, df)
+    assert isinstance(things['df_a'], pd.Series)
+    pdt.assert_series_equal(things['df_a'], df['a'])
 
 
 def test_injectables():
@@ -377,16 +390,16 @@ def test_injectables():
         return answer * 2
 
     @sim.injectable('func2', autocall=False)
-    def inj_func2(x):
-        return x / 2
+    def inj_func2(variable='x'):
+        return variable / 2
 
     @sim.injectable('func3')
     def inj_func3(func2):
         return func2(4)
 
     @sim.injectable('func4')
-    def inj_func4(func1):
-        return func1 / 2
+    def inj_func4(func='func1'):
+        return func / 2
 
     assert sim._INJECTABLES['answer'] == 42
     assert sim._INJECTABLES['func1']() == 42 * 2
@@ -399,6 +412,9 @@ def test_injectables():
     assert sim.get_injectable('func2')(4) == 2
     assert sim.get_injectable('func3') == 2
     assert sim.get_injectable('func4') == 42
+
+    with pytest.raises(KeyError):
+        sim.get_injectable('asdf')
 
     assert set(sim.list_injectables()) == \
         {'answer', 'func1', 'func2', 'func3', 'func4'}
@@ -615,6 +631,9 @@ def test_get_table(df):
     fr = sim.get_table('frame')
     ta = sim.get_table('table')
     so = sim.get_table('source')
+
+    with pytest.raises(KeyError):
+        sim.get_table('asdf')
 
     assert isinstance(fr, sim.DataFrameWrapper)
     assert isinstance(ta, sim.TableFuncWrapper)
