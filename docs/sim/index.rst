@@ -4,8 +4,8 @@ Simulation Framework
 Introduction
 ------------
 
-UrbanSim's simulation framework allows you to register data and functions
-that operate on that data. The main components of a simulation include:
+UrbanSim's simulation framework allows you to register variables
+that operate on data. The main components of a simulation include:
 
 * Tables
 
@@ -37,11 +37,11 @@ the simulation process:
 
 * Dependency injection
 
-  * When you register any function UrbanSim inspects the argument list
-    and stores the argument names. Then, when the function needs to be
-    evaluated, UrbanSim matches those argument names to registered tables
-    and injectables, and calls the function with those things (in turn
-    calling any other functions necessary and injecting other things).
+  * When you register a function, UrbanSim inspects the argument list. Then,
+    when the function needs to be evaluated, UrbanSim matches those argument
+    names to registered variables, such as tables, columns, or injectables,
+    and calls the function with those arguments (in turn calling any other
+    functions as necessary and injecting other arguments).
 
 * Functions as data
 
@@ -63,9 +63,9 @@ the simulation process:
 
 * Data archives
 
-  * After a simulation it can be useful to look out how the data changed
+  * After a simulation it can be useful to look at how the data changed
     as the simulation progressed. UrbanSim can save registered tables out
-    to an HDF5 file every simulation iteration or on set intervals.
+    to an HDF5 file during every simulation iteration or at set intervals.
 
 .. note::
    In the documentation below the following imports are implied::
@@ -96,10 +96,6 @@ half those in ``my_table``, even if ``my_table`` is later changed.
 If you'd like a function to *not* be evaluated every time it
 is used, pass the ``cache=True`` keyword when registering it.
 
-Note that the names given to tables (and other registered things) should be
-`valid Python variable names <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`_
-so that they can be used in dependency injection.
-
 Here's a demo of the above table definitions shown in IPython:
 
 .. code-block:: python
@@ -112,6 +108,47 @@ Here's a demo of the above table definitions shown in IPython:
     0  0.5
     1  1.0
     2  1.5
+
+Note that the names given to registered tables and other variables should be
+`valid Python variable names <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`_
+so that they can be used in dependency injection.
+
+Expressions
+~~~~~~~~~~~
+
+Registered tables and other variables can be explicitly referenced by
+passing argument values, which are interpreted as expressions. The same
+table ``halve_my_table`` could be registered using
+expressions::
+
+    @sim.table('halve_my_table')
+    def halve_my_table(data='my_table'):
+        df = data.to_frame()
+        return df / 2
+
+In this case, ``data`` refers to the table registered with the name
+``my_table``. The registered variable can be easily replaced without
+renaming variables within the function.
+
+Registered variable expressions can also be used to refer to columns
+within a registered table::
+
+    @sim.column('my_table', 'halved')
+    def halved(data='my_table.a'):
+        return data / 2
+
+In this case, the ``table_name.column_name`` syntax refers to the
+column ``a``, which is a pandas series within the table ``my_table``.
+Since we are returning a series, we used the ``sim.column`` decorator
+to store the returned column back in the same table, which can be viewed
+in IPython::
+
+    In [21]: sim.get_table('my_table').to_frame()
+    Out[21]:
+       a  halved
+    0  1     0.5
+    1  2     1.0
+    2  3     1.5
 
 Table Wrappers
 ~~~~~~~~~~~~~~
