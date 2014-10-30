@@ -138,10 +138,12 @@ within a registered table::
         return data / 2
 
 In this case, the ``table_name.column_name`` syntax refers to the
-column ``a``, which is a pandas series within the table ``my_table``.
-Since we are returning a series, we used the ``sim.column`` decorator
-to store the returned column back in the same table, which can be viewed
-in IPython::
+column ``a``, which is a pandas `Series`_ within the table ``my_table``.
+Since we are returning a series, we used the
+:py:func:`~urbansim.sim.simulation.column` decorator to store the returned
+column back in the same table, which can be viewed in IPython:
+
+.. code-block:: python
 
     In [21]: sim.get_table('my_table').to_frame()
     Out[21]:
