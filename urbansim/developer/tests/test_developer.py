@@ -39,7 +39,6 @@ def test_developer(simple_dev_inputs):
     target_units = 1000
     bldgs = dev.pick("residential", target_units, parcel_size, ave_unit_size,
                      current_units)
-    print bldgs
     assert len(bldgs) == 2
 
     target_units = 2
