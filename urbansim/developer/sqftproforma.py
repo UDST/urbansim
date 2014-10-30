@@ -535,6 +535,9 @@ class SqFtProForma(object):
             and max_height from the input dataframe).
 
         """
+        # don't really mean to edit the df that's passed in
+        df = df.copy()
+
         c = self.config
 
         cost_sqft = self.get_ave_cost_sqft(form)
@@ -619,7 +622,7 @@ class SqFtProForma(object):
             outdf[pass_through] = df[pass_through]
 
         if only_built:
-            outdf = outdf.query('max_profit > 0')
+            outdf = outdf.query('max_profit > 0').copy()
 
         resratio = c.res_ratios[form]
         nonresratio = 1.0 - resratio
