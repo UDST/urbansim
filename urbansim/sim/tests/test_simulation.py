@@ -30,7 +30,7 @@ def df():
 def test_tables(df):
     wrapped_df = sim.add_table('test_frame', df)
 
-    @sim.table('test_func')
+    @sim.table()
     def test_func(test_frame):
         return test_frame.to_frame() / 2
 
@@ -63,7 +63,7 @@ def test_tables(df):
 def test_table_func_cache(df):
     sim.add_injectable('x', 2)
 
-    @sim.table('table', cache=True)
+    @sim.table(cache=True)
     def table(variable='x'):
         return df * variable
 
@@ -86,7 +86,7 @@ def test_table_func_cache_disabled(df):
     sim.add_injectable('x', 2)
 
     @sim.table('table', cache=True)
-    def table(x):
+    def asdf(x):
         return df * x
 
     sim.disable_cache()
@@ -107,12 +107,12 @@ def test_columns_for_table():
     sim.add_column(
         'table2', 'col20', pd.Series([10, 11, 12], index=['x', 'y', 'z']))
 
-    @sim.column('table1', 'col11')
+    @sim.column('table1')
     def col11():
         return pd.Series([4, 5, 6], index=['a', 'b', 'c'])
 
     @sim.column('table2', 'col21')
-    def col21():
+    def asdf():
         return pd.Series([13, 14, 15], index=['x', 'y', 'z'])
 
     t1_col_names = sim._list_columns_for_table('table1')
@@ -131,18 +131,18 @@ def test_columns_for_table():
 def test_columns_and_tables(df):
     sim.add_table('test_frame', df)
 
-    @sim.table('test_func')
+    @sim.table()
     def test_func(test_frame):
         return test_frame.to_frame() / 2
 
     sim.add_column('test_frame', 'c', pd.Series([7, 8, 9], index=df.index))
 
     @sim.column('test_func', 'd')
-    def col_d(test_func):
+    def asdf(test_func):
         return test_func.to_frame(columns=['b'])['b'] * 2
 
-    @sim.column('test_func', 'e')
-    def col_e(column='test_func.d'):
+    @sim.column('test_func')
+    def e(column='test_func.d'):
         return column + 1
 
     test_frame = sim.get_table('test_frame')
@@ -189,12 +189,12 @@ def test_column_cache(df):
     series = pd.Series([1, 2, 3], index=['x', 'y', 'z'])
     key = ('table', 'col')
 
-    @sim.table('table')
+    @sim.table()
     def table():
         return df
 
     @sim.column(*key, cache=True)
-    def col(variable='x'):
+    def column(variable='x'):
         return series * variable
 
     c = lambda: sim._COLUMNS[key]
@@ -214,7 +214,7 @@ def test_column_cache(df):
     pdt.assert_series_equal(c()(), series * 5)
     sim.add_injectable('x', 6)
     pdt.assert_series_equal(c()(), series * 5)
-    sim.add_column(*key, column=col, cache=True)
+    sim.add_column(*key, column=column, cache=True)
     pdt.assert_series_equal(c()(), series * 6)
 
 
@@ -223,12 +223,12 @@ def test_column_cache_disabled(df):
     series = pd.Series([1, 2, 3], index=['x', 'y', 'z'])
     key = ('table', 'col')
 
-    @sim.table('table')
+    @sim.table()
     def table():
         return df
 
     @sim.column(*key, cache=True)
-    def col(x):
+    def column(x):
         return series * x
 
     c = lambda: sim._COLUMNS[key]
@@ -265,7 +265,7 @@ def test_models(df):
     df2 = df / 2
     sim.add_table('test_table2', df2)
 
-    @sim.model('test_model')
+    @sim.model()
     def test_model(test_table, test_column='test_table2.b'):
         tt = test_table.to_frame()
         test_table['a'] = tt['a'] + tt['b']
@@ -292,25 +292,25 @@ def test_models(df):
 def test_model_run(df):
     sim.add_table('test_table', df)
 
-    @sim.table('table_func')
+    @sim.table()
     def table_func(test_table):
         tt = test_table.to_frame()
         tt['c'] = [7, 8, 9]
         return tt
 
-    @sim.column('table_func', 'new_col')
+    @sim.column('table_func')
     def new_col(test_table, table_func):
         tt = test_table.to_frame()
         tf = table_func.to_frame(columns=['c'])
         return tt['a'] + tt['b'] + tf['c']
 
-    @sim.model('test_model1')
+    @sim.model()
     def test_model1(year, test_table, table_func):
         tf = table_func.to_frame(columns=['new_col'])
         test_table[year] = tf['new_col'] + year
 
     @sim.model('test_model2')
-    def test_model2(table='test_table'):
+    def asdf(table='test_table'):
         tt = table.to_frame()
         table['a'] = tt['a'] ** 2
 
@@ -353,17 +353,17 @@ def test_get_broadcasts():
 def test_collect_variables(df):
     sim.add_table('df', df)
 
-    @sim.table('df_func')
-    def test_df():
+    @sim.table()
+    def df_func():
         return df
 
-    @sim.column('df', 'zzz')
+    @sim.column('df')
     def zzz():
         return df['a'] / 2
 
     sim.add_injectable('answer', 42)
 
-    @sim.injectable('injected')
+    @sim.injectable()
     def injected():
         return 'injected'
 
@@ -391,20 +391,20 @@ def test_collect_variables(df):
 def test_injectables():
     sim.add_injectable('answer', 42)
 
-    @sim.injectable('func1')
-    def inj_func1(answer):
+    @sim.injectable()
+    def func1(answer):
         return answer * 2
 
     @sim.injectable('func2', autocall=False)
-    def inj_func2(variable='x'):
+    def asdf(variable='x'):
         return variable / 2
 
-    @sim.injectable('func3')
-    def inj_func3(func2):
+    @sim.injectable()
+    def func3(func2):
         return func2(4)
 
-    @sim.injectable('func4')
-    def inj_func4(func='func1'):
+    @sim.injectable()
+    def func4(func='func1'):
         return func / 2
 
     assert sim._INJECTABLES['answer'] == 42
@@ -427,15 +427,15 @@ def test_injectables():
 
 
 def test_injectables_combined(df):
-    @sim.injectable('column')
+    @sim.injectable()
     def column():
         return pd.Series(['a', 'b', 'c'], index=df.index)
 
-    @sim.table('table')
+    @sim.table()
     def table():
         return df
 
-    @sim.model('model')
+    @sim.model()
     def model(table, column):
         df = table.to_frame()
         df['new'] = column
@@ -452,7 +452,7 @@ def test_injectables_combined(df):
 def test_injectables_cache():
     x = 2
 
-    @sim.injectable('inj', autocall=True, cache=True)
+    @sim.injectable(autocall=True, cache=True)
     def inj():
         return x * x
 
@@ -476,7 +476,7 @@ def test_injectables_cache():
 def test_injectables_cache_disabled():
     x = 2
 
-    @sim.injectable('inj', autocall=True, cache=True)
+    @sim.injectable(autocall=True, cache=True)
     def inj():
         return x * x
 
@@ -499,7 +499,7 @@ def test_injectables_cache_disabled():
 
 
 def test_table_source(df):
-    @sim.table_source('source')
+    @sim.table_source()
     def source():
         return df
 
@@ -522,7 +522,7 @@ def test_table_source(df):
 
 
 def test_table_source_convert(df):
-    @sim.table_source('source')
+    @sim.table_source()
     def source():
         return df
 
@@ -540,7 +540,7 @@ def test_table_source_convert(df):
 
 
 def test_table_func_local_cols(df):
-    @sim.table('table')
+    @sim.table()
     def table():
         return df
     sim.add_column('table', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
@@ -549,7 +549,7 @@ def test_table_func_local_cols(df):
 
 
 def test_table_source_local_cols(df):
-    @sim.table_source('source')
+    @sim.table_source()
     def source():
         return df
     sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
@@ -578,7 +578,7 @@ def store_name(request):
 def test_write_tables(df, store_name):
     sim.add_table('table', df)
 
-    @sim.model('model')
+    @sim.model()
     def model(table):
         pass
 
@@ -601,7 +601,7 @@ def test_run_and_write_tables(df, store_name):
     year_key = lambda y: '{}'.format(y)
     series_year = lambda y: pd.Series([y] * 3, index=df.index)
 
-    @sim.model('model')
+    @sim.model()
     def model(year, table):
         table[year_key(year)] = series_year(year)
 
@@ -626,11 +626,11 @@ def test_run_and_write_tables(df, store_name):
 def test_get_table(df):
     sim.add_table('frame', df)
 
-    @sim.table('table')
+    @sim.table()
     def table():
         return df
 
-    @sim.table_source('source')
+    @sim.table_source()
     def source():
         return df
 
