@@ -35,13 +35,14 @@ that operate on data. The main components of a simulation include:
 The framework offers some conveniences for streamlining
 the simulation process:
 
-* Dependency injection
+* Argument matching
 
-  * When you register a function, UrbanSim inspects the argument list. Then,
-    when the function needs to be evaluated, UrbanSim matches those argument
-    names to registered variables, such as tables, columns, or injectables,
-    and calls the function with those arguments (in turn calling any other
-    functions as necessary and injecting other arguments).
+  * When a registered function needs to be evaluated, UrbanSim inspects
+    the function's argument names and keyword argument values. UrbanSim
+    matches those arguments to registered variables, such as tables,
+    columns, or injectables, and calls the function with those arguments
+    (in turn calling any other functions as necessary and injecting
+    other arguments).
 
 * Functions as data
 
@@ -251,7 +252,8 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called ``to_frame()`` with no arguments).
 
-More concisely, we could use an expression to refer to the same column::
+More concisely, we could use a variable expression to refer to the same
+column::
 
     @sim.column('my_table', 'my_col_x2')
     def my_col_x2(data='my_table.my_col'):
@@ -259,8 +261,7 @@ More concisely, we could use an expression to refer to the same column::
 
 In this case, the label ``data``, expressed as ``my_table.my_col``,
 refers to the column ``my_col``, which is a pandas `Series`_ within
-the table ``my_table``. The column expression can be easily changed
-without renaming the variable ``data`` within the function.
+the table ``my_table``.
 
 A demonstration in IPython using the column definitions from above:
 
@@ -338,7 +339,7 @@ Models
 ------
 
 In UrbanSim a model is a function run by the simulation framework with
-dependency injection. Use the :py:func:`~urbansim.sim.simulation.model`
+argument matching. Use the :py:func:`~urbansim.sim.simulation.model`
 decorator to register a model function.
 Models are important for their side-effects, their
 return values are discarded. For example, a model might replace a column
@@ -446,8 +447,8 @@ controls how often the tables are saved out. For example, ``out_interval=5``
 saves tables every fifth year. In addition, the final data is always saved
 under the key ``'final/<table name>'``.
 
-Dependency Injection
---------------------
+Argument Matching
+-----------------
 
 A key feature of the simulation framework is that it matches the names
 of function arguments to the names of registered variables in order to
@@ -459,7 +460,7 @@ that are also
 Variable Expressions
 ~~~~~~~~~~~~~~~~~~~~
 
-Dependency injection is extended by a feature we call "variable expressions".
+Argument matching is extended by a feature we call "variable expressions".
 Expressions allow you to specify a variable to inject with Python keyword
 arguments. Here's an example redone from above using
 variable expressions::
@@ -470,25 +471,32 @@ variable expressions::
         return df / 2
 
 The variable registered as ``'my_table'`` is injected into this function
-as the argument ``data``.  The registered variable that is injected can
-later be changed without renaming ``data`` within the function.
+as the argument ``data``.
 
 Expressions can also be used to refer to columns within a registered table::
 
-    @sim.table('halve_my_table')
-    def halve_my_table(data='my_table.a'):
-        df = pd.DataFrame({'a': data / 2})
-        return df
+    @sim.column('my_table', 'halved')
+    def halved(data='my_table.a'):
+        return data / 2
 
-The expression ``my_table.a`` refers to the column ``a``,
-which is a pandas `Series`_ within the table ``my_table``.
+In this case, the expression ``my_table.a`` refers to the column ``a``,
+which is a pandas `Series`_ within the table ``my_table``. We return
+a new Series to register a new column on ``my_table`` using the
+:py:func:`~urbansim.sim.simulation.column` decorator. We can take a
+look in IPython:
 
-This may be useful in situations where a function requires only a single
-column from a table and the user would like to specifically document that
-in the function's arguments. For example, a function decorated by the
-:py:func:`~urbansim.sim.simulation.column` decorator could accept a
-single Series as an argument and returns another Series, to be registered
-on a registered table.
+.. code-block:: python
+
+    In [21]: sim.get_table('my_table').to_frame()
+    Out[21]:
+       a  halved
+    0  1     0.5
+    1  2     1.0
+    2  3     1.5
+
+Expressions referring to columns may be useful in situations where a
+function requires only a single column from a table and the user would
+like to specifically document that in the function's arguments.
 
 API
 ---

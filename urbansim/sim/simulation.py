@@ -551,8 +551,7 @@ class _SeriesWrapper(object):
 
 class _InjectableFuncWrapper(object):
     """
-    Wraps a function that will be called (with injection) to provide
-    an injectable value elsewhere.
+    Wraps a function that will provide an injectable value elsewhere.
 
     Parameters
     ----------
@@ -606,7 +605,7 @@ class _InjectableFuncWrapper(object):
 
 class _ModelFuncWrapper(object):
     """
-    Wrap a model function for dependency injection.
+    Wrap a model function for argument matching.
 
     Parameters
     ----------
@@ -704,7 +703,9 @@ def list_broadcasts():
 
 def _collect_variables(names, expressions=None):
     """
-    Map labels and expressions to registered variables for injection.
+    Map labels and expressions to registered variables.
+
+    Handles argument matching.
 
     Example:
 
@@ -773,8 +774,10 @@ def add_table(table_name, table, cache=False):
     table_name : str
         Should be globally unique to this table.
     table : pandas.DataFrame or function
-        If a function, it will be evaluated using dependency injection
-        and should return a DataFrame.
+        If a function, the function should return a DataFrame.
+        The function's argument names and keyword argument values
+        will be matched to registered variables when the function
+        needs to be evaluated by the simulation framework.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
@@ -804,7 +807,9 @@ def table(table_name, cache=False):
     """
     Decorator version of `add_table`, for functions returning DataFrames.
 
-    Function will be evaluated using dependency injection.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
 
     """
     def decorator(func):
@@ -824,7 +829,9 @@ def add_table_source(table_name, func):
     ----------
     table_name : str
     func : callable
-        The function will be evaluated using dependency injection.
+        The function's argument names and keyword argument values
+        will be matched to registered variables when the function
+        needs to be evaluated by the simulation framework.
 
     Returns
     -------
@@ -844,7 +851,9 @@ def table_source(table_name):
     Use it to decorate a function that returns a DataFrame. The function
     will be evaluated only once and the DataFrame will replace it.
 
-    The function will be evaluated using dependency injection.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
 
     """
     def decorator(func):
@@ -889,8 +898,11 @@ def add_column(table_name, column_name, column, cache=False):
         Name for the column.
     column : pandas.Series or callable
         Series should have an index matching the table to which it
-        is being added. If a callable, it will be evaluated using
-        dependency injection and should return the Series.
+        is being added. If a callable, the function's argument
+        names and keyword argument values will be matched to
+        registered variables when the function needs to be
+        evaluated by the simulation framework. The function should
+        return a Series.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `column` is a Series.
@@ -918,8 +930,10 @@ def column(table_name, column_name, cache=False):
     """
     Decorator version of `add_column`, for functions returning Series.
 
-    The function will be evaluated using dependency injection. The
-    index of the returned Series must match the named table.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
+    The index of the returned Series must match the named table.
 
     """
     def decorator(func):
@@ -971,13 +985,15 @@ def add_injectable(name, value, autocall=True, cache=False):
     ----------
     name : str
     value
-        If a callable and `autocall` is True then the function will be
-        evaluated using dependency injection and the return value will
+        If a callable and `autocall` is True then the function's
+        argument names and keyword argument values will be matched
+        to registered variables when the function needs to be
+        evaluated by the simulation framework. The return value will
         be passed to any functions using this injectable. In all other
-        cases `value` will be passed through untouched.
+        cases, `value` will be passed through untouched.
     autocall : bool, optional
         Set to True to have injectable functions automatically called
-        (with dependency injection) and the result injected instead of
+        (with argument matching) and the result injected instead of
         the function itself.
     cache : bool, optional
         Whether to cache the return value of an injectable function.
@@ -996,7 +1012,9 @@ def injectable(name, autocall=True, cache=False):
     """
     Decorator version of `add_injectable`.
 
-    The function will be evaluated using dependency injection.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
 
     """
     def decorator(func):
@@ -1030,7 +1048,9 @@ def add_model(model_name, func):
     """
     Add a model function to the simulation.
 
-    The function will be evaluated using dependency injection.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
     The argument name "year" may be used to have the current
     simulation year injected.
 
@@ -1051,7 +1071,9 @@ def model(model_name):
     """
     Decorator version of `add_model`, for functions executed by `run`.
 
-    The function will be evaluated using dependency injection.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
     The argument name "year" may be used to have the current
     simulation year injected.
 
