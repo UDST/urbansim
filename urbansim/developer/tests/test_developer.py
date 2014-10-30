@@ -32,14 +32,15 @@ def test_developer(simple_dev_inputs):
                      current_units)
     assert len(bldgs) == 1
 
-    bldgs = dev.pick(["residential", "residential"], target_units, parcel_size, ave_unit_size,
-                     current_units)
-    assert len(bldgs) == 1
+    # bldgs = dev.pick(["residential", "office"], target_units,
+    #                 parcel_size, ave_unit_size, current_units)
+    # assert len(bldgs) == 1
 
     target_units = 1000
     bldgs = dev.pick("residential", target_units, parcel_size, ave_unit_size,
                      current_units)
-    assert len(bldgs) == 1
+    print bldgs
+    assert len(bldgs) == 2
 
     target_units = 2
     bldgs = dev.pick("residential", target_units, parcel_size, ave_unit_size,
