@@ -264,9 +264,9 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called ``to_frame()`` with no arguments).
 
-Accessing columns on a table is such a common occurrence that there additional
-ways to do so without first calling ``to_frame()`` to create an actual
-``DataFrame``.
+Accessing columns on a table is such a common occurrence that there
+are additional ways to do so without first calling ``to_frame()``
+to create an actual ``DataFrame``.
 
 :py:class:`~urbansim.sim.simulation.DataFrameWrapper` supports accessing
 individual columns in the same ways as ``DataFrames``::
