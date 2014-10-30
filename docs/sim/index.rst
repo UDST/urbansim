@@ -92,6 +92,18 @@ to register a function that returns a DataFrame::
         df = my_table.to_frame()
         return df / 2
 
+The decorator argument, which specifies the name to register the table with,
+is optional. If left out, the table is registered under the name of the
+function that is being decorated. The decorator example above could be
+written more concisely::
+
+    @sim.table()
+    def halve_my_table(my_table):
+        df = my_table.to_frame()
+        return df / 2
+
+Note that the decorator parentheses are still required.
+
 By registering ``halve_my_table`` as a function, its values will always be
 half those in ``my_table``, even if ``my_table`` is later changed.
 If you'd like a function to *not* be evaluated every time it
@@ -132,7 +144,7 @@ as if you had used :py:func:`~urbansim.sim.simulation.add_table` to
 register it. For that you can use the
 :py:func:`~urbansim.sim.simulation.table_source` decorator::
 
-    @sim.table_source('my_table')
+    @sim.table_source()
     def my_table():
         return pd.DataFrame({'a': [1, 2, 3]})
 
@@ -241,7 +253,7 @@ the :py:func:`~urbansim.sim.simulation.column` decorator::
     s = pd.Series(['a', 'b', 'c'])
     sim.add_column('my_table', 'my_col', s)
 
-    @sim.column('my_table', 'my_col_x2')
+    @sim.column('my_table')
     def my_col_x2(my_table):
         df = my_table.to_frame(columns=['my_col'])
         return df['my_col'] * 2
@@ -255,7 +267,7 @@ in this case if we called ``to_frame()`` with no arguments).
 More concisely, we could use a variable expression to refer to the same
 column::
 
-    @sim.column('my_table', 'my_col_x2')
+    @sim.column('my_table')
     def my_col_x2(data='my_table.my_col'):
         return data * 2
 
@@ -303,15 +315,15 @@ Use the :py:func:`~urbansim.sim.simulation.add_injectable` function or the
 
     sim.add_injectable('z', 5)
 
-    @sim.injectable('pow', autocall=False)
+    @sim.injectable(autocall=False)
     def pow(x, y):
         return x ** y
 
-    @sim.injectable('zsquared')
+    @sim.injectable()
     def zsquared(z, pow):
         return pow(z, 2)
 
-    @sim.table('ztable')
+    @sim.table()
     def ztable(my_table, zsquared):
         df = my_table.to_frame(columns=['a'])
         return df * zsquared
@@ -348,20 +360,20 @@ in a table (a new table, though similar to ``my_table`` above)::
     df = pd.DataFrame({'a': [1, 2, 3]})
     sim.add_table('new_table')
 
-    @sim.model('replace_col')
+    @sim.model()
     def replace_col(new_table):
         new_table['a'] = [4, 5, 6]
 
 Or update some values in a column::
 
-    @sim.model('update_col')
+    @sim.model()
     def update_col(new_table):
         s = pd.Series([99], index=[1])
         new_table.update_col_from_series('a', s)
 
 Or add rows to a table::
 
-    @sim.model('add_rows')
+    @sim.model()
     def add_rows(new_table):
         new_rows = pd.DataFrame({'a': [100, 101]}, index=[3, 4])
         df = new_table.to_frame()
@@ -409,7 +421,7 @@ The variable ``year`` is provided as an injectable to model functions:
 
 .. code-block:: python
 
-    In [77]: @sim.model('print_year')
+    In [77]: @sim.model()
        ....: def print_year(year):
        ....:         print '*** the year is {} ***'.format(year)
        ....:
@@ -465,7 +477,7 @@ Expressions allow you to specify a variable to inject with Python keyword
 arguments. Here's an example redone from above using
 variable expressions::
 
-    @sim.table('halve_my_table')
+    @sim.table()
     def halve_my_table(data='my_table'):
         df = data.to_frame()
         return df / 2
@@ -475,7 +487,7 @@ as the argument ``data``.
 
 Expressions can also be used to refer to columns within a registered table::
 
-    @sim.column('my_table', 'halved')
+    @sim.column('my_table')
     def halved(data='my_table.a'):
         return data / 2
 
