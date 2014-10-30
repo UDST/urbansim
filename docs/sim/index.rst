@@ -4,8 +4,8 @@ Simulation Framework
 Introduction
 ------------
 
-UrbanSim's simulation framework allows you to register data and functions
-that operate on that data. The main components of a simulation include:
+UrbanSim's simulation framework allows you to register variables
+that operate on data. The main components of a simulation include:
 
 * Tables
 
@@ -35,13 +35,14 @@ that operate on that data. The main components of a simulation include:
 The framework offers some conveniences for streamlining
 the simulation process:
 
-* Dependency injection
+* Argument matching
 
-  * When you register any function UrbanSim inspects the argument list
-    and stores the argument names. Then, when the function needs to be
-    evaluated, UrbanSim matches those argument names to registered tables
-    and injectables, and calls the function with those things (in turn
-    calling any other functions necessary and injecting other things).
+  * When a registered function needs to be evaluated, UrbanSim inspects
+    the function's argument names and keyword argument values. UrbanSim
+    matches those arguments to registered variables, such as tables,
+    columns, or injectables, and calls the function with those arguments
+    (in turn calling any other functions as necessary and injecting
+    other arguments).
 
 * Functions as data
 
@@ -63,9 +64,9 @@ the simulation process:
 
 * Data archives
 
-  * After a simulation it can be useful to look out how the data changed
+  * After a simulation it can be useful to look at how the data changed
     as the simulation progressed. UrbanSim can save registered tables out
-    to an HDF5 file every simulation iteration or on set intervals.
+    to an HDF5 file during every simulation iteration or at set intervals.
 
 .. note::
    In the documentation below the following imports are implied::
@@ -91,14 +92,10 @@ to register a function that returns a DataFrame::
         df = my_table.to_frame()
         return df / 2
 
-By registering ``halve_my_table`` as a function its values will always be
+By registering ``halve_my_table`` as a function, its values will always be
 half those in ``my_table``, even if ``my_table`` is later changed.
 If you'd like a function to *not* be evaluated every time it
 is used, pass the ``cache=True`` keyword when registering it.
-
-Note that the names given to tables (and other registered things) should be
-`valid Python variable names <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`_
-so that they can be used in dependency injection.
 
 Here's a demo of the above table definitions shown in IPython:
 
@@ -239,7 +236,7 @@ on your tables. You may need to collect information from other tables
 or perform a calculation to generate a column. UrbanSim allows you to
 register a `Series`_ or function as a column on a registered table.
 Use the :py:func:`~urbansim.sim.simulation.add_column` function or
-the :py:func:`_urbansim.sim.simulation.column` decorator::
+the :py:func:`~urbansim.sim.simulation.column` decorator::
 
     s = pd.Series(['a', 'b', 'c'])
     sim.add_column('my_table', 'my_col', s)
@@ -255,7 +252,18 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called ``to_frame()`` with no arguments).
 
-A demonstration in IPython using the table definitions from above:
+More concisely, we could use a variable expression to refer to the same
+column::
+
+    @sim.column('my_table', 'my_col_x2')
+    def my_col_x2(data='my_table.my_col'):
+        return data * 2
+
+In this case, the label ``data``, expressed as ``my_table.my_col``,
+refers to the column ``my_col``, which is a pandas `Series`_ within
+the table ``my_table``.
+
+A demonstration in IPython using the column definitions from above:
 
 .. code-block:: python
 
@@ -331,7 +339,7 @@ Models
 ------
 
 In UrbanSim a model is a function run by the simulation framework with
-dependency injection. Use the :py:func:`~urbansim.sim.simulation.model`
+argument matching. Use the :py:func:`~urbansim.sim.simulation.model`
 decorator to register a model function.
 Models are important for their side-effects, their
 return values are discarded. For example, a model might replace a column
@@ -438,6 +446,57 @@ The ``out_interval`` keyword to :py:func:`~urbansim.sim.simulation.run`
 controls how often the tables are saved out. For example, ``out_interval=5``
 saves tables every fifth year. In addition, the final data is always saved
 under the key ``'final/<table name>'``.
+
+Argument Matching
+-----------------
+
+A key feature of the simulation framework is that it matches the names
+of function arguments to the names of registered variables in order to
+inject variables when evaluating functions.
+For that reason, it's important that variables be registered with names
+that are also
+`valid Python variables <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`__.
+
+Variable Expressions
+~~~~~~~~~~~~~~~~~~~~
+
+Argument matching is extended by a feature we call "variable expressions".
+Expressions allow you to specify a variable to inject with Python keyword
+arguments. Here's an example redone from above using
+variable expressions::
+
+    @sim.table('halve_my_table')
+    def halve_my_table(data='my_table'):
+        df = data.to_frame()
+        return df / 2
+
+The variable registered as ``'my_table'`` is injected into this function
+as the argument ``data``.
+
+Expressions can also be used to refer to columns within a registered table::
+
+    @sim.column('my_table', 'halved')
+    def halved(data='my_table.a'):
+        return data / 2
+
+In this case, the expression ``my_table.a`` refers to the column ``a``,
+which is a pandas `Series`_ within the table ``my_table``. We return
+a new Series to register a new column on ``my_table`` using the
+:py:func:`~urbansim.sim.simulation.column` decorator. We can take a
+look in IPython:
+
+.. code-block:: python
+
+    In [21]: sim.get_table('my_table').to_frame()
+    Out[21]:
+       a  halved
+    0  1     0.5
+    1  2     1.0
+    2  3     1.5
+
+Expressions referring to columns may be useful in situations where a
+function requires only a single column from a table and the user would
+like to specifically document that in the function's arguments.
 
 API
 ---
