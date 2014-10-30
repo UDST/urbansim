@@ -91,7 +91,7 @@ to register a function that returns a DataFrame::
         df = my_table.to_frame()
         return df / 2
 
-By registering ``halve_my_table`` as a function its values will always be
+By registering ``halve_my_table`` as a function, its values will always be
 half those in ``my_table``, even if ``my_table`` is later changed.
 If you'd like a function to *not* be evaluated every time it
 is used, pass the ``cache=True`` keyword when registering it.
@@ -119,38 +119,41 @@ Expressions
 Registered tables and other variables can be explicitly referenced by
 passing argument values, which are interpreted as expressions. The same
 table ``halve_my_table`` could be registered using
-expressions::
+an expression::
 
     @sim.table('halve_my_table')
     def halve_my_table(data='my_table'):
         df = data.to_frame()
         return df / 2
 
-In this case, ``data`` refers to the table registered with the name
-``my_table``. The registered variable can be easily replaced without
-renaming variables within the function.
+In this case, the label ``data`` refers to the table registered with the
+name ``my_table``. The table expression can be easily changed without
+renaming the variable ``data`` within the function.
 
-Registered variable expressions can also be used to refer to columns
-within a registered table::
+Expressions can also be used to refer to columns within a registered table::
 
-    @sim.column('my_table', 'halved')
-    def halved(data='my_table.a'):
-        return data / 2
+    @sim.table('halve_my_table')
+    def halve_my_table(data='my_table.a'):
+        df = pd.DataFrame({'a': data})
+        return df / 2
 
-In this case, the ``table_name.column_name`` syntax refers to the
-column ``a``, which is a pandas `Series`_ within the table ``my_table``.
-Since we are returning a series, we used the
-:py:func:`~urbansim.sim.simulation.column` decorator to store the returned
-column back in the same table, which can be viewed in IPython:
+In this case, the expression ``my_table.a`` refers to the column ``a``,
+which is a pandas `Series`_ within the table ``my_table``.
+In practice, a column expression might be used in a function that accepts
+one or more Series as arguments and returns another Series.
+The :py:func:`~urbansim.sim.simulation.column` decorator
+would register the Series returned by this function on a registered table.
+
+A demonstration in IPython using the table definitions from above:
 
 .. code-block:: python
 
     In [21]: sim.get_table('my_table').to_frame()
     Out[21]:
-       a  halved
-    0  1     0.5
-    1  2     1.0
-    2  3     1.5
+         a
+    0  0.5
+    1  1.0
+    2  1.5
 
 Table Wrappers
 ~~~~~~~~~~~~~~
@@ -278,7 +281,7 @@ on your tables. You may need to collect information from other tables
 or perform a calculation to generate a column. UrbanSim allows you to
 register a `Series`_ or function as a column on a registered table.
 Use the :py:func:`~urbansim.sim.simulation.add_column` function or
-the :py:func:`_urbansim.sim.simulation.column` decorator::
+the :py:func:`~urbansim.sim.simulation.column` decorator::
 
     s = pd.Series(['a', 'b', 'c'])
     sim.add_column('my_table', 'my_col', s)
@@ -294,7 +297,18 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called ``to_frame()`` with no arguments).
 
-A demonstration in IPython using the table definitions from above:
+More concisely, we could use an expression to refer to the same column::
+
+    @sim.column('my_table', 'my_col_x2')
+    def my_col_x2(data='my_table.my_col'):
+        return data * 2
+
+In this case, the label ``data``, expressed as ``my_table.my_col``,
+refers to the column ``my_col``, which is a pandas `Series`_ within
+the table ``my_table``. The column expression can be easily changed
+without renaming the variable ``data`` within the function.
+
+A demonstration in IPython using the column definitions from above:
 
 .. code-block:: python
 
