@@ -1617,7 +1617,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
                 "Location ratio exceeded: %d locations and only %d choosers" %
                 (len(locations), len(movers)))
             idxes = np.random.choice(
-                locations.index, size=int(len(movers) * location_ratio),
+                locations.index, size=np.floor(len(movers) * location_ratio),
                 replace=False)
             locations = locations.loc[idxes]
             logger.info(
