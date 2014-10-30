@@ -109,52 +109,6 @@ Here's a demo of the above table definitions shown in IPython:
     1  1.0
     2  1.5
 
-Note that the names given to registered tables and other variables should be
-`valid Python variable names <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`_
-so that they can be used in dependency injection.
-
-Expressions
-~~~~~~~~~~~
-
-Registered tables and other variables can be explicitly referenced by
-passing argument values, which are interpreted as expressions. The same
-table ``halve_my_table`` could be registered using
-an expression::
-
-    @sim.table('halve_my_table')
-    def halve_my_table(data='my_table'):
-        df = data.to_frame()
-        return df / 2
-
-In this case, the label ``data`` refers to the table registered with the
-name ``my_table``. The table expression can be easily changed without
-renaming the variable ``data`` within the function.
-
-Expressions can also be used to refer to columns within a registered table::
-
-    @sim.table('halve_my_table')
-    def halve_my_table(data='my_table.a'):
-        df = pd.DataFrame({'a': data})
-        return df / 2
-
-In this case, the expression ``my_table.a`` refers to the column ``a``,
-which is a pandas `Series`_ within the table ``my_table``.
-In practice, a column expression might be used in a function that accepts
-one or more Series as arguments and returns another Series.
-The :py:func:`~urbansim.sim.simulation.column` decorator
-would register the Series returned by this function on a registered table.
-
-A demonstration in IPython using the table definitions from above:
-
-.. code-block:: python
-
-    In [21]: sim.get_table('my_table').to_frame()
-    Out[21]:
-         a
-    0  0.5
-    1  1.0
-    2  1.5
-
 Table Wrappers
 ~~~~~~~~~~~~~~
 
@@ -491,6 +445,45 @@ The ``out_interval`` keyword to :py:func:`~urbansim.sim.simulation.run`
 controls how often the tables are saved out. For example, ``out_interval=5``
 saves tables every fifth year. In addition, the final data is always saved
 under the key ``'final/<table name>'``.
+
+Dependency Injection
+--------------------
+
+A key feature of the simulation framework is that it matches the names
+of function arguments to the names of registered variables in order to
+inject variables when evaluating functions.
+For that reason it's important that variables be registered with names
+that are also
+`valid Python variables <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`__.
+
+Variable Expressions
+~~~~~~~~~~~~~~~~~~~~
+
+Dependency injection is extended by a feature we call "variable expressions"
+that allow you to specify a variable to inject via strings and Python
+keyword arguments. Here's an example redone from above using
+variable expressions::
+
+    @sim.table('halve_my_table')
+    def halve_my_table(data='my_table'):
+        df = data.to_frame()
+        return df / 2
+
+The variable registered as ``'my_table'`` is injected into this function
+as the argument ``data``.
+
+Expressions can also be used to refer to columns within a registered table::
+
+    @sim.table('halve_my_table')
+    def halve_my_table(data='my_table.a'):
+        df = pd.DataFrame({'a': data / 2})
+        return df
+
+The expression ``my_table.a`` refers to the column ``a``,
+which is a pandas `Series`_ within the table ``my_table``.
+This may be useful in situations where a function requires only a single
+column from a table and the user would like to specifically document that
+in the function's arguments.
 
 API
 ---
