@@ -452,16 +452,16 @@ Dependency Injection
 A key feature of the simulation framework is that it matches the names
 of function arguments to the names of registered variables in order to
 inject variables when evaluating functions.
-For that reason it's important that variables be registered with names
+For that reason, it's important that variables be registered with names
 that are also
 `valid Python variables <http://en.wikibooks.org/wiki/Python_Beginner_to_Expert/Native_Types>`__.
 
 Variable Expressions
 ~~~~~~~~~~~~~~~~~~~~
 
-Dependency injection is extended by a feature we call "variable expressions"
-that allow you to specify a variable to inject via strings and Python
-keyword arguments. Here's an example redone from above using
+Dependency injection is extended by a feature we call "variable expressions".
+Expressions allow you to specify a variable to inject with Python keyword
+arguments. Here's an example redone from above using
 variable expressions::
 
     @sim.table('halve_my_table')
@@ -470,7 +470,8 @@ variable expressions::
         return df / 2
 
 The variable registered as ``'my_table'`` is injected into this function
-as the argument ``data``.
+as the argument ``data``.  The registered variable that is injected can
+later be changed without renaming ``data`` within the function.
 
 Expressions can also be used to refer to columns within a registered table::
 
@@ -481,9 +482,13 @@ Expressions can also be used to refer to columns within a registered table::
 
 The expression ``my_table.a`` refers to the column ``a``,
 which is a pandas `Series`_ within the table ``my_table``.
+
 This may be useful in situations where a function requires only a single
 column from a table and the user would like to specifically document that
-in the function's arguments.
+in the function's arguments. For example, a function decorated by the
+:py:func:`~urbansim.sim.simulation.column` decorator could accept a
+single Series as an argument and returns another Series, to be registered
+on a registered table.
 
 API
 ---
