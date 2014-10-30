@@ -704,7 +704,7 @@ def list_broadcasts():
 
 def _collect_variables(names, expressions=None):
     """
-    Map labels and expressions to registered variables.
+    Map labels and expressions to registered variables for injection.
 
     Example:
 
@@ -773,9 +773,8 @@ def add_table(table_name, table, cache=False):
     table_name : str
         Should be globally unique to this table.
     table : pandas.DataFrame or function
-        If a function it should return a DataFrame. Function argument
-        names will be matched to registered variables, which will be
-        injected when this function is called.
+        If a function, it will be evaluated using dependency injection
+        and should return a DataFrame.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
@@ -803,11 +802,9 @@ def add_table(table_name, table, cache=False):
 
 def table(table_name, cache=False):
     """
-    Decorator version of `add_table` used for decorating functions
-    that return DataFrames.
+    Decorator version of `add_table`, for functions returning DataFrames.
 
-    Decorated function argument names will be matched to registered
-    variables, which will be injected when this function is called.
+    Function will be evaluated using dependency injection.
 
     """
     def decorator(func):
@@ -818,16 +815,16 @@ def table(table_name, cache=False):
 
 def add_table_source(table_name, func):
     """
-    Add a DataFrame source function to the simulation. This function is
-    evaluated only once, after which the returned DataFrame replaces
-    `func` as the injected table.
+    Add a DataFrame source function to the simulation.
+
+    This function is evaluated only once, after which the returned
+    DataFrame replaces `func` as the injected table.
 
     Parameters
     ----------
     table_name : str
     func : callable
-        Function argument names will be matched to registered variables,
-        which will be injected when this function is called.
+        The function will be evaluated using dependency injection.
 
     Returns
     -------
@@ -842,9 +839,12 @@ def add_table_source(table_name, func):
 
 def table_source(table_name):
     """
-    Decorator version of `add_table_source`. Use it to decorate a function
-    that returns a DataFrame. The function will be evaluated only once
-    and the DataFrame will replace it.
+    Decorator version of `add_table_source`.
+
+    Use it to decorate a function that returns a DataFrame. The function
+    will be evaluated only once and the DataFrame will replace it.
+
+    The function will be evaluated using dependency injection.
 
     """
     def decorator(func):
@@ -888,8 +888,9 @@ def add_column(table_name, column_name, column, cache=False):
     column_name : str
         Name for the column.
     column : pandas.Series or callable
-        If a callable it should return a Series. Any Series should have an
-        index matching the table to which it is being added.
+        Series should have an index matching the table to which it
+        is being added. If a callable, it will be evaluated using
+        dependency injection and should return the Series.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `column` is a Series.
@@ -915,11 +916,10 @@ def add_column(table_name, column_name, column, cache=False):
 
 def column(table_name, column_name, cache=False):
     """
-    Decorator version of `add_column` used for decorating functions
-    that return a Series with an index matching the named table.
+    Decorator version of `add_column`, for functions returning Series.
 
-    The argument names of the function should match registered variables,
-    which will be injected.
+    The function will be evaluated using dependency injection. The
+    index of the returned Series must match the named table.
 
     """
     def decorator(func):
@@ -965,8 +965,7 @@ def _columns_for_table(table_name):
 
 def add_injectable(name, value, autocall=True, cache=False):
     """
-    Add a value that will be injected into other functions that
-    are part of the simulation.
+    Add a value that will be injected into other functions.
 
     Parameters
     ----------
@@ -996,6 +995,8 @@ def add_injectable(name, value, autocall=True, cache=False):
 def injectable(name, autocall=True, cache=False):
     """
     Decorator version of `add_injectable`.
+
+    The function will be evaluated using dependency injection.
 
     """
     def decorator(func):
@@ -1029,9 +1030,9 @@ def add_model(model_name, func):
     """
     Add a model function to the simulation.
 
-    Model argument names are used for injecting registered variables.
-    The argument name "year" may be used to have the current simulation
-    year injected.
+    The function will be evaluated using dependency injection.
+    The argument name "year" may be used to have the current
+    simulation year injected.
 
     Parameters
     ----------
@@ -1048,9 +1049,11 @@ def add_model(model_name, func):
 
 def model(model_name):
     """
-    Decorator version of `add_model`, used to decorate a function that
-    will require injection of tables and that can be run by the
-    `run` function.
+    Decorator version of `add_model`, for functions executed by `run`.
+
+    The function will be evaluated using dependency injection.
+    The argument name "year" may be used to have the current
+    simulation year injected.
 
     """
     def decorator(func):
