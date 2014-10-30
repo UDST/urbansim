@@ -264,8 +264,18 @@ the one column necessary for our calculation. This can be useful for
 avoiding unnecessary computation or to avoid recursion (as would happen
 in this case if we called ``to_frame()`` with no arguments).
 
-More concisely, we could use a variable expression to refer to the same
-column::
+Accessing columns on a table is such a common occurrence that there additional
+ways to do so without first calling ``to_frame()`` to create an actual
+``DataFrame``.
+
+:py:class:`~urbansim.sim.simulation.DataFrameWrapper` supports accessing
+individual columns in the same ways as ``DataFrames``::
+
+    @sim.column('my_table')
+    def my_col_x2(my_table):
+        return my_table['my_col'] * 2  # or my_table.my_col * 2
+
+Or you can use an expression to have a single column injected into a function::
 
     @sim.column('my_table')
     def my_col_x2(data='my_table.my_col'):
