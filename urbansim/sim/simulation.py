@@ -233,7 +233,7 @@ class DataFrameWrapper(object):
         """
         logger.debug('updating column {!r} in table {!r}'.format(
             column_name, self.name))
-        self._frame[column_name].loc[series.index] = series
+        self._frame.loc[series.index, column_name] = series
 
     def __len__(self):
         return len(self._frame)
