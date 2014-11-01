@@ -104,16 +104,21 @@ class DataFrameWrapper(object):
     name : str
         Name for the table.
     frame : pandas.DataFrame
+    copy : bool, optional
+        Whether to always copy the DataFrame each time it is evaluated.
 
     Attributes
     ----------
     name : str
         Table name.
+    copy : bool
+        Whether to always copy the DataFrame each time it is evaluated.
 
     """
-    def __init__(self, name, frame):
+    def __init__(self, name, frame, copy=True):
         self.name = name
         self._frame = frame
+        self.copy = copy
 
     @property
     def columns(self):
@@ -160,9 +165,17 @@ class DataFrameWrapper(object):
             local_cols = [c for c in self._frame.columns
                           if c in columns and c not in extra_cols]
             extra_cols = toolz.keyfilter(lambda c: c in columns, extra_cols)
-            df = self._frame[local_cols].copy()
+            # Slicing always returns a copy, so a copy will be created
+            # even if copy is False.
+            df = self._frame[local_cols]
+            if self.copy:
+                # Prevent warnings when assigning to a desired copy.
+                df.is_copy = None
         else:
-            df = self._frame.copy()
+            if self.copy:
+                df = self._frame.copy()
+            else:
+                df = self._frame
 
         with log_start_finish(
                 'computing {!r} columns for table {!r}'.format(
@@ -213,7 +226,19 @@ class DataFrameWrapper(object):
                 'getting single column {!r} from table {!r}'.format(
                     column_name, self.name),
                 logger):
-            return self.to_frame(columns=[column_name])[column_name]
+            extra_cols = _columns_for_table(self.name)
+            if column_name in extra_cols:
+                with log_start_finish(
+                        'computing column {!r} for table {!r}'.format(
+                            column_name, self.name),
+                        logger):
+                    column = extra_cols[column_name]()
+            else:
+                column = self._frame[column_name]
+            if self.copy:
+                return column.copy()
+            else:
+                return column
 
     def __getitem__(self, key):
         return self.get_column(key)
@@ -261,20 +286,25 @@ class TableFuncWrapper(object):
         Callable that returns a DataFrame.
     cache : bool, optional
         Whether to cache the results of calling the wrapped function.
+    copy : bool, optional
+        Whether to always copy the DataFrame each time it is evaluated.
 
     Attributes
-    __________
+    ----------
     name : str
         Table name.
     cache : bool
         Whether caching is enabled for this table.
+    copy : bool
+        Whether to always copy the DataFrame each time it is evaluated.
 
     """
-    def __init__(self, name, func, cache=False):
+    def __init__(self, name, func, cache=False, copy=True):
         self.name = name
         self._func = func
         self._argspec = inspect.getargspec(func)
         self.cache = cache
+        self.copy = copy
         self._columns = []
         self._index = None
         self._len = 0
@@ -352,7 +382,8 @@ class TableFuncWrapper(object):
 
         """
         frame = self._call_func()
-        return DataFrameWrapper(self.name, frame).to_frame(columns)
+        return DataFrameWrapper(self.name, frame,
+                                copy=self.copy).to_frame(columns)
 
     def get_column(self, column_name):
         """
@@ -367,11 +398,9 @@ class TableFuncWrapper(object):
         column : pandas.Series
 
         """
-        with log_start_finish(
-                'getting single column {!r} from table {!r}'.format(
-                    column_name, self.name),
-                logger):
-            return self.to_frame(columns=[column_name])[column_name]
+        frame = self._call_func()
+        return DataFrameWrapper(self.name, frame,
+                                copy=self.copy).get_column(column_name)
 
     def __getitem__(self, key):
         return self.get_column(key)
@@ -405,11 +434,15 @@ class _TableSourceWrapper(TableFuncWrapper):
     ----------
     name : str
     func : callable
+    copy : bool, optional
+        Whether to always copy the DataFrame each time it is evaluated.
 
     Attributes
     ----------
     name : str
         Table name.
+    copy : bool
+        Whether to always copy the DataFrame each time it is evaluated.
 
     """
     def convert(self):
@@ -419,7 +452,7 @@ class _TableSourceWrapper(TableFuncWrapper):
 
         """
         frame = self._call_func()
-        return add_table(self.name, frame)
+        return add_table(self.name, frame, copy=self.copy)
 
     def to_frame(self, columns=None):
         """
@@ -783,7 +816,7 @@ def _collect_variables(names, expressions=None):
     return variables
 
 
-def add_table(table_name, table, cache=False):
+def add_table(table_name, table, cache=False, copy=True):
     """
     Register a table with the simulation.
 
@@ -799,6 +832,8 @@ def add_table(table_name, table, cache=False):
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
+    copy : bool, optional
+        Whether to always copy the DataFrame each time it is evaluated.
 
     Returns
     -------
@@ -807,9 +842,9 @@ def add_table(table_name, table, cache=False):
     """
     if hasattr(table, 'columns') and hasattr(table, 'index'):
         # Object looks like a DataFrame, so treat it as one.
-        table = DataFrameWrapper(table_name, table)
+        table = DataFrameWrapper(table_name, table, copy=copy)
     elif isinstance(table, Callable):
-        table = TableFuncWrapper(table_name, table, cache)
+        table = TableFuncWrapper(table_name, table, cache=cache, copy=copy)
     else:
         raise TypeError('table must be DataFrame or function.')
 
@@ -822,7 +857,7 @@ def add_table(table_name, table, cache=False):
     return table
 
 
-def table(table_name=None, cache=False):
+def table(table_name=None, cache=False, copy=True):
     """
     Decorates functions that return DataFrames.
 
@@ -839,12 +874,12 @@ def table(table_name=None, cache=False):
             name = table_name
         else:
             name = func.__name__
-        add_table(name, func, cache=cache)
+        add_table(name, func, cache=cache, copy=copy)
         return func
     return decorator
 
 
-def add_table_source(table_name, func):
+def add_table_source(table_name, func, copy=True):
     """
     Add a DataFrame source function to the simulation.
 
@@ -858,19 +893,21 @@ def add_table_source(table_name, func):
         The function's argument names and keyword argument values
         will be matched to registered variables when the function
         needs to be evaluated by the simulation framework.
+    copy : bool, optional
+        Whether to always copy the DataFrame each time it is evaluated.
 
     Returns
     -------
     wrapped : `_TableSourceWrapper`
 
     """
-    wrapped = _TableSourceWrapper(table_name, func)
+    wrapped = _TableSourceWrapper(table_name, func, copy=copy)
     logger.debug('registering table source {}'.format(table_name))
     _TABLES[table_name] = wrapped
     return wrapped
 
 
-def table_source(table_name=None):
+def table_source(table_name=None, copy=True):
     """
     Decorates functions that return DataFrames.
 
@@ -888,7 +925,7 @@ def table_source(table_name=None):
             name = table_name
         else:
             name = func.__name__
-        add_table_source(name, func)
+        add_table_source(name, func, copy=copy)
         return func
     return decorator
 
