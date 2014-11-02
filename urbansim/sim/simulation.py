@@ -840,13 +840,10 @@ def add_table(table_name, table, cache=False, copy=True):
     wrapped : `DataFrameWrapper` or `TableFuncWrapper`
 
     """
-    if hasattr(table, 'columns') and hasattr(table, 'index'):
-        # Object looks like a DataFrame, so treat it as one.
-        table = DataFrameWrapper(table_name, table, copy=copy)
-    elif isinstance(table, Callable):
+    if isinstance(table, Callable):
         table = TableFuncWrapper(table_name, table, cache=cache, copy=copy)
     else:
-        raise TypeError('table must be DataFrame or function.')
+        table = DataFrameWrapper(table_name, table, copy=copy)
 
     # clear any cached data from a previously registered table
     table.clear_cached()
@@ -976,14 +973,11 @@ def add_column(table_name, column_name, column, cache=False):
         apply if `column` is a Series.
 
     """
-    if hasattr(column, 'index') and not hasattr(column, 'columns'):
-        # Object looks like a Series, so treat it as one.
-        column = _SeriesWrapper(table_name, column_name, column)
-    elif isinstance(column, Callable):
+    if isinstance(column, Callable):
         column = \
             _ColumnFuncWrapper(table_name, column_name, column, cache=cache)
     else:
-        raise TypeError('Only Series or callable allowed for column.')
+        column = _SeriesWrapper(table_name, column_name, column)
 
     # clear any cached data from a previously registered column
     column.clear_cached()
