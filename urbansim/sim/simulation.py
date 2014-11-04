@@ -51,15 +51,28 @@ def clear_sim():
     logger.debug('simulation state cleared')
 
 
-def clear_cache():
+def clear_cache(scope=None):
     """
     Clear all cached data.
 
+    Parameters
+    ----------
+    scope : {None, 'step', 'iteration', 'forever'}, optional
+        Clear cached values with a given scope.
+        By default all cached values are removed.
+
     """
-    _TABLE_CACHE.clear()
-    _COLUMN_CACHE.clear()
-    _INJECTABLE_CACHE.clear()
-    logger.debug('simulation cache cleared')
+    if not scope:
+        _TABLE_CACHE.clear()
+        _COLUMN_CACHE.clear()
+        _INJECTABLE_CACHE.clear()
+        logger.debug('simulation cache cleared')
+    else:
+        for d in (_TABLE_CACHE, _COLUMN_CACHE, _INJECTABLE_CACHE):
+            items = toolz.valfilter(lambda x: x.scope == scope, d)
+            for k in items:
+                del d[k]
+        logger.debug('cleared cached values with scope {!r}'.format(scope))
 
 
 def enable_cache():
@@ -1436,6 +1449,7 @@ def run(models, years=None, data_out=None, out_interval=1):
                 model()
                 print("Time to execute model '{}': {:.2f}s".format(
                       model_name, time.time()-t2))
+            clear_cache(scope=_CS_STEP)
 
         print("Total time to execute{}: {:.2f}s".format(
             " year {}".format(year) if year is not None else '',
@@ -1446,6 +1460,7 @@ def run(models, years=None, data_out=None, out_interval=1):
             year_counter = 0
 
         year_counter += 1
+        clear_cache(scope=_CS_ITER)
 
     if data_out and year_counter != 1:
         write_tables(data_out, models, 'final')

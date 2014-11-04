@@ -602,6 +602,113 @@ def test_injectables_cache_disabled():
     assert i()() == 16
 
 
+def test_clear_cache_all(df):
+    @sim.table(cache=True)
+    def table():
+        return df
+
+    @sim.column('table', cache=True)
+    def z(table):
+        return df.a
+
+    @sim.injectable(cache=True)
+    def x():
+        return 'x'
+
+    sim.eval_variable('table.z')
+    sim.eval_variable('x')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
+    assert sim._INJECTABLE_CACHE.keys() == ['x']
+
+    sim.clear_cache()
+
+    assert sim._TABLE_CACHE == {}
+    assert sim._COLUMN_CACHE == {}
+    assert sim._INJECTABLE_CACHE == {}
+
+
+def test_clear_cache_scopes(df):
+    @sim.table(cache=True, cache_scope='forever')
+    def table():
+        return df
+
+    @sim.column('table', cache=True, cache_scope='iteration')
+    def z(table):
+        return df.a
+
+    @sim.injectable(cache=True, cache_scope='step')
+    def x():
+        return 'x'
+
+    sim.eval_variable('table.z')
+    sim.eval_variable('x')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
+    assert sim._INJECTABLE_CACHE.keys() == ['x']
+
+    sim.clear_cache(scope='step')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
+    assert sim._INJECTABLE_CACHE == {}
+
+    sim.clear_cache(scope='iteration')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE == {}
+    assert sim._INJECTABLE_CACHE == {}
+
+    sim.clear_cache(scope='forever')
+
+    assert sim._TABLE_CACHE == {}
+    assert sim._COLUMN_CACHE == {}
+    assert sim._INJECTABLE_CACHE == {}
+
+
+def test_cache_scope(df):
+    sim.add_injectable('x', 11)
+    sim.add_injectable('y', 22)
+    sim.add_injectable('z', 33)
+    sim.add_injectable('iterations', 1)
+
+    @sim.injectable(cache=True, cache_scope='forever')
+    def a(x):
+        return x
+
+    @sim.injectable(cache=True, cache_scope='iteration')
+    def b(y):
+        return y
+
+    @sim.injectable(cache=True, cache_scope='step')
+    def c(z):
+        return z
+
+    @sim.model()
+    def m1(year, a, b, c):
+        sim.add_injectable('x', year + a)
+        sim.add_injectable('y', year + b)
+        sim.add_injectable('z', year + c)
+
+        assert a == 11
+
+    @sim.model()
+    def m2(year, a, b, c, iterations):
+        assert a == 11
+        if year == 1000:
+            assert b == 22
+            assert c == 1033
+        elif year == 2000:
+            assert b == 1022
+            assert c == 3033
+
+        sim.add_injectable('iterations', iterations + 1)
+
+    sim.run(['m1', 'm2'], years=[1000, 2000])
+
+
 def test_table_func_local_cols(df):
     @sim.table()
     def table():
