@@ -755,7 +755,8 @@ def _collect_variables(names, expressions=None):
         expressions = []
     offset = len(names) - len(expressions)
     labels_map = dict(toolz.concatv(
-        zip(names[:offset], names[:offset]), zip(names[offset:], expressions)))
+        toolz.compatibility.zip(names[:offset], names[:offset]),
+        toolz.compatibility.zip(names[offset:], expressions)))
 
     all_variables = toolz.merge(_INJECTABLES, _TABLES)
     variables = {}
