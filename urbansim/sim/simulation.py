@@ -1459,6 +1459,17 @@ def run(models, years=None, data_out=None, out_interval=1):
 
 
 @contextmanager
+def cache_disabled():
+    turn_back_on = True if cache_on() else False
+    disable_cache()
+
+    yield
+
+    if turn_back_on:
+        enable_cache()
+
+
+@contextmanager
 def injectables(**kwargs):
     """
     Temporarily add injectables to the simulation environment.

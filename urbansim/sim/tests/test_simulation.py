@@ -659,6 +659,24 @@ def test_get_table(df):
     pdt.assert_frame_equal(so.to_frame(), df)
 
 
+def test_cache_disabled_cm():
+    x = 3
+
+    @sim.injectable(cache=True)
+    def xi():
+        return x
+
+    assert sim.get_injectable('xi') == 3
+    x = 5
+    assert sim.get_injectable('xi') == 3
+
+    with sim.cache_disabled():
+        assert sim.get_injectable('xi') == 5
+
+    # cache still gets updated even when cacheing is off
+    assert sim.get_injectable('xi') == 5
+
+
 def test_injectables_cm():
     sim.add_injectable('a', 'a')
     sim.add_injectable('b', 'b')
