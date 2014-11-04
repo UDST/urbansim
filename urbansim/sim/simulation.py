@@ -754,8 +754,8 @@ def _collect_variables(names, expressions=None):
     if not expressions:
         expressions = []
     offset = len(names) - len(expressions)
-    labels_map = dict(zip(names[:offset], names[:offset])
-                      + zip(names[offset:], expressions))
+    labels_map = dict(toolz.concatv(
+        zip(names[:offset], names[:offset]), zip(names[offset:], expressions)))
 
     all_variables = toolz.merge(_INJECTABLES, _TABLES)
     variables = {}
@@ -1474,3 +1474,28 @@ def injectables(**kwargs):
     _INJECTABLES.update(kwargs)
     yield
     _INJECTABLES = original
+
+
+def eval_variable(name, **kwargs):
+    """
+    Execute a single variable function registered with the simulation framework
+    and return the result. Any keyword arguments are temporarily set
+    as injectables. This gives the value as would be injected into a function.
+
+    Parameters
+    ----------
+    name : str
+        Name of function to run. Use variable expressions to specify columns.
+
+    Returns
+    -------
+    object
+        For injectables and columns this directly returns whatever
+        object is returned by the registered function.
+        For tables this returns a DataFrameWrapper as if the table
+        had been injected into a function.
+
+    """
+    with injectables(**kwargs):
+        vars = _collect_variables([name], [name])
+        return vars[name]

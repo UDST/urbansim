@@ -388,6 +388,15 @@ def test_collect_variables(df):
     pdt.assert_series_equal(things['df_a'], df['a'])
 
 
+def test_collect_variables_expression_only(df):
+    @sim.table()
+    def table():
+        return df
+
+    vars = sim._collect_variables(['a'], ['table.a'])
+    pdt.assert_series_equal(vars['a'], df.a)
+
+
 def test_injectables():
     sim.add_injectable('answer', 42)
 
@@ -674,3 +683,19 @@ def test_injectables_cm():
 def test_is_expression():
     assert sim.is_expression('name') is False
     assert sim.is_expression('table.column') is True
+
+
+def test_eval_variable(df):
+    sim.add_injectable('x', 3)
+    assert sim.eval_variable('x') == 3
+
+    @sim.injectable()
+    def func(x):
+        return 'xyz' * x
+    assert sim.eval_variable('func') == 'xyzxyzxyz'
+    assert sim.eval_variable('func', x=2) == 'xyzxyz'
+
+    @sim.table()
+    def table(x):
+        return df * x
+    pdt.assert_series_equal(sim.eval_variable('table.a'), df.a * 3)
