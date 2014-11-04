@@ -701,6 +701,23 @@ def list_broadcasts():
     return list(_BROADCASTS.keys())
 
 
+def is_expression(name):
+    """
+    Checks whether a given name is a simple variable name or a compound
+    variable expression.
+
+    Parameters
+    ----------
+    name : str
+
+    Returns
+    -------
+    is_expr : bool
+
+    """
+    return '.' in name
+
+
 def _collect_variables(names, expressions=None):
     """
     Map labels and expressions to registered variables.

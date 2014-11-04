@@ -669,3 +669,8 @@ def test_injectables_cm():
     assert sim._INJECTABLES == {
         'a': 'a', 'b': 'b', 'c': 'c'
     }
+
+
+def test_is_expression():
+    assert sim.is_expression('name') is False
+    assert sim.is_expression('table.column') is True
