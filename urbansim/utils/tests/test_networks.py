@@ -50,7 +50,7 @@ def sample_df(sample_osm):
 
 def test_networks_yaml(sample_osm, sample_df, test_file):
 
-    @sim.table_source('testing_df')
+    @sim.table('testing_df', cache=True)
     def source():
         return sample_df
 
