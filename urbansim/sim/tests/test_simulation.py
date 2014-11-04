@@ -462,7 +462,7 @@ def test_collect_variables(df):
     def injected():
         return 'injected'
 
-    @sim.table_source('source table')
+    @sim.table('source table', cache=True)
     def source():
         return df
 
@@ -477,8 +477,8 @@ def test_collect_variables(df):
     things = sim._collect_variables(names, expressions)
 
     assert set(things.keys()) == set(names)
-    assert isinstance(things['source_label'], sim.DataFrameWrapper)
-    pdt.assert_frame_equal(things['source_label']._frame, df)
+    assert isinstance(things['source_label'], sim.TableFuncWrapper)
+    pdt.assert_frame_equal(things['source_label'].to_frame(), df)
     assert isinstance(things['df_a'], pd.Series)
     pdt.assert_series_equal(things['df_a'], df['a'])
 
@@ -602,47 +602,6 @@ def test_injectables_cache_disabled():
     assert i()() == 16
 
 
-def test_table_source(df):
-    @sim.table_source()
-    def source():
-        return df
-
-    _source = lambda: sim._TABLES['source']
-
-    table = _source()
-    assert isinstance(table, sim._TableSourceWrapper)
-
-    test_df = table.to_frame()
-    pdt.assert_frame_equal(test_df, df)
-    assert table.columns == list(df.columns)
-    assert len(table) == len(df)
-    pdt.assert_index_equal(table.index, df.index)
-
-    table = _source()
-    assert isinstance(table, sim.DataFrameWrapper)
-
-    test_df = table.to_frame()
-    pdt.assert_frame_equal(test_df, df)
-
-
-def test_table_source_convert(df):
-    @sim.table_source()
-    def source():
-        return df
-
-    _source = lambda: sim._TABLES['source']
-
-    table = _source()
-    assert isinstance(table, sim._TableSourceWrapper)
-
-    table = table.convert()
-    assert isinstance(table, sim.DataFrameWrapper)
-    pdt.assert_frame_equal(table.to_frame(), df)
-
-    table2 = _source()
-    assert table2 is table
-
-
 def test_table_func_local_cols(df):
     @sim.table()
     def table():
@@ -650,15 +609,6 @@ def test_table_func_local_cols(df):
     sim.add_column('table', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
 
     assert sim.get_table('table').local_columns == ['a', 'b']
-
-
-def test_table_source_local_cols(df):
-    @sim.table_source()
-    def source():
-        return df
-    sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
-
-    assert sim.get_table('source').local_columns == ['a', 'b']
 
 
 def test_is_table(df):
@@ -734,7 +684,7 @@ def test_get_table(df):
     def table():
         return df
 
-    @sim.table_source()
+    @sim.table(cache=True)
     def source():
         return df
 
@@ -747,7 +697,7 @@ def test_get_table(df):
 
     assert isinstance(fr, sim.DataFrameWrapper)
     assert isinstance(ta, sim.TableFuncWrapper)
-    assert isinstance(so, sim.DataFrameWrapper)
+    assert isinstance(so, sim.TableFuncWrapper)
 
     pdt.assert_frame_equal(fr.to_frame(), df)
     pdt.assert_frame_equal(ta.to_frame(), df)
