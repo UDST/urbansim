@@ -699,3 +699,14 @@ def test_eval_variable(df):
     def table(x):
         return df * x
     pdt.assert_series_equal(sim.eval_variable('table.a'), df.a * 3)
+
+
+def test_eval_model(df):
+    sim.add_injectable('x', 3)
+
+    @sim.model()
+    def model(x):
+        return df * x
+
+    pdt.assert_frame_equal(sim.eval_model('model'), df * 3)
+    pdt.assert_frame_equal(sim.eval_model('model', x=5), df * 5)

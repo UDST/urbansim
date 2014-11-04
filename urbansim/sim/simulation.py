@@ -1485,7 +1485,8 @@ def eval_variable(name, **kwargs):
     Parameters
     ----------
     name : str
-        Name of function to run. Use variable expressions to specify columns.
+        Name of variable to evaluate.
+        Use variable expressions to specify columns.
 
     Returns
     -------
@@ -1499,3 +1500,25 @@ def eval_variable(name, **kwargs):
     with injectables(**kwargs):
         vars = _collect_variables([name], [name])
         return vars[name]
+
+
+def eval_model(name, **kwargs):
+    """
+    Evaluate a model as would be done under the simulation framework
+    and return the result. Any keyword arguments are temporarily set
+    as injectables.
+
+    Parameters
+    ----------
+    name : str
+        Name of model to run.
+
+    Returns
+    -------
+    object
+        Anything returned by a model. (Though note that under the
+        simulation framework return values from models are ignored.)
+
+    """
+    with injectables(**kwargs):
+        return get_model(name)()
