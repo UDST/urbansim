@@ -4,6 +4,7 @@ import inspect
 import logging
 import warnings
 from collections import Callable, namedtuple
+from contextlib import contextmanager
 
 import pandas as pd
 import tables
@@ -1438,3 +1439,21 @@ def run(models, years=None, data_out=None, out_interval=1):
 
     if data_out and year_counter != 1:
         write_tables(data_out, models, 'final')
+
+
+@contextmanager
+def injectables(**kwargs):
+    """
+    Temporarily add injectables to the simulation environment.
+    Takes only keyword arguments.
+
+    Injectables will be returned to their original state when the context
+    manager exits.
+
+    """
+    global _INJECTABLES
+
+    original = _INJECTABLES.copy()
+    _INJECTABLES.update(kwargs)
+    yield
+    _INJECTABLES = original

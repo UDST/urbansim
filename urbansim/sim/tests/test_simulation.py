@@ -648,3 +648,24 @@ def test_get_table(df):
     pdt.assert_frame_equal(fr.to_frame(), df)
     pdt.assert_frame_equal(ta.to_frame(), df)
     pdt.assert_frame_equal(so.to_frame(), df)
+
+
+def test_injectables_cm():
+    sim.add_injectable('a', 'a')
+    sim.add_injectable('b', 'b')
+    sim.add_injectable('c', 'c')
+
+    with sim.injectables():
+        assert sim._INJECTABLES == {
+            'a': 'a', 'b': 'b', 'c': 'c'
+        }
+
+    with sim.injectables(c='d', x='x', y='y', z='z'):
+        assert sim._INJECTABLES == {
+            'a': 'a', 'b': 'b', 'c': 'd',
+            'x': 'x', 'y': 'y', 'z': 'z'
+        }
+
+    assert sim._INJECTABLES == {
+        'a': 'a', 'b': 'b', 'c': 'c'
+    }
