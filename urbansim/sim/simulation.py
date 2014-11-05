@@ -143,11 +143,13 @@ class DataFrameWrapper(object):
         Table name.
     copy_col : bool
         Whether to return copies when evaluating columns.
+    local : pandas.DataFrame
+        The wrapped DataFrame.
 
     """
     def __init__(self, name, frame, copy_col=True):
         self.name = name
-        self._frame = frame
+        self.local = frame
         self.copy_col = copy_col
 
     @property
@@ -164,7 +166,7 @@ class DataFrameWrapper(object):
         Columns that are part of the wrapped DataFrame.
 
         """
-        return list(self._frame.columns)
+        return list(self.local.columns)
 
     @property
     def index(self):
@@ -172,7 +174,7 @@ class DataFrameWrapper(object):
         Table index.
 
         """
-        return self._frame.index
+        return self.local.index
 
     def to_frame(self, columns=None):
         """
@@ -194,12 +196,12 @@ class DataFrameWrapper(object):
         extra_cols = _columns_for_table(self.name)
 
         if columns:
-            local_cols = [c for c in self._frame.columns
+            local_cols = [c for c in self.local.columns
                           if c in columns and c not in extra_cols]
             extra_cols = toolz.keyfilter(lambda c: c in columns, extra_cols)
-            df = self._frame[local_cols].copy()
+            df = self.local[local_cols].copy()
         else:
-            df = self._frame.copy()
+            df = self.local.copy()
 
         with log_start_finish(
                 'computing {!r} columns for table {!r}'.format(
@@ -228,7 +230,7 @@ class DataFrameWrapper(object):
         """
         logger.debug('updating column {!r} in table {!r}'.format(
             column_name, self.name))
-        self._frame[column_name] = series
+        self.local[column_name] = series
 
     def __setitem__(self, key, value):
         return self.update_col(key, value)
@@ -283,10 +285,10 @@ class DataFrameWrapper(object):
         """
         logger.debug('updating column {!r} in table {!r}'.format(
             column_name, self.name))
-        self._frame.loc[series.index, column_name] = series
+        self.local.loc[series.index, column_name] = series
 
     def __len__(self):
-        return len(self._frame)
+        return len(self.local)
 
     def clear_cached(self):
         """
