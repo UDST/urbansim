@@ -46,7 +46,7 @@ def test_tables(df):
     pdt.assert_series_equal(table.a, df.a)
     pdt.assert_series_equal(table['b'], df['b'])
 
-    table = sim.get_table('test_func')
+    table = sim._TABLES['test_func']
     assert table.index is None
     assert table.columns == []
     assert len(table) is 0
@@ -256,7 +256,7 @@ def test_columns_and_tables(df):
              'c': [7, 8, 9]},
             index=['x', 'y', 'z']))
 
-    test_func_df = sim.get_table('test_func')
+    test_func_df = sim._TABLES['test_func']
     assert set(test_func_df.columns) == set(['d', 'e'])
     assert_frames_equal(
         test_func_df.to_frame(),
@@ -477,7 +477,7 @@ def test_collect_variables(df):
     things = sim._collect_variables(names, expressions)
 
     assert set(things.keys()) == set(names)
-    assert isinstance(things['source_label'], sim.TableFuncWrapper)
+    assert isinstance(things['source_label'], sim.DataFrameWrapper)
     pdt.assert_frame_equal(things['source_label'].to_frame(), df)
     assert isinstance(things['df_a'], pd.Series)
     pdt.assert_series_equal(things['df_a'], df['a'])
@@ -803,8 +803,8 @@ def test_get_table(df):
         sim.get_table('asdf')
 
     assert isinstance(fr, sim.DataFrameWrapper)
-    assert isinstance(ta, sim.TableFuncWrapper)
-    assert isinstance(so, sim.TableFuncWrapper)
+    assert isinstance(ta, sim.DataFrameWrapper)
+    assert isinstance(so, sim.DataFrameWrapper)
 
     pdt.assert_frame_equal(fr.to_frame(), df)
     pdt.assert_frame_equal(ta.to_frame(), df)
@@ -880,3 +880,17 @@ def test_eval_model(df):
 
     pdt.assert_frame_equal(sim.eval_model('model'), df * 3)
     pdt.assert_frame_equal(sim.eval_model('model', x=5), df * 5)
+
+
+def test_always_dataframewrapper(df):
+    @sim.table()
+    def table():
+        return df / 2
+
+    @sim.table()
+    def table2(table):
+        assert isinstance(table, sim.DataFrameWrapper)
+        return table.to_frame() / 2
+
+    result = sim.eval_variable('table2')
+    pdt.assert_frame_equal(result.to_frame(), df / 4)

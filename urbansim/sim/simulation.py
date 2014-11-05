@@ -293,6 +293,7 @@ class DataFrameWrapper(object):
         Remove cached results from this table's computed columns.
 
         """
+        _TABLE_CACHE.pop(self.name, None)
         for col in _columns_for_table(self.name).values():
             col.clear_cached()
         logger.debug('cleared cached columns for table {!r}'.format(self.name))
@@ -374,8 +375,9 @@ class TableFuncWrapper(object):
 
     def _call_func(self):
         """
-        Call the wrapped function and return the result. Also updates
-        attributes like columns, index, and length.
+        Call the wrapped function and return the result wrapped by
+        DataFrameWrapper.
+        Also updates attributes like columns, index, and length.
 
         """
         if _CACHING and self.cache and self.name in _TABLE_CACHE:
@@ -390,14 +392,20 @@ class TableFuncWrapper(object):
                                         expressions=self._argspec.defaults)
             frame = self._func(**kwargs)
 
-        if self.cache:
-            _TABLE_CACHE[self.name] = CacheItem(
-                self.name, frame, self.cache_scope)
-
         self._columns = list(frame.columns)
         self._index = frame.index
         self._len = len(frame)
-        return frame
+
+        wrapped = DataFrameWrapper(self.name, frame, copy_col=self.copy_col)
+
+        if self.cache:
+            _TABLE_CACHE[self.name] = CacheItem(
+                self.name, wrapped, self.cache_scope)
+
+        return wrapped
+
+    def __call__(self):
+        return self._call_func()
 
     def to_frame(self, columns=None):
         """
@@ -416,9 +424,7 @@ class TableFuncWrapper(object):
         frame : pandas.DataFrame
 
         """
-        frame = self._call_func()
-        return DataFrameWrapper(self.name, frame,
-                                copy_col=self.copy_col).to_frame(columns)
+        return self._call_func().to_frame(columns)
 
     def get_column(self, column_name):
         """
@@ -801,11 +807,11 @@ def _collect_variables(names, expressions=None):
         if '.' in expression:
             # Registered variable expression refers to column.
             table_name, column_name = expression.split('.')
-            table = _TABLES[table_name]
+            table = get_table(table_name)
             variables[label] = table.get_column(column_name)
         else:
             thing = all_variables[expression]
-            if isinstance(thing, _InjectableFuncWrapper):
+            if isinstance(thing, (_InjectableFuncWrapper, TableFuncWrapper)):
                 # Registered variable object is function.
                 variables[label] = thing()
             else:
@@ -889,7 +895,7 @@ def get_table(table_name):
     """
     Get a registered table.
 
-    Table sources will be converted to `DataFrameWrapper`.
+    Decorated functions will be converted to `DataFrameWrapper`.
 
     Parameters
     ----------
@@ -897,11 +903,14 @@ def get_table(table_name):
 
     Returns
     -------
-    table : `DataFrameWrapper` or `TableFuncWrapper`
+    table : `DataFrameWrapper`
 
     """
     if table_name in _TABLES:
-        return _TABLES[table_name]
+        table = _TABLES[table_name]
+        if isinstance(table, TableFuncWrapper):
+            table = table()
+        return table
     else:
         raise KeyError('table not found: {}'.format(table_name))
 
