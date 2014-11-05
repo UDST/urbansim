@@ -622,7 +622,6 @@ class _ModelFuncWrapper(object):
         self._func = func
         self._argspec = inspect.getargspec(func)
 
-
     def __call__(self):
         with log_start_finish('calling model {!r}'.format(self.name), logger):
             kwargs = _collect_variables(names=self._argspec.args,
