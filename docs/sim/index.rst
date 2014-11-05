@@ -357,6 +357,58 @@ An example of the above injectables in IPython:
     1  50
     2  75
 
+Caching
+-------
+
+The UrbanSim simulation framework has cache system so that function results
+can be stored for re-use when it is not necessary to recompute them
+every time they are used.
+
+The decorators
+:py:func:`~urbansim.sim.simulation.table`,
+:py:func:`~urbansim.sim.simulation.column`, and
+:py:func:`~urbansim.sim.simulation.injectable`
+all take two keyword arguments related to caching:
+``cache`` and ``cache_scope``.
+
+By default results are not cached. Register functions with ``cache=True``
+to enable caching of their results.
+
+Cache Scope
+~~~~~~~~~~~
+
+Cached items have an associated "scope" that allows the simulation framework
+to automatically manage how long functions have their results cached before
+re-evaluating them. The three scope settings are:
+
+* ``'forever'`` (the default setting) -
+  Results are cached until manually cleared by user commands.
+* ``'iteration'`` -
+  Results are cached for the remainder of the current simulation iteration.
+* ``'step'`` -
+  Results are cached until the current simulation step finishes.
+
+Managing the Cache
+~~~~~~~~~~~~~~~~~~
+
+We hope that users will be able to do most of their cache management via
+cache scopes, but there may be situations, especially during testing,
+when more manual management is required.
+
+Caching can be turned off globally using the
+:py:func:`~urbansim.sim.simulation.disable_cache` function
+(and turned back on by :py:func:`~urbansim.sim.simulation.enable_cache`).
+
+To run a block of commands with the cache disabled, but have it automatically
+re-enabled, use the :py:func:`~urbansim.sim.simulation.cache_disabled`
+context manager::
+
+    with sim.cache_disabled():
+        result = sim.eval_variable('my_table')
+
+Finally, users can manually clear the cache using
+:py:func:`~urbansim.sim.simulation.clear_cache`.
+
 Models
 ------
 
@@ -614,8 +666,6 @@ Table API
 
    add_table
    table
-   add_table_source
-   table_source
    get_table
    list_tables
    DataFrameWrapper
@@ -669,6 +719,7 @@ Cache API
    disable_cache
    enable_cache
    cache_on
+   cache_disabled
 
 API Docs
 ~~~~~~~~
