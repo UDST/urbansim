@@ -484,9 +484,8 @@ def test_not_enough_capacity_decline(amounts_df,
 def test_raise_float_amount(amounts_df, amounts_col, rows_df, target_col):
     year = 2010
     amounts_df[amounts_col] = pd.Series([100.56, 200.56, 300.56])
-    am = AllocationModel(amounts_df, amounts_col, target_col)
     with pytest.raises(ValueError):
-        am.allocate(rows_df, year)
+        am = AllocationModel(amounts_df, amounts_col, target_col)
 
 
 def test_agent_allocation(agents_df, locations_df):

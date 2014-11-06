@@ -115,6 +115,11 @@ class AllocationModel(object):
             raise ValueError("Duplicate entries in amounts table")
         del temp
 
+        # check for floating amounts
+        if self.as_integer:
+            if (amounts_df[amounts_col] % 1 != 0).any():
+                raise ValueError('Amounts table has floating values')
+
         # retain the previous amount for computing amount changes for missing years
         if segment_cols is None:
             self.prev_amount = 0
@@ -270,10 +275,6 @@ class AllocationModel(object):
 
                 # integerize using stochastic rounding
                 if self.as_integer:
-                    # make sure the amount is an integer
-                    if amount % 1 != 0:
-                        raise ValueError('Cannot integerize and match non-integer amount')
-
                     # only non-zero rows with capacity are eligible for rounding
                     to_round_idx = a[(a < c) & (a != 0)].index.values
                     to_round_vals = a[to_round_idx].values
