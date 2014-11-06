@@ -1282,7 +1282,7 @@ def _is_leaf_node(merge_node):
     Returns True for dicts like {'a': {}}.
 
     """
-    return len(merge_node) == 1 and not merge_node.values()[0]
+    return len(merge_node) == 1 and not next(iter(merge_node.values()))
 
 
 def _next_merge(merge_node):
