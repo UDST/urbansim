@@ -80,13 +80,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
 
     alts_sample = alternatives.loc[sample]
     assert len(alts_sample.index) == SAMPLE_SIZE * len(choosers.index)
-    try:
-        alts_sample['join_index'] = np.repeat(choosers.index, SAMPLE_SIZE)
-    except:
-        # TODO: log the error here and re-raise the original exception
-        raise Exception(
-            "ERROR: An exception here means agents and "
-            "alternatives aren't merging correctly")
+    alts_sample['join_index'] = np.repeat(choosers.index.values, SAMPLE_SIZE)
 
     alts_sample = pd.merge(
         alts_sample, choosers, left_on='join_index', right_index=True,

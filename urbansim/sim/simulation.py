@@ -57,8 +57,8 @@ def clear_cache():
 
 def enable_cache():
     """
-    Allow caching of computed tables, columns, and injectables that
-    explicitly have caching enabled.
+    Allow caching of registered variables that explicitly have
+    caching enabled.
 
     """
     global _CACHING
@@ -67,8 +67,8 @@ def enable_cache():
 
 def disable_cache():
     """
-    Turn off caching across the simulation, even for computed tables,
-    columns, and injectables that have caching enabled.
+    Turn off caching across the simulation, even for registered variables
+    that have caching enabled.
 
     """
     global _CACHING
@@ -233,7 +233,7 @@ class DataFrameWrapper(object):
         """
         logger.debug('updating column {!r} in table {!r}'.format(
             column_name, self.name))
-        self._frame[column_name].loc[series.index] = series
+        self._frame.loc[series.index, column_name] = series
 
     def __len__(self):
         return len(self._frame)
@@ -272,7 +272,7 @@ class TableFuncWrapper(object):
     def __init__(self, name, func, cache=False):
         self.name = name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
         self.cache = cache
         self._columns = []
         self._index = None
@@ -323,7 +323,8 @@ class TableFuncWrapper(object):
                 'call function to get frame for table {!r}'.format(
                     self.name),
                 logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             frame = self._func(**kwargs)
 
         if self.cache:
@@ -469,7 +470,7 @@ class _ColumnFuncWrapper(object):
         self.table_name = table_name
         self.name = column_name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
         self.cache = cache
 
     def __call__(self):
@@ -488,7 +489,8 @@ class _ColumnFuncWrapper(object):
         with log_start_finish(
                 ('call function to provide column {!r} for table {!r}'
                  ).format(self.name, self.table_name), logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             col = self._func(**kwargs)
 
         if self.cache:
@@ -519,9 +521,8 @@ class _SeriesWrapper(object):
         Table with which the column will be associated.
     column_name : str
         Name for the column.
-    func : callable
-        Should return a Series that has an
-        index matching the table to which it is being added.
+    series : pandas.Series
+        Series with index matching the table to which it is being added.
 
     Attributes
     ----------
@@ -549,8 +550,7 @@ class _SeriesWrapper(object):
 
 class _InjectableFuncWrapper(object):
     """
-    Wraps a function that will be called (with injection) to provide
-    an injectable value elsewhere.
+    Wraps a function that will provide an injectable value elsewhere.
 
     Parameters
     ----------
@@ -570,7 +570,7 @@ class _InjectableFuncWrapper(object):
     def __init__(self, name, func, cache=False):
         self.name = name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
         self.cache = cache
 
     def __call__(self):
@@ -582,7 +582,8 @@ class _InjectableFuncWrapper(object):
         with log_start_finish(
                 'call function to provide injectable {!r}'.format(self.name),
                 logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             result = self._func(**kwargs)
 
         if self.cache:
@@ -603,7 +604,7 @@ class _InjectableFuncWrapper(object):
 
 class _ModelFuncWrapper(object):
     """
-    Wrap a model function for dependency injection.
+    Wrap a model function for argument matching.
 
     Parameters
     ----------
@@ -619,11 +620,12 @@ class _ModelFuncWrapper(object):
     def __init__(self, model_name, func):
         self.name = model_name
         self._func = func
-        self._arg_list = set(inspect.getargspec(func).args)
+        self._argspec = inspect.getargspec(func)
 
     def __call__(self):
         with log_start_finish('calling model {!r}'.format(self.name), logger):
-            kwargs = _collect_injectables(self._arg_list)
+            kwargs = _collect_variables(names=self._argspec.args,
+                                        expressions=self._argspec.defaults)
             return self._func(**kwargs)
 
     def _tables_used(self):
@@ -632,10 +634,22 @@ class _ModelFuncWrapper(object):
 
         Returns
         -------
-        tables : list of str
+        tables : set of str
 
         """
-        return [x for x in self._arg_list if _is_table(x)]
+        args = list(self._argspec.args)
+        if self._argspec.defaults:
+            default_args = list(self._argspec.defaults)
+        else:
+            default_args = []
+        # Combine names from argument names and argument default values.
+        names = args[:len(args) - len(default_args)] + default_args
+        tables = set()
+        for name in names:
+            parent_name = name.split('.')[0]
+            if _is_table(parent_name):
+                tables.add(parent_name)
+        return tables
 
 
 def _is_table(name):
@@ -686,38 +700,68 @@ def list_broadcasts():
     return list(_BROADCASTS.keys())
 
 
-def _collect_injectables(names):
+def _collect_variables(names, expressions=None):
     """
-    Find all the injectables specified in `names`.
+    Map labels and expressions to registered variables.
+
+    Handles argument matching.
+
+    Example:
+
+        _collect_variables(names=['zones', 'zone_id'],
+                           expressions=['parcels.zone_id'])
+
+    Would return a dict representing:
+
+        {'parcels': <DataFrameWrapper for zones>,
+         'zone_id': <pandas.Series for parcels.zone_id>}
 
     Parameters
     ----------
     names : list of str
+        List of registered variable names and/or labels.
+        If mixing names and labels, labels must come at the end.
+    expressions : list of str, optional
+        List of registered variable expressions for labels defined
+        at end of `names`. Length must match the number of labels.
 
     Returns
     -------
-    injectables : dict
-        Keys are the names, values are wrappers if the injectable
-        is a table. If it's a plain injectable the value itself is given
-        or the injectable function is evaluated.
+    variables : dict
+        Keys match `names`. Values correspond to registered variables,
+        which may be wrappers or evaluated functions if appropriate.
 
     """
-    names = set(names)
-    dicts = toolz.keyfilter(
-        lambda x: x in names, toolz.merge(_INJECTABLES, _TABLES))
+    # Map registered variable labels to expressions.
+    if not expressions:
+        expressions = []
+    offset = len(names) - len(expressions)
+    labels_map = dict(zip(names[:offset], names[:offset])
+                      + zip(names[offset:], expressions))
 
-    if set(dicts.keys()) != names:
-        raise KeyError(
-            'not all injectables found. '
-            'missing: {}'.format(names - set(dicts.keys())))
+    all_variables = toolz.merge(_INJECTABLES, _TABLES)
+    variables = {}
+    for label, expression in labels_map.items():
+        # In the future, more registered variable expressions could be
+        # supported. Currently supports names of registered variables
+        # and references to table columns.
+        if '.' in expression:
+            # Registered variable expression refers to column.
+            table_name, column_name = expression.split('.')
+            table = _TABLES[table_name]
+            variables[label] = table.get_column(column_name)
+        else:
+            thing = all_variables[expression]
+            if isinstance(thing, _InjectableFuncWrapper):
+                # Registered variable object is function.
+                variables[label] = thing()
+            elif isinstance(thing, _TableSourceWrapper):
+                # Registered variable object is table.
+                variables[label] = thing.convert()
+            else:
+                variables[label] = thing
 
-    for name, thing in dicts.items():
-        if isinstance(thing, _InjectableFuncWrapper):
-            dicts[name] = thing()
-        elif isinstance(thing, _TableSourceWrapper):
-            dicts[name] = thing.convert()
-
-    return dicts
+    return variables
 
 
 def add_table(table_name, table, cache=False):
@@ -729,9 +773,10 @@ def add_table(table_name, table, cache=False):
     table_name : str
         Should be globally unique to this table.
     table : pandas.DataFrame or function
-        If a function it should return a DataFrame. Function argument
-        names will be matched to known tables, which will be injected
-        when this function is called.
+        If a function, the function should return a DataFrame.
+        The function's argument names and keyword argument values
+        will be matched to registered variables when the function
+        needs to be evaluated by the simulation framework.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
@@ -757,33 +802,42 @@ def add_table(table_name, table, cache=False):
     return table
 
 
-def table(table_name, cache=False):
+def table(table_name=None, cache=False):
     """
-    Decorator version of `add_table` used for decorating functions
-    that return DataFrames.
+    Decorates functions that return DataFrames.
 
-    Decorated function argument names will be matched to known tables,
-    which will be injected when this function is called.
+    Decorator version of `add_table`. Table name defaults to
+    name of function.
+
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
 
     """
     def decorator(func):
-        add_table(table_name, func, cache=cache)
+        if table_name:
+            name = table_name
+        else:
+            name = func.__name__
+        add_table(name, func, cache=cache)
         return func
     return decorator
 
 
 def add_table_source(table_name, func):
     """
-    Add a DataFrame source function to the simulation. This function is
-    evaluated only once, after which the returned DataFrame replaces
-    `func` as the injected table.
+    Add a DataFrame source function to the simulation.
+
+    This function is evaluated only once, after which the returned
+    DataFrame replaces `func` as the injected table.
 
     Parameters
     ----------
     table_name : str
     func : callable
-        Function argument names will be matched to known injectables,
-        which will be injected when this function is called.
+        The function's argument names and keyword argument values
+        will be matched to registered variables when the function
+        needs to be evaluated by the simulation framework.
 
     Returns
     -------
@@ -796,15 +850,25 @@ def add_table_source(table_name, func):
     return wrapped
 
 
-def table_source(table_name):
+def table_source(table_name=None):
     """
-    Decorator version of `add_table_source`. Use it to decorate a function
-    that returns a DataFrame. The function will be evaluated only once
-    and the DataFrame will replace it.
+    Decorates functions that return DataFrames.
+
+    Decorator version of `add_table_source`. Function will be
+    evaluated only once and the DataFrame will replace it. Table name
+    defaults to name of function.
+
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
 
     """
     def decorator(func):
-        add_table_source(table_name, func)
+        if table_name:
+            name = table_name
+        else:
+            name = func.__name__
+        add_table_source(name, func)
         return func
     return decorator
 
@@ -844,8 +908,12 @@ def add_column(table_name, column_name, column, cache=False):
     column_name : str
         Name for the column.
     column : pandas.Series or callable
-        If a callable it should return a Series. Any Series should have an
-        index matching the table to which it is being added.
+        Series should have an index matching the table to which it
+        is being added. If a callable, the function's argument
+        names and keyword argument values will be matched to
+        registered variables when the function needs to be
+        evaluated by the simulation framework. The function should
+        return a Series.
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `column` is a Series.
@@ -869,17 +937,25 @@ def add_column(table_name, column_name, column, cache=False):
     return column
 
 
-def column(table_name, column_name, cache=False):
+def column(table_name, column_name=None, cache=False):
     """
-    Decorator version of `add_column` used for decorating functions
-    that return a Series with an index matching the named table.
+    Decorates functions that return a Series.
 
-    The argument names of the function should match known tables, which
-    will be injected.
+    Decorator version of `add_column`. Series index must match
+    the named table. Column name defaults to name of function.
+
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
+    The index of the returned Series must match the named table.
 
     """
     def decorator(func):
-        add_column(table_name, column_name, func, cache=cache)
+        if column_name:
+            name = column_name
+        else:
+            name = func.__name__
+        add_column(table_name, name, func, cache=cache)
         return func
     return decorator
 
@@ -921,20 +997,21 @@ def _columns_for_table(table_name):
 
 def add_injectable(name, value, autocall=True, cache=False):
     """
-    Add a value that will be injected into other functions that
-    are part of the simulation.
+    Add a value that will be injected into other functions.
 
     Parameters
     ----------
     name : str
     value
-        If a callable and `autocall` is True then the function will be
-        evaluated using dependency injection and the return value will
+        If a callable and `autocall` is True then the function's
+        argument names and keyword argument values will be matched
+        to registered variables when the function needs to be
+        evaluated by the simulation framework. The return value will
         be passed to any functions using this injectable. In all other
-        cases `value` will be passed through untouched.
+        cases, `value` will be passed through untouched.
     autocall : bool, optional
         Set to True to have injectable functions automatically called
-        (with dependency injection) and the result injected instead of
+        (with argument matching) and the result injected instead of
         the function itself.
     cache : bool, optional
         Whether to cache the return value of an injectable function.
@@ -949,13 +1026,24 @@ def add_injectable(name, value, autocall=True, cache=False):
     _INJECTABLES[name] = value
 
 
-def injectable(name, autocall=True, cache=False):
+def injectable(name=None, autocall=True, cache=False):
     """
-    Decorator version of `add_injectable`.
+    Decorates functions that will be injected into other functions.
+
+    Decorator version of `add_injectable`. Name defaults to
+    name of function.
+
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
 
     """
     def decorator(func):
-        add_injectable(name, func, autocall=autocall, cache=cache)
+        if name:
+            n = name
+        else:
+            n = func.__name__
+        add_injectable(n, func, autocall=autocall, cache=cache)
         return func
     return decorator
 
@@ -985,9 +1073,11 @@ def add_model(model_name, func):
     """
     Add a model function to the simulation.
 
-    Model argument names are used for injecting known tables of the same name.
-    The argument name "year" may be used to have the current simulation
-    year injected.
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
+    The argument name "year" may be used to have the current
+    simulation year injected.
 
     Parameters
     ----------
@@ -1002,15 +1092,26 @@ def add_model(model_name, func):
         raise TypeError('func must be a callable')
 
 
-def model(model_name):
+def model(model_name=None):
     """
-    Decorator version of `add_model`, used to decorate a function that
-    will require injection of tables and that can be run by the
-    `run` function.
+    Decorates functions that will be called by the `run` function.
+
+    Decorator version of `add_model`. Model name defaults to
+    name of function.
+
+    The function's argument names and keyword argument values
+    will be matched to registered variables when the function
+    needs to be evaluated by the simulation framework.
+    The argument name "year" may be used to have the current
+    simulation year injected.
 
     """
     def decorator(func):
-        add_model(model_name, func)
+        if model_name:
+            name = model_name
+        else:
+            name = func.__name__
+        add_model(name, func)
         return func
     return decorator
 
