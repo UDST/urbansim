@@ -453,6 +453,88 @@ The variable ``year`` is provided as an injectable to model functions:
     Running model 'print_year'
     *** the year is 2014 ***
 
+Running Sim Components a la Carte
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It can be useful to have the simulation framework evaluate single variables
+and models, especially during simulation development and testing.
+To achieve this, use the
+:py:func:`~urbansim.sim.simulation.eval_variable` and
+:py:func:`~urbansim.sim.simulation.eval_model` functions.
+
+``eval_variable`` takes the name of a variable (including variable expressions)
+and returns that variable as it would be injected into a function by the
+simulation framework. ``eval_model`` takes the name of a model, runs that
+model under the simulation framework, and returns any result.
+
+.. note::
+   Most models don't have return values because the simulation framework
+   ignores them, but they can be useful for testing.
+
+Both :py:func:`~urbansim.sim.simulation.eval_variable` and
+:py:func:`~urbansim.sim.simulation.eval_model`
+take arbitrary keyword arguments that are temporarily turned into injectables
+within the simulation framework while the evaluation is taking place.
+When the evaluation is complete the simulation state is reset to whatever
+it was before calling the ``eval`` function.
+
+An example of :py:func:`~urbansim.sim.simulation.eval_variable`:
+
+.. code-block:: python
+
+    In [15]: @sim.injectable()
+       ....: def func(x, y):
+       ....:     return x + y
+       ....:
+
+    In [16]: sim.eval_variable('func', x=1, y=2)
+    Out[16]: 3
+
+The keyword arguments are only temporarily set as injectables,
+which can lead to errors in a situation like this with a table
+where the evaluation of the table is delayed until
+:py:meth:`~urbansim.sim.simulation.DataFrameWrapper.to_frame` is called:
+
+.. code-block:: python
+
+    In [12]: @sim.table()
+       ....: def table(x, y):
+       ....:     return pd.DataFrame({'a': [x], 'b': [y]})
+       ....:
+
+    In [13]: sim.eval_variable('table', x=1, y=2)
+    Out[13]: <urbansim.sim.simulation.TableFuncWrapper at 0x100733850>
+
+    In [14]: sim.eval_variable('table', x=1, y=2).to_frame()
+    ---------------------------------------------------------------------------
+    KeyError                                  Traceback (most recent call last)
+    <ipython-input-14-5bf660fb07b7> in <module>()
+    ----> 1 sim.eval_variable('table', x=1, y=2).to_frame()
+
+    <truncated>
+
+    KeyError: 'y'
+
+In order to get the injectables to be set for a controlled term you can
+use the :py:func:`~urbansim.sim.simulation.injectables` context manager
+to set the injectables:
+
+.. code-block:: python
+
+    In [12]: @sim.table()
+       ....: def table(x, y):
+       ....:     return pd.DataFrame({'a': [x], 'b': [y]})
+       ....:
+
+    In [20]: with sim.injectables(x=1, y=2):
+       ....:     df = sim.eval_variable('table').to_frame()
+       ....:
+
+    In [21]: df
+    Out[21]:
+       a  b
+    0  1  2
+
 Archiving Data
 ~~~~~~~~~~~~~~
 

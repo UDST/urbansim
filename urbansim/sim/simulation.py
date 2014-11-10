@@ -4,6 +4,7 @@ import inspect
 import logging
 import warnings
 from collections import Callable, namedtuple
+from contextlib import contextmanager
 
 import pandas as pd
 import tables
@@ -700,6 +701,23 @@ def list_broadcasts():
     return list(_BROADCASTS.keys())
 
 
+def is_expression(name):
+    """
+    Checks whether a given name is a simple variable name or a compound
+    variable expression.
+
+    Parameters
+    ----------
+    name : str
+
+    Returns
+    -------
+    is_expr : bool
+
+    """
+    return '.' in name
+
+
 def _collect_variables(names, expressions=None):
     """
     Map labels and expressions to registered variables.
@@ -736,8 +754,9 @@ def _collect_variables(names, expressions=None):
     if not expressions:
         expressions = []
     offset = len(names) - len(expressions)
-    labels_map = dict(zip(names[:offset], names[:offset])
-                      + zip(names[offset:], expressions))
+    labels_map = dict(toolz.concatv(
+        toolz.compatibility.zip(names[:offset], names[:offset]),
+        toolz.compatibility.zip(names[offset:], expressions)))
 
     all_variables = toolz.merge(_INJECTABLES, _TABLES)
     variables = {}
@@ -1438,3 +1457,80 @@ def run(models, years=None, data_out=None, out_interval=1):
 
     if data_out and year_counter != 1:
         write_tables(data_out, models, 'final')
+
+
+@contextmanager
+def cache_disabled():
+    turn_back_on = True if cache_on() else False
+    disable_cache()
+
+    yield
+
+    if turn_back_on:
+        enable_cache()
+
+
+@contextmanager
+def injectables(**kwargs):
+    """
+    Temporarily add injectables to the simulation environment.
+    Takes only keyword arguments.
+
+    Injectables will be returned to their original state when the context
+    manager exits.
+
+    """
+    global _INJECTABLES
+
+    original = _INJECTABLES.copy()
+    _INJECTABLES.update(kwargs)
+    yield
+    _INJECTABLES = original
+
+
+def eval_variable(name, **kwargs):
+    """
+    Execute a single variable function registered with the simulation framework
+    and return the result. Any keyword arguments are temporarily set
+    as injectables. This gives the value as would be injected into a function.
+
+    Parameters
+    ----------
+    name : str
+        Name of variable to evaluate.
+        Use variable expressions to specify columns.
+
+    Returns
+    -------
+    object
+        For injectables and columns this directly returns whatever
+        object is returned by the registered function.
+        For tables this returns a DataFrameWrapper as if the table
+        had been injected into a function.
+
+    """
+    with injectables(**kwargs):
+        vars = _collect_variables([name], [name])
+        return vars[name]
+
+
+def eval_model(name, **kwargs):
+    """
+    Evaluate a model as would be done under the simulation framework
+    and return the result. Any keyword arguments are temporarily set
+    as injectables.
+
+    Parameters
+    ----------
+    name : str
+        Name of model to run.
+
+    Returns
+    -------
+    object
+        Anything returned by a model. (Though note that under the
+        simulation framework return values from models are ignored.)
+
+    """
+    with injectables(**kwargs):
+        return get_model(name)()

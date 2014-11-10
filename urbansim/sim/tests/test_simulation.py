@@ -388,6 +388,15 @@ def test_collect_variables(df):
     pdt.assert_series_equal(things['df_a'], df['a'])
 
 
+def test_collect_variables_expression_only(df):
+    @sim.table()
+    def table():
+        return df
+
+    vars = sim._collect_variables(['a'], ['table.a'])
+    pdt.assert_series_equal(vars['a'], df.a)
+
+
 def test_injectables():
     sim.add_injectable('answer', 42)
 
@@ -648,3 +657,74 @@ def test_get_table(df):
     pdt.assert_frame_equal(fr.to_frame(), df)
     pdt.assert_frame_equal(ta.to_frame(), df)
     pdt.assert_frame_equal(so.to_frame(), df)
+
+
+def test_cache_disabled_cm():
+    x = 3
+
+    @sim.injectable(cache=True)
+    def xi():
+        return x
+
+    assert sim.get_injectable('xi') == 3
+    x = 5
+    assert sim.get_injectable('xi') == 3
+
+    with sim.cache_disabled():
+        assert sim.get_injectable('xi') == 5
+
+    # cache still gets updated even when cacheing is off
+    assert sim.get_injectable('xi') == 5
+
+
+def test_injectables_cm():
+    sim.add_injectable('a', 'a')
+    sim.add_injectable('b', 'b')
+    sim.add_injectable('c', 'c')
+
+    with sim.injectables():
+        assert sim._INJECTABLES == {
+            'a': 'a', 'b': 'b', 'c': 'c'
+        }
+
+    with sim.injectables(c='d', x='x', y='y', z='z'):
+        assert sim._INJECTABLES == {
+            'a': 'a', 'b': 'b', 'c': 'd',
+            'x': 'x', 'y': 'y', 'z': 'z'
+        }
+
+    assert sim._INJECTABLES == {
+        'a': 'a', 'b': 'b', 'c': 'c'
+    }
+
+
+def test_is_expression():
+    assert sim.is_expression('name') is False
+    assert sim.is_expression('table.column') is True
+
+
+def test_eval_variable(df):
+    sim.add_injectable('x', 3)
+    assert sim.eval_variable('x') == 3
+
+    @sim.injectable()
+    def func(x):
+        return 'xyz' * x
+    assert sim.eval_variable('func') == 'xyzxyzxyz'
+    assert sim.eval_variable('func', x=2) == 'xyzxyz'
+
+    @sim.table()
+    def table(x):
+        return df * x
+    pdt.assert_series_equal(sim.eval_variable('table.a'), df.a * 3)
+
+
+def test_eval_model(df):
+    sim.add_injectable('x', 3)
+
+    @sim.model()
+    def model(x):
+        return df * x
+
+    pdt.assert_frame_equal(sim.eval_model('model'), df * 3)
+    pdt.assert_frame_equal(sim.eval_model('model', x=5), df * 5)
