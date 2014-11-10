@@ -43,6 +43,11 @@ class Account(object):
     balance : float, optional
         Starting balance for the account.
 
+    Attributes
+    ----------
+    balance : float
+        Running balance in account.
+
     """
     def __init__(self, name, balance=0):
         self.name = name
@@ -82,6 +87,51 @@ class Account(object):
         """
         for t in transactions:
             self.add_transaction(*t)
+
+    def total_transactions(self):
+        """
+        Get the sum of all transactions on the account.
+
+        Returns
+        -------
+        total : float
+
+        """
+        return sum(t.amount for t in self.transactions)
+
+    def total_transactions_by_subacct(self, subaccount):
+        """
+        Get the sum of all transactions for a given subaccount.
+
+        Parameters
+        ----------
+        subaccount : object
+            Identifier of subaccount.
+
+        Returns
+        -------
+        total : float
+
+        """
+        return sum(
+            t.amount for t in self.transactions if t.subaccount == subaccount)
+
+    def all_subaccounts(self):
+        """
+        Returns an iterator of all subaccounts that have a recorded transaction
+        with the account.
+
+        """
+        return toolz.unique(t.subaccount for t in self.transactions)
+
+    def iter_subaccounts(self):
+        """
+        An iterator over subaccounts yielding subaccount name and
+        the total of transactions for that subaccount.
+
+        """
+        for sa in self.all_subaccounts():
+            yield sa, self.total_transactions_by_subacct(sa)
 
     def to_frame(self):
         """
