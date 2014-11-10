@@ -45,10 +45,21 @@ def test_add_transaction(acc, acc_bal):
 def test_add_transactions(acc, acc_bal):
     t1 = accounts.Transaction(200, ('a', 'b', 'c'), None)
     t2 = (-50, None, {'to': 'Acme Corp.'})
-    acc.add_transactions((t1, t2))
+    t3 = (-100, ('a', 'b', 'c'), 'Acme Corp.')
+    t4 = (42, None, None)
+    acc.add_transactions((t1, t2, t3, t4))
 
-    assert len(acc.transactions) == 2
-    assert acc.balance == acc_bal + t1[0] + t2[0]
+    assert len(acc.transactions) == 4
+    assert acc.balance == acc_bal + t1[0] + t2[0] + t3[0] + t4[0]
+    assert acc.total_transactions() == t1[0] + t2[0] + t3[0] + t4[0]
+    assert acc.total_transactions_by_subacct(('a', 'b', 'c')) == t1[0] + t3[0]
+    assert acc.total_transactions_by_subacct(None) == t2[0] + t4[0]
+
+    assert list(acc.all_subaccounts()) == [('a', 'b', 'c'), None]
+
+    assert list(acc.iter_subaccounts()) == [
+        (('a', 'b', 'c'), t1[0] + t3[0]),
+        (None, t2[0] + t4[0])]
 
 
 def test_column_names_from_metadata():
