@@ -4,6 +4,8 @@ Number crunching code for multinomial logit.
 ``urbansim.models.lcm``.
 
 """
+from __future__ import print_function
+
 import logging
 
 import numpy as np
@@ -190,7 +192,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
 
     if beta is None:
         beta = np.zeros(numvars)
-    bounds = np.array([coeffrange for i in range(numvars)])
+    bounds = [coeffrange] * numvars
 
     with log_start_finish('scipy optimization for MNL fit', logger):
         args = (data, chosen, numalts, weights, lcgrad)
@@ -198,7 +200,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
                                                    beta,
                                                    args=args,
                                                    fprime=None,
-                                                   factr=1e5,
+                                                   factr=10,
                                                    approx_grad=False,
                                                    bounds=bounds
                                                    )
