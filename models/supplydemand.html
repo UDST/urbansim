@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; urbansim 0.2dev documentation</title>
+  <title>Supply and Demand Accounting &mdash; urbansim 0.2dev documentation</title>
   
 
   
@@ -28,7 +28,10 @@
   
 
   
-    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/> 
+    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+        <link rel="up" title="Core Models" href="index.html"/>
+        <link rel="next" title="Transition and Relocation Models" href="transrelo.html"/>
+        <link rel="prev" title="Statistical Models" href="statistical.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -55,7 +58,7 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
@@ -82,9 +85,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../models/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../models/index.html#contents">Contents</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
@@ -127,8 +130,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-    <li>Overview: module code</li>
+          <li><a href="index.html">Core Models</a> &raquo;</li>
+      
+    <li>Supply and Demand Accounting</li>
       <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/models/supplydemand.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -136,26 +143,104 @@
 </div>
           <div role="main">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="urbansim/developer/developer.html">urbansim.developer.developer</a></li>
-<li><a href="urbansim/developer/sqftproforma.html">urbansim.developer.sqftproforma</a></li>
-<li><a href="urbansim/maps/dframe_explorer.html">urbansim.maps.dframe_explorer</a></li>
-<li><a href="urbansim/models/lcm.html">urbansim.models.lcm</a></li>
-<li><a href="urbansim/models/regression.html">urbansim.models.regression</a></li>
-<li><a href="urbansim/models/relocation.html">urbansim.models.relocation</a></li>
-<li><a href="urbansim/models/supplydemand.html">urbansim.models.supplydemand</a></li>
-<li><a href="urbansim/models/transition.html">urbansim.models.transition</a></li>
-<li><a href="urbansim/models/util.html">urbansim.models.util</a></li>
-<li><a href="urbansim/sim/simulation.html">urbansim.sim.simulation</a></li>
-<li><a href="urbansim/urbanchoice/interaction.html">urbansim.urbanchoice.interaction</a></li>
-<li><a href="urbansim/urbanchoice/mnl.html">urbansim.urbanchoice.mnl</a></li>
-<li><a href="urbansim/utils/misc.html">urbansim.utils.misc</a></li>
-<li><a href="urbansim/utils/testing.html">urbansim.utils.testing</a></li>
-<li><a href="urbansim/utils/yamlio.html">urbansim.utils.yamlio</a></li>
-</ul>
+  <div class="section" id="supply-and-demand-accounting">
+<span id="supply-and-demand"></span><h1>Supply and Demand Accounting<a class="headerlink" href="#supply-and-demand-accounting" title="Permalink to this headline">¶</a></h1>
+<p>Regression models of real estate prices don&#8217;t account for
+supply and demand affects. The <tt class="docutils literal"><span class="pre">supplydemand</span></tt> module has models that
+work in tandem with <a class="reference internal" href="statistical.html#statistical-models"><em>location choice models</em></a>
+to estimate supply and demand and adjust real estate prices
+to compensate for mismatches.</p>
+<div class="section" id="module-urbansim.models.supplydemand">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.supplydemand" title="Permalink to this headline">¶</a></h2>
+<p>Tools for modeling how supply and demand affect real estate prices.</p>
+<dl class="function">
+<dt id="urbansim.models.supplydemand.supply_and_demand">
+<tt class="descclassname">urbansim.models.supplydemand.</tt><tt class="descname">supply_and_demand</tt><big>(</big><em>lcm</em>, <em>choosers</em>, <em>alternatives</em>, <em>alt_segmenter</em>, <em>price_col</em>, <em>base_multiplier=None</em>, <em>clip_change_low=0.75</em>, <em>clip_change_high=1.25</em>, <em>iterations=5</em>, <em>multiplier_func=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/supplydemand.html#supply_and_demand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.supplydemand.supply_and_demand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust real estate prices to compensate for supply and demand effects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lcm</strong> : LocationChoiceModel</p>
+<blockquote>
+<div><p>Used to calculate the probability of agents choosing among
+alternatives. Must be fully configured and fitted.</p>
+</div></blockquote>
+<p><strong>choosers</strong> : pandas.DataFrame</p>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<p><strong>alt_segmenter</strong> : str, array, or pandas.Series</p>
+<blockquote>
+<div><p>Will be used to segment alternatives and probabilities to do
+comparisons of supply and demand by submarket.
+If a string, it is expected to be the name of a column
+in <cite>alternatives</cite>. If a Series it should have the same index
+as <cite>alternatives</cite>.</p>
+</div></blockquote>
+<p><strong>price_col</strong> : str</p>
+<blockquote>
+<div><p>The name of the column in <cite>alternatives</cite> that corresponds to price.
+This column is what is adjusted by this model.</p>
+</div></blockquote>
+<p><strong>base_multiplier</strong> : pandas.Series, optional</p>
+<blockquote>
+<div><p>A series describing a starting multiplier for submarket prices.
+Index should be submarket IDs.</p>
+</div></blockquote>
+<p><strong>clip_change_low</strong> : float, optional</p>
+<blockquote>
+<div><p>The minimum amount by which to multiply prices each iteration.</p>
+</div></blockquote>
+<p><strong>clip_change_high</strong> : float, optional</p>
+<blockquote>
+<div><p>The maximum amount by which to multiply prices each iteration.</p>
+</div></blockquote>
+<p><strong>iterations</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of times to update prices based on supply/demand comparisons.</p>
+</div></blockquote>
+<p><strong>multiplier_func</strong> : function (returns Series, boolean)</p>
+<blockquote>
+<div><p>A function which takes separate demand and supply Series
+and returns a tuple where the first item is a Series with the
+ratio of new price to old price (all indexes should be the same) -
+by default the ratio of demand to supply is the ratio of the new
+price to the old price.  The second return value is a
+boolean which when True tells this module to stop looping (that
+convergence has been satisfied)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_prices</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Equivalent of the <cite>price_col</cite> in <cite>alternatives</cite>.</p>
+</div></blockquote>
+<p><strong>submarkets_ratios</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Price adjustment ratio for each submarket. If <cite>base_multiplier</cite> is
+given this will be a cummulative multiplier including the
+<cite>base_multiplier</cite> and the multipliers calculated for this year.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
 
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="transrelo.html" class="btn btn-neutral float-right" title="Transition and Relocation Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="statistical.html" class="btn btn-neutral" title="Statistical Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

@@ -1,8 +1,6 @@
 
 
 
-
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -81,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -218,12 +217,12 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="sim/index.html#urbansim.sim.simulation.add_table">add_table() (in module urbansim.sim.simulation)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="sim/index.html#urbansim.sim.simulation.add_table_source">add_table_source() (in module urbansim.sim.simulation)</a>
   </dt>
@@ -246,6 +245,34 @@
   <dt><a href="models/util.html#urbansim.models.util.apply_filter_query">apply_filter_query() (in module urbansim.models.util)</a>
   </dt>
 
+      
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.apply_fit_filters">apply_fit_filters() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.apply_fit_filters">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.apply_fit_filters">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.apply_predict_filters">apply_predict_filters() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.apply_predict_filters">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.apply_predict_filters">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted">assert_fitted() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
   </dt>
@@ -444,10 +471,18 @@
   <dt><a href="sim/index.html#urbansim.sim.simulation.enable_cache">enable_cache() (in module urbansim.sim.simulation)</a>
   </dt>
 
+      
+  <dt><a href="models/urbanchoice.html#urbansim.urbanchoice.interaction.enable_gpu">enable_gpu() (in module urbansim.urbanchoice.interaction)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="models/urbanchoice.html#urbansim.urbanchoice.interaction.enable_gpu">enable_gpu() (in module urbansim.urbanchoice.interaction)</a>
+  <dt><a href="sim/index.html#urbansim.sim.simulation.eval_model">eval_model() (in module urbansim.sim.simulation)</a>
+  </dt>
+
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.eval_variable">eval_variable() (in module urbansim.sim.simulation)</a>
   </dt>
 
   </dl></td>
@@ -652,6 +687,10 @@
   <dt><a href="sim/index.html#urbansim.sim.simulation.injectable">injectable() (in module urbansim.sim.simulation)</a>
   </dt>
 
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.injectables">injectables() (in module urbansim.sim.simulation)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -668,6 +707,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="sim/index.html#urbansim.sim.simulation.is_expression">is_expression() (in module urbansim.sim.simulation)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -716,6 +759,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="models/statistical.html#urbansim.models.lcm.LocationChoiceModel">LocationChoiceModel (class in urbansim.models.lcm)</a>
+  </dt>
+
       
   <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">lookup() (urbansim.developer.sqftproforma.SqFtProForma method)</a>
   </dt>
@@ -816,8 +863,6 @@
   <dt><a href="developer/index.html#urbansim.developer.developer.Developer.pick">pick() (urbansim.developer.developer.Developer method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/statistical.html#urbansim.models.regression.predict">predict() (in module urbansim.models.regression)</a>
   </dt>
@@ -848,6 +893,8 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.predict_from_cfg">predict_from_cfg() (urbansim.models.lcm.MNLLocationChoiceModel class method)</a>
   </dt>
@@ -863,6 +910,20 @@
 
         
   <dt><a href="models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">(urbansim.models.regression.SegmentedRegressionModel class method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.probabilities">probabilities() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.probabilities">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.probabilities">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
   </dt>
 
       </dl></dd>
@@ -946,12 +1007,12 @@
   <dt><a href="utils/misc.html#urbansim.utils.misc.simulations_dir">simulations_dir() (in module urbansim.utils.misc)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="models/util.html#urbansim.models.util.sorted_groupby">sorted_groupby() (in module urbansim.models.util)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma">SqFtProForma (class in urbansim.developer.sqftproforma)</a>
   </dt>
@@ -976,6 +1037,24 @@
       </dl></dd>
       
   <dt><a href="models/util.html#urbansim.models.util.str_model_expression">str_model_expression() (in module urbansim.models.util)</a>
+  </dt>
+
+      
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel.summed_probabilities">summed_probabilities() (urbansim.models.lcm.MNLLocationChoiceModel method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModelGroup.summed_probabilities">(urbansim.models.lcm.MNLLocationChoiceModelGroup method)</a>
+  </dt>
+
+        
+  <dt><a href="models/statistical.html#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.summed_probabilities">(urbansim.models.lcm.SegmentedMNLLocationChoiceModel method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="models/supplydemand.html#urbansim.models.supplydemand.supply_and_demand">supply_and_demand() (in module urbansim.models.supplydemand)</a>
   </dt>
 
   </dl></td>
@@ -1123,6 +1202,10 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="models/supplydemand.html#module-urbansim.models.supplydemand">urbansim.models.supplydemand (module)</a>
+  </dt>
+
+      
   <dt><a href="models/transrelo.html#module-urbansim.models.transition">urbansim.models.transition (module)</a>
   </dt>
 
@@ -1206,7 +1289,7 @@
 
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'',
+            URL_ROOT:'./',
             VERSION:'0.2dev',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

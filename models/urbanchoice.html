@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -59,7 +58,7 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
@@ -82,12 +81,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Core Models</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#contents">Contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
@@ -163,21 +163,42 @@
 <dl class="function">
 <dt id="urbansim.urbanchoice.mnl.mnl_estimate">
 <tt class="descclassname">urbansim.urbanchoice.mnl.</tt><tt class="descname">mnl_estimate</tt><big>(</big><em>data</em>, <em>chosen</em>, <em>numalts</em>, <em>GPU=False</em>, <em>coeffrange=(-3</em>, <em>3)</em>, <em>weights=None</em>, <em>lcgrad=False</em>, <em>beta=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_estimate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_estimate" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Calculate coefficients of the MNL model.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> :</p>
-<p><strong>chosen</strong> :</p>
-<p><strong>numalts</strong> :</p>
-<p><strong>GPU</strong> : bool</p>
-<p><strong>coeffrange</strong> :</p>
-<p><strong>weights</strong> :</p>
-<p><strong>lcgrad</strong> : bool</p>
-<p><strong>beta</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : 2D array</p>
+<blockquote>
+<div><p>The data are expected to be in &#8220;long&#8221; form where each row is for
+one alternative. Alternatives are in groups of <cite>numalts</cite> rows per
+choosers. Alternatives must be in the same order for each chooser.</p>
+</div></blockquote>
+<p><strong>chosen</strong> : 2D array</p>
+<blockquote>
+<div><p>This boolean array has a row for each chooser and a column for each
+alternative. The column ordering for alternatives is expected to be
+the same as their row ordering in the <cite>data</cite> array.
+A one (True) indicates which alternative each chooser has chosen.</p>
+</div></blockquote>
+<p><strong>numalts</strong> : int</p>
+<blockquote>
+<div><p>The number of alternatives.</p>
+</div></blockquote>
+<p><strong>GPU</strong> : bool, optional</p>
+<p><strong>coeffrange</strong> : tuple of floats, optional</p>
+<blockquote>
+<div><p>Limits of (min, max) to which coefficients are clipped.</p>
+</div></blockquote>
+<p><strong>weights</strong> : ndarray, optional</p>
+<p><strong>lcgrad</strong> : bool, optional</p>
+<p><strong>beta</strong> : 1D array, optional</p>
+<blockquote>
+<div><p>Any initial guess for the coefficients.</p>
+</div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>log_likelihood</strong> : dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihood</strong> : dict</p>
 <blockquote>
 <div><p>Dictionary of log-likelihood values describing the quality of
 the model fit.</p>
@@ -185,12 +206,20 @@ the model fit.</p>
 <p><strong>fit_parameters</strong> : pandas.DataFrame</p>
 <blockquote class="last">
 <div><p>Table of fit parameters with columns &#8216;Coefficient&#8217;, &#8216;Std. Error&#8217;,
-&#8216;T-Score&#8217;.</p>
+&#8216;T-Score&#8217;. Each row corresponds to a column in <cite>data</cite> and are given
+in the same order as in <cite>data</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><tt class="xref py py-obj docutils literal"><span class="pre">scipy.optimize.fmin_l_bfgs_b</span></tt></dt>
+<dd>The optimization routine used.</dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -205,8 +234,45 @@ the model fit.</p>
 
 <dl class="function">
 <dt id="urbansim.urbanchoice.mnl.mnl_simulate">
-<tt class="descclassname">urbansim.urbanchoice.mnl.</tt><tt class="descname">mnl_simulate</tt><big>(</big><em>data</em>, <em>coeff</em>, <em>numalts</em>, <em>GPU=False</em>, <em>returnprobs=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_simulate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descclassname">urbansim.urbanchoice.mnl.</tt><tt class="descname">mnl_simulate</tt><big>(</big><em>data</em>, <em>coeff</em>, <em>numalts</em>, <em>GPU=False</em>, <em>returnprobs=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the probabilities for each chooser choosing between <cite>numalts</cite>
+alternatives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : 2D array</p>
+<blockquote>
+<div><p>The data are expected to be in &#8220;long&#8221; form where each row is for
+one alternative. Alternatives are in groups of <cite>numalts</cite> rows per
+choosers. Alternatives must be in the same order for each chooser.</p>
+</div></blockquote>
+<p><strong>coeff</strong> : 1D array</p>
+<blockquote>
+<div><p>The model coefficients corresponding to each column in <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>numalts</strong> : int</p>
+<blockquote>
+<div><p>The number of alternatives available to each chooser.</p>
+</div></blockquote>
+<p><strong>GPU</strong> : bool, optional</p>
+<p><strong>returnprobs</strong> : bool, optional</p>
+<blockquote>
+<div><p>If True, return the probabilities for each chooser/alternative instead
+of actual choices.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">probs or choices: 2D array</p>
+<blockquote class="last">
+<div><p>If <cite>returnprobs</cite> is True the probabilities are a 2D array with a
+row for each chooser and columns for each alternative.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </div>
 <div class="section" id="module-urbansim.urbanchoice.interaction">

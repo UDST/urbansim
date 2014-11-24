@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -32,7 +31,7 @@
     <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
         <link rel="up" title="Core Models" href="index.html"/>
         <link rel="next" title="Model Related Utilities" href="util.html"/>
-        <link rel="prev" title="Statistical Models" href="statistical.html"/> 
+        <link rel="prev" title="Supply and Demand Accounting" href="supplydemand.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -59,7 +58,7 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
@@ -82,12 +81,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Core Models</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#contents">Contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
@@ -157,13 +157,14 @@ prescribed rates.</p>
 <p>The tables of rates and totals used in transition and relocation models have
 a particular format that allows them to specify different values for
 different segments of the table. Below is an example table:</p>
-<div class="highlight-python"><pre>num_cars num_children_min num_children_max relocation_rate
+<div class="highlight-python"><div class="highlight"><pre>num_cars num_children_min num_children_max relocation_rate
        0              nan                2            0.08
        0                2                4            0.05
        0                4              nan            0.03
        1              nan                2            0.09
        1                2                4            0.04
-       1                4              nan            0.05</pre>
+       1                4              nan            0.05
+</pre></div>
 </div>
 <p>Each column except the <tt class="docutils literal"><span class="pre">relocation_rate</span></tt> column describes a filter
 on the table to which the rates will be applied. The column names are
@@ -215,7 +216,7 @@ the indexes of rows copied, and the indexes of rows removed.</p>
 <td>Growth rate based transitions where the rates are stored in a table indexed by year with optional segmentation.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.TabularTotalsTransition" title="urbansim.models.transition.TabularTotalsTransition"><tt class="xref py py-obj docutils literal"><span class="pre">TabularTotalsTransition</span></tt></a>(targets,&nbsp;totals_column)</td>
-<td>Transition data via control totals in pandas DataFrame with</td>
+<td>Transition data via control totals in pandas DataFrame with optional segmentation.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.models.transition.TransitionModel" title="urbansim.models.transition.TransitionModel"><tt class="xref py py-obj docutils literal"><span class="pre">TransitionModel</span></tt></a>(transitioner)</td>
 <td>Models things moving into or out of a region.</td>
@@ -249,8 +250,8 @@ add or remove agents based on growth rates or target totals.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>growth_rate</strong> : float</p>
-<p><strong>accounting_column: string, optional</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>growth_rate</strong> : float</p>
+<p><strong>accounting_column: string, optional</strong></p>
 <blockquote class="last">
 <div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
 then row counts will be used for accounting.</p>
@@ -268,7 +269,7 @@ growth rate for this model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Rows will be removed from or added to this table.</p>
 </div></blockquote>
@@ -279,7 +280,7 @@ but ignored.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with rows removed or added.</p>
 </div></blockquote>
@@ -313,12 +314,12 @@ a table indexed by year with optional segmentation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>growth_rates</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>growth_rates</strong> : pandas.DataFrame</p>
 <p><strong>rates_column</strong> : str</p>
 <blockquote>
 <div><p>Name of the column in <cite>growth_rates</cite> that contains the rates.</p>
 </div></blockquote>
-<p><strong>accounting_column: string, optional</strong> :</p>
+<p><strong>accounting_column: string, optional</strong></p>
 <blockquote class="last">
 <div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
 then row counts will be used for accounting.</p>
@@ -336,7 +337,7 @@ growth rate for this model and year.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Rows will be removed from or added to this table.</p>
 </div></blockquote>
@@ -347,7 +348,7 @@ but ignored.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with rows removed or added.</p>
 </div></blockquote>
@@ -381,12 +382,12 @@ optional segmentation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>targets</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>targets</strong> : pandas.DataFrame</p>
 <p><strong>totals_column</strong> : str</p>
 <blockquote>
 <div><p>Name of the column in <cite>targets</cite> that contains the control totals.</p>
 </div></blockquote>
-<p><strong>accounting_column: string, optional</strong> :</p>
+<p><strong>accounting_column: string, optional</strong></p>
 <blockquote class="last">
 <div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
 then row counts will be used for accounting.</p>
@@ -404,7 +405,7 @@ totals for this model and year.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Rows will be removed from or added to this table.</p>
 </div></blockquote>
@@ -415,7 +416,7 @@ but ignored.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with rows removed or added.</p>
 </div></blockquote>
@@ -448,7 +449,7 @@ will have multiple entries.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>transitioner</strong> : callable</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>transitioner</strong> : callable</p>
 <blockquote class="last">
 <div><p>A callable that takes a data table and a year number and returns
 and new data table, the indexes of rows added, the indexes
@@ -466,7 +467,7 @@ of rows copied, and the indexes of rows removed.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Rows will be removed from or added to this table.</p>
 </div></blockquote>
@@ -484,7 +485,7 @@ returned <cite>updated_links</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with rows removed or added.</p>
 </div></blockquote>
@@ -510,7 +511,7 @@ for positive <cite>nrows</cite> and removed for negative <cite>nrows</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : DataFrame</p>
 <p><strong>nrows</strong> : float</p>
 <blockquote>
 <div><p>Number of rows to add or remove.</p>
@@ -523,7 +524,7 @@ If not given the max + 1 of the index of <cite>data</cite> will be used.
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with random rows removed.</p>
 </div></blockquote>
@@ -555,7 +556,7 @@ New rows will have their IDs set to NaN.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <p><strong>nrows</strong> : int</p>
 <blockquote>
 <div><p>Number of rows to add.</p>
@@ -565,14 +566,14 @@ New rows will have their IDs set to NaN.</p>
 <div><p>The starting index from which to calculate indexes for the new
 rows. If not given the max + 1 of the index of <cite>data</cite> will be used.</p>
 </div></blockquote>
-<p><strong>accounting_column: string, optional</strong> :</p>
+<p><strong>accounting_column: string, optional</strong></p>
 <blockquote>
 <div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
 then row counts will be used for accounting.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with rows added. New rows will have their index values
 set to NaN.</p>
@@ -600,19 +601,19 @@ will have multiple entries.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : DataFrame</p>
 <p><strong>nrows</strong> : float</p>
 <blockquote>
 <div><p>Number of rows to remove.</p>
 </div></blockquote>
-<p><strong>accounting_column: string, optional</strong> :</p>
+<p><strong>accounting_column: string, optional</strong></p>
 <blockquote>
 <div><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
 then row counts will be used for accounting.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>updated</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table with random rows removed.</p>
 </div></blockquote>
@@ -640,7 +641,7 @@ relocation rates.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>rates</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rates</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table of relocation rates. Index is unused.</p>
 <p>Other columns describe filters on the <cite>choosers</cite>
@@ -682,13 +683,13 @@ stored relocation rates.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table of agents from which to find movers.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
 <blockquote class="last">
 <div><p>Suitable for indexing <cite>choosers</cite> by index.</p>
 </div></blockquote>
@@ -709,7 +710,7 @@ to move.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table of agents from which to find movers.</p>
 </div></blockquote>
@@ -743,7 +744,7 @@ in a given row.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>movers</strong> : pandas.Index</p>
 <blockquote class="last">
 <div><p>Suitable for indexing <cite>choosers</cite> by index.</p>
 </div></blockquote>
@@ -766,7 +767,7 @@ in a given row.</p>
         <a href="util.html" class="btn btn-neutral float-right" title="Model Related Utilities"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="statistical.html" class="btn btn-neutral" title="Statistical Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="supplydemand.html" class="btn btn-neutral" title="Supply and Demand Accounting"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -81,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -188,13 +188,16 @@ easiest way to install UrbanSim because it has binary installers for
 all of UrbanSim&#8217;s hard-to-install dependencies.
 First, add the <a class="reference external" href="https://binstar.org/synthicity">synthicity channel</a>
 to your conda configuration:</p>
-<div class="highlight-python"><pre>conda config --add channels synthicity</pre>
+<div class="highlight-python"><div class="highlight"><pre>conda config --add channels synthicity
+</pre></div>
 </div>
 <p>Then use conda to install UrbanSim:</p>
-<div class="highlight-python"><pre>conda install urbansim</pre>
+<div class="highlight-python"><div class="highlight"><pre>conda install urbansim
+</pre></div>
 </div>
 <p>To update to a new UrbanSim version use the <tt class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></tt> command:</p>
-<div class="highlight-python"><pre>conda update urbansim</pre>
+<div class="highlight-python"><div class="highlight"><pre>conda update urbansim
+</pre></div>
 </div>
 </div>
 <div class="section" id="pip">
@@ -202,7 +205,8 @@ to your conda configuration:</p>
 <p>UrbanSim can also be installed from
 <a class="reference external" href="https://pypi.python.org/pypi/urbansim">PyPI</a>
 via <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>:</p>
-<div class="highlight-python"><pre>pip install urbansim</pre>
+<div class="highlight-python"><div class="highlight"><pre>pip install urbansim
+</pre></div>
 </div>
 <p>When using this method it&#8217;s best to already have most of the dependencies
 installed, otherwise pip will try to download and install things like
@@ -211,7 +215,8 @@ If you&#8217;re using Anaconda you will already have all of the hard-to-install
 libraries.</p>
 <p>To update to a new release of UrbanSim use the <tt class="docutils literal"><span class="pre">-U</span></tt> option with
 <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></tt>:</p>
-<div class="highlight-python"><pre>pip install -U urbansim</pre>
+<div class="highlight-python"><div class="highlight"><pre>pip install -U urbansim
+</pre></div>
 </div>
 </div>
 </div>
@@ -222,7 +227,8 @@ libraries.</p>
 using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
 pip is included with Anaconda so you should now be able to open a terminal
 and run the following command to install UrbanSim:</p>
-<div class="highlight-python"><pre>pip install -U https://github.com/synthicity/urbansim/archive/master.zip</pre>
+<div class="highlight-python"><div class="highlight"><pre>pip install -U https://github.com/synthicity/urbansim/archive/master.zip
+</pre></div>
 </div>
 <p>This will download urbansim and install the remaining dependencies not
 included in Anaconda.</p>
@@ -273,11 +279,12 @@ UrbanSim every time you make changes.</p>
 <div class="section" id="background">
 <h3>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h3>
 <p>UrbanSim has been an active research project since the late 1990&#8217;s, and has undergone continual re-thinking, and re-engineering over the ensuing years, as documented in many of the <a class="reference external" href="http://urbansim.org/Research/ResearchPapers">accumulated research papers</a>.  Below is a brief, high-level summary of UrbanSim in only a few paragraphs from a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down to a series of models estimated and then simulated in sequence.:</p>
-<div class="highlight-python"><pre>for model in models:
-    model.estimate(model_configuration_parameters)
-for i in range(NUMYEARSINSIMULATION):
-    for model in models:
-        model.simulate(model_configuration_parameters)</pre>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUMYEARSINSIMULATION</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
+</pre></div>
 </div>
 <p>The set of models varies among the many UrbanSim applications to different regions, due to data availability and cleanliness, the time and resources that can be devoted to the project, and specific research questions that motivated the projects.  The set of models almost always includes at least the following:</p>
 </div>
@@ -362,19 +369,21 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 <li>Data processing <em>models</em> can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.</li>
 </ul>
 <p>To this end UrbanSim now implements this functionality as <a class="reference external" href="sim/index.html#tables">tables</a>, <a class="reference external" href="sim/index.html#urbansim.sim.simulation.broadcast">broadcasts</a>, <a class="reference external" href="sim/index.html#columns">columns</a>, and <a class="reference external" href="sim/index.html#models">models</a> respectively.  We decided to implement these concepts with Python functions and <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>. This is what is happening when you see the <tt class="docutils literal"><span class="pre">&#64;sim.DECORATOR_NAME</span></tt> syntax everywhere, e.g.:</p>
-<div class="highlight-python"><pre>@sim.table_source('buildings')
-def buildings(store):
-    return store['buildings']
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;buildings&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;buildings&#39;</span><span class="p">]</span>
 
-@sim.table_source('parcels')
-def parcels(store):
-    return store['parcels']</pre>
+<span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">parcels</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;parcels&#39;</span><span class="p">]</span>
+</pre></div>
 </div>
 <p>With the use of decorators you can <em>register</em> these concepts with the simulation engine and deal with one small piece of the simulation at a time - for instance, how to access data for a certain table, or how to compute a certain variable, or how to run a certain model.</p>
 <p>The objects can then be passed to each other using <em>injection</em>, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called <tt class="docutils literal"><span class="pre">total_units</span></tt> on the <tt class="docutils literal"><span class="pre">parcels</span></tt> table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.:</p>
-<div class="highlight-python"><pre>@sim.column('parcels', 'total_units')
-def residential_unit_density(buildings, parcels):
-    return buildings.residential_units.groupby(buildings.parcel_id).sum() / parcels.acres</pre>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.column</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">,</span> <span class="s">&#39;total_units&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">residential_unit_density</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">parcels</span><span class="o">.</span><span class="n">acres</span>
+</pre></div>
 </div>
 <p>If done well, these functions are limited to just a few lines which implement a very specific piece of functionality, and there will be more detailed examples in the tutorials section.</p>
 <p>Note that this approach is inspired by a number of different frameworks (in Python and otherwise) such as <a class="reference external" href="http://pytest.org/latest/fixture.html#fixture">py.test</a>, <a class="reference external" href="http://flask.pocoo.org/">flask</a>, and even web frameworks like <a class="reference external" href="https://docs.angularjs.org/guide/di">Angular</a>.</p>
@@ -419,7 +428,7 @@ def residential_unit_density(buildings, parcels):
 
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'',
+            URL_ROOT:'./',
             VERSION:'0.2dev',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

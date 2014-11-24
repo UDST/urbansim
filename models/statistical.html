@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -31,7 +30,7 @@
   
     <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
         <link rel="up" title="Core Models" href="index.html"/>
-        <link rel="next" title="Transition and Relocation Models" href="transrelo.html"/>
+        <link rel="next" title="Supply and Demand Accounting" href="supplydemand.html"/>
         <link rel="prev" title="Core Models" href="index.html"/> 
 
   
@@ -59,7 +58,7 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
@@ -82,12 +81,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">Core Models</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#contents">Contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
@@ -168,22 +168,25 @@ model expressions, but UrbanSim gives you some flexibility
 as to how you define them.</p>
 <p><a class="reference external" href="http://patsy.readthedocs.org/">patsy</a> works with string formula like this simplified regression example
 (names refer to columns in the <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a> used during fitting and prediction):</p>
-<div class="highlight-python"><pre>expr = 'np.log1p(sqft_price) ~ I(year_built &lt; 1940) + dist_hwy + ave_income'</pre>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">expr</span> <span class="o">=</span> <span class="s">&#39;np.log1p(sqft_price) ~ I(year_built &lt; 1940) + dist_hwy + ave_income&#39;</span>
+</pre></div>
 </div>
 <p>In UrbanSim that same formula could be expressed in a dictionary:</p>
-<div class="highlight-python"><pre>expr = {
-    'left_side': 'np.log1p(sqft_price)',
-    'right_side': ['I(year_built &lt; 1940)', 'dist_hwy', 'ave_income']
-}</pre>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;left_side&#39;</span><span class="p">:</span> <span class="s">&#39;np.log1p(sqft_price)&#39;</span><span class="p">,</span>
+    <span class="s">&#39;right_side&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s">&#39;ave_income&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 <p>Formulae used with location choice models have only a right hand side
 since the models do not predict new numeric values. Right-hand-side formulae
 can be written as lists or dictionaries:</p>
-<div class="highlight-python"><pre>expr = {
-    'right_side': ['I(year_built &lt; 1940)', 'dist_hwy', 'ave_income']
-}
+<div class="highlight-python"><div class="highlight"><pre><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;right_side&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s">&#39;ave_income&#39;</span><span class="p">]</span>
+<span class="p">}</span>
 
-expr = ['I(year_built &lt; 1940)', 'dist_hwy', 'ave_income']</pre>
+<span class="n">expr</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s">&#39;ave_income&#39;</span><span class="p">]</span>
+</pre></div>
 </div>
 <p>Expressing the formula as a string is always an option.
 The ability to use lists or dictionaries are especially useful to make
@@ -201,11 +204,12 @@ prediction somewhere else.</p>
 and load them back as configured models.
 Here&#8217;s an example of loading a regression model, performing fitting, and
 saving the model back to YAML:</p>
-<div class="highlight-python"><pre>model = RegressionModel.from_yaml('my_model.yaml')
+<div class="highlight-python"><div class="highlight"><pre><span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s">&#39;my_model.yaml&#39;</span><span class="p">)</span>
 
-model.fit(data)
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-model.to_yaml('my_model.yaml')</pre>
+<span class="n">model</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="s">&#39;my_model.yaml&#39;</span><span class="p">)</span>
+</pre></div>
 </div>
 <p>You can, if you like, write your model configurations entirely in
 YAML and load them into Python only for fitting and prediction.</p>
@@ -244,7 +248,7 @@ YAML and load them into Python only for fitting and prediction.</p>
 <td>A location choice model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel" title="urbansim.models.lcm.SegmentedMNLLocationChoiceModel"><tt class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLLocationChoiceModel</span></tt></a>(...[,&nbsp;...])</td>
-<td>An MNL LCM group that allows segments to have different model expressions</td>
+<td>An MNL LCM group that allows segments to have different model expressions but otherwise share configurations.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup" title="urbansim.models.lcm.MNLLocationChoiceModelGroup"><tt class="xref py py-obj docutils literal"><span class="pre">MNLLocationChoiceModelGroup</span></tt></a>(segmentation_col)</td>
 <td>Manages a group of location choice models that refer to different segments of choosers.</td>
@@ -266,7 +270,7 @@ estimated model and predict new data based on the model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>fit_filters</strong> : list of str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fit_filters</strong> : list of str</p>
 <blockquote>
 <div><p>Filters applied before fitting the model.</p>
 </div></blockquote>
@@ -317,7 +321,7 @@ and in the model expression.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Data to use for fitting the model. Must contain all the
 columns referenced by the <cite>model_expression</cite>.</p>
@@ -330,7 +334,7 @@ this model.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
 <blockquote class="last">
 <div><p>This is returned for inspection, but also stored on the
 class instance for use during prediction.</p>
@@ -348,7 +352,7 @@ class instance for use during prediction.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
 <blockquote>
 <div><p>The dataframe which contains the columns to use for the estimation.</p>
 </div></blockquote>
@@ -362,7 +366,7 @@ class instance for use during prediction.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>RegressionModel which was used to fit</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionModel which was used to fit</p>
 </td>
 </tr>
 </tbody>
@@ -384,7 +388,7 @@ Arguments are mutually exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
 <blockquote>
 <div><p>A YAML string from which to load model.</p>
 </div></blockquote>
@@ -394,7 +398,7 @@ Arguments are mutually exclusive.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>RegressionModel</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionModel</p>
 </td>
 </tr>
 </tbody>
@@ -409,14 +413,14 @@ Arguments are mutually exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Data to use for prediction. Must contain all the columns
 referenced by the right-hand side of the <cite>model_expression</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Predicted values as a pandas Series. Will have the index of <cite>data</cite>
 after applying filters.</p>
@@ -434,7 +438,7 @@ after applying filters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
 <blockquote>
 <div><p>The dataframe which contains the columns to use for the estimation.</p>
 </div></blockquote>
@@ -444,7 +448,7 @@ after applying filters.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
 <blockquote>
 <div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
@@ -483,7 +487,7 @@ models.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
@@ -492,7 +496,7 @@ YAML will be written to that object.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
 <blockquote class="last">
 <div><p>YAML string if <cite>str_or_buffer</cite> is not given.</p>
 </div></blockquote>
@@ -514,11 +518,11 @@ within a single table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
 <blockquote>
 <div><p>Name of the column on which to segment.</p>
 </div></blockquote>
-<p><strong>name</strong> :</p>
+<p><strong>name</strong></p>
 <blockquote class="last">
 <div><p>Optional name used to identify the model in places.</p>
 </div></blockquote>
@@ -534,7 +538,7 @@ within a single table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>model</strong> : <cite>RegressionModel</cite></p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : <cite>RegressionModel</cite></p>
 <blockquote class="last">
 <div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of
 the groupby segments.</p>
@@ -553,7 +557,7 @@ the groupby segments.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> : any</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : any</p>
 <blockquote>
 <div><p>Must match a groupby segment name.</p>
 </div></blockquote>
@@ -599,7 +603,7 @@ for filtering and in the model expression.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
 </div></blockquote>
@@ -610,7 +614,7 @@ to model estimation.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
 <blockquote class="last">
 <div><p>Keys are the segment names.</p>
 </div></blockquote>
@@ -634,14 +638,14 @@ to model estimation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Data to use for prediction. Must have a column with the
 same name as <cite>segmentation_col</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
@@ -664,7 +668,7 @@ model expressions and ytransforms but all have the same filters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
 <blockquote>
 <div><p>Name of column in the data table on which to segment. Will be used
 with a pandas groupby on the data table.</p>
@@ -716,7 +720,7 @@ the results reflect actual price.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name :</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name :</strong></p>
 <blockquote>
 <div><p>Segment name. Must match a segment in the groupby of the data.</p>
 </div></blockquote>
@@ -757,7 +761,7 @@ added will be automatically added with default model and ytransform.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
 </div></blockquote>
@@ -767,7 +771,7 @@ added will be automatically added with default model and ytransform.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
 <blockquote class="last">
 <div><p>Keys are the segment names.</p>
 </div></blockquote>
@@ -784,7 +788,7 @@ added will be automatically added with default model and ytransform.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
 <blockquote>
 <div><p>The dataframe which contains the columns to use for the estimation.</p>
 </div></blockquote>
@@ -802,7 +806,7 @@ added will be automatically added with default model and ytransform.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>hm</strong> : SegmentedRegressionModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>hm</strong> : SegmentedRegressionModel which was used to fit</p>
 </td>
 </tr>
 </tbody>
@@ -824,7 +828,7 @@ configuration. Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
 <blockquote>
 <div><p>A YAML string from which to load model.</p>
 </div></blockquote>
@@ -834,7 +838,7 @@ configuration. Arguments are mutally exclusive.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>SegmentedRegressionModel</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedRegressionModel</p>
 </td>
 </tr>
 </tbody>
@@ -849,14 +853,14 @@ configuration. Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Data to use for prediction. Must have a column with the
 same name as <cite>segmentation_col</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters.</p>
@@ -874,7 +878,7 @@ after applying filters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
 <blockquote>
 <div><p>The dataframe which contains the columns to use for the estimation.</p>
 </div></blockquote>
@@ -888,7 +892,7 @@ after applying filters.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
 <blockquote>
 <div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
@@ -916,7 +920,7 @@ conversion to YAML.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
@@ -925,7 +929,7 @@ YAML will be written to that object.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
 <blockquote class="last">
 <div><p>YAML string if <cite>str_or_buffer</cite> is not given.</p>
 </div></blockquote>
@@ -945,7 +949,7 @@ YAML will be written to that object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Data to use for fit. Should contain all the columns
 referenced in the <cite>model_expression</cite>.</p>
@@ -961,7 +965,7 @@ Should contain both the left- and right-hand sides.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
 </td>
 </tr>
 </tbody>
@@ -976,7 +980,7 @@ Should contain both the left- and right-hand sides.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
 <p><strong>filters</strong> : list of str</p>
 <blockquote>
 <div><p>Any filters to apply before doing prediction.</p>
@@ -995,7 +999,7 @@ the results reflect actual price.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Predicted values as a pandas Series. Will have the index of <cite>df</cite>
 after applying filters.</p>
@@ -1012,6 +1016,12 @@ after applying filters.</p>
 <p>Use the <tt class="docutils literal"><span class="pre">MNLLocationChoiceModel</span></tt> class to train a choice module using
 multinomial logit and make subsequent choice predictions.</p>
 <dl class="class">
+<dt id="urbansim.models.lcm.LocationChoiceModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.lcm.</tt><tt class="descname">LocationChoiceModel</tt><a class="reference internal" href="../_modules/urbansim/models/lcm.html#LocationChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.LocationChoiceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class for location choice models.</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel">
 <em class="property">class </em><tt class="descclassname">urbansim.models.lcm.</tt><tt class="descname">MNLLocationChoiceModel</tt><big>(</big><em>model_expression</em>, <em>sample_size</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A location choice model with the ability to store an estimated
@@ -1021,7 +1031,7 @@ Based on multinomial logit.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>model_expression</strong> : str, iterable, or dict</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model_expression</strong> : str, iterable, or dict</p>
 <blockquote>
 <div><p>A patsy model expression. Should contain only a right-hand side.</p>
 </div></blockquote>
@@ -1078,6 +1088,58 @@ in output.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.apply_fit_filters">
+<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.apply_predict_filters">
+<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted">
 <tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raises <cite>RuntimeError</cite> if the model is not ready for prediction.</p>
@@ -1104,7 +1166,7 @@ the choosers or alternatives tables.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the agents making choices, e.g. households.</p>
 </div></blockquote>
@@ -1122,7 +1184,7 @@ and values matching the index of <cite>alternatives</cite>.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict</p>
 <blockquote class="last">
 <div><p>Dict of log-liklihood values describing the quality of the
 model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8216;ratio&#8217;.</p>
@@ -1140,7 +1202,7 @@ model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
 <blockquote>
 <div><p>A dataframe of rows of agents which have locations assigned.</p>
 </div></blockquote>
@@ -1163,7 +1225,7 @@ choice model.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>lcm</strong> : MNLLocationChoiceModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : MNLLocationChoiceModel which was used to fit</p>
 </td>
 </tr>
 </tbody>
@@ -1185,7 +1247,7 @@ Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
 <blockquote>
 <div><p>A YAML string from which to load model.</p>
 </div></blockquote>
@@ -1195,7 +1257,7 @@ Arguments are mutally exclusive.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>MNLLocationChoiceModel</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MNLLocationChoiceModel</p>
 </td>
 </tr>
 </tbody>
@@ -1218,7 +1280,7 @@ alternatives tables.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the agents making choices, e.g. households.
 Only the first item in this table is used for determining
@@ -1236,7 +1298,7 @@ outcome.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
@@ -1256,14 +1318,14 @@ for all the choosers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>movers</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>movers</strong> : DataFrame</p>
 <blockquote>
 <div><p>A dataframe of agents doing the choosing.</p>
 </div></blockquote>
 <p><strong>locations</strong> : DataFrame</p>
 <blockquote>
-<div><p>A dataframe of locations which the choosers are locating in and which
-have a supply.</p>
+<div><p>A dataframe of locations which the choosers are locating in and
+which have a supply.</p>
 </div></blockquote>
 <p><strong>cfgname</strong> : string</p>
 <blockquote>
@@ -1272,8 +1334,9 @@ choice model.</p>
 </div></blockquote>
 <p><strong>location_ratio</strong> : float</p>
 <blockquote>
-<div><p>Above the location ratio (default of 2.0) of locations to choosers, the
-locations will be sampled to meet this ratio (for performance reasons).</p>
+<div><p>Above the location ratio (default of 2.0) of locations to choosers,
+the locations will be sampled to meet this ratio
+(for performance reasons).</p>
 </div></blockquote>
 <p><strong>debug</strong> : boolean, optional (default False)</p>
 <blockquote>
@@ -1281,13 +1344,55 @@ locations will be sampled to meet this ratio (for performance reasons).</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
 <blockquote>
 <div><p>Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
 </div></blockquote>
 <p class="last"><strong>lcm</strong> : MNLLocationChoiceModel which was used to predict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.probabilities">
+<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>filter_tables=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the probabilities for a set of choosers to choose
+from among a set of alternatives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in this table is used for determining
+agent probabilities of choosing alternatives.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>filter_tables</strong> : bool, optional</p>
+<blockquote>
+<div><p>If True, filter <cite>choosers</cite> and <cite>alternatives</cite> with prediction
+filters before calculating probabilities.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probabilities</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Probability of selection associated with each item
+in <cite>alt_choices</cite>. Index will be <cite>alt_choices</cite> if <cite>alt_choices</cite>
+is an Index, otherwise it will be the index of <cite>alt_choices</cite>.</p>
+</div></blockquote>
+<p><strong>alt_choices</strong> : pandas.Series or pandas.Index</p>
+<blockquote class="last">
+<div><p>The alternatives corresponding to <cite>probabilities</cite>.</p>
+</div></blockquote>
 </td>
 </tr>
 </tbody>
@@ -1307,6 +1412,36 @@ for all the choosers.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModel.summed_probabilities">
+<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate probabilities multiplied by the number of choosers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in this table is used for determining
+agent probabilities of choosing alternatives.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Probabilities normalized and multiplied by the number of choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModel.to_dict">
 <tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict respresentation of an MNLLocationChoiceModel
@@ -1321,7 +1456,7 @@ instance.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
@@ -1330,7 +1465,7 @@ YAML will be written to that object.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
 <blockquote class="last">
 <div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
 </div></blockquote>
@@ -1352,7 +1487,7 @@ segments of choosers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
 <blockquote class="last">
 <div><p>Name of a column in the table of choosers. Will be used to perform
 a pandas groupby on the choosers table.</p>
@@ -1369,7 +1504,7 @@ a pandas groupby on the choosers table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>model</strong> : MNLLocationChoiceModel</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : MNLLocationChoiceModel</p>
 <blockquote class="last">
 <div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of the segments
 in the choosers table.</p>
@@ -1388,7 +1523,7 @@ in the choosers table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
 <blockquote>
 <div><p>Must match a segment in the choosers table.</p>
 </div></blockquote>
@@ -1446,6 +1581,62 @@ the alternatives index is used.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.apply_fit_filters">
+<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.
+This is done by filtering each submodel and concatenating
+the results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.apply_predict_filters">
+<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.
+This is done by filtering each submodel and concatenating
+the results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.choosers_columns_used">
 <tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the choosers table that are used for filtering.</p>
@@ -1467,7 +1658,7 @@ the <cite>choosers</cite> table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the agents making choices, e.g. households.
 Must have a column with the same name as the .segmentation_col
@@ -1478,14 +1669,14 @@ attribute.</p>
 <div><p>Table describing the things from which agents are choosing,
 e.g. buildings.</p>
 </div></blockquote>
-<p><strong>current_choice</strong> :</p>
+<p><strong>current_choice</strong></p>
 <blockquote>
 <div><p>Name of column in <cite>choosers</cite> that indicates which alternative
 they have currently chosen.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
 <blockquote class="last">
 <div><p>Keys will be model names and values will be dictionaries of
 log-liklihood values as returned by MNLLocationChoiceModel.fit.</p>
@@ -1519,11 +1710,11 @@ segmenting the <cite>choosers</cite> table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the agents making choices, e.g. households.
-Only the first item in this table is used for determining
-agent probabilities of choosing alternatives.
+Only the first item in each segment in this table is used for
+determining agent probabilities of choosing alternatives.
 Must have a column matching the .segmentation_col attribute.</p>
 </div></blockquote>
 <p><strong>alternatives</strong> : pandas.DataFrame</p>
@@ -1538,11 +1729,72 @@ outcome.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.probabilities">
+<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns alternative probabilties for each chooser segment as
+a dictionary keyed by segment name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in each segment in this table is used for
+determining agent probabilities of choosing alternatives.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>probabilties</strong> : dict of pandas.Series</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.MNLLocationChoiceModelGroup.summed_probabilities">
+<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#MNLLocationChoiceModelGroup.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.MNLLocationChoiceModelGroup.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of probabilities for alternatives across all
+chooser segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in each segment in this table is used for
+determining agent probabilities of choosing alternatives.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Summed probabilities from each segment added together.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -1561,7 +1813,7 @@ but otherwise share configurations.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
 <blockquote>
 <div><p>Name of column in the choosers table that will be used for groupby.</p>
 </div></blockquote>
@@ -1622,7 +1874,7 @@ the alternatives index is used.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
 <blockquote>
 <div><p>Segment name. Must match a segment in the groupby of the data.</p>
 </div></blockquote>
@@ -1643,6 +1895,58 @@ None.</p>
 <dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.alts_columns_used">
 <tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.apply_fit_filters">
+<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.apply_predict_filters">
+<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1668,7 +1972,7 @@ added will be automatically added with default model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the agents making choices, e.g. households.
 Must have a column with the same name as the .segmentation_col
@@ -1679,14 +1983,14 @@ attribute.</p>
 <div><p>Table describing the things from which agents are choosing,
 e.g. buildings.</p>
 </div></blockquote>
-<p><strong>current_choice</strong> :</p>
+<p><strong>current_choice</strong></p>
 <blockquote>
 <div><p>Name of column in <cite>choosers</cite> that indicates which alternative
 they have currently chosen.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
 <blockquote class="last">
 <div><p>Keys will be model names and values will be dictionaries of
 log-liklihood values as returned by MNLLocationChoiceModel.fit.</p>
@@ -1704,7 +2008,7 @@ log-liklihood values as returned by MNLLocationChoiceModel.fit.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
 <blockquote>
 <div><p>A dataframe of rows of agents which have locations assigned.</p>
 </div></blockquote>
@@ -1727,7 +2031,7 @@ choice model.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>lcm</strong> : SegmentedMNLLocationChoiceModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : SegmentedMNLLocationChoiceModel which was used to fit</p>
 </td>
 </tr>
 </tbody>
@@ -1749,7 +2053,7 @@ configuration. Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
 <blockquote>
 <div><p>A YAML string from which to load model.</p>
 </div></blockquote>
@@ -1759,7 +2063,7 @@ configuration. Arguments are mutally exclusive.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first last"><strong>SegmentedMNLLocationChoiceModel</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedMNLLocationChoiceModel</p>
 </td>
 </tr>
 </tbody>
@@ -1783,7 +2087,7 @@ segmenting the <cite>choosers</cite> table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
 <blockquote>
 <div><p>Table describing the agents making choices, e.g. households.
 Only the first item in this table is used for determining
@@ -1802,7 +2106,7 @@ outcome.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
@@ -1822,14 +2126,14 @@ for all the choosers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>movers</strong> : DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>movers</strong> : DataFrame</p>
 <blockquote>
 <div><p>A dataframe of agents doing the choosing.</p>
 </div></blockquote>
 <p><strong>locations</strong> : DataFrame</p>
 <blockquote>
-<div><p>A dataframe of locations which the choosers are locating in and which
-have a supply.</p>
+<div><p>A dataframe of locations which the choosers are locating in and
+which have a supply.</p>
 </div></blockquote>
 <p><strong>cfgname</strong> : string</p>
 <blockquote>
@@ -1838,18 +2142,80 @@ choice model.</p>
 </div></blockquote>
 <p><strong>location_ratio</strong> : float</p>
 <blockquote>
-<div><p>Above the location ratio (default of 2.0) of locations to choosers, the
-locations will be sampled to meet this ratio (for performance reasons).</p>
+<div><p>Above the location ratio (default of 2.0) of locations to choosers,
+the locations will be sampled to meet this ratio
+(for performance reasons).</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
 <blockquote>
 <div><p>Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
 </div></blockquote>
 <p class="last"><strong>lcm</strong> : SegmentedMNLLocationChoiceModel which was used to predict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.probabilities">
+<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns alternative probabilties for each chooser segment as
+a dictionary keyed by segment name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in each segment in this table is used for
+determining agent probabilities of choosing alternatives.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>probabilties</strong> : pandas.Series</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.lcm.SegmentedMNLLocationChoiceModel.summed_probabilities">
+<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/lcm.html#SegmentedMNLLocationChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.lcm.SegmentedMNLLocationChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of probabilities for alternatives across all
+chooser segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Only the first item in each segment in this table is used for
+determining agent probabilities of choosing alternatives.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Summed probabilities from each segment added together.</p>
+</div></blockquote>
 </td>
 </tr>
 </tbody>
@@ -1871,7 +2237,7 @@ conversion to YAML.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
@@ -1880,7 +2246,7 @@ YAML will be written to that object.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
 <blockquote class="last">
 <div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
 </div></blockquote>
@@ -1902,7 +2268,7 @@ alternative can only be chosen once.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>chooser_ids</strong> : 1d array_like</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chooser_ids</strong> : 1d array_like</p>
 <blockquote>
 <div><p>Array of IDs of the agents that are making choices.</p>
 </div></blockquote>
@@ -1918,7 +2284,7 @@ alternatives should have a probability of 0.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
 <blockquote class="last">
 <div><p>Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
@@ -1940,7 +2306,7 @@ for all the choosers.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="transrelo.html" class="btn btn-neutral float-right" title="Transition and Relocation Models"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="supplydemand.html" class="btn btn-neutral float-right" title="Supply and Demand Accounting"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="Core Models"><span class="fa fa-arrow-circle-left"></span> Previous</a>

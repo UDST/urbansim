@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -80,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -139,107 +139,101 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.urbanchoice.interaction</h1><pre>
-"""
-Utilities for making merged interaction tables of choosers and
-the alternatives from which they are choosing.
-Used for location choice models.
+  <h1>Source code for urbansim.urbanchoice.interaction</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for making merged interaction tables of choosers and</span>
+<span class="sd">the alternatives from which they are choosing.</span>
+<span class="sd">Used for location choice models.</span>
 
-"""
-import logging
-import random
-import sys
-import time
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
-import numpy as np
-import pandas as pd
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
-import mnl
-import pmat
+<span class="kn">import</span> <span class="nn">mnl</span>
+<span class="kn">import</span> <span class="nn">pmat</span>
 
-logger = logging.getLogger(__name__)
-GPU = False
-
-
-<div class="viewcode-block" id="enable_gpu"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.interaction.enable_gpu">[docs]</a>def enable_gpu():
-    global GPU
-    GPU = 1
-    pmat.initialize_gpu()
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">GPU</span> <span class="o">=</span> <span class="bp">False</span>
 
 
-# TODO: split this out into separate functions for estimation
-# and simulation.</div>
-<div class="viewcode-block" id="mnl_interaction_dataset"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.interaction.mnl_interaction_dataset">[docs]</a>def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
-                            chosenalts=None):
-    logger.debug((
-        'start: compute MNL interaction dataset with {} choosers, '
-        '{} alternatives, and sample_size={}'
-        ).format(len(choosers), len(alternatives), SAMPLE_SIZE))
-    # filter choosers and their current choices if they point to
-    # something that isn't in the alternatives table
-    if chosenalts is not None:
-        isin = chosenalts.isin(alternatives.index)
-        try:
-            removing = isin.value_counts().loc[False]
-        except:
-            removing = None
-        if removing:
-            logger.info((
-                "Removing {} choice situations because chosen "
-                "alt doesn't exist"
-            ).format(removing))
-            choosers = choosers[isin]
-            chosenalts = chosenalts[isin]
+<div class="viewcode-block" id="enable_gpu"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.interaction.enable_gpu">[docs]</a><span class="k">def</span> <span class="nf">enable_gpu</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">GPU</span>
+    <span class="n">GPU</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">pmat</span><span class="o">.</span><span class="n">initialize_gpu</span><span class="p">()</span>
 
-    numchoosers = choosers.shape[0]
-    numalts = alternatives.shape[0]
 
-    # TODO: this is currently broken in a situation where
-    # SAMPLE_SIZE &gt;= numalts. That may not happen often in
-    # practical situations but it should be supported
-    # because a) why not? and b) testing.
-    if SAMPLE_SIZE &lt; numalts:
-        sample = np.random.choice(
-            alternatives.index.values, SAMPLE_SIZE * numchoosers)
-        if chosenalts is not None:
-            # replace the first row for each chooser with
-            # the currently chosen alternative.
-            sample[::SAMPLE_SIZE] = chosenalts
-    else:
-        assert chosenalts is None  # if not sampling, must be simulating
-        # we're about to do a huge join - do this with a discretized population
-        assert numchoosers &lt; 10
-        sample = np.tile(alternatives.index.values, numchoosers)
+<span class="c"># TODO: split this out into separate functions for estimation</span>
+<span class="c"># and simulation.</span></div>
+<div class="viewcode-block" id="mnl_interaction_dataset"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.interaction.mnl_interaction_dataset">[docs]</a><span class="k">def</span> <span class="nf">mnl_interaction_dataset</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">,</span>
+                            <span class="n">chosenalts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span>
+        <span class="s">&#39;start: compute MNL interaction dataset with {} choosers, &#39;</span>
+        <span class="s">&#39;{} alternatives, and sample_size={}&#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">),</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
+    <span class="c"># filter choosers and their current choices if they point to</span>
+    <span class="c"># something that isn&#39;t in the alternatives table</span>
+    <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">isin</span> <span class="o">=</span> <span class="n">chosenalts</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">removing</span> <span class="o">=</span> <span class="n">isin</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">False</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">removing</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">removing</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">((</span>
+                <span class="s">&quot;Removing {} choice situations because chosen &quot;</span>
+                <span class="s">&quot;alt doesn&#39;t exist&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">removing</span><span class="p">))</span>
+            <span class="n">choosers</span> <span class="o">=</span> <span class="n">choosers</span><span class="p">[</span><span class="n">isin</span><span class="p">]</span>
+            <span class="n">chosenalts</span> <span class="o">=</span> <span class="n">chosenalts</span><span class="p">[</span><span class="n">isin</span><span class="p">]</span>
 
-    if not choosers.index.is_unique:
-        raise Exception(
-            "ERROR: choosers index is not unique, "
-            "sample will not work correctly")
-    if not alternatives.index.is_unique:
-        raise Exception(
-            "ERROR: alternatives index is not unique, "
-            "sample will not work correctly")
+    <span class="n">numchoosers</span> <span class="o">=</span> <span class="n">choosers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">numalts</span> <span class="o">=</span> <span class="n">alternatives</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    alts_sample = alternatives.loc[sample]
-    assert len(alts_sample.index) == SAMPLE_SIZE * len(choosers.index)
-    try:
-        alts_sample['join_index'] = np.repeat(choosers.index, SAMPLE_SIZE)
-    except:
-        # TODO: log the error here and re-raise the original exception
-        raise Exception(
-            "ERROR: An exception here means agents and "
-            "alternatives aren't merging correctly")
+    <span class="c"># TODO: this is currently broken in a situation where</span>
+    <span class="c"># SAMPLE_SIZE &gt;= numalts. That may not happen often in</span>
+    <span class="c"># practical situations but it should be supported</span>
+    <span class="c"># because a) why not? and b) testing.</span>
+    <span class="k">if</span> <span class="n">SAMPLE_SIZE</span> <span class="o">&lt;</span> <span class="n">numalts</span><span class="p">:</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+            <span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span> <span class="o">*</span> <span class="n">numchoosers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># replace the first row for each chooser with</span>
+            <span class="c"># the currently chosen alternative.</span>
+            <span class="n">sample</span><span class="p">[::</span><span class="n">SAMPLE_SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="n">chosenalts</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="bp">None</span>  <span class="c"># if not sampling, must be simulating</span>
+        <span class="c"># we&#39;re about to do a huge join - do this with a discretized population</span>
+        <span class="k">assert</span> <span class="n">numchoosers</span> <span class="o">&lt;</span> <span class="mi">10</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">numchoosers</span><span class="p">)</span>
 
-    alts_sample = pd.merge(
-        alts_sample, choosers, left_on='join_index', right_index=True,
-        suffixes=('', '_r'))
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_unique</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s">&quot;ERROR: choosers index is not unique, &quot;</span>
+            <span class="s">&quot;sample will not work correctly&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_unique</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s">&quot;ERROR: alternatives index is not unique, &quot;</span>
+            <span class="s">&quot;sample will not work correctly&quot;</span><span class="p">)</span>
 
-    chosen = np.zeros((numchoosers, SAMPLE_SIZE))
-    chosen[:, 0] = 1
+    <span class="n">alts_sample</span> <span class="o">=</span> <span class="n">alternatives</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">alts_sample</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="n">SAMPLE_SIZE</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">alts_sample</span><span class="p">[</span><span class="s">&#39;join_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">)</span>
 
-    logger.debug('finish: compute MNL interaction dataset')
-    return sample, alts_sample, chosen</div>
-</pre>
+    <span class="n">alts_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">alts_sample</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s">&#39;join_index&#39;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;_r&#39;</span><span class="p">))</span>
+
+    <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numchoosers</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
+    <span class="n">chosen</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: compute MNL interaction dataset&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sample</span><span class="p">,</span> <span class="n">alts_sample</span><span class="p">,</span> <span class="n">chosen</span></div>
+</pre></div>
 
           </div>
           <footer>

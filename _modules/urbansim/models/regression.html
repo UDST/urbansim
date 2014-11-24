@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -80,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -139,1033 +139,1033 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.models.regression</h1><pre>
-"""
-Use the ``RegressionModel`` class to fit a model using statsmodels'
-OLS capability and then do subsequent prediction.
+  <h1>Source code for urbansim.models.regression</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Use the ``RegressionModel`` class to fit a model using statsmodels&#39;</span>
+<span class="sd">OLS capability and then do subsequent prediction.</span>
 
-"""
-from __future__ import print_function
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
-import logging
+<span class="kn">import</span> <span class="nn">logging</span>
 
-import numpy as np
-import pandas as pd
-import statsmodels.formula.api as smf
-import toolz
-from patsy import dmatrix
-from prettytable import PrettyTable
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">statsmodels.formula.api</span> <span class="kn">as</span> <span class="nn">smf</span>
+<span class="kn">import</span> <span class="nn">toolz</span>
+<span class="kn">from</span> <span class="nn">patsy</span> <span class="kn">import</span> <span class="n">dmatrix</span>
+<span class="kn">from</span> <span class="nn">prettytable</span> <span class="kn">import</span> <span class="n">PrettyTable</span>
 
-from . import util
-from ..exceptions import ModelEvaluationError
-from ..utils import yamlio
-from ..utils.logutil import log_start_finish
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ModelEvaluationError</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">yamlio</span>
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
 
-logger = logging.getLogger(__name__)
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="fit_model"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.fit_model">[docs]</a>def fit_model(df, filters, model_expression):
-    """
-    Use statsmodels OLS to construct a model relation.
+<div class="viewcode-block" id="fit_model"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.fit_model">[docs]</a><span class="k">def</span> <span class="nf">fit_model</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use statsmodels OLS to construct a model relation.</span>
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        Data to use for fit. Should contain all the columns
-        referenced in the `model_expression`.
-    filters : list of str
-        Any filters to apply before doing the model fit.
-    model_expression : str
-        A patsy model expression that can be used with statsmodels.
-        Should contain both the left- and right-hand sides.
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        Data to use for fit. Should contain all the columns</span>
+<span class="sd">        referenced in the `model_expression`.</span>
+<span class="sd">    filters : list of str</span>
+<span class="sd">        Any filters to apply before doing the model fit.</span>
+<span class="sd">    model_expression : str</span>
+<span class="sd">        A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">        Should contain both the left- and right-hand sides.</span>
 
-    Returns
-    -------
-    fit : statsmodels.regression.linear_model.OLSResults
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fit : statsmodels.regression.linear_model.OLSResults</span>
 
-    """
-    df = util.apply_filter_query(df, filters)
-    model = smf.ols(formula=model_expression, data=df)
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span><span class="n">formula</span><span class="o">=</span><span class="n">model_expression</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
 
-    if len(model.exog) != len(df):
-        raise ModelEvaluationError(
-            'Estimated data does not have the same length as input.  '
-            'This suggests there are null values in one or more of '
-            'the input columns.')
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">exog</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ModelEvaluationError</span><span class="p">(</span>
+            <span class="s">&#39;Estimated data does not have the same length as input.  &#39;</span>
+            <span class="s">&#39;This suggests there are null values in one or more of &#39;</span>
+            <span class="s">&#39;the input columns.&#39;</span><span class="p">)</span>
 
-    with log_start_finish('statsmodels OLS fit', logger):
-        return model.fit()
-
-</div>
-<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.predict">[docs]</a>def predict(df, filters, model_fit, ytransform=None):
-    """
-    Apply model to new data to predict new dependent values.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-    filters : list of str
-        Any filters to apply before doing prediction.
-    model_fit : statsmodels.regression.linear_model.OLSResults
-        Result of model estimation.
-    ytransform : callable, optional
-        A function to call on the array of predicted output.
-        For example, if the model relation is predicting the log
-        of price, you might pass ``ytransform=np.exp`` so that
-        the results reflect actual price.
-
-        By default no transformation is applied.
-
-    Returns
-    -------
-    result : pandas.Series
-        Predicted values as a pandas Series. Will have the index of `df`
-        after applying filters.
-
-    """
-    df = util.apply_filter_query(df, filters)
-
-    with log_start_finish('statsmodels predict', logger):
-        sim_data = model_fit.predict(df)
-
-    if len(sim_data) != len(df):
-        raise ModelEvaluationError(
-            'Predicted data does not have the same length as input. '
-            'This suggests there are null values in one or more of '
-            'the input columns.')
-
-    if ytransform:
-        sim_data = ytransform(sim_data)
-    return pd.Series(sim_data, index=df.index)
+    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;statsmodels OLS fit&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 
 </div>
-def _rhs(model_expression):
-    """
-    Get only the right-hand side of a patsy model expression.
+<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="p">,</span> <span class="n">model_fit</span><span class="p">,</span> <span class="n">ytransform</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply model to new data to predict new dependent values.</span>
 
-    Parameters
-    ----------
-    model_expression : str
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    filters : list of str</span>
+<span class="sd">        Any filters to apply before doing prediction.</span>
+<span class="sd">    model_fit : statsmodels.regression.linear_model.OLSResults</span>
+<span class="sd">        Result of model estimation.</span>
+<span class="sd">    ytransform : callable, optional</span>
+<span class="sd">        A function to call on the array of predicted output.</span>
+<span class="sd">        For example, if the model relation is predicting the log</span>
+<span class="sd">        of price, you might pass ``ytransform=np.exp`` so that</span>
+<span class="sd">        the results reflect actual price.</span>
 
-    Returns
-    -------
-    rhs : str
+<span class="sd">        By default no transformation is applied.</span>
 
-    """
-    if '~' not in model_expression:
-        return model_expression
-    else:
-        return model_expression.split('~')[1].strip()
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : pandas.Series</span>
+<span class="sd">        Predicted values as a pandas Series. Will have the index of `df`</span>
+<span class="sd">        after applying filters.</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="p">)</span>
 
-class _FakeRegressionResults(object):
-    """
-    This can be used in place of a statsmodels RegressionResults
-    for limited purposes when it comes to model prediction.
+    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;statsmodels predict&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="n">sim_data</span> <span class="o">=</span> <span class="n">model_fit</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
-    Intended for use when loading a model from a YAML representation;
-    we can do model evaluation using the stored coefficients, but can't
-    recreate the original statsmodels fit result.
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim_data</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ModelEvaluationError</span><span class="p">(</span>
+            <span class="s">&#39;Predicted data does not have the same length as input. &#39;</span>
+            <span class="s">&#39;This suggests there are null values in one or more of &#39;</span>
+            <span class="s">&#39;the input columns.&#39;</span><span class="p">)</span>
 
-    Parameters
-    ----------
-    model_expression : str
-        A patsy model expression that can be used with statsmodels.
-        Should contain both the left- and right-hand sides.
-    fit_parameters : pandas.DataFrame
-        Stats results from fitting `model_expression` to data.
-        Should include columns 'Coefficient', 'Std. Error', and 'T-Score'.
-    rsquared : float
-    rsquared_adj : float
+    <span class="k">if</span> <span class="n">ytransform</span><span class="p">:</span>
+        <span class="n">sim_data</span> <span class="o">=</span> <span class="n">ytransform</span><span class="p">(</span><span class="n">sim_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">sim_data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
-    """
-    def __init__(self, model_expression, fit_parameters, rsquared,
-                 rsquared_adj):
-        self.model_expression = model_expression
-        self.params = fit_parameters['Coefficient']
-        self.bse = fit_parameters['Std. Error']
-        self.tvalues = fit_parameters['T-Score']
-        self.rsquared = rsquared
-        self.rsquared_adj = rsquared_adj
-
-    @property
-    def _rhs(self):
-        """
-        Get only the right-hand side of `model_expression`.
-
-        """
-        return _rhs(self.model_expression)
-
-    def predict(self, data):
-        """
-        Predict new values by running data through the fit model.
-
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Table with columns corresponding to the RHS of `model_expression`.
-
-        Returns
-        -------
-        predicted : ndarray
-            Array of predicted values.
-
-        """
-        with log_start_finish('_FakeRegressionResults prediction', logger):
-            model_design = dmatrix(
-                self._rhs, data=data, return_type='dataframe')
-            return model_design.dot(self.params).values
-
-
-def _model_fit_to_table(fit):
-    """
-    Produce a pandas DataFrame of model fit results from a statsmodels
-    fit result object.
-
-    Parameters
-    ----------
-    fit : statsmodels.regression.linear_model.RegressionResults
-
-    Returns
-    -------
-    fit_parameters : pandas.DataFrame
-        Will have columns 'Coefficient', 'Std. Error', and 'T-Score'.
-        Index will be model terms.
-
-        This frame will also have non-standard attributes
-        .rsquared and .rsquared_adj with the same meaning and value
-        as on `fit`.
-
-    """
-    fit_parameters = pd.DataFrame(
-        {'Coefficient': fit.params,
-         'Std. Error': fit.bse,
-         'T-Score': fit.tvalues})
-    fit_parameters.rsquared = fit.rsquared
-    fit_parameters.rsquared_adj = fit.rsquared_adj
-    return fit_parameters
-
-
-YTRANSFORM_MAPPING = {
-    None: None,
-    np.exp: 'np.exp',
-    'np.exp': np.exp,
-    np.log: 'np.log',
-    'np.log': np.log,
-    np.log1p: 'np.log1p',
-    'np.log1p': np.log1p,
-    np.expm1: 'np.expm1',
-    'np.expm1': np.expm1
-}
-
-
-<div class="viewcode-block" id="RegressionModel"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel">[docs]</a>class RegressionModel(object):
-    """
-    A hedonic (regression) model with the ability to store an
-    estimated model and predict new data based on the model.
-
-    statsmodels' OLS implementation is used.
-
-    Parameters
-    ----------
-    fit_filters : list of str
-        Filters applied before fitting the model.
-    predict_filters : list of str
-        Filters applied before calculating new data points.
-    model_expression : str or dict
-        A patsy model expression that can be used with statsmodels.
-        Should contain both the left- and right-hand sides.
-    ytransform : callable, optional
-        A function to call on the array of predicted output.
-        For example, if the model relation is predicting the log
-        of price, you might pass ``ytransform=np.exp`` so that
-        the results reflect actual price.
-
-        By default no transformation is applied.
-    name : optional
-        Optional descriptive name for this model that may be used
-        in output.
-
-    """
-    def __init__(self, fit_filters, predict_filters, model_expression,
-                 ytransform=None, name=None):
-        self.fit_filters = fit_filters
-        self.predict_filters = predict_filters
-        self.model_expression = model_expression
-        self.ytransform = ytransform
-        self.name = name or 'RegressionModel'
-        self.model_fit = None
-        self.fit_parameters = None
-        self.est_data = None
-
-    @classmethod
-<div class="viewcode-block" id="RegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.from_yaml">[docs]</a>    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
-        """
-        Create a RegressionModel instance from a saved YAML configuration.
-        Arguments are mutually exclusive.
-
-        Parameters
-        ----------
-        yaml_str : str, optional
-            A YAML string from which to load model.
-        str_or_buffer : str or file like, optional
-            File name or buffer from which to load YAML.
-
-        Returns
-        -------
-        RegressionModel
-
-        """
-        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
-
-        model = cls(
-            cfg['fit_filters'],
-            cfg['predict_filters'],
-            cfg['model_expression'],
-            YTRANSFORM_MAPPING[cfg['ytransform']],
-            cfg['name'])
-
-        if 'fitted' in cfg and cfg['fitted']:
-            fit_parameters = pd.DataFrame(cfg['fit_parameters'])
-            fit_parameters.rsquared = cfg['fit_rsquared']
-            fit_parameters.rsquared_adj = cfg['fit_rsquared_adj']
-
-            model.model_fit = _FakeRegressionResults(
-                model.str_model_expression,
-                fit_parameters,
-                cfg['fit_rsquared'], cfg['fit_rsquared_adj'])
-            model.fit_parameters = fit_parameters
-
-        logger.debug('loaded regression model {} from YAML'.format(model.name))
-        return model
 </div>
-    @property
-<div class="viewcode-block" id="RegressionModel.str_model_expression"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.str_model_expression">[docs]</a>    def str_model_expression(self):
-        """
-        Model expression as a string suitable for use with patsy/statsmodels.
+<span class="k">def</span> <span class="nf">_rhs</span><span class="p">(</span><span class="n">model_expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get only the right-hand side of a patsy model expression.</span>
 
-        """
-        return util.str_model_expression(
-            self.model_expression, add_constant=True)
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_expression : str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rhs : str</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s">&#39;~&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model_expression</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model_expression</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model_expression</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;~&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">_FakeRegressionResults</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This can be used in place of a statsmodels RegressionResults</span>
+<span class="sd">    for limited purposes when it comes to model prediction.</span>
+
+<span class="sd">    Intended for use when loading a model from a YAML representation;</span>
+<span class="sd">    we can do model evaluation using the stored coefficients, but can&#39;t</span>
+<span class="sd">    recreate the original statsmodels fit result.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_expression : str</span>
+<span class="sd">        A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">        Should contain both the left- and right-hand sides.</span>
+<span class="sd">    fit_parameters : pandas.DataFrame</span>
+<span class="sd">        Stats results from fitting `model_expression` to data.</span>
+<span class="sd">        Should include columns &#39;Coefficient&#39;, &#39;Std. Error&#39;, and &#39;T-Score&#39;.</span>
+<span class="sd">    rsquared : float</span>
+<span class="sd">    rsquared_adj : float</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">,</span> <span class="n">fit_parameters</span><span class="p">,</span> <span class="n">rsquared</span><span class="p">,</span>
+                 <span class="n">rsquared_adj</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span> <span class="o">=</span> <span class="n">model_expression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;Coefficient&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bse</span> <span class="o">=</span> <span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;Std. Error&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tvalues</span> <span class="o">=</span> <span class="n">fit_parameters</span><span class="p">[</span><span class="s">&#39;T-Score&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rsquared</span> <span class="o">=</span> <span class="n">rsquared</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rsquared_adj</span> <span class="o">=</span> <span class="n">rsquared_adj</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_rhs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get only the right-hand side of `model_expression`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_rhs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict new values by running data through the fit model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Table with columns corresponding to the RHS of `model_expression`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predicted : ndarray</span>
+<span class="sd">            Array of predicted values.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;_FakeRegressionResults prediction&#39;</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="n">model_design</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rhs</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s">&#39;dataframe&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model_design</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+
+<span class="k">def</span> <span class="nf">_model_fit_to_table</span><span class="p">(</span><span class="n">fit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Produce a pandas DataFrame of model fit results from a statsmodels</span>
+<span class="sd">    fit result object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fit : statsmodels.regression.linear_model.RegressionResults</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fit_parameters : pandas.DataFrame</span>
+<span class="sd">        Will have columns &#39;Coefficient&#39;, &#39;Std. Error&#39;, and &#39;T-Score&#39;.</span>
+<span class="sd">        Index will be model terms.</span>
+
+<span class="sd">        This frame will also have non-standard attributes</span>
+<span class="sd">        .rsquared and .rsquared_adj with the same meaning and value</span>
+<span class="sd">        as on `fit`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s">&#39;Coefficient&#39;</span><span class="p">:</span> <span class="n">fit</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+         <span class="s">&#39;Std. Error&#39;</span><span class="p">:</span> <span class="n">fit</span><span class="o">.</span><span class="n">bse</span><span class="p">,</span>
+         <span class="s">&#39;T-Score&#39;</span><span class="p">:</span> <span class="n">fit</span><span class="o">.</span><span class="n">tvalues</span><span class="p">})</span>
+    <span class="n">fit_parameters</span><span class="o">.</span><span class="n">rsquared</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">rsquared</span>
+    <span class="n">fit_parameters</span><span class="o">.</span><span class="n">rsquared_adj</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">rsquared_adj</span>
+    <span class="k">return</span> <span class="n">fit_parameters</span>
+
+
+<span class="n">YTRANSFORM_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="bp">None</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">:</span> <span class="s">&#39;np.exp&#39;</span><span class="p">,</span>
+    <span class="s">&#39;np.exp&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">:</span> <span class="s">&#39;np.log&#39;</span><span class="p">,</span>
+    <span class="s">&#39;np.log&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">:</span> <span class="s">&#39;np.log1p&#39;</span><span class="p">,</span>
+    <span class="s">&#39;np.log1p&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">expm1</span><span class="p">:</span> <span class="s">&#39;np.expm1&#39;</span><span class="p">,</span>
+    <span class="s">&#39;np.expm1&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">expm1</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="RegressionModel"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel">[docs]</a><span class="k">class</span> <span class="nc">RegressionModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A hedonic (regression) model with the ability to store an</span>
+<span class="sd">    estimated model and predict new data based on the model.</span>
+
+<span class="sd">    statsmodels&#39; OLS implementation is used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fit_filters : list of str</span>
+<span class="sd">        Filters applied before fitting the model.</span>
+<span class="sd">    predict_filters : list of str</span>
+<span class="sd">        Filters applied before calculating new data points.</span>
+<span class="sd">    model_expression : str or dict</span>
+<span class="sd">        A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">        Should contain both the left- and right-hand sides.</span>
+<span class="sd">    ytransform : callable, optional</span>
+<span class="sd">        A function to call on the array of predicted output.</span>
+<span class="sd">        For example, if the model relation is predicting the log</span>
+<span class="sd">        of price, you might pass ``ytransform=np.exp`` so that</span>
+<span class="sd">        the results reflect actual price.</span>
+
+<span class="sd">        By default no transformation is applied.</span>
+<span class="sd">    name : optional</span>
+<span class="sd">        Optional descriptive name for this model that may be used</span>
+<span class="sd">        in output.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_filters</span><span class="p">,</span> <span class="n">predict_filters</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">,</span>
+                 <span class="n">ytransform</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span> <span class="o">=</span> <span class="n">fit_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span> <span class="o">=</span> <span class="n">predict_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span> <span class="o">=</span> <span class="n">model_expression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ytransform</span> <span class="o">=</span> <span class="n">ytransform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s">&#39;RegressionModel&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">est_data</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.from_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a RegressionModel instance from a saved YAML configuration.</span>
+<span class="sd">        Arguments are mutually exclusive.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        yaml_str : str, optional</span>
+<span class="sd">            A YAML string from which to load model.</span>
+<span class="sd">        str_or_buffer : str or file like, optional</span>
+<span class="sd">            File name or buffer from which to load YAML.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RegressionModel</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;predict_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">],</span>
+            <span class="n">YTRANSFORM_MAPPING</span><span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="s">&#39;fitted&#39;</span> <span class="ow">in</span> <span class="n">cfg</span> <span class="ow">and</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fitted&#39;</span><span class="p">]:</span>
+            <span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_parameters&#39;</span><span class="p">])</span>
+            <span class="n">fit_parameters</span><span class="o">.</span><span class="n">rsquared</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_rsquared&#39;</span><span class="p">]</span>
+            <span class="n">fit_parameters</span><span class="o">.</span><span class="n">rsquared_adj</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_rsquared_adj&#39;</span><span class="p">]</span>
+
+            <span class="n">model</span><span class="o">.</span><span class="n">model_fit</span> <span class="o">=</span> <span class="n">_FakeRegressionResults</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">,</span>
+                <span class="n">fit_parameters</span><span class="p">,</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_rsquared&#39;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_rsquared_adj&#39;</span><span class="p">])</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">fit_parameters</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;loaded regression model {} from YAML&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">model</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fit">[docs]</a>    def fit(self, data, debug=False):
-        """
-        Fit the model to data and store/return the results.
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="RegressionModel.str_model_expression"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.str_model_expression">[docs]</a>    <span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Model expression as a string suitable for use with patsy/statsmodels.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Data to use for fitting the model. Must contain all the
-            columns referenced by the `model_expression`.
-        debug : bool
-            If debug is set to true, this sets the attribute "est_data"
-            to a dataframe with the actual data used for estimation of
-            this model.
-
-        Returns
-        -------
-        fit : statsmodels.regression.linear_model.OLSResults
-            This is returned for inspection, but also stored on the
-            class instance for use during prediction.
-
-        """
-        with log_start_finish('fitting model {}'.format(self.name), logger):
-            fit = fit_model(data, self.fit_filters, self.str_model_expression)
-
-        self.model_fit = fit
-        self.fit_parameters = _model_fit_to_table(fit)
-        if debug:
-            index = util.apply_filter_query(data, self.fit_filters).index
-            assert len(fit.model.exog) == len(index), (
-                "The estimate data is unequal in length to the original "
-                "dataframe, usually caused by nans")
-            df = pd.DataFrame(
-                fit.model.exog, columns=fit.model.exog_names, index=index)
-            df[fit.model.endog_names] = fit.model.endog
-            df["fittedvalues"] = fit.fittedvalues
-            df["residuals"] = fit.resid
-            self.est_data = df
-        return fit
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
-    @property
-<div class="viewcode-block" id="RegressionModel.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fitted">[docs]</a>    def fitted(self):
-        """
-        True if the model is ready for prediction.
+<div class="viewcode-block" id="RegressionModel.fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the model to data and store/return the results.</span>
 
-        """
-        return self.model_fit is not None
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Data to use for fitting the model. Must contain all the</span>
+<span class="sd">            columns referenced by the `model_expression`.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            If debug is set to true, this sets the attribute &quot;est_data&quot;</span>
+<span class="sd">            to a dataframe with the actual data used for estimation of</span>
+<span class="sd">            this model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fit : statsmodels.regression.linear_model.OLSResults</span>
+<span class="sd">            This is returned for inspection, but also stored on the</span>
+<span class="sd">            class instance for use during prediction.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;fitting model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="n">fit</span> <span class="o">=</span> <span class="n">fit_model</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span> <span class="o">=</span> <span class="n">fit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="n">_model_fit_to_table</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">)</span><span class="o">.</span><span class="n">index</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="p">(</span>
+                <span class="s">&quot;The estimate data is unequal in length to the original &quot;</span>
+                <span class="s">&quot;dataframe, usually caused by nans&quot;</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">fit</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog_names</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">fit</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">endog_names</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">endog</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&quot;fittedvalues&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">fittedvalues</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&quot;residuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">resid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">est_data</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">return</span> <span class="n">fit</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.assert_fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.assert_fitted">[docs]</a>    def assert_fitted(self):
-        """
-        Raises a RuntimeError if the model is not ready for prediction.
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="RegressionModel.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        True if the model is ready for prediction.</span>
 
-        """
-        if not self.fitted:
-            raise RuntimeError('Model has not been fit.')
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.report_fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.report_fit">[docs]</a>    def report_fit(self):
-        """
-        Print a report of the fit results.
+<div class="viewcode-block" id="RegressionModel.assert_fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.assert_fitted">[docs]</a>    <span class="k">def</span> <span class="nf">assert_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raises a RuntimeError if the model is not ready for prediction.</span>
 
-        """
-        if not self.fitted:
-            print('Model not yet fit.')
-            return
-
-        print('R-Squared: {0:.3f}'.format(self.model_fit.rsquared))
-        print('Adj. R-Squared: {0:.3f}'.format(self.model_fit.rsquared_adj))
-        print('')
-
-        tbl = PrettyTable(
-            ['Component', ])
-        tbl = PrettyTable()
-
-        tbl.add_column('Component', self.fit_parameters.index.values)
-        for col in ('Coefficient', 'Std. Error', 'T-Score'):
-            tbl.add_column(col, self.fit_parameters[col].values)
-
-        tbl.align['Component'] = 'l'
-        tbl.float_format = '.3'
-
-        print(tbl)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Model has not been fit.&#39;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.predict">[docs]</a>    def predict(self, data):
-        """
-        Predict a new data set based on an estimated model.
+<div class="viewcode-block" id="RegressionModel.report_fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.report_fit">[docs]</a>    <span class="k">def</span> <span class="nf">report_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print a report of the fit results.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Data to use for prediction. Must contain all the columns
-            referenced by the right-hand side of the `model_expression`.
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Model not yet fit.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
 
-        Returns
-        -------
-        result : pandas.Series
-            Predicted values as a pandas Series. Will have the index of `data`
-            after applying filters.
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;R-Squared: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span><span class="o">.</span><span class="n">rsquared</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Adj. R-Squared: {0:.3f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span>
 
-        """
-        self.assert_fitted()
-        with log_start_finish('predicting model {}'.format(self.name), logger):
-            return predict(
-                data, self.predict_filters, self.model_fit, self.ytransform)
+        <span class="n">tbl</span> <span class="o">=</span> <span class="n">PrettyTable</span><span class="p">(</span>
+            <span class="p">[</span><span class="s">&#39;Component&#39;</span><span class="p">,</span> <span class="p">])</span>
+        <span class="n">tbl</span> <span class="o">=</span> <span class="n">PrettyTable</span><span class="p">()</span>
+
+        <span class="n">tbl</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;Component&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;Coefficient&#39;</span><span class="p">,</span> <span class="s">&#39;Std. Error&#39;</span><span class="p">,</span> <span class="s">&#39;T-Score&#39;</span><span class="p">):</span>
+            <span class="n">tbl</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="n">tbl</span><span class="o">.</span><span class="n">align</span><span class="p">[</span><span class="s">&#39;Component&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;l&#39;</span>
+        <span class="n">tbl</span><span class="o">.</span><span class="n">float_format</span> <span class="o">=</span> <span class="s">&#39;.3&#39;</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="n">tbl</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.to_dict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.to_dict">[docs]</a>    def to_dict(self):
-        """
-        Returns a dictionary representation of a RegressionModel instance.
+<div class="viewcode-block" id="RegressionModel.predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict a new data set based on an estimated model.</span>
 
-        """
-        d = {
-            'model_type': 'regression',
-            'name': self.name,
-            'fit_filters': self.fit_filters,
-            'predict_filters': self.predict_filters,
-            'model_expression': self.model_expression,
-            'ytransform': YTRANSFORM_MAPPING[self.ytransform],
-            'fitted': self.fitted,
-            'fit_parameters': None,
-            'fit_rsquared': None,
-            'fit_rsquared_adj': None
-        }
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Data to use for prediction. Must contain all the columns</span>
+<span class="sd">            referenced by the right-hand side of the `model_expression`.</span>
 
-        if self.fitted:
-            d['fit_parameters'] = yamlio.frame_to_yaml_safe(
-                self.fit_parameters)
-            d['fit_rsquared'] = float(self.model_fit.rsquared)
-            d['fit_rsquared_adj'] = float(self.model_fit.rsquared_adj)
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result : pandas.Series</span>
+<span class="sd">            Predicted values as a pandas Series. Will have the index of `data`</span>
+<span class="sd">            after applying filters.</span>
 
-        return d
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assert_fitted</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s">&#39;predicting model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">predict</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ytransform</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.to_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.to_yaml">[docs]</a>    def to_yaml(self, str_or_buffer=None):
-        """
-        Save a model respresentation to YAML.
+<div class="viewcode-block" id="RegressionModel.to_dict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary representation of a RegressionModel instance.</span>
 
-        Parameters
-        ----------
-        str_or_buffer : str or file like, optional
-            By default a YAML string is returned. If a string is
-            given here the YAML will be written to that file.
-            If an object with a ``.write`` method is given the
-            YAML will be written to that object.
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;model_type&#39;</span><span class="p">:</span> <span class="s">&#39;regression&#39;</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s">&#39;fit_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">,</span>
+            <span class="s">&#39;predict_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">,</span>
+            <span class="s">&#39;model_expression&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">,</span>
+            <span class="s">&#39;ytransform&#39;</span><span class="p">:</span> <span class="n">YTRANSFORM_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ytransform</span><span class="p">],</span>
+            <span class="s">&#39;fitted&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted</span><span class="p">,</span>
+            <span class="s">&#39;fit_parameters&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&#39;fit_rsquared&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">&#39;fit_rsquared_adj&#39;</span><span class="p">:</span> <span class="bp">None</span>
+        <span class="p">}</span>
 
-        Returns
-        -------
-        j : str
-            YAML string if `str_or_buffer` is not given.
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&#39;fit_parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">frame_to_yaml_safe</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&#39;fit_rsquared&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span><span class="o">.</span><span class="n">rsquared</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="s">&#39;fit_rsquared_adj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_fit</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="p">)</span>
 
-        """
-        logger.debug(
-            'serializing regression model {} to YAML'.format(self.name))
-        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
+        <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="RegressionModel.columns_used"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.columns_used">[docs]</a>    def columns_used(self):
-        """
-        Returns all the columns used in this model for filtering
-        and in the model expression.
+<div class="viewcode-block" id="RegressionModel.to_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.to_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a model respresentation to YAML.</span>
 
-        """
-        return list(toolz.unique(toolz.concatv(
-            util.columns_in_filters(self.fit_filters),
-            util.columns_in_filters(self.predict_filters),
-            util.columns_in_formula(self.model_expression))))
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str_or_buffer : str or file like, optional</span>
+<span class="sd">            By default a YAML string is returned. If a string is</span>
+<span class="sd">            given here the YAML will be written to that file.</span>
+<span class="sd">            If an object with a ``.write`` method is given the</span>
+<span class="sd">            YAML will be written to that object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        j : str</span>
+<span class="sd">            YAML string if `str_or_buffer` is not given.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;serializing regression model {} to YAML&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">str_or_buffer</span><span class="p">)</span>
 </div>
-    @classmethod
-<div class="viewcode-block" id="RegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg">[docs]</a>    def fit_from_cfg(cls, df, cfgname, debug=False):
-        """
-        Parameters
-        ----------
-        df : DataFrame
-            The dataframe which contains the columns to use for the estimation.
-        cfgname : string
-            The name of the yaml config file which describes the hedonic model.
-        debug : boolean, optional (default False)
-            Whether to generate debug information on the model.
+<div class="viewcode-block" id="RegressionModel.columns_used"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all the columns used in this model for filtering</span>
+<span class="sd">        and in the model expression.</span>
 
-        Returns
-        -------
-        RegressionModel which was used to fit
-        """
-        logger.debug('start: fit from configuration {}'.format(cfgname))
-        hm = cls.from_yaml(str_or_buffer=cfgname)
-        ret = hm.fit(df, debug=debug)
-        print(ret.summary())
-        hm.to_yaml(str_or_buffer=cfgname)
-        logger.debug('start: fit from configuration {}'.format(cfgname))
-        return hm
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">))))</span>
 </div>
-    @classmethod
-<div class="viewcode-block" id="RegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.predict_from_cfg">[docs]</a>    def predict_from_cfg(cls, df, cfgname):
-        """
-        Parameters
-        ----------
-        df : DataFrame
-            The dataframe which contains the columns to use for the estimation.
-        cfgname : string
-            The name of the yaml config file which describes the hedonic model.
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : DataFrame</span>
+<span class="sd">            The dataframe which contains the columns to use for the estimation.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file which describes the hedonic model.</span>
+<span class="sd">        debug : boolean, optional (default False)</span>
+<span class="sd">            Whether to generate debug information on the model.</span>
 
-        Returns
-        -------
-        predicted : pandas.Series
-            Predicted data in a pandas Series. Will have the index of `data`
-            after applying filters and minus any groups that do not have
-            models.
-        hm : RegressionModel which was used to predict
-        """
-        logger.debug('start: predict from configuration {}'.format(cfgname))
-        hm = cls.from_yaml(str_or_buffer=cfgname)
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RegressionModel which was used to fit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">hm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+        <span class="n">hm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">hm</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : DataFrame</span>
+<span class="sd">            The dataframe which contains the columns to use for the estimation.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file which describes the hedonic model.</span>
 
-        price_or_rent = hm.predict(df)
-        print(price_or_rent.describe())
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predicted : pandas.Series</span>
+<span class="sd">            Predicted data in a pandas Series. Will have the index of `data`</span>
+<span class="sd">            after applying filters and minus any groups that do not have</span>
+<span class="sd">            models.</span>
+<span class="sd">        hm : RegressionModel which was used to predict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">hm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
 
-        logger.debug('start: predict from configuration {}'.format(cfgname))
-        return price_or_rent, hm
+        <span class="n">price_or_rent</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">price_or_rent</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">price_or_rent</span><span class="p">,</span> <span class="n">hm</span>
 
 </div></div>
-<div class="viewcode-block" id="RegressionModelGroup"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup">[docs]</a>class RegressionModelGroup(object):
-    """
-    Manages a group of regression models that refer to different segments
-    within a single table.
+<div class="viewcode-block" id="RegressionModelGroup"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup">[docs]</a><span class="k">class</span> <span class="nc">RegressionModelGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages a group of regression models that refer to different segments</span>
+<span class="sd">    within a single table.</span>
 
-    Model names must match the segment names after doing a Pandas groupby.
+<span class="sd">    Model names must match the segment names after doing a Pandas groupby.</span>
 
-    Parameters
-    ----------
-    segmentation_col
-        Name of the column on which to segment.
-    name
-        Optional name used to identify the model in places.
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    segmentation_col</span>
+<span class="sd">        Name of the column on which to segment.</span>
+<span class="sd">    name</span>
+<span class="sd">        Optional name used to identify the model in places.</span>
 
-    """
-    def __init__(self, segmentation_col, name=None):
-        self.segmentation_col = segmentation_col
-        self.name = name if name is not None else 'RegressionModelGroup'
-        self.models = {}
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segmentation_col</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span> <span class="o">=</span> <span class="n">segmentation_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;RegressionModelGroup&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="RegressionModelGroup.add_model"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.add_model">[docs]</a>    def add_model(self, model):
-        """
-        Add a `RegressionModel` instance.
+<div class="viewcode-block" id="RegressionModelGroup.add_model"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.add_model">[docs]</a>    <span class="k">def</span> <span class="nf">add_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a `RegressionModel` instance.</span>
 
-        Parameters
-        ----------
-        model : `RegressionModel`
-            Should have a ``.name`` attribute matching one of
-            the groupby segments.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model : `RegressionModel`</span>
+<span class="sd">            Should have a ``.name`` attribute matching one of</span>
+<span class="sd">            the groupby segments.</span>
 
-        """
-        logger.debug(
-            'adding model {} to group {}'.format(model.name, self.name))
-        self.models[model.name] = model
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;adding model {} to group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
 </div>
-<div class="viewcode-block" id="RegressionModelGroup.add_model_from_params"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.add_model_from_params">[docs]</a>    def add_model_from_params(self, name, fit_filters, predict_filters,
-                              model_expression, ytransform=None):
-        """
-        Add a model by passing arguments through to `RegressionModel`.
+<div class="viewcode-block" id="RegressionModelGroup.add_model_from_params"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.add_model_from_params">[docs]</a>    <span class="k">def</span> <span class="nf">add_model_from_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fit_filters</span><span class="p">,</span> <span class="n">predict_filters</span><span class="p">,</span>
+                              <span class="n">model_expression</span><span class="p">,</span> <span class="n">ytransform</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a model by passing arguments through to `RegressionModel`.</span>
 
-        Parameters
-        ----------
-        name : any
-            Must match a groupby segment name.
-        fit_filters : list of str
-            Filters applied before fitting the model.
-        predict_filters : list of str
-            Filters applied before calculating new data points.
-        model_expression : str
-            A patsy model expression that can be used with statsmodels.
-            Should contain both the left- and right-hand sides.
-        ytransform : callable, optional
-            A function to call on the array of predicted output.
-            For example, if the model relation is predicting the log
-            of price, you might pass ``ytransform=np.exp`` so that
-            the results reflect actual price.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : any</span>
+<span class="sd">            Must match a groupby segment name.</span>
+<span class="sd">        fit_filters : list of str</span>
+<span class="sd">            Filters applied before fitting the model.</span>
+<span class="sd">        predict_filters : list of str</span>
+<span class="sd">            Filters applied before calculating new data points.</span>
+<span class="sd">        model_expression : str</span>
+<span class="sd">            A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">            Should contain both the left- and right-hand sides.</span>
+<span class="sd">        ytransform : callable, optional</span>
+<span class="sd">            A function to call on the array of predicted output.</span>
+<span class="sd">            For example, if the model relation is predicting the log</span>
+<span class="sd">            of price, you might pass ``ytransform=np.exp`` so that</span>
+<span class="sd">            the results reflect actual price.</span>
 
-            By default no transformation is applied.
+<span class="sd">            By default no transformation is applied.</span>
 
-        """
-        logger.debug(
-            'adding model {} to group {}'.format(name, self.name))
-        model = RegressionModel(
-            fit_filters, predict_filters, model_expression, ytransform, name)
-        self.models[name] = model
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;adding model {} to group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="p">(</span>
+            <span class="n">fit_filters</span><span class="p">,</span> <span class="n">predict_filters</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">,</span> <span class="n">ytransform</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span>
 </div>
-    def _iter_groups(self, data):
-        """
-        Iterate over the groups in `data` after grouping by
-        `segmentation_col`. Skips any groups for which there
-        is no model stored.
+    <span class="k">def</span> <span class="nf">_iter_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over the groups in `data` after grouping by</span>
+<span class="sd">        `segmentation_col`. Skips any groups for which there</span>
+<span class="sd">        is no model stored.</span>
 
-        Yields tuples of (name, df) where name is the group key
-        and df is the group DataFrame.
+<span class="sd">        Yields tuples of (name, df) where name is the group key</span>
+<span class="sd">        and df is the group DataFrame.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Must have a column with the same name as `segmentation_col`.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Must have a column with the same name as `segmentation_col`.</span>
 
-        """
-        groups = data.groupby(self.segmentation_col)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">)</span>
 
-        for name in self.models:
-            yield name, groups.get_group(name)
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="RegressionModelGroup.fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.fit">[docs]</a>    def fit(self, data, debug=False):
-        """
-        Fit each of the models in the group.
+<div class="viewcode-block" id="RegressionModelGroup.fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit each of the models in the group.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Must have a column with the same name as `segmentation_col`.
-        debug : bool
-            If set to true (default false) will pass the debug parameter
-            to model estimation.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Must have a column with the same name as `segmentation_col`.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            If set to true (default false) will pass the debug parameter</span>
+<span class="sd">            to model estimation.</span>
 
-        Returns
-        -------
-        fits : dict of statsmodels.regression.linear_model.OLSResults
-            Keys are the segment names.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fits : dict of statsmodels.regression.linear_model.OLSResults</span>
+<span class="sd">            Keys are the segment names.</span>
 
-        """
-        with log_start_finish(
-                'fitting models in group {}'.format(self.name), logger):
-            return {name: self.models[name].fit(df, debug=debug)
-                    for name, df in self._iter_groups(data)}
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;fitting models in group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_groups</span><span class="p">(</span><span class="n">data</span><span class="p">)}</span>
 </div>
-    @property
-<div class="viewcode-block" id="RegressionModelGroup.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.fitted">[docs]</a>    def fitted(self):
-        """
-        Whether all models in the group have been fitted.
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="RegressionModelGroup.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether all models in the group have been fitted.</span>
 
-        """
-        return (all(m.fitted for m in self.models.values())
-                if self.models else False)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">fitted</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="k">else</span> <span class="bp">False</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="RegressionModelGroup.predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.predict">[docs]</a>    def predict(self, data):
-        """
-        Predict new data for each group in the segmentation.
+<div class="viewcode-block" id="RegressionModelGroup.predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict new data for each group in the segmentation.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Data to use for prediction. Must have a column with the
-            same name as `segmentation_col`.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Data to use for prediction. Must have a column with the</span>
+<span class="sd">            same name as `segmentation_col`.</span>
 
-        Returns
-        -------
-        predicted : pandas.Series
-            Predicted data in a pandas Series. Will have the index of `data`
-            after applying filters and minus any groups that do not have
-            models.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predicted : pandas.Series</span>
+<span class="sd">            Predicted data in a pandas Series. Will have the index of `data`</span>
+<span class="sd">            after applying filters and minus any groups that do not have</span>
+<span class="sd">            models.</span>
 
-        """
-        with log_start_finish(
-                'predicting models in group {}'.format(self.name), logger):
-            results = [self.models[name].predict(df)
-                       for name, df in self._iter_groups(data)]
-        return pd.concat(results)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;predicting models in group {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_groups</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="RegressionModelGroup.columns_used"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.columns_used">[docs]</a>    def columns_used(self):
-        """
-        Returns all the columns used across all models in the group
-        for filtering and in the model expression.
+<div class="viewcode-block" id="RegressionModelGroup.columns_used"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModelGroup.columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all the columns used across all models in the group</span>
+<span class="sd">        for filtering and in the model expression.</span>
 
-        """
-        return list(toolz.unique(toolz.concat(
-            m.columns_used() for m in self.models.values())))
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">columns_used</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
 
 </div></div>
-<div class="viewcode-block" id="SegmentedRegressionModel"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel">[docs]</a>class SegmentedRegressionModel(object):
-    """
-    A regression model group that allows segments to have different
-    model expressions and ytransforms but all have the same filters.
+<div class="viewcode-block" id="SegmentedRegressionModel"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel">[docs]</a><span class="k">class</span> <span class="nc">SegmentedRegressionModel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A regression model group that allows segments to have different</span>
+<span class="sd">    model expressions and ytransforms but all have the same filters.</span>
 
-    Parameters
-    ----------
-    segmentation_col
-        Name of column in the data table on which to segment. Will be used
-        with a pandas groupby on the data table.
-    fit_filters : list of str, optional
-        Filters applied before fitting the model.
-    predict_filters : list of str, optional
-        Filters applied before calculating new data points.
-    min_segment_size : int
-        This model will add all segments that have at least this number of
-        observations. A very small number of observations (e.g. 1) will
-        cause an error with estimation.
-    default_model_expr : str or dict, optional
-        A patsy model expression that can be used with statsmodels.
-        Should contain both the left- and right-hand sides.
-    default_ytransform : callable, optional
-        A function to call on the array of predicted output.
-        For example, if the model relation is predicting the log
-        of price, you might pass ``ytransform=np.exp`` so that
-        the results reflect actual price.
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    segmentation_col</span>
+<span class="sd">        Name of column in the data table on which to segment. Will be used</span>
+<span class="sd">        with a pandas groupby on the data table.</span>
+<span class="sd">    fit_filters : list of str, optional</span>
+<span class="sd">        Filters applied before fitting the model.</span>
+<span class="sd">    predict_filters : list of str, optional</span>
+<span class="sd">        Filters applied before calculating new data points.</span>
+<span class="sd">    min_segment_size : int</span>
+<span class="sd">        This model will add all segments that have at least this number of</span>
+<span class="sd">        observations. A very small number of observations (e.g. 1) will</span>
+<span class="sd">        cause an error with estimation.</span>
+<span class="sd">    default_model_expr : str or dict, optional</span>
+<span class="sd">        A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">        Should contain both the left- and right-hand sides.</span>
+<span class="sd">    default_ytransform : callable, optional</span>
+<span class="sd">        A function to call on the array of predicted output.</span>
+<span class="sd">        For example, if the model relation is predicting the log</span>
+<span class="sd">        of price, you might pass ``ytransform=np.exp`` so that</span>
+<span class="sd">        the results reflect actual price.</span>
 
-        By default no transformation is applied.
-    min_segment_size : int, optional
-        Segments with less than this many members will be skipped.
-    name : str, optional
-        A name used in places to identify the model.
+<span class="sd">        By default no transformation is applied.</span>
+<span class="sd">    min_segment_size : int, optional</span>
+<span class="sd">        Segments with less than this many members will be skipped.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        A name used in places to identify the model.</span>
 
-    """
-    def __init__(
-            self, segmentation_col, fit_filters=None, predict_filters=None,
-            default_model_expr=None, default_ytransform=None,
-            min_segment_size=0, name=None):
-        self.segmentation_col = segmentation_col
-        self._group = RegressionModelGroup(segmentation_col)
-        self.fit_filters = fit_filters
-        self.predict_filters = predict_filters
-        self.default_model_expr = default_model_expr
-        self.default_ytransform = default_ytransform
-        self.min_segment_size = min_segment_size
-        self.name = name if name is not None else 'SegmentedRegressionModel'
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">segmentation_col</span><span class="p">,</span> <span class="n">fit_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">predict_filters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">default_model_expr</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">default_ytransform</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">min_segment_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span> <span class="o">=</span> <span class="n">segmentation_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="n">RegressionModelGroup</span><span class="p">(</span><span class="n">segmentation_col</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span> <span class="o">=</span> <span class="n">fit_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span> <span class="o">=</span> <span class="n">predict_filters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span> <span class="o">=</span> <span class="n">default_model_expr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_ytransform</span> <span class="o">=</span> <span class="n">default_ytransform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_size</span> <span class="o">=</span> <span class="n">min_segment_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;SegmentedRegressionModel&#39;</span>
 
-    @classmethod
-<div class="viewcode-block" id="SegmentedRegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.from_yaml">[docs]</a>    def from_yaml(cls, yaml_str=None, str_or_buffer=None):
-        """
-        Create a SegmentedRegressionModel instance from a saved YAML
-        configuration. Arguments are mutally exclusive.
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.from_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a SegmentedRegressionModel instance from a saved YAML</span>
+<span class="sd">        configuration. Arguments are mutally exclusive.</span>
 
-        Parameters
-        ----------
-        yaml_str : str, optional
-            A YAML string from which to load model.
-        str_or_buffer : str or file like, optional
-            File name or buffer from which to load YAML.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        yaml_str : str, optional</span>
+<span class="sd">            A YAML string from which to load model.</span>
+<span class="sd">        str_or_buffer : str or file like, optional</span>
+<span class="sd">            File name or buffer from which to load YAML.</span>
 
-        Returns
-        -------
-        SegmentedRegressionModel
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SegmentedRegressionModel</span>
 
-        """
-        cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="p">)</span>
 
-        default_model_expr = cfg['default_config']['model_expression']
-        default_ytransform = cfg['default_config']['ytransform']
+        <span class="n">default_model_expr</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;default_config&#39;</span><span class="p">][</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span>
+        <span class="n">default_ytransform</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;default_config&#39;</span><span class="p">][</span><span class="s">&#39;ytransform&#39;</span><span class="p">]</span>
 
-        seg = cls(
-            cfg['segmentation_col'], cfg['fit_filters'],
-            cfg['predict_filters'], default_model_expr,
-            YTRANSFORM_MAPPING[default_ytransform], cfg['min_segment_size'],
-            cfg['name'])
+        <span class="n">seg</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;segmentation_col&#39;</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;fit_filters&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;predict_filters&#39;</span><span class="p">],</span> <span class="n">default_model_expr</span><span class="p">,</span>
+            <span class="n">YTRANSFORM_MAPPING</span><span class="p">[</span><span class="n">default_ytransform</span><span class="p">],</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;min_segment_size&#39;</span><span class="p">],</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
 
-        if "models" not in cfg:
-            cfg["models"] = {}
+        <span class="k">if</span> <span class="s">&quot;models&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="s">&quot;models&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        for name, m in cfg['models'].items():
-            m['model_expression'] = m.get(
-                'model_expression', default_model_expr)
-            m['ytransform'] = m.get('ytransform', default_ytransform)
-            m['fit_filters'] = None
-            m['predict_filters'] = None
-            reg = RegressionModel.from_yaml(yamlio.convert_to_yaml(m, None))
-            seg._group.add_model(reg)
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">[</span><span class="s">&#39;models&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s">&#39;model_expression&#39;</span><span class="p">,</span> <span class="n">default_model_expr</span><span class="p">)</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;ytransform&#39;</span><span class="p">,</span> <span class="n">default_ytransform</span><span class="p">)</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;fit_filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">m</span><span class="p">[</span><span class="s">&#39;predict_filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="bp">None</span><span class="p">))</span>
+            <span class="n">seg</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add_model</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
 
-        logger.debug(
-            'loaded segmented regression model {} from yaml'.format(seg.name))
-        return seg
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;loaded segmented regression model {} from yaml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">seg</span>
 </div>
-<div class="viewcode-block" id="SegmentedRegressionModel.add_segment"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.add_segment">[docs]</a>    def add_segment(self, name, model_expression=None, ytransform='default'):
-        """
-        Add a new segment with its own model expression and ytransform.
+<div class="viewcode-block" id="SegmentedRegressionModel.add_segment"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.add_segment">[docs]</a>    <span class="k">def</span> <span class="nf">add_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">model_expression</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ytransform</span><span class="o">=</span><span class="s">&#39;default&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new segment with its own model expression and ytransform.</span>
 
-        Parameters
-        ----------
-        name :
-            Segment name. Must match a segment in the groupby of the data.
-        model_expression : str or dict, optional
-            A patsy model expression that can be used with statsmodels.
-            Should contain both the left- and right-hand sides.
-            If not given the default model will be used, which must not be
-            None.
-        ytransform : callable, optional
-            A function to call on the array of predicted output.
-            For example, if the model relation is predicting the log
-            of price, you might pass ``ytransform=np.exp`` so that
-            the results reflect actual price.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name :</span>
+<span class="sd">            Segment name. Must match a segment in the groupby of the data.</span>
+<span class="sd">        model_expression : str or dict, optional</span>
+<span class="sd">            A patsy model expression that can be used with statsmodels.</span>
+<span class="sd">            Should contain both the left- and right-hand sides.</span>
+<span class="sd">            If not given the default model will be used, which must not be</span>
+<span class="sd">            None.</span>
+<span class="sd">        ytransform : callable, optional</span>
+<span class="sd">            A function to call on the array of predicted output.</span>
+<span class="sd">            For example, if the model relation is predicting the log</span>
+<span class="sd">            of price, you might pass ``ytransform=np.exp`` so that</span>
+<span class="sd">            the results reflect actual price.</span>
 
-            If not given the default ytransform will be used.
+<span class="sd">            If not given the default ytransform will be used.</span>
 
-        """
-        if not model_expression:
-            if self.default_model_expr is None:
-                raise ValueError(
-                    'No default model available, '
-                    'you must supply a model experssion.')
-            model_expression = self.default_model_expr
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model_expression</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&#39;No default model available, &#39;</span>
+                    <span class="s">&#39;you must supply a model experssion.&#39;</span><span class="p">)</span>
+            <span class="n">model_expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span>
 
-        if ytransform == 'default':
-            ytransform = self.default_ytransform
+        <span class="k">if</span> <span class="n">ytransform</span> <span class="o">==</span> <span class="s">&#39;default&#39;</span><span class="p">:</span>
+            <span class="n">ytransform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_ytransform</span>
 
-        # no fit or predict filters, we'll take care of that this side.
-        self._group.add_model_from_params(
-            name, None, None, model_expression, ytransform)
+        <span class="c"># no fit or predict filters, we&#39;ll take care of that this side.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">add_model_from_params</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">,</span> <span class="n">ytransform</span><span class="p">)</span>
 
-        logger.debug('added segment {} to model {}'.format(name, self.name))
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;added segment {} to model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 </div>
-<div class="viewcode-block" id="SegmentedRegressionModel.fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fit">[docs]</a>    def fit(self, data, debug=False):
-        """
-        Fit each segment. Segments that have not already been explicitly
-        added will be automatically added with default model and ytransform.
+<div class="viewcode-block" id="SegmentedRegressionModel.fit"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit each segment. Segments that have not already been explicitly</span>
+<span class="sd">        added will be automatically added with default model and ytransform.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Must have a column with the same name as `segmentation_col`.
-        debug : bool
-            If set to true will pass debug to the fit method of each model.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Must have a column with the same name as `segmentation_col`.</span>
+<span class="sd">        debug : bool</span>
+<span class="sd">            If set to true will pass debug to the fit method of each model.</span>
 
-        Returns
-        -------
-        fits : dict of statsmodels.regression.linear_model.OLSResults
-            Keys are the segment names.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fits : dict of statsmodels.regression.linear_model.OLSResults</span>
+<span class="sd">            Keys are the segment names.</span>
 
-        """
-        data = util.apply_filter_query(data, self.fit_filters)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">)</span>
 
-        unique = data[self.segmentation_col].unique()
-        value_counts = data[self.segmentation_col].value_counts()
+        <span class="n">unique</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">value_counts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
 
-        # Remove any existing segments that may no longer have counterparts
-        # in the data. This can happen when loading a saved model and then
-        # calling this method with data that no longer has segments that
-        # were there the last time this was called.
-        gone = set(self._group.models) - set(unique)
-        for g in gone:
-            del self._group.models[g]
+        <span class="c"># Remove any existing segments that may no longer have counterparts</span>
+        <span class="c"># in the data. This can happen when loading a saved model and then</span>
+        <span class="c"># calling this method with data that no longer has segments that</span>
+        <span class="c"># were there the last time this was called.</span>
+        <span class="n">gone</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gone</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">g</span><span class="p">]</span>
 
-        for x in unique:
-            if x not in self._group.models and \
-                    value_counts[x] &gt; self.min_segment_size:
-                self.add_segment(x)
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unique</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span> <span class="ow">and</span> \
+                    <span class="n">value_counts</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_size</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_segment</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        with log_start_finish(
-                'fitting models in segmented model {}'.format(self.name),
-                logger):
-            return self._group.fit(data, debug=debug)
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;fitting models in segmented model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
 </div>
-    @property
-<div class="viewcode-block" id="SegmentedRegressionModel.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fitted">[docs]</a>    def fitted(self):
-        """
-        Whether models for all segments have been fit.
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Whether models for all segments have been fit.</span>
 
-        """
-        return self._group.fitted
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">fitted</span>
 </div>
-<div class="viewcode-block" id="SegmentedRegressionModel.predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict">[docs]</a>    def predict(self, data):
-        """
-        Predict new data for each group in the segmentation.
+<div class="viewcode-block" id="SegmentedRegressionModel.predict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict new data for each group in the segmentation.</span>
 
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Data to use for prediction. Must have a column with the
-            same name as `segmentation_col`.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : pandas.DataFrame</span>
+<span class="sd">            Data to use for prediction. Must have a column with the</span>
+<span class="sd">            same name as `segmentation_col`.</span>
 
-        Returns
-        -------
-        predicted : pandas.Series
-            Predicted data in a pandas Series. Will have the index of `data`
-            after applying filters.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predicted : pandas.Series</span>
+<span class="sd">            Predicted data in a pandas Series. Will have the index of `data`</span>
+<span class="sd">            after applying filters.</span>
 
-        """
-        with log_start_finish(
-                'predicting models in segmented model {}'.format(self.name),
-                logger):
-            data = util.apply_filter_query(data, self.predict_filters)
-            return self._group.predict(data)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                <span class="s">&#39;predicting models in segmented model {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">logger</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">apply_filter_query</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </div>
-    def _process_model_dict(self, d):
-        """
-        Remove redundant items from a model's configuration dict.
+    <span class="k">def</span> <span class="nf">_process_model_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove redundant items from a model&#39;s configuration dict.</span>
 
-        Parameters
-        ----------
-        d : dict
-            Modified in place.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        d : dict</span>
+<span class="sd">            Modified in place.</span>
 
-        Returns
-        -------
-        dict
-            Modified `d`.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Modified `d`.</span>
 
-        """
-        del d['model_type']
-        del d['fit_filters']
-        del d['predict_filters']
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_type&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;fit_filters&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;predict_filters&#39;</span><span class="p">]</span>
 
-        if d['model_expression'] == self.default_model_expr:
-            del d['model_expression']
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;model_expression&#39;</span><span class="p">]</span>
 
-        if YTRANSFORM_MAPPING[d['ytransform']] == self.default_ytransform:
-            del d['ytransform']
+        <span class="k">if</span> <span class="n">YTRANSFORM_MAPPING</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_ytransform</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;ytransform&#39;</span><span class="p">]</span>
 
-        d["name"] = yamlio.to_scalar_safe(d["name"])
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">to_scalar_safe</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">])</span>
 
-        return d
+        <span class="k">return</span> <span class="n">d</span>
 
-<div class="viewcode-block" id="SegmentedRegressionModel.to_dict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.to_dict">[docs]</a>    def to_dict(self):
-        """
-        Returns a dict representation of this instance suitable for
-        conversion to YAML.
+<div class="viewcode-block" id="SegmentedRegressionModel.to_dict"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dict representation of this instance suitable for</span>
+<span class="sd">        conversion to YAML.</span>
 
-        """
-        return {
-            'model_type': 'segmented_regression',
-            'name': self.name,
-            'segmentation_col': self.segmentation_col,
-            'fit_filters': self.fit_filters,
-            'predict_filters': self.predict_filters,
-            'min_segment_size': self.min_segment_size,
-            'default_config': {
-                'model_expression': self.default_model_expr,
-                'ytransform': YTRANSFORM_MAPPING[self.default_ytransform]
-            },
-            'fitted': self.fitted,
-            'models': {
-                yamlio.to_scalar_safe(name):
-                    self._process_model_dict(m.to_dict())
-                for name, m in self._group.models.items()}
-        }
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&#39;model_type&#39;</span><span class="p">:</span> <span class="s">&#39;segmented_regression&#39;</span><span class="p">,</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s">&#39;segmentation_col&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">,</span>
+            <span class="s">&#39;fit_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">,</span>
+            <span class="s">&#39;predict_filters&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">,</span>
+            <span class="s">&#39;min_segment_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_size</span><span class="p">,</span>
+            <span class="s">&#39;default_config&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;model_expression&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">,</span>
+                <span class="s">&#39;ytransform&#39;</span><span class="p">:</span> <span class="n">YTRANSFORM_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">default_ytransform</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s">&#39;fitted&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitted</span><span class="p">,</span>
+            <span class="s">&#39;models&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">yamlio</span><span class="o">.</span><span class="n">to_scalar_safe</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_process_model_dict</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="p">}</span>
 </div>
-<div class="viewcode-block" id="SegmentedRegressionModel.to_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.to_yaml">[docs]</a>    def to_yaml(self, str_or_buffer=None):
-        """
-        Save a model respresentation to YAML.
+<div class="viewcode-block" id="SegmentedRegressionModel.to_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.to_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a model respresentation to YAML.</span>
 
-        Parameters
-        ----------
-        str_or_buffer : str or file like, optional
-            By default a YAML string is returned. If a string is
-            given here the YAML will be written to that file.
-            If an object with a ``.write`` method is given the
-            YAML will be written to that object.
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str_or_buffer : str or file like, optional</span>
+<span class="sd">            By default a YAML string is returned. If a string is</span>
+<span class="sd">            given here the YAML will be written to that file.</span>
+<span class="sd">            If an object with a ``.write`` method is given the</span>
+<span class="sd">            YAML will be written to that object.</span>
 
-        Returns
-        -------
-        j : str
-            YAML string if `str_or_buffer` is not given.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        j : str</span>
+<span class="sd">            YAML string if `str_or_buffer` is not given.</span>
 
-        """
-        logger.debug(
-            'serializing segmented regression model {} to yaml'.format(
-                self.name))
-        return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s">&#39;serializing segmented regression model {} to yaml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">convert_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">str_or_buffer</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="SegmentedRegressionModel.columns_used"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.columns_used">[docs]</a>    def columns_used(self):
-        """
-        Returns all the columns used across all models in the group
-        for filtering and in the model expression.
+<div class="viewcode-block" id="SegmentedRegressionModel.columns_used"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.columns_used">[docs]</a>    <span class="k">def</span> <span class="nf">columns_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns all the columns used across all models in the group</span>
+<span class="sd">        for filtering and in the model expression.</span>
 
-        """
-        return list(toolz.unique(toolz.concatv(
-            util.columns_in_filters(self.fit_filters),
-            util.columns_in_filters(self.predict_filters),
-            util.columns_in_formula(self.default_model_expr),
-            self._group.columns_used(),
-            [self.segmentation_col])))
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">toolz</span><span class="o">.</span><span class="n">concatv</span><span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">),</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_model_expr</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">columns_used</span><span class="p">(),</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">])))</span>
 </div>
-    @classmethod
-<div class="viewcode-block" id="SegmentedRegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg">[docs]</a>    def fit_from_cfg(cls, df, cfgname, debug=False, min_segment_size=None):
-        """
-        Parameters
-        ----------
-        df : DataFrame
-            The dataframe which contains the columns to use for the estimation.
-        cfgname : string
-            The name of the yaml config file which describes the hedonic model.
-        debug : boolean, optional (default False)
-            Whether to generate debug information on the model.
-        min_segment_size : int, optional
-            Set attribute on the model.
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">min_segment_size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : DataFrame</span>
+<span class="sd">            The dataframe which contains the columns to use for the estimation.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file which describes the hedonic model.</span>
+<span class="sd">        debug : boolean, optional (default False)</span>
+<span class="sd">            Whether to generate debug information on the model.</span>
+<span class="sd">        min_segment_size : int, optional</span>
+<span class="sd">            Set attribute on the model.</span>
 
-        Returns
-        -------
-        hm : SegmentedRegressionModel which was used to fit
-        """
-        logger.debug('start: fit from configuration {}'.format(cfgname))
-        hm = cls.from_yaml(str_or_buffer=cfgname)
-        if min_segment_size:
-            hm.min_segment_size = min_segment_size
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hm : SegmentedRegressionModel which was used to fit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">hm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_segment_size</span><span class="p">:</span>
+            <span class="n">hm</span><span class="o">.</span><span class="n">min_segment_size</span> <span class="o">=</span> <span class="n">min_segment_size</span>
 
-        for k, v in hm.fit(df, debug=debug).items():
-            print("REGRESSION RESULTS FOR SEGMENT %s\n" % str(k))
-            print(v.summary())
-        hm.to_yaml(str_or_buffer=cfgname)
-        logger.debug('finish: fit from configuration {}'.format(cfgname))
-        return hm
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">hm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;REGRESSION RESULTS FOR SEGMENT </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+        <span class="n">hm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: fit from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">hm</span>
 </div>
-    @classmethod
-<div class="viewcode-block" id="SegmentedRegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">[docs]</a>    def predict_from_cfg(cls, df, cfgname, min_segment_size=None):
-        """
-        Parameters
-        ----------
-        df : DataFrame
-            The dataframe which contains the columns to use for the estimation.
-        cfgname : string
-            The name of the yaml config file which describes the hedonic model.
-        min_segment_size : int, optional
-            Set attribute on the model.
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">min_segment_size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : DataFrame</span>
+<span class="sd">            The dataframe which contains the columns to use for the estimation.</span>
+<span class="sd">        cfgname : string</span>
+<span class="sd">            The name of the yaml config file which describes the hedonic model.</span>
+<span class="sd">        min_segment_size : int, optional</span>
+<span class="sd">            Set attribute on the model.</span>
 
-        Returns
-        -------
-        predicted : pandas.Series
-            Predicted data in a pandas Series. Will have the index of `data`
-            after applying filters and minus any groups that do not have
-            models.
-        hm : SegmentedRegressionModel which was used to predict
-        """
-        logger.debug('start: predict from configuration {}'.format(cfgname))
-        hm = cls.from_yaml(str_or_buffer=cfgname)
-        if min_segment_size:
-            hm.min_segment_size = min_segment_size
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        predicted : pandas.Series</span>
+<span class="sd">            Predicted data in a pandas Series. Will have the index of `data`</span>
+<span class="sd">            after applying filters and minus any groups that do not have</span>
+<span class="sd">            models.</span>
+<span class="sd">        hm : SegmentedRegressionModel which was used to predict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">hm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_segment_size</span><span class="p">:</span>
+            <span class="n">hm</span><span class="o">.</span><span class="n">min_segment_size</span> <span class="o">=</span> <span class="n">min_segment_size</span>
 
-        price_or_rent = hm.predict(df)
-        print(price_or_rent.describe())
-        logger.debug('finish: predict from configuration {}'.format(cfgname))
+        <span class="n">price_or_rent</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">price_or_rent</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;finish: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
 
-        return price_or_rent, hm</div></div>
-</pre>
+        <span class="k">return</span> <span class="n">price_or_rent</span><span class="p">,</span> <span class="n">hm</span></div></div>
+</pre></div>
 
           </div>
           <footer>

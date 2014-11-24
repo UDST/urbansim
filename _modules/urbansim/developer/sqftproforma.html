@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -80,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -139,667 +139,693 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.developer.sqftproforma</h1><pre>
-import numpy as np
-import pandas as pd
-import logging
+  <h1>Source code for urbansim.developer.sqftproforma</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 
-logger = logging.getLogger(__name__)
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SqFtProFormaConfig"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">[docs]</a>class SqFtProFormaConfig(object):
-    """
-    This class encapsulates the configuration options for the square
-    foot based pro forma.
+<div class="viewcode-block" id="SqFtProFormaConfig"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProFormaConfig">[docs]</a><span class="k">class</span> <span class="nc">SqFtProFormaConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class encapsulates the configuration options for the square</span>
+<span class="sd">    foot based pro forma.</span>
 
-    parcel_sizes : list
-        A list of parcel sizes to test.  Interestingly, right now
-        the parcel sizes cancel in this style of pro forma computation so
-        you can set this to something reasonable for debugging purposes -
-        e.g. [10000].  All sizes can be feet or meters as long as they are
-        consistently used.
-    fars : list
-        A list of floor area ratios to use.  FAR is a multiple of
-        the parcel size that is the total building bulk that is allowed by
-        zoning on the site.  In this case, all of these ratios will be
-        tested regardless of zoning and the zoning test will be performed
-        later.
-    uses : list
-        A list of space uses to use within a building.  These are
-        mixed into forms.  Generally speaking, you should only have uses
-        for which you have an estimate (or observed) values for rents in
-        the building.  By default, uses are retail, industrial, office,
-        and residential.
-    forms : dict
-        A dictionary where keys are names for the form and values
-        are also dictionaries where keys are uses and values are the
-        proportion of that use used in this form.  The values of the
-        dictionary should sum to 1.0.  For instance, a form called
-        "residential" might have a dict of space allocations equal to
-        {"residential": 1.0} while a form called "mixedresidential"
-        might have a dictionary of space allocations equal to
-        {"retail": .1, "residential" .9] which is 90% residential and
-        10% retail.
-    parking_rates : dict
-        A dict of rates per thousand square feet where keys are the uses
-        from the list specified in the attribute above.  The ratios
-        are typically in the range 0.5 - 3.0 or similar.  So for
-        instance, a key-value pair of "retail": 2.0 would be two parking
-        spaces per 1,000 square feet of retail.  This is a per square
-        foot pro forma, so the more typically parking ratio of spaces
-        per residential unit must be converted to square feet for use in
-        this pro forma.
-    sqft_per_rate : float
-        The number of square feet per unit for use in the
-        parking_rates above.  By default this is set to 1,000 but can be
-        overridden.
-    parking_configs : list
-        An expert parameter and is usually unchanged.  By default
-        it is set to ['surface', 'deck', 'underground'] and very semantic
-        differences in the computation are performed for each of these
-        parking configurations.  Generally speaking it will break things
-        to change this array, but an item can be removed if that parking
-        configuration should not be tested.
-    parking_sqft_d : dict
-        A dictionary where keys are the three parking
-        configurations listed above and values are square foot uses of
-        parking spaces in that configuration.  This is to capture the
-        fact that surface parking is usually more space intensive
-        than deck or underground parking.
-    parking_cost_d : dict
-        The parking cost for each parking configuration.  Keys are the
-        name of the three parking configurations listed above and values
-        are dollars PER SQUARE FOOT for parking in that configuration.
-        Used to capture the fact that underground and deck are far more
-        expensive than surface parking.
-    height_for_costs : list
-        A list of "break points" as heights at which construction becomes
-        more expensive.  Generally these are the heights at which
-        construction materials change from wood, to concrete, to steel.
-        Costs are also given as lists by use for each of these break
-        points and are considered to be valid up to the break point.  A
-        list would look something like [15, 55, 120, np.inf].
-    costs : dict
-        The keys are uses from the attribute above and the values are a
-        list of floating point numbers of same length as the
-        height_for_costs attribute.  A key-value pair of
-        "residential": [160.0, 175.0, 200.0, 230.0] would say that the
-        residential use if $160/sqft up to 15ft in total height for the
-        building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
-        $230/sqft beyond.  A final value in the height_for_costs
-        array of np.inf is typical.
-    height_per_story : float
-        The per-story height for the building used to turn an
-        FAR into an actual height.
-    max_retail_height : float
-        The maximum height of retail buildings to consider.
-    max_industrial_height : float
-        The maximum height of industrial buildings to consider.
-    profit_factor : float
-        The ratio of profit a developer expects to make above the break
-        even rent.  Should be greater than 1.0, e.g. a 10% profit would be
-        a profit factor of 1.1.
-    building_efficiency : float
-        The efficiency of the building.  This turns total FAR into the
-        amount of space which gets a square foot rent.  The entire building
-        gets the cost of course.
-    parcel_coverage : float
-        The ratio of the building footprint to the parcel size.  Also used
-        to turn an FAR into a height to cost properly.
-    cap_rate : float
-        The rate an investor is willing to pay for a cash flow per year.
-        This means $1/year is equivalent to 1/cap_rate present dollars.
-        This is a macroeconomic input that is widely available on the
-        internet.
+<span class="sd">    parcel_sizes : list</span>
+<span class="sd">        A list of parcel sizes to test.  Interestingly, right now</span>
+<span class="sd">        the parcel sizes cancel in this style of pro forma computation so</span>
+<span class="sd">        you can set this to something reasonable for debugging purposes -</span>
+<span class="sd">        e.g. [10000].  All sizes can be feet or meters as long as they are</span>
+<span class="sd">        consistently used.</span>
+<span class="sd">    fars : list</span>
+<span class="sd">        A list of floor area ratios to use.  FAR is a multiple of</span>
+<span class="sd">        the parcel size that is the total building bulk that is allowed by</span>
+<span class="sd">        zoning on the site.  In this case, all of these ratios will be</span>
+<span class="sd">        tested regardless of zoning and the zoning test will be performed</span>
+<span class="sd">        later.</span>
+<span class="sd">    uses : list</span>
+<span class="sd">        A list of space uses to use within a building.  These are</span>
+<span class="sd">        mixed into forms.  Generally speaking, you should only have uses</span>
+<span class="sd">        for which you have an estimate (or observed) values for rents in</span>
+<span class="sd">        the building.  By default, uses are retail, industrial, office,</span>
+<span class="sd">        and residential.</span>
+<span class="sd">    forms : dict</span>
+<span class="sd">        A dictionary where keys are names for the form and values</span>
+<span class="sd">        are also dictionaries where keys are uses and values are the</span>
+<span class="sd">        proportion of that use used in this form.  The values of the</span>
+<span class="sd">        dictionary should sum to 1.0.  For instance, a form called</span>
+<span class="sd">        &quot;residential&quot; might have a dict of space allocations equal to</span>
+<span class="sd">        {&quot;residential&quot;: 1.0} while a form called &quot;mixedresidential&quot;</span>
+<span class="sd">        might have a dictionary of space allocations equal to</span>
+<span class="sd">        {&quot;retail&quot;: .1, &quot;residential&quot; .9] which is 90% residential and</span>
+<span class="sd">        10% retail.</span>
+<span class="sd">    parking_rates : dict</span>
+<span class="sd">        A dict of rates per thousand square feet where keys are the uses</span>
+<span class="sd">        from the list specified in the attribute above.  The ratios</span>
+<span class="sd">        are typically in the range 0.5 - 3.0 or similar.  So for</span>
+<span class="sd">        instance, a key-value pair of &quot;retail&quot;: 2.0 would be two parking</span>
+<span class="sd">        spaces per 1,000 square feet of retail.  This is a per square</span>
+<span class="sd">        foot pro forma, so the more typically parking ratio of spaces</span>
+<span class="sd">        per residential unit must be converted to square feet for use in</span>
+<span class="sd">        this pro forma.</span>
+<span class="sd">    sqft_per_rate : float</span>
+<span class="sd">        The number of square feet per unit for use in the</span>
+<span class="sd">        parking_rates above.  By default this is set to 1,000 but can be</span>
+<span class="sd">        overridden.</span>
+<span class="sd">    parking_configs : list</span>
+<span class="sd">        An expert parameter and is usually unchanged.  By default</span>
+<span class="sd">        it is set to [&#39;surface&#39;, &#39;deck&#39;, &#39;underground&#39;] and very semantic</span>
+<span class="sd">        differences in the computation are performed for each of these</span>
+<span class="sd">        parking configurations.  Generally speaking it will break things</span>
+<span class="sd">        to change this array, but an item can be removed if that parking</span>
+<span class="sd">        configuration should not be tested.</span>
+<span class="sd">    parking_sqft_d : dict</span>
+<span class="sd">        A dictionary where keys are the three parking</span>
+<span class="sd">        configurations listed above and values are square foot uses of</span>
+<span class="sd">        parking spaces in that configuration.  This is to capture the</span>
+<span class="sd">        fact that surface parking is usually more space intensive</span>
+<span class="sd">        than deck or underground parking.</span>
+<span class="sd">    parking_cost_d : dict</span>
+<span class="sd">        The parking cost for each parking configuration.  Keys are the</span>
+<span class="sd">        name of the three parking configurations listed above and values</span>
+<span class="sd">        are dollars PER SQUARE FOOT for parking in that configuration.</span>
+<span class="sd">        Used to capture the fact that underground and deck are far more</span>
+<span class="sd">        expensive than surface parking.</span>
+<span class="sd">    height_for_costs : list</span>
+<span class="sd">        A list of &quot;break points&quot; as heights at which construction becomes</span>
+<span class="sd">        more expensive.  Generally these are the heights at which</span>
+<span class="sd">        construction materials change from wood, to concrete, to steel.</span>
+<span class="sd">        Costs are also given as lists by use for each of these break</span>
+<span class="sd">        points and are considered to be valid up to the break point.  A</span>
+<span class="sd">        list would look something like [15, 55, 120, np.inf].</span>
+<span class="sd">    costs : dict</span>
+<span class="sd">        The keys are uses from the attribute above and the values are a</span>
+<span class="sd">        list of floating point numbers of same length as the</span>
+<span class="sd">        height_for_costs attribute.  A key-value pair of</span>
+<span class="sd">        &quot;residential&quot;: [160.0, 175.0, 200.0, 230.0] would say that the</span>
+<span class="sd">        residential use if $160/sqft up to 15ft in total height for the</span>
+<span class="sd">        building, $175/sqft up to 55ft, $200/sqft up to 120ft, and</span>
+<span class="sd">        $230/sqft beyond.  A final value in the height_for_costs</span>
+<span class="sd">        array of np.inf is typical.</span>
+<span class="sd">    height_per_story : float</span>
+<span class="sd">        The per-story height for the building used to turn an</span>
+<span class="sd">        FAR into an actual height.</span>
+<span class="sd">    max_retail_height : float</span>
+<span class="sd">        The maximum height of retail buildings to consider.</span>
+<span class="sd">    max_industrial_height : float</span>
+<span class="sd">        The maximum height of industrial buildings to consider.</span>
+<span class="sd">    profit_factor : float</span>
+<span class="sd">        The ratio of profit a developer expects to make above the break</span>
+<span class="sd">        even rent.  Should be greater than 1.0, e.g. a 10% profit would be</span>
+<span class="sd">        a profit factor of 1.1.</span>
+<span class="sd">    building_efficiency : float</span>
+<span class="sd">        The efficiency of the building.  This turns total FAR into the</span>
+<span class="sd">        amount of space which gets a square foot rent.  The entire building</span>
+<span class="sd">        gets the cost of course.</span>
+<span class="sd">    parcel_coverage : float</span>
+<span class="sd">        The ratio of the building footprint to the parcel size.  Also used</span>
+<span class="sd">        to turn an FAR into a height to cost properly.</span>
+<span class="sd">    cap_rate : float</span>
+<span class="sd">        The rate an investor is willing to pay for a cash flow per year.</span>
+<span class="sd">        This means $1/year is equivalent to 1/cap_rate present dollars.</span>
+<span class="sd">        This is a macroeconomic input that is widely available on the</span>
+<span class="sd">        internet.</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    def __init__(self):
-        self._reset_defaults()
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_defaults</span><span class="p">()</span>
 
-    def _reset_defaults(self):
-        self.parcel_sizes = [10000.0]
-        self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 11.0]
-        self.uses = ['retail', 'industrial', 'office', 'residential']
-        self.residential_uses = [False, False, False, True]
-        self.forms = {
-            'retail': {
-                "retail": 1.0
-            },
-            'industrial': {
-                "industrial": 1.0
-            },
-            'office': {
-                "office": 1.0
-            },
-            'residential': {
-                "residential": 1.0
-            },
-            'mixedresidential': {
-                "retail": .1,
-                "residential": .9
-            },
-            'mixedoffice': {
-                "office": 0.7,
-                "residential": 0.3
-            }
-        }
+    <span class="k">def</span> <span class="nf">_reset_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parcel_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mf">10000.0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fars</span> <span class="o">=</span> <span class="p">[</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.25</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">,</span>
+                     <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.25</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">3.75</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span>
+                     <span class="mf">5.0</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uses</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;retail&#39;</span><span class="p">,</span> <span class="s">&#39;industrial&#39;</span><span class="p">,</span> <span class="s">&#39;office&#39;</span><span class="p">,</span> <span class="s">&#39;residential&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residential_uses</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">True</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forms</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;retail&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;retail&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">},</span>
+            <span class="s">&#39;industrial&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;industrial&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">},</span>
+            <span class="s">&#39;office&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;office&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">},</span>
+            <span class="s">&#39;residential&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;residential&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">},</span>
+            <span class="s">&#39;mixedresidential&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;retail&quot;</span><span class="p">:</span> <span class="o">.</span><span class="mi">1</span><span class="p">,</span>
+                <span class="s">&quot;residential&quot;</span><span class="p">:</span> <span class="o">.</span><span class="mi">9</span>
+            <span class="p">},</span>
+            <span class="s">&#39;mixedoffice&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;office&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+                <span class="s">&quot;residential&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
 
-        self.profit_factor = 1.1
-        self.building_efficiency = .7
-        self.parcel_coverage = .8
-        self.cap_rate = .05
+        <span class="bp">self</span><span class="o">.</span><span class="n">profit_factor</span> <span class="o">=</span> <span class="mf">1.1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">=</span> <span class="o">.</span><span class="mi">7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parcel_coverage</span> <span class="o">=</span> <span class="o">.</span><span class="mi">8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cap_rate</span> <span class="o">=</span> <span class="o">.</span><span class="mo">05</span>
 
-        self.parking_rates = {
-            "retail": 2.0,
-            "industrial": .6,
-            "office": 1.0,
-            "residential": 1.0
-        }
-        self.sqft_per_rate = 1000.0
+        <span class="bp">self</span><span class="o">.</span><span class="n">parking_rates</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;retail&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="s">&quot;industrial&quot;</span><span class="p">:</span> <span class="o">.</span><span class="mi">6</span><span class="p">,</span>
+            <span class="s">&quot;office&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s">&quot;residential&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqft_per_rate</span> <span class="o">=</span> <span class="mf">1000.0</span>
 
-        self.parking_configs = ['surface', 'deck', 'underground']
+        <span class="bp">self</span><span class="o">.</span><span class="n">parking_configs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;surface&#39;</span><span class="p">,</span> <span class="s">&#39;deck&#39;</span><span class="p">,</span> <span class="s">&#39;underground&#39;</span><span class="p">]</span>
 
-        self.costs = {
-            "retail": [160.0, 175.0, 200.0, 230.0],
-            "industrial": [140.0, 175.0, 200.0, 230.0],
-            "office": [160.0, 175.0, 200.0, 230.0],
-            "residential": [170.0, 190.0, 210.0, 240.0]
-        }
+        <span class="bp">self</span><span class="o">.</span><span class="n">costs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;retail&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">160.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">230.0</span><span class="p">],</span>
+            <span class="s">&quot;industrial&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">140.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">230.0</span><span class="p">],</span>
+            <span class="s">&quot;office&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">160.0</span><span class="p">,</span> <span class="mf">175.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">230.0</span><span class="p">],</span>
+            <span class="s">&quot;residential&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">170.0</span><span class="p">,</span> <span class="mf">190.0</span><span class="p">,</span> <span class="mf">210.0</span><span class="p">,</span> <span class="mf">240.0</span><span class="p">]</span>
+        <span class="p">}</span>
 
-        self.heights_for_costs = [15, 55, 120, np.inf]
+        <span class="bp">self</span><span class="o">.</span><span class="n">heights_for_costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
 
-        self.parking_sqft_d = {
-            'surface': 300.0,
-            'deck': 250.0,
-            'underground': 250.0
-        }
-        self.parking_cost_d = {
-            'surface': 30,
-            'deck': 90,
-            'underground': 110
-        }
+        <span class="bp">self</span><span class="o">.</span><span class="n">parking_sqft_d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;surface&#39;</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span>
+            <span class="s">&#39;deck&#39;</span><span class="p">:</span> <span class="mf">250.0</span><span class="p">,</span>
+            <span class="s">&#39;underground&#39;</span><span class="p">:</span> <span class="mf">250.0</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parking_cost_d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;surface&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+            <span class="s">&#39;deck&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+            <span class="s">&#39;underground&#39;</span><span class="p">:</span> <span class="mi">110</span>
+        <span class="p">}</span>
 
-        self.height_per_story = 10.0
-        self.max_retail_height = 2.0
-        self.max_industrial_height = 2.0
+        <span class="bp">self</span><span class="o">.</span><span class="n">height_per_story</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retail_height</span> <span class="o">=</span> <span class="mf">2.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_industrial_height</span> <span class="o">=</span> <span class="mf">2.0</span>
 
-    def _convert_types(self):
-        """
-        convert lists and dictionaries that are useful for users to
-        np vectors that are usable by machines
+    <span class="k">def</span> <span class="nf">_convert_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        convert lists and dictionaries that are useful for users to</span>
+<span class="sd">        np vectors that are usable by machines</span>
 
-        """
-        self.fars = np.array(self.fars)
-        self.parking_rates = np.array([self.parking_rates[use] for use in self.uses])
-        self.res_ratios = {}
-        assert len(self.uses) == len(self.residential_uses)
-        for k, v in self.forms.iteritems():
-            self.forms[k] = np.array([self.forms[k].get(use, 0.0) for use in self.uses])
-            # normalize if not already
-            self.forms[k] /= self.forms[k].sum()
-            self.res_ratios[k] = pd.Series(self.forms[k])[self.residential_uses].sum()
-        self.costs = np.transpose(np.array([self.costs[use] for use in self.uses]))
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fars</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parking_rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">parking_rates</span><span class="p">[</span><span class="n">use</span><span class="p">]</span> <span class="k">for</span> <span class="n">use</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">res_ratios</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">residential_uses</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">use</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">use</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">])</span>
+            <span class="c"># normalize if not already</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_ratios</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">])[</span><span class="bp">self</span><span class="o">.</span><span class="n">residential_uses</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">costs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">use</span><span class="p">]</span> <span class="k">for</span> <span class="n">use</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">]))</span>
 
-    @property
-    def tiled_parcel_sizes(self):
-        return np.reshape(np.repeat(self.parcel_sizes, self.fars.size), (-1, 1))
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tiled_parcel_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parcel_sizes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fars</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-    def check_is_reasonable(self):
-        fars = pd.Series(self.fars)
-        assert len(fars[fars &gt; 20]) == 0
-        assert len(fars[fars &lt;= 0]) == 0
-        for k, v in self.forms.iteritems():
-            assert isinstance(v, dict)
-            for k2, v2 in self.forms[k].iteritems():
-                assert isinstance(k2, str)
-                assert isinstance(v2, float)
-            for k2, v2 in self.forms[k].iteritems():
-                assert isinstance(k2, str)
-                assert isinstance(v2, float)
-        for k, v in self.parking_rates.iteritems():
-            assert isinstance(k, str)
-            assert k in self.uses
-            assert 0 &lt;= v &lt; 5
-        for k, v in self.parking_sqft_d.iteritems():
-            assert isinstance(k, str)
-            assert k in self.parking_configs
-            assert 50 &lt;= v &lt;= 1000
-        for k, v in self.parking_sqft_d.iteritems():
-            assert isinstance(k, str)
-            assert k in self.parking_cost_d
-            assert 10 &lt;= v &lt;= 300
-        for v in self.heights_for_costs:
-            assert isinstance(v, int) or isinstance(v, float)
-            if np.isinf(v):
-                continue
-            assert 0 &lt;= v &lt;= 1000
-        for k, v in self.costs.iteritems():
-            assert isinstance(k, str)
-            assert k in self.uses
-            for i in v:
-                assert 10 &lt; i &lt; 1000
+    <span class="k">def</span> <span class="nf">check_is_reasonable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fars</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fars</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fars</span><span class="p">[</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">fars</span><span class="p">[</span><span class="n">fars</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k2</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking_rates</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">5</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking_configs</span>
+            <span class="k">assert</span> <span class="mi">50</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1000</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking_cost_d</span>
+            <span class="k">assert</span> <span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">300</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">heights_for_costs</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1000</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">costs</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="mi">10</span> <span class="o">&lt;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000</span>
 
 </div>
-<div class="viewcode-block" id="SqFtProForma"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma">[docs]</a>class SqFtProForma(object):
-    """
-    Initialize the square foot based pro forma.
+<div class="viewcode-block" id="SqFtProForma"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma">[docs]</a><span class="k">class</span> <span class="nc">SqFtProForma</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize the square foot based pro forma.</span>
 
-    This pro forma has no representation of units - it does not
-    differentiate between the rent attained by 1BR, 2BR, or 3BR and change
-    the rents accordingly.  This is largely because it is difficult to get
-    information on the unit mix in an existing building in order to compute
-    its acquisition cost.  Thus rents and costs per sqft are used for new
-    and current buildings which assumes there is a constant return on
-    increasing and decreasing unit sizes, an extremely useful simplifying
-    assumption above the project scale (i.e. city of regional scale)
+<span class="sd">    This pro forma has no representation of units - it does not</span>
+<span class="sd">    differentiate between the rent attained by 1BR, 2BR, or 3BR and change</span>
+<span class="sd">    the rents accordingly.  This is largely because it is difficult to get</span>
+<span class="sd">    information on the unit mix in an existing building in order to compute</span>
+<span class="sd">    its acquisition cost.  Thus rents and costs per sqft are used for new</span>
+<span class="sd">    and current buildings which assumes there is a constant return on</span>
+<span class="sd">    increasing and decreasing unit sizes, an extremely useful simplifying</span>
+<span class="sd">    assumption above the project scale (i.e. city of regional scale)</span>
 
-    Parameters
-    ----------
-    config : `SqFtProFormaConfig`
-        The configuration object which should be an
-        instance of `SqFtProFormaConfig`.  The configuration options for this
-        pro forma are documented on the configuration object.
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : `SqFtProFormaConfig`</span>
+<span class="sd">        The configuration object which should be an</span>
+<span class="sd">        instance of `SqFtProFormaConfig`.  The configuration options for this</span>
+<span class="sd">        pro forma are documented on the configuration object.</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    def __init__(self, config=None):
-        if config is None:
-            config = SqFtProFormaConfig()
-        config.check_is_reasonable()
-        self.config = config
-        self.config._convert_types()
-        self._generate_lookup()
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">SqFtProFormaConfig</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">check_is_reasonable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_convert_types</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_generate_lookup</span><span class="p">()</span>
 
-    def _building_cost(self, use_mix, stories):
-        """
-        Generate building cost for a set of buildings
+    <span class="k">def</span> <span class="nf">_building_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_mix</span><span class="p">,</span> <span class="n">stories</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate building cost for a set of buildings</span>
 
-        Parameters
-        ----------
-        use_mix : array
-            The mix of uses for this form
-        stories : series
-            A Pandas Series of stories
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        use_mix : array</span>
+<span class="sd">            The mix of uses for this form</span>
+<span class="sd">        stories : series</span>
+<span class="sd">            A Pandas Series of stories</span>
 
-        Returns
-        -------
-        array
-            The cost per sqft for this unit mix and height.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array</span>
+<span class="sd">            The cost per sqft for this unit mix and height.</span>
 
-        """
-        c = self.config
-        # stories to heights
-        heights = stories * c.height_per_story
-        # cost index for this height
-        costs = np.searchsorted(c.heights_for_costs, heights)
-        # this will get set to nan later
-        costs[np.isnan(heights)] = 0
-        # compute cost with matrix multiply
-        costs = np.dot(np.squeeze(c.costs[costs.astype('int32')]), use_mix)
-        # some heights aren't allowed - cost should be nan
-        costs[np.isnan(stories).flatten()] = np.nan
-        return costs.flatten()
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="c"># stories to heights</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">stories</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">height_per_story</span>
+        <span class="c"># cost index for this height</span>
+        <span class="n">costs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">heights_for_costs</span><span class="p">,</span> <span class="n">heights</span><span class="p">)</span>
+        <span class="c"># this will get set to nan later</span>
+        <span class="n">costs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">heights</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c"># compute cost with matrix multiply</span>
+        <span class="n">costs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">costs</span><span class="p">[</span><span class="n">costs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int32&#39;</span><span class="p">)]),</span> <span class="n">use_mix</span><span class="p">)</span>
+        <span class="c"># some heights aren&#39;t allowed - cost should be nan</span>
+        <span class="n">costs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">stories</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">return</span> <span class="n">costs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-    def _generate_lookup(self):
-        """
-        Run the developer model on all possible inputs specified in the
-        configuration object - not generally called by the user.  This part
-        computes the final cost per sqft of the building to construct and
-        then turns it into the yearly rent necessary to make break even on
-        that cost.
+    <span class="k">def</span> <span class="nf">_generate_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the developer model on all possible inputs specified in the</span>
+<span class="sd">        configuration object - not generally called by the user.  This part</span>
+<span class="sd">        computes the final cost per sqft of the building to construct and</span>
+<span class="sd">        then turns it into the yearly rent necessary to make break even on</span>
+<span class="sd">        that cost.</span>
 
-        """
-        c = self.config
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        # get all the building forms we can use
-        keys = c.forms.keys()
-        keys.sort()
-        df_d = {}
-        for name in keys:
-            # get the use distribution for each
-            uses_distrib = c.forms[name]
+        <span class="c"># get all the building forms we can use</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">df_d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="c"># get the use distribution for each</span>
+            <span class="n">uses_distrib</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
-            for parking_config in c.parking_configs:
+            <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
 
-                # going to make a dataframe to store values to make
-                # pro forma results transparent
-                df = pd.DataFrame(index=c.fars)
-                df['far'] = c.fars
-                df['pclsz'] = c.tiled_parcel_sizes
+                <span class="c"># going to make a dataframe to store values to make</span>
+                <span class="c"># pro forma results transparent</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">fars</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;far&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fars</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;pclsz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">tiled_parcel_sizes</span>
 
-                building_bulk = np.reshape(
-                    c.parcel_sizes, (-1, 1)) * np.reshape(c.fars, (1, -1))
-                building_bulk = np.reshape(building_bulk, (-1, 1))
+                <span class="n">building_bulk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                    <span class="n">c</span><span class="o">.</span><span class="n">parcel_sizes</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fars</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">building_bulk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">building_bulk</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-                # need to converge in on exactly how much far is available for
-                # deck pkg
-                if parking_config == 'deck':
-                    orig_bulk = building_bulk
-                    while 1:
-                        parkingstalls = building_bulk * \
-                            np.sum(uses_distrib * c.parking_rates) / c.sqft_per_rate
-                        if np.where(
-                                np.absolute(
-                                    orig_bulk - building_bulk -
-                                    parkingstalls *
-                                    c.parking_sqft_d[parking_config])
-                                &gt; 10.0)[0].size == 0:
-                            break
-                        building_bulk = orig_bulk - parkingstalls * \
-                            c.parking_sqft_d[parking_config]
+                <span class="c"># need to converge in on exactly how much far is available for</span>
+                <span class="c"># deck pkg</span>
+                <span class="k">if</span> <span class="n">parking_config</span> <span class="o">==</span> <span class="s">&#39;deck&#39;</span><span class="p">:</span>
+                    <span class="n">orig_bulk</span> <span class="o">=</span> <span class="n">building_bulk</span>
+                    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">parkingstalls</span> <span class="o">=</span> <span class="n">building_bulk</span> <span class="o">*</span> \
+                            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">uses_distrib</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_rates</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">sqft_per_rate</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span>
+                                    <span class="n">orig_bulk</span> <span class="o">-</span> <span class="n">building_bulk</span> <span class="o">-</span>
+                                    <span class="n">parkingstalls</span> <span class="o">*</span>
+                                    <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">])</span>
+                                <span class="o">&gt;</span> <span class="mf">10.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="n">building_bulk</span> <span class="o">=</span> <span class="n">orig_bulk</span> <span class="o">-</span> <span class="n">parkingstalls</span> <span class="o">*</span> \
+                            <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span>
 
-                df['building_sqft'] = building_bulk
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;building_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">building_bulk</span>
 
-                parkingstalls = building_bulk * \
-                    np.sum(uses_distrib * c.parking_rates) / c.sqft_per_rate
-                parking_cost = (c.parking_cost_d[parking_config] *
-                                parkingstalls *
-                                c.parking_sqft_d[parking_config])
+                <span class="n">parkingstalls</span> <span class="o">=</span> <span class="n">building_bulk</span> <span class="o">*</span> \
+                    <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">uses_distrib</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_rates</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">sqft_per_rate</span>
+                <span class="n">parking_cost</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">parking_cost_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span> <span class="o">*</span>
+                                <span class="n">parkingstalls</span> <span class="o">*</span>
+                                <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">])</span>
 
-                df['spaces'] = parkingstalls
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;spaces&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parkingstalls</span>
 
-                if parking_config == 'underground':
-                    df['park_sqft'] = parkingstalls * \
-                        c.parking_sqft_d[parking_config]
-                    stories = building_bulk / c.tiled_parcel_sizes
-                if parking_config == 'deck':
-                    df['park_sqft'] = parkingstalls * \
-                        c.parking_sqft_d[parking_config]
-                    stories = ((building_bulk + parkingstalls *
-                                c.parking_sqft_d[parking_config]) /
-                               c.tiled_parcel_sizes)
-                if parking_config == 'surface':
-                    stories = building_bulk / \
-                        (c.tiled_parcel_sizes - parkingstalls *
-                         c.parking_sqft_d[parking_config])
-                    df['park_sqft'] = parkingstalls * \
-                        c.parking_sqft_d[parking_config]
-                    # not all fars support surface parking
-                    stories[np.where(stories &lt; 0.0)] = np.nan
+                <span class="k">if</span> <span class="n">parking_config</span> <span class="o">==</span> <span class="s">&#39;underground&#39;</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parkingstalls</span> <span class="o">*</span> \
+                        <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span>
+                    <span class="n">stories</span> <span class="o">=</span> <span class="n">building_bulk</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">tiled_parcel_sizes</span>
+                <span class="k">if</span> <span class="n">parking_config</span> <span class="o">==</span> <span class="s">&#39;deck&#39;</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parkingstalls</span> <span class="o">*</span> \
+                        <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span>
+                    <span class="n">stories</span> <span class="o">=</span> <span class="p">((</span><span class="n">building_bulk</span> <span class="o">+</span> <span class="n">parkingstalls</span> <span class="o">*</span>
+                                <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">])</span> <span class="o">/</span>
+                               <span class="n">c</span><span class="o">.</span><span class="n">tiled_parcel_sizes</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">parking_config</span> <span class="o">==</span> <span class="s">&#39;surface&#39;</span><span class="p">:</span>
+                    <span class="n">stories</span> <span class="o">=</span> <span class="n">building_bulk</span> <span class="o">/</span> \
+                        <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">tiled_parcel_sizes</span> <span class="o">-</span> <span class="n">parkingstalls</span> <span class="o">*</span>
+                         <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">])</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parkingstalls</span> <span class="o">*</span> \
+                        <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span>
+                    <span class="c"># not all fars support surface parking</span>
+                    <span class="n">stories</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stories</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
-                df['total_sqft'] = df.building_sqft + df.park_sqft
-                stories /= c.parcel_coverage
-                df['stories'] = np.ceil(stories)
-                df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;total_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">park_sqft</span>
+                <span class="n">stories</span> <span class="o">/=</span> <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;stories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">stories</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;build_cost_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_building_cost</span><span class="p">(</span><span class="n">uses_distrib</span><span class="p">,</span> <span class="n">stories</span><span class="p">)</span>
 
-                df['build_cost'] = df.build_cost_sqft * df.building_sqft
-                df['park_cost'] = parking_cost
-                df['cost'] = df.build_cost + df.park_cost
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;build_cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">build_cost_sqft</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parking_cost</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">build_cost</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">park_cost</span>
 
-                df['ave_cost_sqft'] = (df.cost / df.total_sqft) * c.profit_factor
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">cost</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">total_sqft</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">profit_factor</span>
 
-                if name == 'retail':
-                    df['ave_cost_sqft'][c.fars &gt; c.max_retail_height] = np.nan
-                if name == 'industrial':
-                    df['ave_cost_sqft'][c.fars &gt; c.max_industrial_height] = np.nan
-                df_d[(name, parking_config)] = df
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;retail&#39;</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">][</span><span class="n">c</span><span class="o">.</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">max_retail_height</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;industrial&#39;</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">][</span><span class="n">c</span><span class="o">.</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">max_industrial_height</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">df_d</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df</span>
 
-        # from here on out we need the min rent for a form and a far
-        min_ave_cost_sqft_d = {}
-        bignum = 999999
+        <span class="c"># from here on out we need the min rent for a form and a far</span>
+        <span class="n">min_ave_cost_sqft_d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">bignum</span> <span class="o">=</span> <span class="mi">999999</span>
 
-        for name in keys:
-            min_ave_cost_sqft = None
-            for parking_config in c.parking_configs:
-                ave_cost_sqft = df_d[(name, parking_config)][
-                    'ave_cost_sqft'].fillna(bignum)
-                min_ave_cost_sqft = ave_cost_sqft if min_ave_cost_sqft is None \
-                    else np.minimum(min_ave_cost_sqft, ave_cost_sqft)
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="n">min_ave_cost_sqft</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
+                <span class="n">ave_cost_sqft</span> <span class="o">=</span> <span class="n">df_d</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)][</span>
+                    <span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">bignum</span><span class="p">)</span>
+                <span class="n">min_ave_cost_sqft</span> <span class="o">=</span> <span class="n">ave_cost_sqft</span> <span class="k">if</span> <span class="n">min_ave_cost_sqft</span> <span class="ow">is</span> <span class="bp">None</span> \
+                    <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">min_ave_cost_sqft</span><span class="p">,</span> <span class="n">ave_cost_sqft</span><span class="p">)</span>
 
-            min_ave_cost_sqft = min_ave_cost_sqft.replace(bignum, np.nan)
-            # this is the minimum cost per sqft for this form and far
-            min_ave_cost_sqft_d[name] = min_ave_cost_sqft
+            <span class="n">min_ave_cost_sqft</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">bignum</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="c"># this is the minimum cost per sqft for this form and far</span>
+            <span class="n">min_ave_cost_sqft_d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft</span>
 
-        self.dev_d = df_d
-        self.min_ave_cost_d = min_ave_cost_sqft_d
+        <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span> <span class="o">=</span> <span class="n">df_d</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_ave_cost_d</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft_d</span>
 
-<div class="viewcode-block" id="SqFtProForma.get_debug_info"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">[docs]</a>    def get_debug_info(self, form, parking_config):
-        """
-        Get the debug info after running the pro forma for a given form and parking
-        configuration
+<div class="viewcode-block" id="SqFtProForma.get_debug_info"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_debug_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the debug info after running the pro forma for a given form and parking</span>
+<span class="sd">        configuration</span>
 
-        Parameters
-        ----------
-        form : string
-            The form to get debug info for
-        parking_config : string
-            The parking configuration to get debug info for
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        form : string</span>
+<span class="sd">            The form to get debug info for</span>
+<span class="sd">        parking_config : string</span>
+<span class="sd">            The parking configuration to get debug info for</span>
 
-        Returns
-        -------
-        debug_info : dataframe
-            A dataframe where the index is the far with many columns
-            representing intermediate steps in the pro forma computation.
-            Additional documentation will be added at a later date, although
-            many of the columns should be fairly self-expanatory.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        debug_info : dataframe</span>
+<span class="sd">            A dataframe where the index is the far with many columns</span>
+<span class="sd">            representing intermediate steps in the pro forma computation.</span>
+<span class="sd">            Additional documentation will be added at a later date, although</span>
+<span class="sd">            many of the columns should be fairly self-expanatory.</span>
 
-        """
-        return self.dev_d[(form, parking_config)]
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span><span class="p">[(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span>
 </div>
-<div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    def get_ave_cost_sqft(self, form):
-        """
-        Get the average cost per sqft for the pro forma for a given form
+<div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    <span class="k">def</span> <span class="nf">get_ave_cost_sqft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the average cost per sqft for the pro forma for a given form</span>
 
-        Parameters
-        ----------
-        form : string
-            Get a series representing the average cost per sqft for each form in
-            the config
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        form : string</span>
+<span class="sd">            Get a series representing the average cost per sqft for each form in</span>
+<span class="sd">            the config</span>
 
-        Returns
-        -------
-        cost : series
-            A series where the index is the far and the values are the average
-            cost per sqft at which the building is "break even" given the
-            configuration parameters that were passed at run time.
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cost : series</span>
+<span class="sd">            A series where the index is the far and the values are the average</span>
+<span class="sd">            cost per sqft at which the building is &quot;break even&quot; given the</span>
+<span class="sd">            configuration parameters that were passed at run time.</span>
 
-        """
-        return self.min_ave_cost_d[form]
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_ave_cost_d</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="SqFtProForma.lookup"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">[docs]</a>    def lookup(self, form, df, only_built=True):
-        """
-        This function does the developer model lookups for all the actual input data.
+<div class="viewcode-block" id="SqFtProForma.lookup"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">[docs]</a>    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">pass_through</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function does the developer model lookups for all the actual input data.</span>
 
-        Parameters
-        ----------
-        form : string
-            One of the forms specified in the configuration file
-        df: dataframe
-            Pass in a single data frame which is indexed by parcel_id and has the
-            following columns
-        only_built : bool
-            Whether to return only those buildings that are profitable and allowed
-            by zoning, or whether to return as much information as possible, even if
-            unlikely to be built (can be used when development might be subsidized
-            or when debugging)
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        form : string</span>
+<span class="sd">            One of the forms specified in the configuration file</span>
+<span class="sd">        df: dataframe</span>
+<span class="sd">            Pass in a single data frame which is indexed by parcel_id and has the</span>
+<span class="sd">            following columns</span>
+<span class="sd">        only_built : bool</span>
+<span class="sd">            Whether to return only those buildings that are profitable and allowed</span>
+<span class="sd">            by zoning, or whether to return as much information as possible, even if</span>
+<span class="sd">            unlikely to be built (can be used when development might be subsidized</span>
+<span class="sd">            or when debugging)</span>
+<span class="sd">        pass_through : list of strings</span>
+<span class="sd">            List of field names to take from the input parcel frame and pass</span>
+<span class="sd">            to the output feasibility frame - is usually used for debugging</span>
+<span class="sd">            purposes - these fields will be passed all the way through</span>
+<span class="sd">            developer</span>
 
-        Input Dataframe Columns
-        rent : dataframe
-            A set of columns, one for each of the uses passed in the configuration.
-            Values are yearly rents for that use.  Typical column names would be
-            "residential", "retail", "industrial" and "office"
-        land_cost : series
-            A series representing the CURRENT yearly rent for each parcel.  Used to
-            compute acquisition costs for the parcel.
-        parcel_size : series
-            A series representing the parcel size for each parcel.
-        max_far : series
-            A series representing the maximum far allowed by zoning.  Buildings
-            will not be built above these fars.
-        max_height : series
-            A series representing the maxmium height allowed by zoning.  Buildings
-            will not be built above these heights.  Will pick between the min of
-            the far and height, will ignore on of them if one is nan, but will not
-            build if both are nan.
-        max_dua : series, optional
-            A series representing the maximum dwelling units per acre allowed by
-            zoning.  If max_dua is passed, the average unit size should be passed
-            below to translate from dua to floor space.
-        ave_unit_size : series, optional
-            This is required if max_dua is passed above, otherwise it is optional.
-            This is the same as the parameter to Developer.pick() (it should be the
-            same series).
+<span class="sd">        Input Dataframe Columns</span>
+<span class="sd">        rent : dataframe</span>
+<span class="sd">            A set of columns, one for each of the uses passed in the configuration.</span>
+<span class="sd">            Values are yearly rents for that use.  Typical column names would be</span>
+<span class="sd">            &quot;residential&quot;, &quot;retail&quot;, &quot;industrial&quot; and &quot;office&quot;</span>
+<span class="sd">        land_cost : series</span>
+<span class="sd">            A series representing the CURRENT yearly rent for each parcel.  Used to</span>
+<span class="sd">            compute acquisition costs for the parcel.</span>
+<span class="sd">        parcel_size : series</span>
+<span class="sd">            A series representing the parcel size for each parcel.</span>
+<span class="sd">        max_far : series</span>
+<span class="sd">            A series representing the maximum far allowed by zoning.  Buildings</span>
+<span class="sd">            will not be built above these fars.</span>
+<span class="sd">        max_height : series</span>
+<span class="sd">            A series representing the maxmium height allowed by zoning.  Buildings</span>
+<span class="sd">            will not be built above these heights.  Will pick between the min of</span>
+<span class="sd">            the far and height, will ignore on of them if one is nan, but will not</span>
+<span class="sd">            build if both are nan.</span>
+<span class="sd">        max_dua : series, optional</span>
+<span class="sd">            A series representing the maximum dwelling units per acre allowed by</span>
+<span class="sd">            zoning.  If max_dua is passed, the average unit size should be passed</span>
+<span class="sd">            below to translate from dua to floor space.</span>
+<span class="sd">        ave_unit_size : series, optional</span>
+<span class="sd">            This is required if max_dua is passed above, otherwise it is optional.</span>
+<span class="sd">            This is the same as the parameter to Developer.pick() (it should be the</span>
+<span class="sd">            same series).</span>
 
-        Returns
-        -------
-        index : Series, int
-            parcel identifiers
-        building_sqft : Series, float
-            The number of square feet for the building to build.  Keep in mind
-            this includes parking and common space.  Will need a helpful function
-            to convert from gross square feet to actual usable square feet in
-            residential units.
-        building_cost : Series, float
-            The cost of constructing the building as given by the
-            ave_cost_per_sqft from the cost model (for this FAR) and the number
-            of square feet.
-        total_cost : Series, float
-            The cost of constructing the building plus the cost of acquisition of
-            the current parcel/building.
-        building_revenue : Series, float
-            The NPV of the revenue for the building to be built, which is the
-            number of square feet times the yearly rent divided by the cap
-            rate (with a few adjustment factors including building efficiency).
-        max_profit_far : Series, float
-            The FAR of the maximum profit building (constrained by the max_far and
-            max_height from the input dataframe).
-        max_profit :
-            The profit for the maximum profit building (constrained by the max_far
-            and max_height from the input dataframe).
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        index : Series, int</span>
+<span class="sd">            parcel identifiers</span>
+<span class="sd">        building_sqft : Series, float</span>
+<span class="sd">            The number of square feet for the building to build.  Keep in mind</span>
+<span class="sd">            this includes parking and common space.  Will need a helpful function</span>
+<span class="sd">            to convert from gross square feet to actual usable square feet in</span>
+<span class="sd">            residential units.</span>
+<span class="sd">        building_cost : Series, float</span>
+<span class="sd">            The cost of constructing the building as given by the</span>
+<span class="sd">            ave_cost_per_sqft from the cost model (for this FAR) and the number</span>
+<span class="sd">            of square feet.</span>
+<span class="sd">        total_cost : Series, float</span>
+<span class="sd">            The cost of constructing the building plus the cost of acquisition of</span>
+<span class="sd">            the current parcel/building.</span>
+<span class="sd">        building_revenue : Series, float</span>
+<span class="sd">            The NPV of the revenue for the building to be built, which is the</span>
+<span class="sd">            number of square feet times the yearly rent divided by the cap</span>
+<span class="sd">            rate (with a few adjustment factors including building efficiency).</span>
+<span class="sd">        max_profit_far : Series, float</span>
+<span class="sd">            The FAR of the maximum profit building (constrained by the max_far and</span>
+<span class="sd">            max_height from the input dataframe).</span>
+<span class="sd">        max_profit :</span>
+<span class="sd">            The profit for the maximum profit building (constrained by the max_far</span>
+<span class="sd">            and max_height from the input dataframe).</span>
 
-        """
-        c = self.config
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># don&#39;t really mean to edit the df that&#39;s passed in</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        cost_sqft = self.get_ave_cost_sqft(form)
-        cost_sqft_col = np.reshape(cost_sqft.values, (-1, 1))
-        cost_sqft_index_col = np.reshape(cost_sqft.index.values, (-1, 1))
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        # weighted rent for this form
-        df['weighted_rent'] = np.dot(df[c.uses], c.forms[form])
+        <span class="n">cost_sqft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ave_cost_sqft</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+        <span class="n">cost_sqft_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cost_sqft</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">cost_sqft_index_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cost_sqft</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-        # min between max_fars and max_heights
-        df['max_far_from_heights'] = df.max_height / c.height_per_story * \
-            c.parcel_coverage
+        <span class="c"># weighted rent for this form</span>
+        <span class="n">df</span><span class="p">[</span><span class="s">&#39;weighted_rent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">uses</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">form</span><span class="p">])</span>
 
-        # now also minimize with max_dua from zoning - since this pro forma is really geared
-        # toward per sqft metrics, this is a bit tricky.  dua is converted to floorspace and
-        # everything just works (floor space will get covered back to units in developer.pick()
-        # but we need to test the profitability of the floorspace allowed by max_dua here.
-        if 'max_dua' in df.columns:
-            # if max_dua is in the data frame, ave_unit_size must also be present
-            assert 'ave_unit_size' in df.columns
-            df['max_far_from_dua'] = df.max_dua * df.ave_unit_size / self.config.building_efficiency
-            df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
-                                     'max_far_from_dua']].min(axis=1)
-        else:
-            df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
+        <span class="c"># min between max_fars and max_heights</span>
+        <span class="n">df</span><span class="p">[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_height</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">height_per_story</span> <span class="o">*</span> \
+            <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
 
-        if only_built:
-            df = df.query('min_max_fars &gt; 0 and parcel_size &gt; 0')
+        <span class="c"># now also minimize with max_dua from zoning - since this pro forma is</span>
+        <span class="c"># really geared toward per sqft metrics, this is a bit tricky.  dua</span>
+        <span class="c"># is converted to floorspace and everything just works (floor space</span>
+        <span class="c"># will get covered back to units in developer.pick() but we need to</span>
+        <span class="c"># test the profitability of the floorspace allowed by max_dua here.</span>
+        <span class="k">if</span> <span class="s">&#39;max_dua&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c"># if max_dua is in the data frame, ave_unit_size must also be there</span>
+            <span class="k">assert</span> <span class="s">&#39;ave_unit_size&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+            <span class="c"># so this is the max_dua times the parcel size in acres, which gives</span>
+            <span class="c"># the number of units that are allowable on the parcel, times</span>
+            <span class="c"># by the average unit size which gives the square footage of</span>
+            <span class="c"># those units, divided by the building efficiency which is a</span>
+            <span class="c"># factor that indicates that the actual units are not the whole</span>
+            <span class="c"># FAR of the building and then divided by the parcel size again</span>
+            <span class="c"># in order to get FAR - I recognize that parcel_size actually</span>
+            <span class="c"># cancels here as it should, but the calc was hard to get right</span>
+            <span class="c"># and it&#39;s just so much more transparent to have it in there twice</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;max_far_from_dua&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_dua</span> <span class="o">*</span> \
+                <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span> <span class="o">/</span> <span class="mi">43560</span><span class="p">)</span> <span class="o">*</span> \
+                <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">/</span> \
+                <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">,</span> <span class="s">&#39;max_far&#39;</span><span class="p">,</span>
+                                     <span class="s">&#39;max_far_from_dua&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">&#39;max_far_from_heights&#39;</span><span class="p">,</span> <span class="s">&#39;max_far&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        # all possible fars on all parcels
-        fars = np.repeat(cost_sqft_index_col, len(df.index), axis=1)
+        <span class="k">if</span> <span class="n">only_built</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;min_max_fars &gt; 0 and parcel_size &gt; 0&#39;</span><span class="p">)</span>
 
-        # zero out fars not allowed by zoning
-        fars[fars &gt; df.min_max_fars.values + .01] = np.nan
+        <span class="c"># all possible fars on all parcels</span>
+        <span class="n">fars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">cost_sqft_index_col</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        # parcel sizes * possible fars
-        building_bulks = fars * df.parcel_size.values
+        <span class="c"># zero out fars not allowed by zoning</span>
+        <span class="n">fars</span><span class="p">[</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">min_max_fars</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="o">.</span><span class="mo">01</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
-        # cost to build the new building
-        building_costs = building_bulks * cost_sqft_col
+        <span class="c"># parcel sizes * possible fars</span>
+        <span class="n">building_bulks</span> <span class="o">=</span> <span class="n">fars</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span><span class="o">.</span><span class="n">values</span>
 
-        # add cost to buy the current building
-        total_costs = building_costs + df.land_cost.values
+        <span class="c"># cost to build the new building</span>
+        <span class="n">building_costs</span> <span class="o">=</span> <span class="n">building_bulks</span> <span class="o">*</span> <span class="n">cost_sqft_col</span>
 
-        # rent to make for the new building
-        building_revenue = building_bulks * c.building_efficiency *\
-            df.weighted_rent.values / c.cap_rate
+        <span class="c"># add cost to buy the current building</span>
+        <span class="n">total_costs</span> <span class="o">=</span> <span class="n">building_costs</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">land_cost</span><span class="o">.</span><span class="n">values</span>
 
-        # profit for each form
-        profit = building_revenue - total_costs
+        <span class="c"># rent to make for the new building</span>
+        <span class="n">building_revenue</span> <span class="o">=</span> <span class="n">building_bulks</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span>\
+            <span class="n">df</span><span class="o">.</span><span class="n">weighted_rent</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">cap_rate</span>
 
-        profit = profit.astype('float')
-        profit[np.isnan(profit)] = -np.inf
-        maxprofitind = np.argmax(profit, axis=0)
+        <span class="c"># profit for each form</span>
+        <span class="n">profit</span> <span class="o">=</span> <span class="n">building_revenue</span> <span class="o">-</span> <span class="n">total_costs</span>
 
-        def twod_get(indexes, arr):
-            return arr[indexes, np.arange(indexes.size)].astype('float')
+        <span class="n">profit</span> <span class="o">=</span> <span class="n">profit</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float&#39;</span><span class="p">)</span>
+        <span class="n">profit</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">profit</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">maxprofitind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">profit</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        outdf = pd.DataFrame({
-            'building_sqft': twod_get(maxprofitind, building_bulks),
-            'building_cost': twod_get(maxprofitind, building_costs),
-            'total_cost': twod_get(maxprofitind, total_costs),
-            'building_revenue': twod_get(maxprofitind, building_revenue),
-            'max_profit_far': twod_get(maxprofitind, fars),
-            'max_profit': twod_get(maxprofitind, profit)
-        }, index=df.index)
+        <span class="k">def</span> <span class="nf">twod_get</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">arr</span><span class="p">[</span><span class="n">indexes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">indexes</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float&#39;</span><span class="p">)</span>
 
-        if only_built:
-            outdf = outdf.query('max_profit &gt; 0')
+        <span class="n">outdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s">&#39;building_sqft&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_bulks</span><span class="p">),</span>
+            <span class="s">&#39;building_cost&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_costs</span><span class="p">),</span>
+            <span class="s">&#39;total_cost&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">total_costs</span><span class="p">),</span>
+            <span class="s">&#39;building_revenue&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_revenue</span><span class="p">),</span>
+            <span class="s">&#39;max_profit_far&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">fars</span><span class="p">),</span>
+            <span class="s">&#39;max_profit&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">profit</span><span class="p">)</span>
+        <span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
-        resratio = c.res_ratios[form]
-        nonresratio = 1.0 - resratio
-        outdf["residential_sqft"] = outdf.building_sqft * c.building_efficiency * resratio
-        outdf["non_residential_sqft"] = outdf.building_sqft * nonresratio
-        outdf["stories"] = outdf["max_profit_far"] / c.parcel_coverage
+        <span class="k">if</span> <span class="n">pass_through</span><span class="p">:</span>
+            <span class="n">outdf</span><span class="p">[</span><span class="n">pass_through</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">pass_through</span><span class="p">]</span>
 
-        return outdf
+        <span class="k">if</span> <span class="n">only_built</span><span class="p">:</span>
+            <span class="n">outdf</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;max_profit &gt; 0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">resratio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">res_ratios</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
+        <span class="n">nonresratio</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">resratio</span>
+        <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span> <span class="n">resratio</span>
+        <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;non_residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">nonresratio</span>
+        <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;stories&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;max_profit_far&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
+
+        <span class="k">return</span> <span class="n">outdf</span>
 </div>
-    def _debug_output(self):
-        """
-        this code creates the debugging plots to understand
-        the behavior of the hypothetical building model
+    <span class="k">def</span> <span class="nf">_debug_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        this code creates the debugging plots to understand</span>
+<span class="sd">        the behavior of the hypothetical building model</span>
 
-        """
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-        c = self.config
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib</span>
+        <span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">&#39;Agg&#39;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
 
-        df_d = self.dev_d
-        keys = df_d.keys()
-        keys.sort()
-        for key in keys:
-            logger.debug("\n" + str(key) + "\n")
-            logger.debug(df_d[key])
-        for form in self.config.forms:
-            logger.debug("\n" + str(key) + "\n")
-            logger.debug(self.get_ave_cost_sqft(form))
+        <span class="n">df_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">df_d</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">df_d</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ave_cost_sqft</span><span class="p">(</span><span class="n">form</span><span class="p">))</span>
 
-        keys = c.forms.keys()
-        keys.sort()
-        cnt = 1
-        share = None
-        fig = plt.figure(figsize=(12, 3 * len(keys)))
-        fig.suptitle('Profitable rents by use', fontsize=40)
-        for name in keys:
-            sumdf = None
-            for parking_config in c.parking_configs:
-                df = df_d[(name, parking_config)]
-                if sumdf is None:
-                    sumdf = pd.DataFrame(df['far'])
-                sumdf[parking_config] = df['ave_cost_sqft']
-            far = sumdf['far']
-            del sumdf['far']
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">share</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)))</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">&#39;Profitable rents by use&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="n">sumdf</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df_d</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="n">sumdf</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">sumdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">&#39;far&#39;</span><span class="p">])</span>
+                <span class="n">sumdf</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">]</span>
+            <span class="n">far</span> <span class="o">=</span> <span class="n">sumdf</span><span class="p">[</span><span class="s">&#39;far&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">sumdf</span><span class="p">[</span><span class="s">&#39;far&#39;</span><span class="p">]</span>
 
-            if share is None:
-                share = plt.subplot(len(keys) / 2, 2, cnt)
-            else:
-                plt.subplot(len(keys) / 2, 2, cnt, sharex=share, sharey=share)
+            <span class="k">if</span> <span class="n">share</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">share</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="n">share</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="n">share</span><span class="p">)</span>
 
-            handles = plt.plot(far, sumdf)
-            plt.ylabel('even_rent')
-            plt.xlabel('FAR')
-            plt.title('Rents for use type %s' % name)
-            plt.legend(
-                handles, c.parking_configs, loc='lower right',
-                title='Parking type')
-            cnt += 1
-        plt.savefig('even_rents.png', bbox_inches=0)</div>
-</pre>
+            <span class="n">handles</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">far</span><span class="p">,</span> <span class="n">sumdf</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;even_rent&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;FAR&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Rents for use type </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+                <span class="n">handles</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s">&#39;lower right&#39;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s">&#39;Parking type&#39;</span><span class="p">)</span>
+            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;even_rents.png&#39;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+</pre></div>
 
           </div>
           <footer>

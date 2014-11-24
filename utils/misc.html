@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -59,7 +58,7 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
@@ -82,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -95,9 +95,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../developer/index.html#module-urbansim.developer.developer">Developer Model API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="index.html">UrbanSim Utilities</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">UrbanSim Utilities</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#about">About</a></li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#contents">Contents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../maps/index.html">DataFrame Explorer</a><ul>
@@ -164,7 +164,7 @@ that are present in the tables.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>tables</strong> : sequence of _DataFrameWrapper or _TableFuncWrapper</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tables</strong> : sequence of _DataFrameWrapper or _TableFuncWrapper</p>
 <blockquote>
 <div><p>Could also be sequence of modified pandas.DataFrames, the important
 thing is that they have <tt class="docutils literal"><span class="pre">.name</span></tt> and <tt class="docutils literal"><span class="pre">.columns</span></tt> attributes.</p>
@@ -175,7 +175,7 @@ thing is that they have <tt class="docutils literal"><span class="pre">.name</sp
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>cols</strong> : list</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cols</strong> : list</p>
 <blockquote class="last">
 <div><p>Lists of column names available in the tables.</p>
 </div></blockquote>
@@ -194,7 +194,7 @@ columns come from which table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>tables</strong> : sequence of _DataFrameWrapper or _TableFuncWrapper</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>tables</strong> : sequence of _DataFrameWrapper or _TableFuncWrapper</p>
 <blockquote>
 <div><p>Could also be sequence of modified pandas.DataFrames, the important
 thing is that they have <tt class="docutils literal"><span class="pre">.name</span></tt> and <tt class="docutils literal"><span class="pre">.columns</span></tt> attributes.</p>
@@ -205,7 +205,7 @@ thing is that they have <tt class="docutils literal"><span class="pre">.name</sp
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>col_map</strong> : dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>col_map</strong> : dict</p>
 <blockquote class="last">
 <div><p>Maps table names to lists of column names.</p>
 </div></blockquote>
@@ -217,14 +217,14 @@ thing is that they have <tt class="docutils literal"><span class="pre">.name</sp
 
 <dl class="function">
 <dt id="urbansim.utils.misc.compute_range">
-<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">compute_range</tt><big>(</big><em>travel_data</em>, <em>attr</em>, <em>travel_time_attr</em>, <em>dist</em>, <em>agg=&lt;function sum at 0x2ae455e42b90&gt;</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#compute_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.compute_range" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.utils.misc.</tt><tt class="descname">compute_range</tt><big>(</big><em>travel_data</em>, <em>attr</em>, <em>travel_time_attr</em>, <em>dist</em>, <em>agg=&lt;function sum at 0x2b21a1a90aa0&gt;</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/misc.html#compute_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.compute_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a zone-based accessibility query using the urbansim format
 travel data dataframe.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>travel_data</strong> : dataframe</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>travel_data</strong> : dataframe</p>
 <blockquote>
 <div><p>The dataframe of urbansim format travel data.  Has from_zone_id as
 first index, to_zone_id as second index, and different impedances
@@ -280,9 +280,9 @@ memory or disk space.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><strong>tbl</strong> : The dataframe to convert</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tbl</strong> : The dataframe to convert</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><strong>The converted dataframe</strong> :</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted dataframe</td>
 </tr>
 </tbody>
 </table>
@@ -304,7 +304,7 @@ identifying the output hdf5 files).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><strong>The integer number for this run of the model system.</strong> :</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The integer number for this run of the model system.</td>
 </tr>
 </tbody>
 </table>
@@ -341,11 +341,11 @@ with default column headers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>mat</strong> : The numpy matrix</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mat</strong> : The numpy matrix</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>A pandas dataframe with the same data as the input matrix but with columns</strong> :</p>
-<p class="last"><strong>named x0,  x1, ... x[n-1] for the number of columns.</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A pandas dataframe with the same data as the input matrix but with columns</p>
+<p class="last">named x0,  x1, ... x[n-1] for the number of columns.</p>
 </td>
 </tr>
 </tbody>
@@ -360,13 +360,13 @@ with default column headers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>df</strong> : The result of a Pandas describe operation.</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : The result of a Pandas describe operation.</p>
 <p><strong>ndigits</strong> : int, optional - The number of significant digits to round to.</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>A json object which captures the describe.  Keys are field names and</strong> :</p>
-<p><strong>values are dictionaries with all of the indexes returned by the Pandas</strong> :</p>
-<p class="last"><strong>describe.</strong> :</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A json object which captures the describe.  Keys are field names and</p>
+<p>values are dictionaries with all of the indexes returned by the Pandas</p>
+<p class="last">describe.</p>
 </td>
 </tr>
 </tbody>
@@ -419,9 +419,9 @@ memory or disk space.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><strong>s</strong> : The series to convert</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> : The series to convert</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><strong>The converted series</strong> :</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted series</td>
 </tr>
 </tbody>
 </table>

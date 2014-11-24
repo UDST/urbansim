@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
@@ -80,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#argument-matching">Argument Matching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
 </ul>
 </li>
@@ -139,377 +139,377 @@
 </div>
           <div role="main">
             
-  <h1>Source code for urbansim.utils.misc</h1><pre>
-"""
-Utilities used within urbansim that don't yet have a better home.
+  <h1>Source code for urbansim.utils.misc</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities used within urbansim that don&#39;t yet have a better home.</span>
 
-"""
-from __future__ import print_function
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
-import os
+<span class="kn">import</span> <span class="nn">os</span>
 
-import numpy as np
-import pandas as pd
-import toolz
-
-
-def _mkifnotexists(folder):
-    d = os.path.join(os.getenv('DATA_HOME', "."), folder)
-    if not os.path.exists(d):
-        os.makedirs(d)
-    return d
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">toolz</span>
 
 
-<div class="viewcode-block" id="data_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.data_dir">[docs]</a>def data_dir():
-    """
-    Return the directory for the input data.
-    """
-    return _mkifnotexists("data")
+<span class="k">def</span> <span class="nf">_mkifnotexists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="n">folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
 
-</div>
-<div class="viewcode-block" id="configs_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.configs_dir">[docs]</a>def configs_dir():
-    """
-    Return the directory for the model configuration files.
-    """
-    return _mkifnotexists("configs")
+
+<div class="viewcode-block" id="data_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.data_dir">[docs]</a><span class="k">def</span> <span class="nf">data_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the input data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;data&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="runs_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.runs_dir">[docs]</a>def runs_dir():
-    """
-    Return the directory for the run output.
-    """
-    return _mkifnotexists("runs")
+<div class="viewcode-block" id="configs_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.configs_dir">[docs]</a><span class="k">def</span> <span class="nf">configs_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the model configuration files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;configs&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="models_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.models_dir">[docs]</a>def models_dir():
-    """
-    Return the directory for the model configuration files (used by the
-    website).
-    """
-    return _mkifnotexists("configs")
+<div class="viewcode-block" id="runs_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.runs_dir">[docs]</a><span class="k">def</span> <span class="nf">runs_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the run output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;runs&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="charts_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.charts_dir">[docs]</a>def charts_dir():
-    """
-    Return the directory for the chart configuration files (used by the
-    website).
-    """
-    return _mkifnotexists("web/charts")
+<div class="viewcode-block" id="models_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.models_dir">[docs]</a><span class="k">def</span> <span class="nf">models_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the model configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;configs&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="maps_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.maps_dir">[docs]</a>def maps_dir():
-    """
-    Return the directory for the map configuration files (used by the
-    website).
-    """
-    return _mkifnotexists("web/maps")
+<div class="viewcode-block" id="charts_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.charts_dir">[docs]</a><span class="k">def</span> <span class="nf">charts_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the chart configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/charts&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="simulations_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.simulations_dir">[docs]</a>def simulations_dir():
-    """
-    Return the directory for the simulation configuration files (used by the
-    website).
-    """
-    return _mkifnotexists("web/simulations")
+<div class="viewcode-block" id="maps_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.maps_dir">[docs]</a><span class="k">def</span> <span class="nf">maps_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the map configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/maps&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="reports_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reports_dir">[docs]</a>def reports_dir():
-    """
-    Return the directory for the report configuration files (used by the
-    website).
-    """
-    return _mkifnotexists("web/reports")
+<div class="viewcode-block" id="simulations_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.simulations_dir">[docs]</a><span class="k">def</span> <span class="nf">simulations_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the simulation configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/simulations&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="edits_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.edits_dir">[docs]</a>def edits_dir():
-    """
-    Return the directory for the editable files (used by the
-    website).
-    """
-    return _mkifnotexists("")
+<div class="viewcode-block" id="reports_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reports_dir">[docs]</a><span class="k">def</span> <span class="nf">reports_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the report configuration files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;web/reports&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="config"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.config">[docs]</a>def config(fname):
-    """
-    Return the config path for the file with the given filename.
-    """
-    return os.path.join(configs_dir(), fname)
+<div class="viewcode-block" id="edits_dir"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.edits_dir">[docs]</a><span class="k">def</span> <span class="nf">edits_dir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the directory for the editable files (used by the</span>
+<span class="sd">    website).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_mkifnotexists</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="get_run_number"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.get_run_number">[docs]</a>def get_run_number():
-    """
-    Get a run number for this execution of the model system, for
-    identifying the output hdf5 files).
-
-    Returns
-    -------
-    The integer number for this run of the model system.
-    """
-    try:
-        f = open(os.path.join(os.getenv('DATA_HOME', "."), 'RUNNUM'), 'r')
-        num = int(f.read())
-        f.close()
-    except:
-        num = 1
-    f = open(os.path.join(os.getenv('DATA_HOME', "."), 'RUNNUM'), 'w')
-    f.write(str(num + 1))
-    f.close()
-    return num
+<div class="viewcode-block" id="config"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.config">[docs]</a><span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the config path for the file with the given filename.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">configs_dir</span><span class="p">(),</span> <span class="n">fname</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="compute_range"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.compute_range">[docs]</a>def compute_range(travel_data, attr, travel_time_attr, dist, agg=np.sum):
-    """
-    Compute a zone-based accessibility query using the urbansim format
-    travel data dataframe.
+<div class="viewcode-block" id="get_run_number"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.get_run_number">[docs]</a><span class="k">def</span> <span class="nf">get_run_number</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a run number for this execution of the model system, for</span>
+<span class="sd">    identifying the output hdf5 files).</span>
 
-    Parameters
-    ----------
-    travel_data : dataframe
-        The dataframe of urbansim format travel data.  Has from_zone_id as
-        first index, to_zone_id as second index, and different impedances
-        between zones as columns.
-    attr : series
-        The attr to aggregate.  Should be indexed by zone_id and the values
-        will be aggregated.
-    travel_time_attr : string
-        The column name in travel_data to use as the impedance.
-    dist : float
-        The max distance to aggregate up to
-    agg : function, optional, np.sum by default
-        The numpy function to use for aggregation
-    """
-    travel_data = travel_data.reset_index(level=1)
-    travel_data = travel_data[travel_data[travel_time_attr] &lt; dist]
-    travel_data["attr"] = attr[travel_data.to_zone_id].values
-    return travel_data.groupby(level=0).attr.apply(agg)
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The integer number for this run of the model system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="s">&#39;RUNNUM&#39;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s">&#39;DATA_HOME&#39;</span><span class="p">,</span> <span class="s">&quot;.&quot;</span><span class="p">),</span> <span class="s">&#39;RUNNUM&#39;</span><span class="p">),</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">num</span>
 
 </div>
-<div class="viewcode-block" id="reindex"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reindex">[docs]</a>def reindex(series1, series2):
-    """
-    This reindexes the first series by the second series.  This is an extremely
-    common operation that does not appear to  be in Pandas at this time.
-    If anyone knows of an easier way to do this in Pandas, please inform the
-    UrbanSim developers.
+<div class="viewcode-block" id="compute_range"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.compute_range">[docs]</a><span class="k">def</span> <span class="nf">compute_range</span><span class="p">(</span><span class="n">travel_data</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">travel_time_attr</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute a zone-based accessibility query using the urbansim format</span>
+<span class="sd">    travel data dataframe.</span>
 
-    The canonical example would be a parcel series which has an index which is
-    parcel_ids and a value which you want to fetch, let's say it's land_area.
-    Another dataset, let's say of buildings has a series which indicate the
-    parcel_ids that the buildings are located on, but which does not have
-    land_area.  If you pass parcels.land_area as the first series and
-    buildings.parcel_id as the second series, this function returns a series
-    which is indexed by buildings and has land_area as values and can be
-    added to the buildings dataset.
-
-    In short, this is a join on to a different table using a foreign key
-    stored in the current table, but with only one attribute rather than
-    for a full dataset.
-
-    This is very similar to the pandas "loc" function or "reindex" function,
-    but neither of those functions return the series indexed on the current
-    table.  In both of those cases, the series would be indexed on the foreign
-    table and would require a second step to change the index.
-    """
-
-    # turns out the merge is much faster than the .loc below
-    df = pd.merge(pd.DataFrame({"left": series2}),
-                  pd.DataFrame({"right": series1}),
-                  left_on="left",
-                  right_index=True,
-                  how="left")
-    return df.right
-
-    # return pd.Series(series1.loc[series2.values].values, index=series2.index)
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    travel_data : dataframe</span>
+<span class="sd">        The dataframe of urbansim format travel data.  Has from_zone_id as</span>
+<span class="sd">        first index, to_zone_id as second index, and different impedances</span>
+<span class="sd">        between zones as columns.</span>
+<span class="sd">    attr : series</span>
+<span class="sd">        The attr to aggregate.  Should be indexed by zone_id and the values</span>
+<span class="sd">        will be aggregated.</span>
+<span class="sd">    travel_time_attr : string</span>
+<span class="sd">        The column name in travel_data to use as the impedance.</span>
+<span class="sd">    dist : float</span>
+<span class="sd">        The max distance to aggregate up to</span>
+<span class="sd">    agg : function, optional, np.sum by default</span>
+<span class="sd">        The numpy function to use for aggregation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">travel_data</span> <span class="o">=</span> <span class="n">travel_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">travel_data</span> <span class="o">=</span> <span class="n">travel_data</span><span class="p">[</span><span class="n">travel_data</span><span class="p">[</span><span class="n">travel_time_attr</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="p">]</span>
+    <span class="n">travel_data</span><span class="p">[</span><span class="s">&quot;attr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="n">travel_data</span><span class="o">.</span><span class="n">to_zone_id</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="n">travel_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="signif"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.signif">[docs]</a>def signif(val):
-    """
-    Convert a statistical significance to its ascii representation - this
-    should be the same representation created in R.
-    """
-    val = abs(val)
-    if val &gt; 3.1:
-        return '***'
-    elif val &gt; 2.33:
-        return '**'
-    elif val &gt; 1.64:
-        return '*'
-    elif val &gt; 1.28:
-        return '.'
-    return ''
+<div class="viewcode-block" id="reindex"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.reindex">[docs]</a><span class="k">def</span> <span class="nf">reindex</span><span class="p">(</span><span class="n">series1</span><span class="p">,</span> <span class="n">series2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This reindexes the first series by the second series.  This is an extremely</span>
+<span class="sd">    common operation that does not appear to  be in Pandas at this time.</span>
+<span class="sd">    If anyone knows of an easier way to do this in Pandas, please inform the</span>
+<span class="sd">    UrbanSim developers.</span>
+
+<span class="sd">    The canonical example would be a parcel series which has an index which is</span>
+<span class="sd">    parcel_ids and a value which you want to fetch, let&#39;s say it&#39;s land_area.</span>
+<span class="sd">    Another dataset, let&#39;s say of buildings has a series which indicate the</span>
+<span class="sd">    parcel_ids that the buildings are located on, but which does not have</span>
+<span class="sd">    land_area.  If you pass parcels.land_area as the first series and</span>
+<span class="sd">    buildings.parcel_id as the second series, this function returns a series</span>
+<span class="sd">    which is indexed by buildings and has land_area as values and can be</span>
+<span class="sd">    added to the buildings dataset.</span>
+
+<span class="sd">    In short, this is a join on to a different table using a foreign key</span>
+<span class="sd">    stored in the current table, but with only one attribute rather than</span>
+<span class="sd">    for a full dataset.</span>
+
+<span class="sd">    This is very similar to the pandas &quot;loc&quot; function or &quot;reindex&quot; function,</span>
+<span class="sd">    but neither of those functions return the series indexed on the current</span>
+<span class="sd">    table.  In both of those cases, the series would be indexed on the foreign</span>
+<span class="sd">    table and would require a second step to change the index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># turns out the merge is much faster than the .loc below</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;left&quot;</span><span class="p">:</span> <span class="n">series2</span><span class="p">}),</span>
+                  <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">&quot;right&quot;</span><span class="p">:</span> <span class="n">series1</span><span class="p">}),</span>
+                  <span class="n">left_on</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span>
+                  <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                  <span class="n">how</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">right</span>
+
+    <span class="c"># return pd.Series(series1.loc[series2.values].values, index=series2.index)</span>
 
 </div>
-naics_d = {
-    11: 'Agriculture',
-    21: 'Mining',
-    22: 'Utilities',
-    23: 'Construction',
-    31: 'Manufacturing1',
-    32: 'Manufacturing2',
-    33: 'Manufacturing3',
-    42: 'Wholesale',
-    44: 'Retail1',
-    45: 'Retail2',
-    48: 'Transportation',
-    49: 'Warehousing',
-    51: 'Information',
-    52: 'Finance and Insurance',
-    53: 'Real Estate',
-    54: 'Professional',
-    55: 'Management',
-    56: 'Administrative',
-    61: 'Educational',
-    62: 'Health Care',
-    71: 'Arts',
-    72: 'Accomodation and Food',
-    81: 'Other',
-    92: 'Public',
-    99: 'Unknown'
-}
-
-
-<div class="viewcode-block" id="naicsname"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.naicsname">[docs]</a>def naicsname(val):
-    """
-    This function maps NAICS (job codes) from number to name.
-    """
-    return naics_d[val]
+<div class="viewcode-block" id="signif"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.signif">[docs]</a><span class="k">def</span> <span class="nf">signif</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a statistical significance to its ascii representation - this</span>
+<span class="sd">    should be the same representation created in R.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">3.1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;***&#39;</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">2.33</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;**&#39;</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">1.64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;*&#39;</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mf">1.28</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;.&#39;</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span>
 
 </div>
-<div class="viewcode-block" id="numpymat2df"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.numpymat2df">[docs]</a>def numpymat2df(mat):
-    """
-    Sometimes (though not very often) it is useful to convert a numpy matrix
-    which has no column names to a Pandas dataframe for use of the Pandas
-    functions.  This method converts a 2D numpy matrix to Pandas dataframe
-    with default column headers.
+<span class="n">naics_d</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="s">&#39;Agriculture&#39;</span><span class="p">,</span>
+    <span class="mi">21</span><span class="p">:</span> <span class="s">&#39;Mining&#39;</span><span class="p">,</span>
+    <span class="mi">22</span><span class="p">:</span> <span class="s">&#39;Utilities&#39;</span><span class="p">,</span>
+    <span class="mi">23</span><span class="p">:</span> <span class="s">&#39;Construction&#39;</span><span class="p">,</span>
+    <span class="mi">31</span><span class="p">:</span> <span class="s">&#39;Manufacturing1&#39;</span><span class="p">,</span>
+    <span class="mi">32</span><span class="p">:</span> <span class="s">&#39;Manufacturing2&#39;</span><span class="p">,</span>
+    <span class="mi">33</span><span class="p">:</span> <span class="s">&#39;Manufacturing3&#39;</span><span class="p">,</span>
+    <span class="mi">42</span><span class="p">:</span> <span class="s">&#39;Wholesale&#39;</span><span class="p">,</span>
+    <span class="mi">44</span><span class="p">:</span> <span class="s">&#39;Retail1&#39;</span><span class="p">,</span>
+    <span class="mi">45</span><span class="p">:</span> <span class="s">&#39;Retail2&#39;</span><span class="p">,</span>
+    <span class="mi">48</span><span class="p">:</span> <span class="s">&#39;Transportation&#39;</span><span class="p">,</span>
+    <span class="mi">49</span><span class="p">:</span> <span class="s">&#39;Warehousing&#39;</span><span class="p">,</span>
+    <span class="mi">51</span><span class="p">:</span> <span class="s">&#39;Information&#39;</span><span class="p">,</span>
+    <span class="mi">52</span><span class="p">:</span> <span class="s">&#39;Finance and Insurance&#39;</span><span class="p">,</span>
+    <span class="mi">53</span><span class="p">:</span> <span class="s">&#39;Real Estate&#39;</span><span class="p">,</span>
+    <span class="mi">54</span><span class="p">:</span> <span class="s">&#39;Professional&#39;</span><span class="p">,</span>
+    <span class="mi">55</span><span class="p">:</span> <span class="s">&#39;Management&#39;</span><span class="p">,</span>
+    <span class="mi">56</span><span class="p">:</span> <span class="s">&#39;Administrative&#39;</span><span class="p">,</span>
+    <span class="mi">61</span><span class="p">:</span> <span class="s">&#39;Educational&#39;</span><span class="p">,</span>
+    <span class="mi">62</span><span class="p">:</span> <span class="s">&#39;Health Care&#39;</span><span class="p">,</span>
+    <span class="mi">71</span><span class="p">:</span> <span class="s">&#39;Arts&#39;</span><span class="p">,</span>
+    <span class="mi">72</span><span class="p">:</span> <span class="s">&#39;Accomodation and Food&#39;</span><span class="p">,</span>
+    <span class="mi">81</span><span class="p">:</span> <span class="s">&#39;Other&#39;</span><span class="p">,</span>
+    <span class="mi">92</span><span class="p">:</span> <span class="s">&#39;Public&#39;</span><span class="p">,</span>
+    <span class="mi">99</span><span class="p">:</span> <span class="s">&#39;Unknown&#39;</span>
+<span class="p">}</span>
 
-    Parameters
-    ----------
-    mat : The numpy matrix
 
-    Returns
-    -------
-    A pandas dataframe with the same data as the input matrix but with columns
-    named x0,  x1, ... x[n-1] for the number of columns.
-    """
-    return pd.DataFrame(
-        dict(('x%d' % i, mat[:, i]) for i in range(mat.shape[1])))
-
-</div>
-<div class="viewcode-block" id="df64bitto32bit"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.df64bitto32bit">[docs]</a>def df64bitto32bit(tbl):
-    """
-    Convert a Pandas dataframe from 64 bit types to 32 bit types to save
-    memory or disk space.
-
-    Parameters
-    ----------
-    tbl : The dataframe to convert
-
-    Returns
-    -------
-    The converted dataframe
-    """
-    newtbl = pd.DataFrame(index=tbl.index)
-    for colname in tbl.columns:
-        newtbl[colname] = series64bitto32bit(tbl[colname])
-    return newtbl
+<div class="viewcode-block" id="naicsname"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.naicsname">[docs]</a><span class="k">def</span> <span class="nf">naicsname</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function maps NAICS (job codes) from number to name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">naics_d</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
 
 </div>
-<div class="viewcode-block" id="series64bitto32bit"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.series64bitto32bit">[docs]</a>def series64bitto32bit(s):
-    """
-    Convert a Pandas series from 64 bit types to 32 bit types to save
-    memory or disk space.
+<div class="viewcode-block" id="numpymat2df"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.numpymat2df">[docs]</a><span class="k">def</span> <span class="nf">numpymat2df</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sometimes (though not very often) it is useful to convert a numpy matrix</span>
+<span class="sd">    which has no column names to a Pandas dataframe for use of the Pandas</span>
+<span class="sd">    functions.  This method converts a 2D numpy matrix to Pandas dataframe</span>
+<span class="sd">    with default column headers.</span>
 
-    Parameters
-    ----------
-    s : The series to convert
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mat : The numpy matrix</span>
 
-    Returns
-    -------
-    The converted series
-    """
-    if s.dtype == np.float64:
-        return s.astype('float32')
-    elif s.dtype == np.int64:
-        return s.astype('int32')
-    return s
-
-</div>
-def _pandassummarytojson(v, ndigits=3):
-    return {i: round(float(v.ix[i]), ndigits) for i in v.index}
-
-
-<div class="viewcode-block" id="pandasdfsummarytojson"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.pandasdfsummarytojson">[docs]</a>def pandasdfsummarytojson(df, ndigits=3):
-    """
-    Convert the result of a
-
-    Parameters
-    ----------
-    df : The result of a Pandas describe operation.
-    ndigits : int, optional - The number of significant digits to round to.
-
-    Returns
-    -------
-    A json object which captures the describe.  Keys are field names and
-    values are dictionaries with all of the indexes returned by the Pandas
-    describe.
-    """
-    df = df.transpose()
-    return {k: _pandassummarytojson(v, ndigits) for k, v in df.iterrows()}
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A pandas dataframe with the same data as the input matrix but with columns</span>
+<span class="sd">    named x0,  x1, ... x[n-1] for the number of columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="nb">dict</span><span class="p">((</span><span class="s">&#39;x</span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="n">mat</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
 
 </div>
-<div class="viewcode-block" id="column_map"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.column_map">[docs]</a>def column_map(tables, columns):
-    """
-    Take a list of tables and a list of column names and resolve which
-    columns come from which table.
+<div class="viewcode-block" id="df64bitto32bit"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.df64bitto32bit">[docs]</a><span class="k">def</span> <span class="nf">df64bitto32bit</span><span class="p">(</span><span class="n">tbl</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a Pandas dataframe from 64 bit types to 32 bit types to save</span>
+<span class="sd">    memory or disk space.</span>
 
-    Parameters
-    ----------
-    tables : sequence of _DataFrameWrapper or _TableFuncWrapper
-        Could also be sequence of modified pandas.DataFrames, the important
-        thing is that they have ``.name`` and ``.columns`` attributes.
-    columns : sequence of str
-        The column names of interest.
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tbl : The dataframe to convert</span>
 
-    Returns
-    -------
-    col_map : dict
-        Maps table names to lists of column names.
-
-    """
-    if not columns:
-        return {t.name: None for t in tables}
-
-    columns = set(columns)
-    colmap = {t.name: list(set(t.columns).intersection(columns)) for t in tables}
-    foundcols = toolz.reduce(lambda x, y: x.union(y), (set(v) for v in colmap.values()))
-    if foundcols != columns:
-        raise RuntimeError('Not all required columns were found. '
-                           'Missing: {}'.format(list(columns - foundcols)))
-    return colmap
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The converted dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">newtbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">tbl</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">tbl</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">newtbl</span><span class="p">[</span><span class="n">colname</span><span class="p">]</span> <span class="o">=</span> <span class="n">series64bitto32bit</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="n">colname</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">newtbl</span>
 
 </div>
-<div class="viewcode-block" id="column_list"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.column_list">[docs]</a>def column_list(tables, columns):
-    """
-    Take a list of tables and a list of column names and return the columns
-    that are present in the tables.
+<div class="viewcode-block" id="series64bitto32bit"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.series64bitto32bit">[docs]</a><span class="k">def</span> <span class="nf">series64bitto32bit</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a Pandas series from 64 bit types to 32 bit types to save</span>
+<span class="sd">    memory or disk space.</span>
 
-    Parameters
-    ----------
-    tables : sequence of _DataFrameWrapper or _TableFuncWrapper
-        Could also be sequence of modified pandas.DataFrames, the important
-        thing is that they have ``.name`` and ``.columns`` attributes.
-    columns : sequence of str
-        The column names of interest.
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s : The series to convert</span>
 
-    Returns
-    -------
-    cols : list
-        Lists of column names available in the tables.
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    The converted series</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float32&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int32&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
 
-    """
-    columns = set(columns)
-    foundcols = toolz.reduce(lambda x, y: x.union(y), (set(t.columns) for t in tables))
-    return list(columns.intersection(foundcols))</div>
-</pre>
+</div>
+<span class="k">def</span> <span class="nf">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="pandasdfsummarytojson"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.pandasdfsummarytojson">[docs]</a><span class="k">def</span> <span class="nf">pandasdfsummarytojson</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert the result of a</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : The result of a Pandas describe operation.</span>
+<span class="sd">    ndigits : int, optional - The number of significant digits to round to.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    A json object which captures the describe.  Keys are field names and</span>
+<span class="sd">    values are dictionaries with all of the indexes returned by the Pandas</span>
+<span class="sd">    describe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()}</span>
+
+</div>
+<div class="viewcode-block" id="column_map"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.column_map">[docs]</a><span class="k">def</span> <span class="nf">column_map</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take a list of tables and a list of column names and resolve which</span>
+<span class="sd">    columns come from which table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tables : sequence of _DataFrameWrapper or _TableFuncWrapper</span>
+<span class="sd">        Could also be sequence of modified pandas.DataFrames, the important</span>
+<span class="sd">        thing is that they have ``.name`` and ``.columns`` attributes.</span>
+<span class="sd">    columns : sequence of str</span>
+<span class="sd">        The column names of interest.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    col_map : dict</span>
+<span class="sd">        Maps table names to lists of column names.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">None</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">colmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">}</span>
+    <span class="n">foundcols</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">colmap</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="n">foundcols</span> <span class="o">!=</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&#39;Not all required columns were found. &#39;</span>
+                           <span class="s">&#39;Missing: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">columns</span> <span class="o">-</span> <span class="n">foundcols</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">colmap</span>
+
+</div>
+<div class="viewcode-block" id="column_list"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.column_list">[docs]</a><span class="k">def</span> <span class="nf">column_list</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take a list of tables and a list of column names and return the columns</span>
+<span class="sd">    that are present in the tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tables : sequence of _DataFrameWrapper or _TableFuncWrapper</span>
+<span class="sd">        Could also be sequence of modified pandas.DataFrames, the important</span>
+<span class="sd">        thing is that they have ``.name`` and ``.columns`` attributes.</span>
+<span class="sd">    columns : sequence of str</span>
+<span class="sd">        The column names of interest.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cols : list</span>
+<span class="sd">        Lists of column names available in the tables.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">foundcols</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">foundcols</span><span class="p">))</span></div>
+</pre></div>
 
           </div>
           <footer>
