@@ -1,3 +1,8 @@
+"""
+Test data and results for this are generated
+by the R script at data/mnl_tests.R.
+
+"""
 from __future__ import division
 
 import os.path

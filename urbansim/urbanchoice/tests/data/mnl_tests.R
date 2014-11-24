@@ -1,3 +1,5 @@
+# This generates tests data and results for testing UrbanSim's MNL machinery
+
 library('mlogit')
 
 data("Fishing", package = "mlogit")
