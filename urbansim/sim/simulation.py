@@ -165,17 +165,13 @@ class DataFrameWrapper(object):
             local_cols = [c for c in self._frame.columns
                           if c in columns and c not in extra_cols]
             extra_cols = toolz.keyfilter(lambda c: c in columns, extra_cols)
-            # Slicing always returns a copy, so a copy will be created
-            # even if copy is False.
             df = self._frame[local_cols]
-            if self.copy:
-                # Prevent warnings when assigning to a desired copy.
-                df.is_copy = None
         else:
-            if self.copy:
-                df = self._frame.copy()
-            else:
-                df = self._frame
+            df = self._frame
+
+        if self.copy:
+            # Explicitly copy, even if the slice is already a copy.
+            df = df.copy()
 
         with log_start_finish(
                 'computing {!r} columns for table {!r}'.format(
