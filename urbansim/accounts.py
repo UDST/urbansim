@@ -146,7 +146,7 @@ class Account(object):
                 (t.amount, t.subaccount),
                 (t.metadata.get(c) for c in col_names)))
         rows = [trow(t) for t in self.transactions]
-        
+
         if len(rows) == 0:
             return pd.DataFrame(columns=COLS + col_names)
 
