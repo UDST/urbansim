@@ -246,16 +246,21 @@
 <span class="sd">    name : str</span>
 <span class="sd">        Name for the table.</span>
 <span class="sd">    frame : pandas.DataFrame</span>
+<span class="sd">    copy_col : bool, optional</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
 <span class="sd">        Table name.</span>
+<span class="sd">    copy_col : bool</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="n">frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span> <span class="o">=</span> <span class="n">copy_col</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="DataFrameWrapper.columns"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.columns">[docs]</a>    <span class="k">def</span> <span class="nf">columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -284,6 +289,8 @@
 <div class="viewcode-block" id="DataFrameWrapper.to_frame"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame">[docs]</a>    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a DataFrame with the given columns.</span>
+
+<span class="sd">        Will always return a copy of the underlying table.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -355,7 +362,19 @@
                 <span class="s">&#39;getting single column {!r} from table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
                 <span class="n">logger</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">])[</span><span class="n">column_name</span><span class="p">]</span>
+            <span class="n">extra_cols</span> <span class="o">=</span> <span class="n">_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">extra_cols</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
+                        <span class="s">&#39;computing column {!r} for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+                        <span class="n">logger</span><span class="p">):</span>
+                    <span class="n">column</span> <span class="o">=</span> <span class="n">extra_cols</span><span class="p">[</span><span class="n">column_name</span><span class="p">]()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">column</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">column</span>
 </div>
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
@@ -403,20 +422,25 @@
 <span class="sd">        Callable that returns a DataFrame.</span>
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the results of calling the wrapped function.</span>
+<span class="sd">    copy_col : bool, optional</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    Attributes</span>
-<span class="sd">    __________</span>
+<span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
 <span class="sd">        Table name.</span>
 <span class="sd">    cache : bool</span>
 <span class="sd">        Whether caching is enabled for this table.</span>
+<span class="sd">    copy_col : bool</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span> <span class="o">=</span> <span class="n">copy_col</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="mi">0</span>
@@ -482,6 +506,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a DataFrame with the given columns.</span>
 
+<span class="sd">        Will always return a copy of the underlying table.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        columns : sequence, optional</span>
@@ -494,7 +520,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span>
+                                <span class="n">copy_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TableFuncWrapper.get_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.get_column">[docs]</a>    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -509,11 +536,9 @@
 <span class="sd">        column : pandas.Series</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
-                <span class="s">&#39;getting single column {!r} from table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
-                <span class="n">logger</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column_name</span><span class="p">])[</span><span class="n">column_name</span><span class="p">]</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span>
+                                <span class="n">copy_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">)</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
@@ -547,11 +572,15 @@
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
 <span class="sd">    func : callable</span>
+<span class="sd">    copy_col : bool, optional</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
 <span class="sd">        Table name.</span>
+<span class="sd">    copy_col : bool</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -561,13 +590,15 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a DataFrame with the given columns. The first time this</span>
 <span class="sd">        is called the registered table will be replaced with the DataFrame</span>
 <span class="sd">        returned by the wrapped function.</span>
+
+<span class="sd">        Will always return a copy of the underlying table.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -925,7 +956,7 @@
     <span class="k">return</span> <span class="n">variables</span>
 
 
-<div class="viewcode-block" id="add_table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table">[docs]</a><span class="k">def</span> <span class="nf">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="add_table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table">[docs]</a><span class="k">def</span> <span class="nf">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Register a table with the simulation.</span>
 
@@ -941,18 +972,19 @@
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the results of a provided callable. Does not</span>
 <span class="sd">        apply if `table` is a DataFrame.</span>
+<span class="sd">    copy_col : bool, optional</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    wrapped : `DataFrameWrapper` or `TableFuncWrapper`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">TableFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">TableFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span>
+                                 <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;table must be DataFrame or function.&#39;</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
 
     <span class="c"># clear any cached data from a previously registered table</span>
     <span class="n">table</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
@@ -963,7 +995,7 @@
     <span class="k">return</span> <span class="n">table</span>
 
 </div>
-<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorates functions that return DataFrames.</span>
 
@@ -980,12 +1012,12 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">table_name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">add_table</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">add_table</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
 </div>
-<div class="viewcode-block" id="add_table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table_source">[docs]</a><span class="k">def</span> <span class="nf">add_table_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+<div class="viewcode-block" id="add_table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table_source">[docs]</a><span class="k">def</span> <span class="nf">add_table_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a DataFrame source function to the simulation.</span>
 
@@ -999,19 +1031,21 @@
 <span class="sd">        The function&#39;s argument names and keyword argument values</span>
 <span class="sd">        will be matched to registered variables when the function</span>
 <span class="sd">        needs to be evaluated by the simulation framework.</span>
+<span class="sd">    copy_col : bool, optional</span>
+<span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    wrapped : `_TableSourceWrapper`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_TableSourceWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_TableSourceWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering table source {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
     <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapped</span>
     <span class="k">return</span> <span class="n">wrapped</span>
 
 </div>
-<div class="viewcode-block" id="table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table_source">[docs]</a><span class="k">def</span> <span class="nf">table_source</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table_source">[docs]</a><span class="k">def</span> <span class="nf">table_source</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorates functions that return DataFrames.</span>
 
@@ -1029,7 +1063,7 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">table_name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">add_table_source</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+        <span class="n">add_table_source</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
@@ -1080,13 +1114,11 @@
 <span class="sd">        apply if `column` is a Series.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">_SeriesWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="n">column</span> <span class="o">=</span> \
             <span class="n">_ColumnFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Only Series or callable allowed for column.&#39;</span><span class="p">)</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">_SeriesWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
 
     <span class="c"># clear any cached data from a previously registered column</span>
     <span class="n">column</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
@@ -1391,7 +1423,7 @@
 <span class="sd">    Returns True for dicts like {&#39;a&#39;: {}}.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">merge_node</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
 
 
 <span class="k">def</span> <span class="nf">_next_merge</span><span class="p">(</span><span class="n">merge_node</span><span class="p">):</span>

@@ -720,16 +720,16 @@ like to specifically document that in the function&#8217;s arguments.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-obj docutils literal"><span class="pre">add_table</span></tt></a>(table_name,&nbsp;table[,&nbsp;cache])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table" title="urbansim.sim.simulation.add_table"><tt class="xref py py-obj docutils literal"><span class="pre">add_table</span></tt></a>(table_name,&nbsp;table[,&nbsp;cache,&nbsp;copy_col])</td>
 <td>Register a table with the simulation.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table" title="urbansim.sim.simulation.table"><tt class="xref py py-obj docutils literal"><span class="pre">table</span></tt></a>([table_name,&nbsp;cache])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table" title="urbansim.sim.simulation.table"><tt class="xref py py-obj docutils literal"><span class="pre">table</span></tt></a>([table_name,&nbsp;cache,&nbsp;copy_col])</td>
 <td>Decorates functions that return DataFrames.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table_source" title="urbansim.sim.simulation.add_table_source"><tt class="xref py py-obj docutils literal"><span class="pre">add_table_source</span></tt></a>(table_name,&nbsp;func)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_table_source" title="urbansim.sim.simulation.add_table_source"><tt class="xref py py-obj docutils literal"><span class="pre">add_table_source</span></tt></a>(table_name,&nbsp;func[,&nbsp;copy_col])</td>
 <td>Add a DataFrame source function to the simulation.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table_source" title="urbansim.sim.simulation.table_source"><tt class="xref py py-obj docutils literal"><span class="pre">table_source</span></tt></a>([table_name])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.table_source" title="urbansim.sim.simulation.table_source"><tt class="xref py py-obj docutils literal"><span class="pre">table_source</span></tt></a>([table_name,&nbsp;copy_col])</td>
 <td>Decorates functions that return DataFrames.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.get_table" title="urbansim.sim.simulation.get_table"><tt class="xref py py-obj docutils literal"><span class="pre">get_table</span></tt></a>(table_name)</td>
@@ -738,10 +738,10 @@ like to specifically document that in the function&#8217;s arguments.</p>
 <tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.list_tables" title="urbansim.sim.simulation.list_tables"><tt class="xref py py-obj docutils literal"><span class="pre">list_tables</span></tt></a>()</td>
 <td>List of table names.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>(name,&nbsp;frame)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.DataFrameWrapper" title="urbansim.sim.simulation.DataFrameWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">DataFrameWrapper</span></tt></a>(name,&nbsp;frame[,&nbsp;copy_col])</td>
 <td>Wraps a DataFrame so it can provide certain columns and handle computed columns.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.TableFuncWrapper" title="urbansim.sim.simulation.TableFuncWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">TableFuncWrapper</span></tt></a>(name,&nbsp;func[,&nbsp;cache])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.TableFuncWrapper" title="urbansim.sim.simulation.TableFuncWrapper"><tt class="xref py py-obj docutils literal"><span class="pre">TableFuncWrapper</span></tt></a>(name,&nbsp;func[,&nbsp;cache,&nbsp;copy_col])</td>
 <td>Wrap a function that provides a DataFrame.</td>
 </tr>
 </tbody>
@@ -863,7 +863,7 @@ like to specifically document that in the function&#8217;s arguments.</p>
 <span id="api-docs"></span><h3>API Docs<a class="headerlink" href="#module-urbansim.sim.simulation" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="urbansim.sim.simulation.DataFrameWrapper">
-<em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">DataFrameWrapper</tt><big>(</big><em>name</em>, <em>frame</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">DataFrameWrapper</tt><big>(</big><em>name</em>, <em>frame</em>, <em>copy_col=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps a DataFrame so it can provide certain columns and handle
 computed columns.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -874,7 +874,11 @@ computed columns.</p>
 <blockquote>
 <div><p>Name for the table.</p>
 </div></blockquote>
-<p class="last"><strong>frame</strong> : pandas.DataFrame</p>
+<p><strong>frame</strong> : pandas.DataFrame</p>
+<p><strong>copy_col</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Whether to return copies when evaluating columns.</p>
+</div></blockquote>
 </td>
 </tr>
 </tbody>
@@ -882,12 +886,15 @@ computed columns.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="19%" />
-<col width="81%" />
+<col width="13%" />
+<col width="88%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td>name</td>
 <td>(str) Table name.</td>
+</tr>
+<tr class="row-even"><td>copy_col</td>
+<td>(bool) Whether to return copies when evaluating columns.</td>
 </tr>
 </tbody>
 </table>
@@ -935,6 +942,7 @@ computed columns.</p>
 <dt id="urbansim.sim.simulation.DataFrameWrapper.to_frame">
 <tt class="descname">to_frame</tt><big>(</big><em>columns=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#DataFrameWrapper.to_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.DataFrameWrapper.to_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a DataFrame with the given columns.</p>
+<p>Will always return a copy of the underlying table.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -996,7 +1004,7 @@ Index values must match in both column and series.</p>
 
 <dl class="class">
 <dt id="urbansim.sim.simulation.TableFuncWrapper">
-<em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">TableFuncWrapper</tt><big>(</big><em>name</em>, <em>func</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">TableFuncWrapper</tt><big>(</big><em>name</em>, <em>func</em>, <em>cache=False</em>, <em>copy_col=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrap a function that provides a DataFrame.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1014,17 +1022,29 @@ Index values must match in both column and series.</p>
 <blockquote>
 <div><p>Whether to cache the results of calling the wrapped function.</p>
 </div></blockquote>
-<p><strong>Attributes</strong></p>
-<p><strong>__________</strong></p>
-<p><strong>name</strong> : str</p>
-<blockquote>
-<div><p>Table name.</p>
-</div></blockquote>
-<p><strong>cache</strong> : bool</p>
+<p><strong>copy_col</strong> : bool, optional</p>
 <blockquote class="last">
-<div><p>Whether caching is enabled for this table.</p>
+<div><p>Whether to return copies when evaluating columns.</p>
 </div></blockquote>
 </td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="88%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>name</td>
+<td>(str) Table name.</td>
+</tr>
+<tr class="row-even"><td>cache</td>
+<td>(bool) Whether caching is enabled for this table.</td>
+</tr>
+<tr class="row-odd"><td>copy_col</td>
+<td>(bool) Whether to return copies when evaluating columns.</td>
 </tr>
 </tbody>
 </table>
@@ -1075,6 +1095,7 @@ wrapped function. (No registered columns included.)</p>
 <dt id="urbansim.sim.simulation.TableFuncWrapper.to_frame">
 <tt class="descname">to_frame</tt><big>(</big><em>columns=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#TableFuncWrapper.to_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.TableFuncWrapper.to_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a DataFrame with the given columns.</p>
+<p>Will always return a copy of the underlying table.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1189,7 +1210,7 @@ simulation year injected.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.add_table">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table</tt><big>(</big><em>table_name</em>, <em>table</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table</tt><big>(</big><em>table_name</em>, <em>table</em>, <em>cache=False</em>, <em>copy_col=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a table with the simulation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1211,6 +1232,10 @@ needs to be evaluated by the simulation framework.</p>
 <div><p>Whether to cache the results of a provided callable. Does not
 apply if <cite>table</cite> is a DataFrame.</p>
 </div></blockquote>
+<p><strong>copy_col</strong> : bool, optional</p>
+<blockquote>
+<div><p>Whether to return copies when evaluating columns.</p>
+</div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>wrapped</strong> : <cite>DataFrameWrapper</cite> or <cite>TableFuncWrapper</cite></p>
@@ -1222,7 +1247,7 @@ apply if <cite>table</cite> is a DataFrame.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.add_table_source">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table_source</tt><big>(</big><em>table_name</em>, <em>func</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table_source" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_table_source</tt><big>(</big><em>table_name</em>, <em>func</em>, <em>copy_col=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_table_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_table_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a DataFrame source function to the simulation.</p>
 <p>This function is evaluated only once, after which the returned
 DataFrame replaces <cite>func</cite> as the injected table.</p>
@@ -1236,6 +1261,10 @@ DataFrame replaces <cite>func</cite> as the injected table.</p>
 <div><p>The function&#8217;s argument names and keyword argument values
 will be matched to registered variables when the function
 needs to be evaluated by the simulation framework.</p>
+</div></blockquote>
+<p><strong>copy_col</strong> : bool, optional</p>
+<blockquote>
+<div><p>Whether to return copies when evaluating columns.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -1584,7 +1613,7 @@ year. The first and last years are always included.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.table">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table</tt><big>(</big><em>table_name=None</em>, <em>cache=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table</tt><big>(</big><em>table_name=None</em>, <em>cache=False</em>, <em>copy_col=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorates functions that return DataFrames.</p>
 <p>Decorator version of <cite>add_table</cite>. Table name defaults to
 name of function.</p>
@@ -1595,7 +1624,7 @@ needs to be evaluated by the simulation framework.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.table_source">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table_source</tt><big>(</big><em>table_name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table_source" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">table_source</tt><big>(</big><em>table_name=None</em>, <em>copy_col=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#table_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.table_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorates functions that return DataFrames.</p>
 <p>Decorator version of <cite>add_table_source</cite>. Function will be
 evaluated only once and the DataFrame will replace it. Table name
