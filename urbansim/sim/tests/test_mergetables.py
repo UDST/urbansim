@@ -84,7 +84,8 @@ def test_recursive_getitem():
 
 
 def test_dict_value_to_pairs():
-    assert list(sim._dict_value_to_pairs({'c': {'a': 1, 'b': 2}})) == \
+    assert sorted(sim._dict_value_to_pairs({'c': {'a': 1, 'b': 2}}),
+                  key=lambda d: next(iter(d))) == \
         [{'a': 1}, {'b': 2}]
 
 

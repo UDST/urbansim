@@ -104,16 +104,21 @@ class DataFrameWrapper(object):
     name : str
         Name for the table.
     frame : pandas.DataFrame
+    copy_col : bool, optional
+        Whether to return copies when evaluating columns.
 
     Attributes
     ----------
     name : str
         Table name.
+    copy_col : bool
+        Whether to return copies when evaluating columns.
 
     """
-    def __init__(self, name, frame):
+    def __init__(self, name, frame, copy_col=True):
         self.name = name
         self._frame = frame
+        self.copy_col = copy_col
 
     @property
     def columns(self):
@@ -142,6 +147,8 @@ class DataFrameWrapper(object):
     def to_frame(self, columns=None):
         """
         Make a DataFrame with the given columns.
+
+        Will always return a copy of the underlying table.
 
         Parameters
         ----------
@@ -213,7 +220,19 @@ class DataFrameWrapper(object):
                 'getting single column {!r} from table {!r}'.format(
                     column_name, self.name),
                 logger):
-            return self.to_frame(columns=[column_name])[column_name]
+            extra_cols = _columns_for_table(self.name)
+            if column_name in extra_cols:
+                with log_start_finish(
+                        'computing column {!r} for table {!r}'.format(
+                            column_name, self.name),
+                        logger):
+                    column = extra_cols[column_name]()
+            else:
+                column = self._frame[column_name]
+            if self.copy_col:
+                return column.copy()
+            else:
+                return column
 
     def __getitem__(self, key):
         return self.get_column(key)
@@ -261,20 +280,25 @@ class TableFuncWrapper(object):
         Callable that returns a DataFrame.
     cache : bool, optional
         Whether to cache the results of calling the wrapped function.
+    copy_col : bool, optional
+        Whether to return copies when evaluating columns.
 
     Attributes
-    __________
+    ----------
     name : str
         Table name.
     cache : bool
         Whether caching is enabled for this table.
+    copy_col : bool
+        Whether to return copies when evaluating columns.
 
     """
-    def __init__(self, name, func, cache=False):
+    def __init__(self, name, func, cache=False, copy_col=True):
         self.name = name
         self._func = func
         self._argspec = inspect.getargspec(func)
         self.cache = cache
+        self.copy_col = copy_col
         self._columns = []
         self._index = None
         self._len = 0
@@ -340,6 +364,8 @@ class TableFuncWrapper(object):
         """
         Make a DataFrame with the given columns.
 
+        Will always return a copy of the underlying table.
+
         Parameters
         ----------
         columns : sequence, optional
@@ -352,7 +378,8 @@ class TableFuncWrapper(object):
 
         """
         frame = self._call_func()
-        return DataFrameWrapper(self.name, frame).to_frame(columns)
+        return DataFrameWrapper(self.name, frame,
+                                copy_col=self.copy_col).to_frame(columns)
 
     def get_column(self, column_name):
         """
@@ -367,11 +394,9 @@ class TableFuncWrapper(object):
         column : pandas.Series
 
         """
-        with log_start_finish(
-                'getting single column {!r} from table {!r}'.format(
-                    column_name, self.name),
-                logger):
-            return self.to_frame(columns=[column_name])[column_name]
+        frame = self._call_func()
+        return DataFrameWrapper(self.name, frame,
+                                copy_col=self.copy_col).get_column(column_name)
 
     def __getitem__(self, key):
         return self.get_column(key)
@@ -405,11 +430,15 @@ class _TableSourceWrapper(TableFuncWrapper):
     ----------
     name : str
     func : callable
+    copy_col : bool, optional
+        Whether to return copies when evaluating columns.
 
     Attributes
     ----------
     name : str
         Table name.
+    copy_col : bool
+        Whether to return copies when evaluating columns.
 
     """
     def convert(self):
@@ -419,13 +448,15 @@ class _TableSourceWrapper(TableFuncWrapper):
 
         """
         frame = self._call_func()
-        return add_table(self.name, frame)
+        return add_table(self.name, frame, copy_col=self.copy_col)
 
     def to_frame(self, columns=None):
         """
         Make a DataFrame with the given columns. The first time this
         is called the registered table will be replaced with the DataFrame
         returned by the wrapped function.
+
+        Will always return a copy of the underlying table.
 
         Parameters
         ----------
@@ -783,7 +814,7 @@ def _collect_variables(names, expressions=None):
     return variables
 
 
-def add_table(table_name, table, cache=False):
+def add_table(table_name, table, cache=False, copy_col=True):
     """
     Register a table with the simulation.
 
@@ -799,18 +830,19 @@ def add_table(table_name, table, cache=False):
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
+    copy_col : bool, optional
+        Whether to return copies when evaluating columns.
 
     Returns
     -------
     wrapped : `DataFrameWrapper` or `TableFuncWrapper`
 
     """
-    if isinstance(table, pd.DataFrame):
-        table = DataFrameWrapper(table_name, table)
-    elif isinstance(table, Callable):
-        table = TableFuncWrapper(table_name, table, cache)
+    if isinstance(table, Callable):
+        table = TableFuncWrapper(table_name, table, cache=cache,
+                                 copy_col=copy_col)
     else:
-        raise TypeError('table must be DataFrame or function.')
+        table = DataFrameWrapper(table_name, table, copy_col=copy_col)
 
     # clear any cached data from a previously registered table
     table.clear_cached()
@@ -821,7 +853,7 @@ def add_table(table_name, table, cache=False):
     return table
 
 
-def table(table_name=None, cache=False):
+def table(table_name=None, cache=False, copy_col=True):
     """
     Decorates functions that return DataFrames.
 
@@ -838,12 +870,12 @@ def table(table_name=None, cache=False):
             name = table_name
         else:
             name = func.__name__
-        add_table(name, func, cache=cache)
+        add_table(name, func, cache=cache, copy_col=copy_col)
         return func
     return decorator
 
 
-def add_table_source(table_name, func):
+def add_table_source(table_name, func, copy_col=True):
     """
     Add a DataFrame source function to the simulation.
 
@@ -857,19 +889,21 @@ def add_table_source(table_name, func):
         The function's argument names and keyword argument values
         will be matched to registered variables when the function
         needs to be evaluated by the simulation framework.
+    copy_col : bool, optional
+        Whether to return copies when evaluating columns.
 
     Returns
     -------
     wrapped : `_TableSourceWrapper`
 
     """
-    wrapped = _TableSourceWrapper(table_name, func)
+    wrapped = _TableSourceWrapper(table_name, func, copy_col=copy_col)
     logger.debug('registering table source {}'.format(table_name))
     _TABLES[table_name] = wrapped
     return wrapped
 
 
-def table_source(table_name=None):
+def table_source(table_name=None, copy_col=True):
     """
     Decorates functions that return DataFrames.
 
@@ -887,7 +921,7 @@ def table_source(table_name=None):
             name = table_name
         else:
             name = func.__name__
-        add_table_source(name, func)
+        add_table_source(name, func, copy_col=copy_col)
         return func
     return decorator
 
@@ -938,13 +972,11 @@ def add_column(table_name, column_name, column, cache=False):
         apply if `column` is a Series.
 
     """
-    if isinstance(column, pd.Series):
-        column = _SeriesWrapper(table_name, column_name, column)
-    elif isinstance(column, Callable):
+    if isinstance(column, Callable):
         column = \
             _ColumnFuncWrapper(table_name, column_name, column, cache=cache)
     else:
-        raise TypeError('Only Series or callable allowed for column.')
+        column = _SeriesWrapper(table_name, column_name, column)
 
     # clear any cached data from a previously registered column
     column.clear_cached()
@@ -1249,7 +1281,7 @@ def _is_leaf_node(merge_node):
     Returns True for dicts like {'a': {}}.
 
     """
-    return len(merge_node) == 1 and not merge_node.values()[0]
+    return len(merge_node) == 1 and not next(iter(merge_node.values()))
 
 
 def _next_merge(merge_node):
