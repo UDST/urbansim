@@ -115,20 +115,12 @@ def test_table_copy(df):
     def test_funcd_uncopied():
         return df
 
-    @sim.table(copy_col=False)
-    def test_funcd_copied2(test_frame_copied):
-        return test_frame_copied.to_frame()
-
     @sim.table(copy_col=True)
     def test_funcd_copied3(test_frame_copied):
         return test_frame_copied.to_frame()
 
     @sim.table(copy_col=True)
     def test_funcd_copied4(test_frame_uncopied):
-        return test_frame_uncopied.to_frame()
-
-    @sim.table(copy_col=False)
-    def test_funcd_copied5(test_frame_uncopied):
         return test_frame_uncopied.to_frame()
 
     sim.add_table('test_source_copied', lambda: df, cache=True, copy_col=True)
@@ -168,9 +160,9 @@ def test_table_copy(df):
                  'test_funcd_uncopied', 'test_source_uncopied',
                  'test_sourced_uncopied', 'test_uncopied_columns',
                  'test_frame_copied', 'test_func_copied',
-                 'test_funcd_copied', 'test_funcd_copied2',
+                 'test_funcd_copied',
                  'test_funcd_copied3', 'test_funcd_copied4',
-                 'test_funcd_copied5', 'test_source_copied',
+                 'test_source_copied',
                  'test_sourced_copied', 'test_copied_columns']:
         table = sim.get_table(name)
 
