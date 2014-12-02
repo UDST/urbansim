@@ -1,5 +1,5 @@
 """
-Use the ``MNLLocationChoiceModel`` class to train a choice module using
+Use the ``MNLDiscreteChoiceModel`` class to train a choice module using
 multinomial logit and make subsequent choice predictions.
 
 """
@@ -86,8 +86,8 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
 
 
 # define the minimum interface a class must have in order to
-# look like we expect LCMs to look
-class LocationChoiceModel(object):
+# look like we expect DCMs to look
+class DiscreteChoiceModel(object):
     """
     Abstract base class for location choice models.
 
@@ -146,7 +146,7 @@ class LocationChoiceModel(object):
         pass
 
 
-class MNLLocationChoiceModel(LocationChoiceModel):
+class MNLDiscreteChoiceModel(DiscreteChoiceModel):
     """
     A location choice model with the ability to store an estimated
     model and predict new data based on the model.
@@ -197,7 +197,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
         self.interaction_predict_filters = interaction_predict_filters
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
-        self.name = name if name is not None else 'MNLLocationChoiceModel'
+        self.name = name if name is not None else 'MNLDiscreteChoiceModel'
         self.sim_pdf = None
 
         self.log_likelihoods = None
@@ -206,7 +206,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
         """
-        Create a LocationChoiceModel instance from a saved YAML configuration.
+        Create a DiscreteChoiceModel instance from a saved YAML configuration.
         Arguments are mutally exclusive.
 
         Parameters
@@ -218,7 +218,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
 
         Returns
         -------
-        MNLLocationChoiceModel
+        MNLDiscreteChoiceModel
 
         """
         cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
@@ -271,7 +271,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
         filtered_choosers, filtered_alts : pandas.DataFrame
 
         """
-        return super(MNLLocationChoiceModel, self).apply_fit_filters(
+        return super(MNLDiscreteChoiceModel, self).apply_fit_filters(
             choosers, alternatives)
 
     def apply_predict_filters(self, choosers, alternatives):
@@ -291,7 +291,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
         filtered_choosers, filtered_alts : pandas.DataFrame
 
         """
-        return super(MNLLocationChoiceModel, self).apply_predict_filters(
+        return super(MNLDiscreteChoiceModel, self).apply_predict_filters(
             choosers, alternatives)
 
     def fit(self, choosers, alternatives, current_choice):
@@ -545,7 +545,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
 
     def to_dict(self):
         """
-        Return a dict respresentation of an MNLLocationChoiceModel
+        Return a dict respresentation of an MNLDiscreteChoiceModel
         instance.
 
         """
@@ -649,7 +649,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
 
         Returns
         -------
-        lcm : MNLLocationChoiceModel which was used to fit
+        lcm : MNLDiscreteChoiceModel which was used to fit
         """
         logger.debug('start: fit from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
@@ -688,7 +688,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
             Mapping of chooser ID to alternative ID. Some choosers
             will map to a nan value when there are not enough alternatives
             for all the choosers.
-        lcm : MNLLocationChoiceModel which was used to predict
+        lcm : MNLDiscreteChoiceModel which was used to predict
         """
         logger.debug('start: predict from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
@@ -711,7 +711,7 @@ class MNLLocationChoiceModel(LocationChoiceModel):
         return new_units, lcm
 
 
-class MNLLocationChoiceModelGroup(LocationChoiceModel):
+class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
     """
     Manages a group of location choice models that refer to different
     segments of choosers.
@@ -727,16 +727,16 @@ class MNLLocationChoiceModelGroup(LocationChoiceModel):
     """
     def __init__(self, segmentation_col, name=None):
         self.segmentation_col = segmentation_col
-        self.name = name if name is not None else 'MNLLocationChoiceModelGroup'
+        self.name = name if name is not None else 'MNLDiscreteChoiceModelGroup'
         self.models = {}
 
     def add_model(self, model):
         """
-        Add an MNLLocationChoiceModel instance.
+        Add an MNLDiscreteChoiceModel instance.
 
         Parameters
         ----------
-        model : MNLLocationChoiceModel
+        model : MNLDiscreteChoiceModel
             Should have a ``.name`` attribute matching one of the segments
             in the choosers table.
 
@@ -752,7 +752,7 @@ class MNLLocationChoiceModelGroup(LocationChoiceModel):
             interaction_predict_filters=None, estimation_sample_size=None,
             choice_column=None):
         """
-        Add a model by passing parameters through to MNLLocationChoiceModel.
+        Add a model by passing parameters through to MNLDiscreteChoiceModel.
 
         Parameters
         ----------
@@ -784,7 +784,7 @@ class MNLLocationChoiceModelGroup(LocationChoiceModel):
 
         """
         logger.debug('adding model {} to LCM group {}'.format(name, self.name))
-        self.models[name] = MNLLocationChoiceModel(
+        self.models[name] = MNLDiscreteChoiceModel(
             model_expression, sample_size,
             choosers_fit_filters, choosers_predict_filters,
             alts_fit_filters, alts_predict_filters,
@@ -900,7 +900,7 @@ class MNLLocationChoiceModelGroup(LocationChoiceModel):
         -------
         log_likelihoods : dict of dict
             Keys will be model names and values will be dictionaries of
-            log-liklihood values as returned by MNLLocationChoiceModel.fit.
+            log-liklihood values as returned by MNLDiscreteChoiceModel.fit.
 
         """
         with log_start_finish(
@@ -1064,7 +1064,7 @@ class MNLLocationChoiceModelGroup(LocationChoiceModel):
             m.columns_used() for m in self.models.values())))
 
 
-class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
+class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
     """
     An MNL LCM group that allows segments to have different model expressions
     but otherwise share configurations.
@@ -1116,14 +1116,14 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
-        self._group = MNLLocationChoiceModelGroup(segmentation_col)
+        self._group = MNLDiscreteChoiceModelGroup(segmentation_col)
         self.name = (name if name is not None else
-                     'SegmentedMNLLocationChoiceModel')
+                     'SegmentedMNLDiscreteChoiceModel')
 
     @classmethod
     def from_yaml(cls, yaml_str=None, str_or_buffer=None):
         """
-        Create a SegmentedMNLLocationChoiceModel instance from a saved YAML
+        Create a SegmentedMNLDiscreteChoiceModel instance from a saved YAML
         configuration. Arguments are mutally exclusive.
 
         Parameters
@@ -1135,7 +1135,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
 
         Returns
         -------
-        SegmentedMNLLocationChoiceModel
+        SegmentedMNLDiscreteChoiceModel
 
         """
         cfg = yamlio.yaml_to_dict(yaml_str, str_or_buffer)
@@ -1171,7 +1171,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
             m['estimation_sample_size'] = cfg['estimation_sample_size']
             m['choice_column'] = cfg['choice_column']
 
-            model = MNLLocationChoiceModel.from_yaml(
+            model = MNLDiscreteChoiceModel.from_yaml(
                 yamlio.convert_to_yaml(m, None))
             seg._group.add_model(model)
 
@@ -1234,7 +1234,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
         filtered_choosers, filtered_alts : pandas.DataFrame
 
         """
-        return super(SegmentedMNLLocationChoiceModel, self).apply_fit_filters(
+        return super(SegmentedMNLDiscreteChoiceModel, self).apply_fit_filters(
             choosers, alternatives)
 
     def apply_predict_filters(self, choosers, alternatives):
@@ -1255,7 +1255,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
 
         """
         return super(
-            SegmentedMNLLocationChoiceModel, self
+            SegmentedMNLDiscreteChoiceModel, self
             ).apply_predict_filters(choosers, alternatives)
 
     def fit(self, choosers, alternatives, current_choice):
@@ -1281,7 +1281,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
         -------
         log_likelihoods : dict of dict
             Keys will be model names and values will be dictionaries of
-            log-liklihood values as returned by MNLLocationChoiceModel.fit.
+            log-liklihood values as returned by MNLDiscreteChoiceModel.fit.
 
         """
         logger.debug('start: fit models in segmented LCM {}'.format(self.name))
@@ -1568,7 +1568,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
 
         Returns
         -------
-        lcm : SegmentedMNLLocationChoiceModel which was used to fit
+        lcm : SegmentedMNLDiscreteChoiceModel which was used to fit
         """
         logger.debug('start: fit from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
@@ -1607,7 +1607,7 @@ class SegmentedMNLLocationChoiceModel(LocationChoiceModel):
             Mapping of chooser ID to alternative ID. Some choosers
             will map to a nan value when there are not enough alternatives
             for all the choosers.
-        lcm : SegmentedMNLLocationChoiceModel which was used to predict
+        lcm : SegmentedMNLDiscreteChoiceModel which was used to predict
         """
         logger.debug('start: predict from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)

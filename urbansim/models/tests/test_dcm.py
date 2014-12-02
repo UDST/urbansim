@@ -8,7 +8,7 @@ from pandas.util import testing as pdt
 
 from ...utils import testing
 
-from .. import lcm
+from .. import dcm
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def alternatives():
 
 def test_unit_choice_uniform(choosers, alternatives):
     probabilities = [1] * len(alternatives)
-    choices = lcm.unit_choice(
+    choices = dcm.unit_choice(
         choosers.index, alternatives.index, probabilities)
     npt.assert_array_equal(choices.index, choosers.index)
     assert choices.isin(alternatives.index).all()
@@ -42,7 +42,7 @@ def test_unit_choice_uniform(choosers, alternatives):
 
 def test_unit_choice_some_zero(choosers, alternatives):
     probabilities = [0, 1, 0, 1, 1, 0, 1, 0, 0, 1]
-    choices = lcm.unit_choice(
+    choices = dcm.unit_choice(
         choosers.index, alternatives.index, probabilities)
     npt.assert_array_equal(choices.index, choosers.index)
     npt.assert_array_equal(sorted(choices.values), ['b', 'd', 'e', 'g', 'j'])
@@ -50,7 +50,7 @@ def test_unit_choice_some_zero(choosers, alternatives):
 
 def test_unit_choice_not_enough(choosers, alternatives):
     probabilities = [0, 0, 0, 0, 0, 1, 0, 1, 0, 0]
-    choices = lcm.unit_choice(
+    choices = dcm.unit_choice(
         choosers.index, alternatives.index, probabilities)
     npt.assert_array_equal(choices.index, choosers.index)
     assert choices.isnull().sum() == 3
@@ -59,13 +59,13 @@ def test_unit_choice_not_enough(choosers, alternatives):
 
 def test_unit_choice_none_available(choosers, alternatives):
     probabilities = [0] * len(alternatives)
-    choices = lcm.unit_choice(
+    choices = dcm.unit_choice(
         choosers.index, alternatives.index, probabilities)
     npt.assert_array_equal(choices.index, choosers.index)
     assert choices.isnull().all()
 
 
-def test_mnl_lcm(choosers, alternatives):
+def test_mnl_dcm(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
     choosers_fit_filters = ['var1 != 5']
@@ -77,7 +77,7 @@ def test_mnl_lcm(choosers, alternatives):
     choice_column = None
     name = 'Test LCM'
 
-    model = lcm.MNLLocationChoiceModel(
+    model = dcm.MNLDiscreteChoiceModel(
         model_exp, sample_size,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
@@ -115,13 +115,13 @@ def test_mnl_lcm(choosers, alternatives):
 
     # check that we can do a YAML round-trip
     yaml_str = model.to_yaml()
-    new_model = lcm.MNLLocationChoiceModel.from_yaml(yaml_str)
+    new_model = dcm.MNLDiscreteChoiceModel.from_yaml(yaml_str)
 
     assert new_model.fitted
     testing.assert_frames_equal(model.fit_parameters, new_model.fit_parameters)
 
 
-def test_mnl_lcm_repeated_alts(choosers, alternatives):
+def test_mnl_dcm_repeated_alts(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
     choosers_fit_filters = ['var1 != 5']
@@ -133,7 +133,7 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
     choice_column = 'thing_id'
     name = 'Test LCM'
 
-    model = lcm.MNLLocationChoiceModel(
+    model = dcm.MNLDiscreteChoiceModel(
         model_exp, sample_size,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
@@ -157,13 +157,13 @@ def test_mnl_lcm_repeated_alts(choosers, alternatives):
     assert choices.isin(alternatives.index).all()
 
 
-def test_mnl_lcm_group(grouped_choosers, alternatives):
+def test_mnl_dcm_group(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
     choosers_predict_filters = ['var1 != 7']
     alts_predict_filters = ['var2 != 14']
 
-    group = lcm.MNLLocationChoiceModelGroup('group')
+    group = dcm.MNLDiscreteChoiceModelGroup('group')
     group.add_model_from_params(
         'x', model_exp, sample_size,
         choosers_predict_filters=choosers_predict_filters)
@@ -201,18 +201,18 @@ def test_mnl_lcm_group(grouped_choosers, alternatives):
     assert choices.isin(alternatives.index).all()
 
 
-def test_mnl_lcm_segmented_raises():
-    group = lcm.SegmentedMNLLocationChoiceModel('group', 2)
+def test_mnl_dcm_segmented_raises():
+    group = dcm.SegmentedMNLDiscreteChoiceModel('group', 2)
 
     with pytest.raises(ValueError):
         group.add_segment('x')
 
 
-def test_mnl_lcm_segmented(grouped_choosers, alternatives):
+def test_mnl_dcm_segmented(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
-    group = lcm.SegmentedMNLLocationChoiceModel(
+    group = dcm.SegmentedMNLDiscreteChoiceModel(
         'group', sample_size, default_model_expr=model_exp)
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
@@ -243,11 +243,11 @@ def test_mnl_lcm_segmented(grouped_choosers, alternatives):
     assert choices.isin(alternatives.index).all()
 
 
-def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
+def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
-    group = lcm.SegmentedMNLLocationChoiceModel(
+    group = dcm.SegmentedMNLDiscreteChoiceModel(
         'group', sample_size, default_model_expr=model_exp, name='test_seg')
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
@@ -287,7 +287,7 @@ def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
 
     assert yaml.load(group.to_yaml()) == expected_dict
 
-    new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
+    new_seg = dcm.SegmentedMNLDiscreteChoiceModel.from_yaml(group.to_yaml())
     assert yaml.load(new_seg.to_yaml()) == expected_dict
 
     group.fit(grouped_choosers, alternatives, 'thing_id')
@@ -308,15 +308,15 @@ def test_mnl_lcm_segmented_yaml(grouped_choosers, alternatives):
 
     assert actual_dict == expected_dict
 
-    new_seg = lcm.SegmentedMNLLocationChoiceModel.from_yaml(group.to_yaml())
+    new_seg = dcm.SegmentedMNLDiscreteChoiceModel.from_yaml(group.to_yaml())
     assert new_seg.fitted is True
 
 
-def test_segmented_lcm_removes_old_models(grouped_choosers, alternatives):
+def test_segmented_dcm_removes_old_models(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
-    group = lcm.SegmentedMNLLocationChoiceModel(
+    group = dcm.SegmentedMNLDiscreteChoiceModel(
         'group', sample_size, default_model_expr=model_exp)
     group.add_segment('a')
     group.add_segment('b')
@@ -339,7 +339,7 @@ def test_fit_from_cfg(choosers, alternatives):
     choice_column = None
     name = 'Test LCM'
 
-    model = lcm.MNLLocationChoiceModel(
+    model = dcm.MNLDiscreteChoiceModel(
         model_exp, sample_size,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
@@ -348,12 +348,12 @@ def test_fit_from_cfg(choosers, alternatives):
 
     cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     model.to_yaml(cfgname)
-    lcm.MNLLocationChoiceModel.fit_from_cfg(
+    dcm.MNLDiscreteChoiceModel.fit_from_cfg(
         choosers, "thing_id", alternatives, cfgname)
-    lcm.MNLLocationChoiceModel.predict_from_cfg(
+    dcm.MNLDiscreteChoiceModel.predict_from_cfg(
         choosers, alternatives, cfgname)
 
-    lcm.MNLLocationChoiceModel.predict_from_cfg(choosers, alternatives,
+    dcm.MNLDiscreteChoiceModel.predict_from_cfg(choosers, alternatives,
                                                 cfgname, .2)
     os.remove(cfgname)
 
@@ -362,22 +362,22 @@ def test_fit_from_cfg_segmented(grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
-    group = lcm.SegmentedMNLLocationChoiceModel(
+    group = dcm.SegmentedMNLDiscreteChoiceModel(
         'group', sample_size, default_model_expr=model_exp)
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
 
     cfgname = tempfile.NamedTemporaryFile(suffix='.yaml').name
     group.to_yaml(cfgname)
-    lcm.SegmentedMNLLocationChoiceModel.fit_from_cfg(grouped_choosers,
+    dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg(grouped_choosers,
                                                      "thing_id",
                                                      alternatives,
                                                      cfgname)
-    lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg(grouped_choosers,
+    dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg(grouped_choosers,
                                                          alternatives,
                                                          cfgname)
 
-    lcm.SegmentedMNLLocationChoiceModel.predict_from_cfg(grouped_choosers,
+    dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg(grouped_choosers,
                                                          alternatives,
                                                          cfgname,
                                                          .8)
