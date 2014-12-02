@@ -116,55 +116,58 @@ def test_table_copy(df):
         return df
 
     @sim.table(copy_col=True)
-    def test_funcd_copied3(test_frame_copied):
-        return test_frame_copied.to_frame()
+    def test_funcd_copied2(test_frame_copied):
+        # local returns original, but it is copied by copy_col.
+        return test_frame_copied.local
 
     @sim.table(copy_col=True)
-    def test_funcd_copied4(test_frame_uncopied):
-        return test_frame_uncopied.to_frame()
+    def test_funcd_copied3(test_frame_uncopied):
+        # local returns original, but it is copied by copy_col.
+        return test_frame_uncopied.local
 
-    sim.add_table('test_source_copied', lambda: df, cache=True, copy_col=True)
+    @sim.table(copy_col=False)
+    def test_funcd_uncopied2(test_frame_copied):
+        # local returns original.
+        return test_frame_copied.local
+
+    @sim.table(copy_col=False)
+    def test_funcd_uncopied3(test_frame_uncopied):
+        # local returns original.
+        return test_frame_uncopied.local
+
+    sim.add_table('test_cache_copied', lambda: df, cache=True, copy_col=True)
     sim.add_table(
-        'test_source_uncopied', lambda: df, cache=True, copy_col=False)
+        'test_cache_uncopied', lambda: df, cache=True, copy_col=False)
 
     @sim.table(cache=True, copy_col=True)
-    def test_sourced_copied():
+    def test_cached_copied():
         return df
 
     @sim.table(cache=True, copy_col=False)
-    def test_sourced_uncopied():
+    def test_cached_uncopied():
         return df
 
+    # Create tables with computed columns.
     sim.add_table('test_copied_columns', pd.DataFrame(index=df.index),
                   copy_col=True)
     sim.add_table('test_uncopied_columns', pd.DataFrame(index=df.index),
                   copy_col=False)
-
-    @sim.column('test_copied_columns', 'a')
-    def copied_column(col='test_frame_uncopied.a'):
-        return col
-
-    @sim.column('test_copied_columns', 'b')
-    def copied_column2(col='test_frame_uncopied.b'):
-        return col
-
-    @sim.column('test_uncopied_columns', 'a')
-    def uncopied_column(col='test_frame_uncopied.a'):
-        return col
-
-    @sim.column('test_uncopied_columns', 'b')
-    def uncopied_column2(col='test_frame_uncopied.b'):
-        return col
+    for column_name in ['a', 'b']:
+        label = "test_frame_uncopied.{}".format(column_name)
+        func = lambda col=label: col
+        for table_name in ['test_copied_columns', 'test_uncopied_columns']:
+            sim.add_column(table_name, column_name, func)
 
     for name in ['test_frame_uncopied', 'test_func_uncopied',
-                 'test_funcd_uncopied', 'test_source_uncopied',
-                 'test_sourced_uncopied', 'test_uncopied_columns',
+                 'test_funcd_uncopied', 'test_funcd_uncopied2',
+                 'test_funcd_uncopied3', 'test_cache_uncopied',
+                 'test_cached_uncopied', 'test_uncopied_columns',
                  'test_frame_copied', 'test_func_copied',
-                 'test_funcd_copied',
-                 'test_funcd_copied3', 'test_funcd_copied4',
-                 'test_source_copied',
-                 'test_sourced_copied', 'test_copied_columns']:
+                 'test_funcd_copied', 'test_funcd_copied2',
+                 'test_funcd_copied3', 'test_cache_copied',
+                 'test_cached_copied', 'test_copied_columns']:
         table = sim.get_table(name)
+        table2 = sim.get_table(name)
 
         # to_frame will always return a copy.
         pdt.assert_frame_equal(table.to_frame(), df)
@@ -180,13 +183,13 @@ def test_table_copy(df):
         if 'uncopied' in name:
             pdt.assert_series_equal(table['a'], df['a'])
             assert table['a'] is df['a']
-            pdt.assert_series_equal(table['a'], table['a'])
-            assert table['a'] is table['a']
+            pdt.assert_series_equal(table['a'], table2['a'])
+            assert table['a'] is table2['a']
         else:
             pdt.assert_series_equal(table['a'], df['a'])
             assert table['a'] is not df['a']
-            pdt.assert_series_equal(table['a'], table['a'])
-            assert table['a'] is not table['a']
+            pdt.assert_series_equal(table['a'], table2['a'])
+            assert table['a'] is not table2['a']
 
 
 def test_columns_for_table():
