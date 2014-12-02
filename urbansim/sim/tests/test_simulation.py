@@ -131,14 +131,15 @@ def test_table_copy(df):
     def test_funcd_copied5(test_frame_uncopied):
         return test_frame_uncopied.to_frame()
 
-    sim.add_table_source('test_source_copied', lambda: df, copy_col=True)
-    sim.add_table_source('test_source_uncopied', lambda: df, copy_col=False)
+    sim.add_table('test_source_copied', lambda: df, cache=True, copy_col=True)
+    sim.add_table(
+        'test_source_uncopied', lambda: df, cache=True, copy_col=False)
 
-    @sim.table_source(copy_col=True)
+    @sim.table(cache=True, copy_col=True)
     def test_sourced_copied():
         return df
 
-    @sim.table_source(copy_col=False)
+    @sim.table(cache=True, copy_col=False)
     def test_sourced_uncopied():
         return df
 

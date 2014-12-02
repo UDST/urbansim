@@ -260,7 +260,7 @@ class DataFrameWrapper(object):
                         logger):
                     column = extra_cols[column_name]()
             else:
-                column = self._frame[column_name]
+                column = self.local[column_name]
             if self.copy_col:
                 return column.copy()
             else:
