@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import inspect
 import logging
+import time
 import warnings
 from collections import Callable, namedtuple
 from contextlib import contextmanager
@@ -9,7 +10,6 @@ from contextlib import contextmanager
 import pandas as pd
 import tables
 import toolz
-import time
 
 from ..utils.misc import column_map
 from ..utils.logutil import log_start_finish
@@ -28,6 +28,12 @@ _TABLE_CACHE = {}
 _COLUMN_CACHE = {}
 _INJECTABLE_CACHE = {}
 
+_CS_FOREVER = 'forever'
+_CS_ITER = 'iteration'
+_CS_STEP = 'step'
+
+CacheItem = namedtuple('CacheItem', ['name', 'value', 'scope'])
+
 
 def clear_sim():
     """
@@ -45,15 +51,28 @@ def clear_sim():
     logger.debug('simulation state cleared')
 
 
-def clear_cache():
+def clear_cache(scope=None):
     """
     Clear all cached data.
 
+    Parameters
+    ----------
+    scope : {None, 'step', 'iteration', 'forever'}, optional
+        Clear cached values with a given scope.
+        By default all cached values are removed.
+
     """
-    _TABLE_CACHE.clear()
-    _COLUMN_CACHE.clear()
-    _INJECTABLE_CACHE.clear()
-    logger.debug('simulation cache cleared')
+    if not scope:
+        _TABLE_CACHE.clear()
+        _COLUMN_CACHE.clear()
+        _INJECTABLE_CACHE.clear()
+        logger.debug('simulation cache cleared')
+    else:
+        for d in (_TABLE_CACHE, _COLUMN_CACHE, _INJECTABLE_CACHE):
+            items = toolz.valfilter(lambda x: x.scope == scope, d)
+            for k in items:
+                del d[k]
+        logger.debug('cleared cached values with scope {!r}'.format(scope))
 
 
 def enable_cache():
@@ -89,6 +108,17 @@ def cache_on():
     return _CACHING
 
 
+@contextmanager
+def cache_disabled():
+    turn_back_on = True if cache_on() else False
+    disable_cache()
+
+    yield
+
+    if turn_back_on:
+        enable_cache()
+
+
 # for errors that occur during simulation runs
 class SimulationError(Exception):
     pass
@@ -113,11 +143,13 @@ class DataFrameWrapper(object):
         Table name.
     copy_col : bool
         Whether to return copies when evaluating columns.
+    local : pandas.DataFrame
+        The wrapped DataFrame.
 
     """
     def __init__(self, name, frame, copy_col=True):
         self.name = name
-        self._frame = frame
+        self.local = frame
         self.copy_col = copy_col
 
     @property
@@ -134,7 +166,7 @@ class DataFrameWrapper(object):
         Columns that are part of the wrapped DataFrame.
 
         """
-        return list(self._frame.columns)
+        return list(self.local.columns)
 
     @property
     def index(self):
@@ -142,7 +174,7 @@ class DataFrameWrapper(object):
         Table index.
 
         """
-        return self._frame.index
+        return self.local.index
 
     def to_frame(self, columns=None):
         """
@@ -164,12 +196,12 @@ class DataFrameWrapper(object):
         extra_cols = _columns_for_table(self.name)
 
         if columns:
-            local_cols = [c for c in self._frame.columns
+            local_cols = [c for c in self.local.columns
                           if c in columns and c not in extra_cols]
             extra_cols = toolz.keyfilter(lambda c: c in columns, extra_cols)
-            df = self._frame[local_cols].copy()
+            df = self.local[local_cols].copy()
         else:
-            df = self._frame.copy()
+            df = self.local.copy()
 
         with log_start_finish(
                 'computing {!r} columns for table {!r}'.format(
@@ -198,7 +230,7 @@ class DataFrameWrapper(object):
         """
         logger.debug('updating column {!r} in table {!r}'.format(
             column_name, self.name))
-        self._frame[column_name] = series
+        self.local[column_name] = series
 
     def __setitem__(self, key, value):
         return self.update_col(key, value)
@@ -228,7 +260,7 @@ class DataFrameWrapper(object):
                         logger):
                     column = extra_cols[column_name]()
             else:
-                column = self._frame[column_name]
+                column = self.local[column_name]
             if self.copy_col:
                 return column.copy()
             else:
@@ -253,16 +285,17 @@ class DataFrameWrapper(object):
         """
         logger.debug('updating column {!r} in table {!r}'.format(
             column_name, self.name))
-        self._frame.loc[series.index, column_name] = series
+        self.local.loc[series.index, column_name] = series
 
     def __len__(self):
-        return len(self._frame)
+        return len(self.local)
 
     def clear_cached(self):
         """
         Remove cached results from this table's computed columns.
 
         """
+        _TABLE_CACHE.pop(self.name, None)
         for col in _columns_for_table(self.name).values():
             col.clear_cached()
         logger.debug('cleared cached columns for table {!r}'.format(self.name))
@@ -280,6 +313,11 @@ class TableFuncWrapper(object):
         Callable that returns a DataFrame.
     cache : bool, optional
         Whether to cache the results of calling the wrapped function.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
     copy_col : bool, optional
         Whether to return copies when evaluating columns.
 
@@ -293,11 +331,14 @@ class TableFuncWrapper(object):
         Whether to return copies when evaluating columns.
 
     """
-    def __init__(self, name, func, cache=False, copy_col=True):
+    def __init__(
+            self, name, func, cache=False, cache_scope=_CS_FOREVER,
+            copy_col=True):
         self.name = name
         self._func = func
         self._argspec = inspect.getargspec(func)
         self.cache = cache
+        self.cache_scope = cache_scope
         self.copy_col = copy_col
         self._columns = []
         self._index = None
@@ -336,13 +377,14 @@ class TableFuncWrapper(object):
 
     def _call_func(self):
         """
-        Call the wrapped function and return the result. Also updates
-        attributes like columns, index, and length.
+        Call the wrapped function and return the result wrapped by
+        DataFrameWrapper.
+        Also updates attributes like columns, index, and length.
 
         """
         if _CACHING and self.cache and self.name in _TABLE_CACHE:
             logger.debug('returning table {!r} from cache'.format(self.name))
-            return _TABLE_CACHE[self.name]
+            return _TABLE_CACHE[self.name].value
 
         with log_start_finish(
                 'call function to get frame for table {!r}'.format(
@@ -352,13 +394,20 @@ class TableFuncWrapper(object):
                                         expressions=self._argspec.defaults)
             frame = self._func(**kwargs)
 
-        if self.cache:
-            _TABLE_CACHE[self.name] = frame
-
         self._columns = list(frame.columns)
         self._index = frame.index
         self._len = len(frame)
-        return frame
+
+        wrapped = DataFrameWrapper(self.name, frame, copy_col=self.copy_col)
+
+        if self.cache:
+            _TABLE_CACHE[self.name] = CacheItem(
+                self.name, wrapped, self.cache_scope)
+
+        return wrapped
+
+    def __call__(self):
+        return self._call_func()
 
     def to_frame(self, columns=None):
         """
@@ -377,9 +426,7 @@ class TableFuncWrapper(object):
         frame : pandas.DataFrame
 
         """
-        frame = self._call_func()
-        return DataFrameWrapper(self.name, frame,
-                                copy_col=self.copy_col).to_frame(columns)
+        return self._call_func().to_frame(columns)
 
     def get_column(self, column_name):
         """
@@ -420,58 +467,6 @@ class TableFuncWrapper(object):
                 self.name))
 
 
-class _TableSourceWrapper(TableFuncWrapper):
-    """
-    Wraps a function that returns a DataFrame. After the function
-    is evaluated the returned DataFrame replaces the function in the
-    table registry.
-
-    Parameters
-    ----------
-    name : str
-    func : callable
-    copy_col : bool, optional
-        Whether to return copies when evaluating columns.
-
-    Attributes
-    ----------
-    name : str
-        Table name.
-    copy_col : bool
-        Whether to return copies when evaluating columns.
-
-    """
-    def convert(self):
-        """
-        Evaluate the wrapped function, store the returned DataFrame as a
-        table, and return the new DataFrameWrapper instance created.
-
-        """
-        frame = self._call_func()
-        return add_table(self.name, frame, copy_col=self.copy_col)
-
-    def to_frame(self, columns=None):
-        """
-        Make a DataFrame with the given columns. The first time this
-        is called the registered table will be replaced with the DataFrame
-        returned by the wrapped function.
-
-        Will always return a copy of the underlying table.
-
-        Parameters
-        ----------
-        columns : sequence, optional
-            Sequence of the column names desired in the DataFrame.
-            If None all columns are returned.
-
-        Returns
-        -------
-        frame : pandas.DataFrame
-
-        """
-        return self.convert().to_frame(columns)
-
-
 class _ColumnFuncWrapper(object):
     """
     Wrap a function that returns a Series.
@@ -487,6 +482,11 @@ class _ColumnFuncWrapper(object):
         index matching the table to which it is being added.
     cache : bool, optional
         Whether to cache the result of calling the wrapped function.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
 
     Attributes
     ----------
@@ -498,12 +498,15 @@ class _ColumnFuncWrapper(object):
         Whether caching is enabled for this column.
 
     """
-    def __init__(self, table_name, column_name, func, cache=False):
+    def __init__(
+            self, table_name, column_name, func, cache=False,
+            cache_scope=_CS_FOREVER):
         self.table_name = table_name
         self.name = column_name
         self._func = func
         self._argspec = inspect.getargspec(func)
         self.cache = cache
+        self.cache_scope = cache_scope
 
     def __call__(self):
         """
@@ -516,7 +519,7 @@ class _ColumnFuncWrapper(object):
             logger.debug(
                 'returning column {!r} for table {!r} from cache'.format(
                     self.name, self.table_name))
-            return _COLUMN_CACHE[(self.table_name, self.name)]
+            return _COLUMN_CACHE[(self.table_name, self.name)].value
 
         with log_start_finish(
                 ('call function to provide column {!r} for table {!r}'
@@ -526,7 +529,8 @@ class _ColumnFuncWrapper(object):
             col = self._func(**kwargs)
 
         if self.cache:
-            _COLUMN_CACHE[(self.table_name, self.name)] = col
+            _COLUMN_CACHE[(self.table_name, self.name)] = CacheItem(
+                (self.table_name, self.name), col, self.cache_scope)
 
         return col
 
@@ -590,6 +594,11 @@ class _InjectableFuncWrapper(object):
     func : callable
     cache : bool, optional
         Whether to cache the result of calling the wrapped function.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
 
     Attributes
     ----------
@@ -599,17 +608,18 @@ class _InjectableFuncWrapper(object):
         Whether caching is enabled for this injectable function.
 
     """
-    def __init__(self, name, func, cache=False):
+    def __init__(self, name, func, cache=False, cache_scope=_CS_FOREVER):
         self.name = name
         self._func = func
         self._argspec = inspect.getargspec(func)
         self.cache = cache
+        self.cache_scope = cache_scope
 
     def __call__(self):
         if _CACHING and self.cache and self.name in _INJECTABLE_CACHE:
             logger.debug(
                 'returning injectable {!r} from cache'.format(self.name))
-            return _INJECTABLE_CACHE[self.name]
+            return _INJECTABLE_CACHE[self.name].value
 
         with log_start_finish(
                 'call function to provide injectable {!r}'.format(self.name),
@@ -619,7 +629,8 @@ class _InjectableFuncWrapper(object):
             result = self._func(**kwargs)
 
         if self.cache:
-            _INJECTABLE_CACHE[self.name] = result
+            _INJECTABLE_CACHE[self.name] = CacheItem(
+                self.name, result, self.cache_scope)
 
         return result
 
@@ -798,23 +809,22 @@ def _collect_variables(names, expressions=None):
         if '.' in expression:
             # Registered variable expression refers to column.
             table_name, column_name = expression.split('.')
-            table = _TABLES[table_name]
+            table = get_table(table_name)
             variables[label] = table.get_column(column_name)
         else:
             thing = all_variables[expression]
-            if isinstance(thing, _InjectableFuncWrapper):
+            if isinstance(thing, (_InjectableFuncWrapper, TableFuncWrapper)):
                 # Registered variable object is function.
                 variables[label] = thing()
-            elif isinstance(thing, _TableSourceWrapper):
-                # Registered variable object is table.
-                variables[label] = thing.convert()
             else:
                 variables[label] = thing
 
     return variables
 
 
-def add_table(table_name, table, cache=False, copy_col=True):
+def add_table(
+        table_name, table, cache=False, cache_scope=_CS_FOREVER,
+        copy_col=True):
     """
     Register a table with the simulation.
 
@@ -830,6 +840,11 @@ def add_table(table_name, table, cache=False, copy_col=True):
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `table` is a DataFrame.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
     copy_col : bool, optional
         Whether to return copies when evaluating columns.
 
@@ -840,7 +855,7 @@ def add_table(table_name, table, cache=False, copy_col=True):
     """
     if isinstance(table, Callable):
         table = TableFuncWrapper(table_name, table, cache=cache,
-                                 copy_col=copy_col)
+                                 cache_scope=cache_scope, copy_col=copy_col)
     else:
         table = DataFrameWrapper(table_name, table, copy_col=copy_col)
 
@@ -853,7 +868,8 @@ def add_table(table_name, table, cache=False, copy_col=True):
     return table
 
 
-def table(table_name=None, cache=False, copy_col=True):
+def table(
+        table_name=None, cache=False, cache_scope=_CS_FOREVER, copy_col=True):
     """
     Decorates functions that return DataFrames.
 
@@ -870,58 +886,9 @@ def table(table_name=None, cache=False, copy_col=True):
             name = table_name
         else:
             name = func.__name__
-        add_table(name, func, cache=cache, copy_col=copy_col)
-        return func
-    return decorator
-
-
-def add_table_source(table_name, func, copy_col=True):
-    """
-    Add a DataFrame source function to the simulation.
-
-    This function is evaluated only once, after which the returned
-    DataFrame replaces `func` as the injected table.
-
-    Parameters
-    ----------
-    table_name : str
-    func : callable
-        The function's argument names and keyword argument values
-        will be matched to registered variables when the function
-        needs to be evaluated by the simulation framework.
-    copy_col : bool, optional
-        Whether to return copies when evaluating columns.
-
-    Returns
-    -------
-    wrapped : `_TableSourceWrapper`
-
-    """
-    wrapped = _TableSourceWrapper(table_name, func, copy_col=copy_col)
-    logger.debug('registering table source {}'.format(table_name))
-    _TABLES[table_name] = wrapped
-    return wrapped
-
-
-def table_source(table_name=None, copy_col=True):
-    """
-    Decorates functions that return DataFrames.
-
-    Decorator version of `add_table_source`. Function will be
-    evaluated only once and the DataFrame will replace it. Table name
-    defaults to name of function.
-
-    The function's argument names and keyword argument values
-    will be matched to registered variables when the function
-    needs to be evaluated by the simulation framework.
-
-    """
-    def decorator(func):
-        if table_name:
-            name = table_name
-        else:
-            name = func.__name__
-        add_table_source(name, func, copy_col=copy_col)
+        add_table(
+            name, func, cache=cache, cache_scope=cache_scope,
+            copy_col=copy_col)
         return func
     return decorator
 
@@ -930,7 +897,7 @@ def get_table(table_name):
     """
     Get a registered table.
 
-    Table sources will be converted to `DataFrameWrapper`.
+    Decorated functions will be converted to `DataFrameWrapper`.
 
     Parameters
     ----------
@@ -938,19 +905,20 @@ def get_table(table_name):
 
     Returns
     -------
-    table : `DataFrameWrapper` or `TableFuncWrapper`
+    table : `DataFrameWrapper`
 
     """
     if table_name in _TABLES:
         table = _TABLES[table_name]
-        if isinstance(table, _TableSourceWrapper):
-            table = table.convert()
+        if isinstance(table, TableFuncWrapper):
+            table = table()
         return table
     else:
         raise KeyError('table not found: {}'.format(table_name))
 
 
-def add_column(table_name, column_name, column, cache=False):
+def add_column(
+        table_name, column_name, column, cache=False, cache_scope=_CS_FOREVER):
     """
     Add a new column to a table from a Series or callable.
 
@@ -970,11 +938,18 @@ def add_column(table_name, column_name, column, cache=False):
     cache : bool, optional
         Whether to cache the results of a provided callable. Does not
         apply if `column` is a Series.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
 
     """
     if isinstance(column, Callable):
         column = \
-            _ColumnFuncWrapper(table_name, column_name, column, cache=cache)
+            _ColumnFuncWrapper(
+                table_name, column_name, column,
+                cache=cache, cache_scope=cache_scope)
     else:
         column = _SeriesWrapper(table_name, column_name, column)
 
@@ -988,7 +963,7 @@ def add_column(table_name, column_name, column, cache=False):
     return column
 
 
-def column(table_name, column_name=None, cache=False):
+def column(table_name, column_name=None, cache=False, cache_scope=_CS_FOREVER):
     """
     Decorates functions that return a Series.
 
@@ -1006,7 +981,8 @@ def column(table_name, column_name=None, cache=False):
             name = column_name
         else:
             name = func.__name__
-        add_column(table_name, name, func, cache=cache)
+        add_column(
+            table_name, name, func, cache=cache, cache_scope=cache_scope)
         return func
     return decorator
 
@@ -1046,7 +1022,8 @@ def _columns_for_table(table_name):
             if tname == table_name}
 
 
-def add_injectable(name, value, autocall=True, cache=False):
+def add_injectable(
+        name, value, autocall=True, cache=False, cache_scope=_CS_FOREVER):
     """
     Add a value that will be injected into other functions.
 
@@ -1067,17 +1044,23 @@ def add_injectable(name, value, autocall=True, cache=False):
     cache : bool, optional
         Whether to cache the return value of an injectable function.
         Only applies when `value` is a callable and `autocall` is True.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
 
     """
     if isinstance(value, Callable) and autocall:
-        value = _InjectableFuncWrapper(name, value, cache=cache)
+        value = _InjectableFuncWrapper(
+            name, value, cache=cache, cache_scope=cache_scope)
         # clear any cached data from a previously registered value
         value.clear_cached()
     logger.debug('registering injectable {!r}'.format(name))
     _INJECTABLES[name] = value
 
 
-def injectable(name=None, autocall=True, cache=False):
+def injectable(name=None, autocall=True, cache=False, cache_scope=_CS_FOREVER):
     """
     Decorates functions that will be injected into other functions.
 
@@ -1094,7 +1077,8 @@ def injectable(name=None, autocall=True, cache=False):
             n = name
         else:
             n = func.__name__
-        add_injectable(n, func, autocall=autocall, cache=cache)
+        add_injectable(
+            n, func, autocall=autocall, cache=cache, cache_scope=cache_scope)
         return func
     return decorator
 
@@ -1476,6 +1460,7 @@ def run(models, years=None, data_out=None, out_interval=1):
                 model()
                 print("Time to execute model '{}': {:.2f}s".format(
                       model_name, time.time()-t2))
+            clear_cache(scope=_CS_STEP)
 
         print("Total time to execute{}: {:.2f}s".format(
             " year {}".format(year) if year is not None else '',
@@ -1486,20 +1471,10 @@ def run(models, years=None, data_out=None, out_interval=1):
             year_counter = 0
 
         year_counter += 1
+        clear_cache(scope=_CS_ITER)
 
     if data_out and year_counter != 1:
         write_tables(data_out, models, 'final')
-
-
-@contextmanager
-def cache_disabled():
-    turn_back_on = True if cache_on() else False
-    disable_cache()
-
-    yield
-
-    if turn_back_on:
-        enable_cache()
 
 
 @contextmanager
