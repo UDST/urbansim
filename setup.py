@@ -1,5 +1,3 @@
-import os.path
-
 # Install setuptools if not installed.
 try:
     import setuptools
@@ -16,7 +14,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='urbansim',
-    version='1.2dev',
+    version='1.4dev',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
     author='Synthicity',
