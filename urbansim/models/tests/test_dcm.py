@@ -102,10 +102,9 @@ def test_mnl_dcm(choosers, alternatives):
 
     probs, alt_choices = model.probabilities(choosers, alternatives)
     assert len(probs) == len(alt_choices)
-    assert len(probs) == len(filtered_alts)
+    assert len(probs) == len(filtered_choosers) * len(filtered_alts)
 
     sprobs = model.summed_probabilities(choosers, alternatives)
-    assert len(sprobs) == len(alt_choices)
     assert len(sprobs) == len(filtered_alts)
 
     choices = model.predict(choosers.iloc[1:], alternatives)
@@ -187,7 +186,7 @@ def test_mnl_dcm_group(grouped_choosers, alternatives):
         assert name in probs
         filtered_choosers, filtered_alts = \
             group.models[name].apply_predict_filters(df, alternatives)
-        assert len(probs[name]) == len(filtered_alts)
+        assert len(probs[name]) == len(filtered_choosers) * len(filtered_alts)
 
     filtered_choosers, filtered_alts = group.apply_predict_filters(
         grouped_choosers, alternatives)
@@ -230,9 +229,9 @@ def test_mnl_dcm_segmented(grouped_choosers, alternatives):
     assert isinstance(logliks['x'], dict) and isinstance(logliks['y'], dict)
 
     probs = group.probabilities(grouped_choosers, alternatives)
-    for name, _ in grouped_choosers.groupby('group'):
+    for name, df in grouped_choosers.groupby('group'):
         assert name in probs
-        assert len(probs[name]) == len(alternatives)
+        assert len(probs[name]) == len(df) * len(alternatives)
 
     sprobs = group.summed_probabilities(grouped_choosers, alternatives)
     assert len(sprobs) == len(alternatives)

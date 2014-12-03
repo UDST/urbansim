@@ -406,8 +406,6 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in this table is used for determining
-            agent probabilities of choosing alternatives.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
         filter_tables : bool, optional
@@ -420,6 +418,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             Probability of selection associated with each item
             in `alt_choices`. Index will be `alt_choices` if `alt_choices`
             is an Index, otherwise it will be the index of `alt_choices`.
+            Probabilities are repeated for each chooser.
         alt_choices : pandas.Series or pandas.Index
             The alternatives corresponding to `probabilities`.
 
@@ -432,11 +431,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             choosers, alternatives = self.apply_predict_filters(
                 choosers, alternatives)
 
-        # TODO: only using 1st item in choosers for determining probabilities.
-        # Need to expand options around this.
-        num_choosers = 1
         _, merged, _ = interaction.mnl_interaction_dataset(
-            choosers.head(num_choosers), alternatives, len(alternatives))
+            choosers, alternatives, len(alternatives))
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
         model_design = dmatrix(
@@ -481,8 +477,6 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in this table is used for determining
-            agent probabilities of choosing alternatives.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
 
@@ -493,7 +487,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         """
         p = self.probabilities(choosers, alternatives)[0]
-        return p / p.sum() * len(choosers)
+        return p.groupby(p.index).sum()
 
     def predict(self, choosers, alternatives, debug=False):
         """
@@ -503,8 +497,6 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in this table is used for determining
-            agent probabilities of choosing alternatives.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
         debug : bool
@@ -927,8 +919,6 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in each segment in this table is used for
-            determining agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
@@ -959,8 +949,6 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in each segment in this table is used for
-            determining agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
@@ -997,8 +985,6 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in each segment in this table is used for
-            determining agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
@@ -1334,8 +1320,6 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in each segment in this table is used for
-            determining agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
@@ -1365,8 +1349,6 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in each segment in this table is used for
-            determining agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
@@ -1397,8 +1379,6 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         ----------
         choosers : pandas.DataFrame
             Table describing the agents making choices, e.g. households.
-            Only the first item in this table is used for determining
-            agent probabilities of choosing alternatives.
             Must have a column matching the .segmentation_col attribute.
         alternatives : pandas.DataFrame
             Table describing the things from which agents are choosing.
