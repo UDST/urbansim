@@ -77,6 +77,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#caching">Caching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#argument-matching">Argument Matching</a></li>
@@ -144,6 +145,7 @@
 
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
@@ -151,7 +153,6 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">tables</span>
 <span class="kn">import</span> <span class="nn">toolz</span>
-<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">..utils.misc</span> <span class="kn">import</span> <span class="n">column_map</span>
 <span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
@@ -170,6 +171,12 @@
 <span class="n">_COLUMN_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">_INJECTABLE_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
 
+<span class="n">_CS_FOREVER</span> <span class="o">=</span> <span class="s">&#39;forever&#39;</span>
+<span class="n">_CS_ITER</span> <span class="o">=</span> <span class="s">&#39;iteration&#39;</span>
+<span class="n">_CS_STEP</span> <span class="o">=</span> <span class="s">&#39;step&#39;</span>
+
+<span class="n">CacheItem</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;CacheItem&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="s">&#39;scope&#39;</span><span class="p">])</span>
+
 
 <div class="viewcode-block" id="clear_sim"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.clear_sim">[docs]</a><span class="k">def</span> <span class="nf">clear_sim</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -187,15 +194,28 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;simulation state cleared&#39;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="clear_cache"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.clear_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_cache</span><span class="p">():</span>
+<div class="viewcode-block" id="clear_cache"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.clear_cache">[docs]</a><span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clear all cached data.</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scope : {None, &#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Clear cached values with a given scope.</span>
+<span class="sd">        By default all cached values are removed.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_TABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-    <span class="n">_COLUMN_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-    <span class="n">_INJECTABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;simulation cache cleared&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">scope</span><span class="p">:</span>
+        <span class="n">_TABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">_COLUMN_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">_INJECTABLE_CACHE</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;simulation cache cleared&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_TABLE_CACHE</span><span class="p">,</span> <span class="n">_COLUMN_CACHE</span><span class="p">,</span> <span class="n">_INJECTABLE_CACHE</span><span class="p">):</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">valfilter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">scope</span> <span class="o">==</span> <span class="n">scope</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;cleared cached values with scope {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scope</span><span class="p">))</span>
 
 </div>
 <div class="viewcode-block" id="enable_cache"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.enable_cache">[docs]</a><span class="k">def</span> <span class="nf">enable_cache</span><span class="p">():</span>
@@ -230,8 +250,19 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CACHING</span>
 
+</div>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">cache_disabled</span><span class="p">():</span>
+    <span class="n">turn_back_on</span> <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">cache_on</span><span class="p">()</span> <span class="k">else</span> <span class="bp">False</span>
+    <span class="n">disable_cache</span><span class="p">()</span>
 
-<span class="c"># for errors that occur during simulation runs</span></div>
+    <span class="k">yield</span>
+
+    <span class="k">if</span> <span class="n">turn_back_on</span><span class="p">:</span>
+        <span class="n">enable_cache</span><span class="p">()</span>
+
+
+<span class="c"># for errors that occur during simulation runs</span>
 <span class="k">class</span> <span class="nc">SimulationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
@@ -255,11 +286,13 @@
 <span class="sd">        Table name.</span>
 <span class="sd">    copy_col : bool</span>
 <span class="sd">        Whether to return copies when evaluating columns.</span>
+<span class="sd">    local : pandas.DataFrame</span>
+<span class="sd">        The wrapped DataFrame.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="n">frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">frame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span> <span class="o">=</span> <span class="n">copy_col</span>
 
     <span class="nd">@property</span>
@@ -276,7 +309,7 @@
 <span class="sd">        Columns that are part of the wrapped DataFrame.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="DataFrameWrapper.index"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -284,7 +317,7 @@
 <span class="sd">        Table index.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">index</span>
 </div>
 <div class="viewcode-block" id="DataFrameWrapper.to_frame"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame">[docs]</a>    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -306,12 +339,12 @@
         <span class="n">extra_cols</span> <span class="o">=</span> <span class="n">_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">columns</span><span class="p">:</span>
-            <span class="n">local_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">columns</span>
+            <span class="n">local_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">columns</span>
                           <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extra_cols</span><span class="p">]</span>
             <span class="n">extra_cols</span> <span class="o">=</span> <span class="n">toolz</span><span class="o">.</span><span class="n">keyfilter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">,</span> <span class="n">extra_cols</span><span class="p">)</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">[</span><span class="n">local_cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">[</span><span class="n">local_cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                 <span class="s">&#39;computing {!r} columns for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -340,7 +373,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;updating column {!r} in table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
 </div>
     <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_col</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -370,7 +403,7 @@
                         <span class="n">logger</span><span class="p">):</span>
                     <span class="n">column</span> <span class="o">=</span> <span class="n">extra_cols</span><span class="p">[</span><span class="n">column_name</span><span class="p">]()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
+                <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">column</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
@@ -395,16 +428,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;updating column {!r} in table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">column_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">series</span>
 </div>
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DataFrameWrapper.clear_cached"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.DataFrameWrapper.clear_cached">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove cached results from this table&#39;s computed columns.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_TABLE_CACHE</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">_columns_for_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">col</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;cleared cached columns for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
@@ -422,6 +456,11 @@
 <span class="sd">        Callable that returns a DataFrame.</span>
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the results of calling the wrapped function.</span>
+<span class="sd">    cache_scope : {&#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Scope for which to cache data. Default is to cache forever</span>
+<span class="sd">        (or until manually cleared). &#39;iteration&#39; caches data for each</span>
+<span class="sd">        complete iteration of the simulation, &#39;step&#39; caches data for</span>
+<span class="sd">        a single step of the simulation.</span>
 <span class="sd">    copy_col : bool, optional</span>
 <span class="sd">        Whether to return copies when evaluating columns.</span>
 
@@ -435,11 +474,14 @@
 <span class="sd">        Whether to return copies when evaluating columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">,</span>
+            <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_scope</span> <span class="o">=</span> <span class="n">cache_scope</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span> <span class="o">=</span> <span class="n">copy_col</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="bp">None</span>
@@ -478,13 +520,14 @@
 </div>
     <span class="k">def</span> <span class="nf">_call_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call the wrapped function and return the result. Also updates</span>
-<span class="sd">        attributes like columns, index, and length.</span>
+<span class="sd">        Call the wrapped function and return the result wrapped by</span>
+<span class="sd">        DataFrameWrapper.</span>
+<span class="sd">        Also updates attributes like columns, index, and length.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">_CACHING</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_TABLE_CACHE</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;returning table {!r} from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">_TABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">_TABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
         <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                 <span class="s">&#39;call function to get frame for table {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
@@ -494,13 +537,20 @@
                                         <span class="n">expressions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_argspec</span><span class="o">.</span><span class="n">defaults</span><span class="p">)</span>
             <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">_TABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">frame</span>
+
+        <span class="n">wrapped</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">_TABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">CacheItem</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_scope</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapped</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
 
 <div class="viewcode-block" id="TableFuncWrapper.to_frame"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.to_frame">[docs]</a>    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -519,9 +569,7 @@
 <span class="sd">        frame : pandas.DataFrame</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span>
-                                <span class="n">copy_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="TableFuncWrapper.get_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.TableFuncWrapper.get_column">[docs]</a>    <span class="k">def</span> <span class="nf">get_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -562,58 +610,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
 </div></div>
-<span class="k">class</span> <span class="nc">_TableSourceWrapper</span><span class="p">(</span><span class="n">TableFuncWrapper</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Wraps a function that returns a DataFrame. After the function</span>
-<span class="sd">    is evaluated the returned DataFrame replaces the function in the</span>
-<span class="sd">    table registry.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">    func : callable</span>
-<span class="sd">    copy_col : bool, optional</span>
-<span class="sd">        Whether to return copies when evaluating columns.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        Table name.</span>
-<span class="sd">    copy_col : bool</span>
-<span class="sd">        Whether to return copies when evaluating columns.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Evaluate the wrapped function, store the returned DataFrame as a</span>
-<span class="sd">        table, and return the new DataFrameWrapper instance created.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_func</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">add_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_col</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">to_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Make a DataFrame with the given columns. The first time this</span>
-<span class="sd">        is called the registered table will be replaced with the DataFrame</span>
-<span class="sd">        returned by the wrapped function.</span>
-
-<span class="sd">        Will always return a copy of the underlying table.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        columns : sequence, optional</span>
-<span class="sd">            Sequence of the column names desired in the DataFrame.</span>
-<span class="sd">            If None all columns are returned.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        frame : pandas.DataFrame</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
-
-
 <span class="k">class</span> <span class="nc">_ColumnFuncWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrap a function that returns a Series.</span>
@@ -629,6 +625,11 @@
 <span class="sd">        index matching the table to which it is being added.</span>
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the result of calling the wrapped function.</span>
+<span class="sd">    cache_scope : {&#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Scope for which to cache data. Default is to cache forever</span>
+<span class="sd">        (or until manually cleared). &#39;iteration&#39; caches data for each</span>
+<span class="sd">        complete iteration of the simulation, &#39;step&#39; caches data for</span>
+<span class="sd">        a single step of the simulation.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -640,12 +641,15 @@
 <span class="sd">        Whether caching is enabled for this column.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+            <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">column_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_scope</span> <span class="o">=</span> <span class="n">cache_scope</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -658,7 +662,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s">&#39;returning column {!r} for table {!r} from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">_COLUMN_CACHE</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="n">_COLUMN_CACHE</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span><span class="o">.</span><span class="n">value</span>
 
         <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                 <span class="p">(</span><span class="s">&#39;call function to provide column {!r} for table {!r}&#39;</span>
@@ -668,7 +672,8 @@
             <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">_COLUMN_CACHE</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">col</span>
+            <span class="n">_COLUMN_CACHE</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">CacheItem</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">col</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_scope</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">col</span>
 
@@ -732,6 +737,11 @@
 <span class="sd">    func : callable</span>
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the result of calling the wrapped function.</span>
+<span class="sd">    cache_scope : {&#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Scope for which to cache data. Default is to cache forever</span>
+<span class="sd">        (or until manually cleared). &#39;iteration&#39; caches data for each</span>
+<span class="sd">        complete iteration of the simulation, &#39;step&#39; caches data for</span>
+<span class="sd">        a single step of the simulation.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -741,17 +751,18 @@
 <span class="sd">        Whether caching is enabled for this injectable function.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_scope</span> <span class="o">=</span> <span class="n">cache_scope</span>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">_CACHING</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_INJECTABLE_CACHE</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s">&#39;returning injectable {!r} from cache&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">_INJECTABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">_INJECTABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
         <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span>
                 <span class="s">&#39;call function to provide injectable {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
@@ -761,7 +772,8 @@
             <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
-            <span class="n">_INJECTABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="n">_INJECTABLE_CACHE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">CacheItem</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_scope</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span>
 
@@ -940,23 +952,22 @@
         <span class="k">if</span> <span class="s">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">expression</span><span class="p">:</span>
             <span class="c"># Registered variable expression refers to column.</span>
             <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
-            <span class="n">table</span> <span class="o">=</span> <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">get_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
             <span class="n">variables</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">thing</span> <span class="o">=</span> <span class="n">all_variables</span><span class="p">[</span><span class="n">expression</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">_InjectableFuncWrapper</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="p">(</span><span class="n">_InjectableFuncWrapper</span><span class="p">,</span> <span class="n">TableFuncWrapper</span><span class="p">)):</span>
                 <span class="c"># Registered variable object is function.</span>
                 <span class="n">variables</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span> <span class="n">_TableSourceWrapper</span><span class="p">):</span>
-                <span class="c"># Registered variable object is table.</span>
-                <span class="n">variables</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">variables</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span>
 
     <span class="k">return</span> <span class="n">variables</span>
 
 
-<div class="viewcode-block" id="add_table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table">[docs]</a><span class="k">def</span> <span class="nf">add_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="add_table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table">[docs]</a><span class="k">def</span> <span class="nf">add_table</span><span class="p">(</span>
+        <span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">,</span>
+        <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Register a table with the simulation.</span>
 
@@ -972,6 +983,11 @@
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the results of a provided callable. Does not</span>
 <span class="sd">        apply if `table` is a DataFrame.</span>
+<span class="sd">    cache_scope : {&#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Scope for which to cache data. Default is to cache forever</span>
+<span class="sd">        (or until manually cleared). &#39;iteration&#39; caches data for each</span>
+<span class="sd">        complete iteration of the simulation, &#39;step&#39; caches data for</span>
+<span class="sd">        a single step of the simulation.</span>
 <span class="sd">    copy_col : bool, optional</span>
 <span class="sd">        Whether to return copies when evaluating columns.</span>
 
@@ -982,7 +998,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">TableFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span>
-                                 <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
+                                 <span class="n">cache_scope</span><span class="o">=</span><span class="n">cache_scope</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">DataFrameWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
 
@@ -995,7 +1011,8 @@
     <span class="k">return</span> <span class="n">table</span>
 
 </div>
-<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="table"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table">[docs]</a><span class="k">def</span> <span class="nf">table</span><span class="p">(</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorates functions that return DataFrames.</span>
 
@@ -1012,58 +1029,9 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">table_name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">add_table</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">func</span>
-    <span class="k">return</span> <span class="n">decorator</span>
-
-</div>
-<div class="viewcode-block" id="add_table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_table_source">[docs]</a><span class="k">def</span> <span class="nf">add_table_source</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Add a DataFrame source function to the simulation.</span>
-
-<span class="sd">    This function is evaluated only once, after which the returned</span>
-<span class="sd">    DataFrame replaces `func` as the injected table.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    table_name : str</span>
-<span class="sd">    func : callable</span>
-<span class="sd">        The function&#39;s argument names and keyword argument values</span>
-<span class="sd">        will be matched to registered variables when the function</span>
-<span class="sd">        needs to be evaluated by the simulation framework.</span>
-<span class="sd">    copy_col : bool, optional</span>
-<span class="sd">        Whether to return copies when evaluating columns.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    wrapped : `_TableSourceWrapper`</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">wrapped</span> <span class="o">=</span> <span class="n">_TableSourceWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering table source {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
-    <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapped</span>
-    <span class="k">return</span> <span class="n">wrapped</span>
-
-</div>
-<div class="viewcode-block" id="table_source"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.table_source">[docs]</a><span class="k">def</span> <span class="nf">table_source</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorates functions that return DataFrames.</span>
-
-<span class="sd">    Decorator version of `add_table_source`. Function will be</span>
-<span class="sd">    evaluated only once and the DataFrame will replace it. Table name</span>
-<span class="sd">    defaults to name of function.</span>
-
-<span class="sd">    The function&#39;s argument names and keyword argument values</span>
-<span class="sd">    will be matched to registered variables when the function</span>
-<span class="sd">    needs to be evaluated by the simulation framework.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">table_name</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">table_name</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">add_table_source</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
+        <span class="n">add_table</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">cache_scope</span><span class="p">,</span>
+            <span class="n">copy_col</span><span class="o">=</span><span class="n">copy_col</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
@@ -1072,7 +1040,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a registered table.</span>
 
-<span class="sd">    Table sources will be converted to `DataFrameWrapper`.</span>
+<span class="sd">    Decorated functions will be converted to `DataFrameWrapper`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1080,19 +1048,20 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    table : `DataFrameWrapper` or `TableFuncWrapper`</span>
+<span class="sd">    table : `DataFrameWrapper`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">_TABLES</span><span class="p">:</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">_TABLES</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">_TableSourceWrapper</span><span class="p">):</span>
-            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">TableFuncWrapper</span><span class="p">):</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">table</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;table not found: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
 
 </div>
-<div class="viewcode-block" id="add_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_column">[docs]</a><span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="add_column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_column">[docs]</a><span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span>
+        <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a new column to a table from a Series or callable.</span>
 
@@ -1112,11 +1081,18 @@
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the results of a provided callable. Does not</span>
 <span class="sd">        apply if `column` is a Series.</span>
+<span class="sd">    cache_scope : {&#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Scope for which to cache data. Default is to cache forever</span>
+<span class="sd">        (or until manually cleared). &#39;iteration&#39; caches data for each</span>
+<span class="sd">        complete iteration of the simulation, &#39;step&#39; caches data for</span>
+<span class="sd">        a single step of the simulation.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
         <span class="n">column</span> <span class="o">=</span> \
-            <span class="n">_ColumnFuncWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+            <span class="n">_ColumnFuncWrapper</span><span class="p">(</span>
+                <span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span>
+                <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">cache_scope</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">column</span> <span class="o">=</span> <span class="n">_SeriesWrapper</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
 
@@ -1130,7 +1106,7 @@
     <span class="k">return</span> <span class="n">column</span>
 
 </div>
-<div class="viewcode-block" id="column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.column">[docs]</a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="column"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.column">[docs]</a><span class="k">def</span> <span class="nf">column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorates functions that return a Series.</span>
 
@@ -1148,7 +1124,8 @@
             <span class="n">name</span> <span class="o">=</span> <span class="n">column_name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">add_column</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">add_column</span><span class="p">(</span>
+            <span class="n">table_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">cache_scope</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
@@ -1188,7 +1165,8 @@
             <span class="k">if</span> <span class="n">tname</span> <span class="o">==</span> <span class="n">table_name</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="add_injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_injectable">[docs]</a><span class="k">def</span> <span class="nf">add_injectable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="add_injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.add_injectable">[docs]</a><span class="k">def</span> <span class="nf">add_injectable</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a value that will be injected into other functions.</span>
 
@@ -1209,17 +1187,23 @@
 <span class="sd">    cache : bool, optional</span>
 <span class="sd">        Whether to cache the return value of an injectable function.</span>
 <span class="sd">        Only applies when `value` is a callable and `autocall` is True.</span>
+<span class="sd">    cache_scope : {&#39;step&#39;, &#39;iteration&#39;, &#39;forever&#39;}, optional</span>
+<span class="sd">        Scope for which to cache data. Default is to cache forever</span>
+<span class="sd">        (or until manually cleared). &#39;iteration&#39; caches data for each</span>
+<span class="sd">        complete iteration of the simulation, &#39;step&#39; caches data for</span>
+<span class="sd">        a single step of the simulation.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">autocall</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">_InjectableFuncWrapper</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">_InjectableFuncWrapper</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">cache_scope</span><span class="p">)</span>
         <span class="c"># clear any cached data from a previously registered value</span>
         <span class="n">value</span><span class="o">.</span><span class="n">clear_cached</span><span class="p">()</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;registering injectable {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
     <span class="n">_INJECTABLES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
 </div>
-<div class="viewcode-block" id="injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.injectable">[docs]</a><span class="k">def</span> <span class="nf">injectable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="injectable"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.injectable">[docs]</a><span class="k">def</span> <span class="nf">injectable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">_CS_FOREVER</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorates functions that will be injected into other functions.</span>
 
@@ -1236,7 +1220,8 @@
             <span class="n">n</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="n">add_injectable</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="n">autocall</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+        <span class="n">add_injectable</span><span class="p">(</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">autocall</span><span class="o">=</span><span class="n">autocall</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">,</span> <span class="n">cache_scope</span><span class="o">=</span><span class="n">cache_scope</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">return</span> <span class="n">decorator</span>
 
@@ -1618,6 +1603,7 @@
                 <span class="n">model</span><span class="p">()</span>
                 <span class="k">print</span><span class="p">(</span><span class="s">&quot;Time to execute model &#39;{}&#39;: {:.2f}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                       <span class="n">model_name</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t2</span><span class="p">))</span>
+            <span class="n">clear_cache</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">_CS_STEP</span><span class="p">)</span>
 
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Total time to execute{}: {:.2f}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="s">&quot; year {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
@@ -1628,22 +1614,12 @@
             <span class="n">year_counter</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">year_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">clear_cache</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">_CS_ITER</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">data_out</span> <span class="ow">and</span> <span class="n">year_counter</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">write_tables</span><span class="p">(</span><span class="n">data_out</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="s">&#39;final&#39;</span><span class="p">)</span>
 
 </div>
-<span class="nd">@contextmanager</span>
-<span class="k">def</span> <span class="nf">cache_disabled</span><span class="p">():</span>
-    <span class="n">turn_back_on</span> <span class="o">=</span> <span class="bp">True</span> <span class="k">if</span> <span class="n">cache_on</span><span class="p">()</span> <span class="k">else</span> <span class="bp">False</span>
-    <span class="n">disable_cache</span><span class="p">()</span>
-
-    <span class="k">yield</span>
-
-    <span class="k">if</span> <span class="n">turn_back_on</span><span class="p">:</span>
-        <span class="n">enable_cache</span><span class="p">()</span>
-
-
 <span class="nd">@contextmanager</span>
 <div class="viewcode-block" id="injectables"><a class="viewcode-back" href="../../../sim/index.html#urbansim.sim.simulation.injectables">[docs]</a><span class="k">def</span> <span class="nf">injectables</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
