@@ -415,12 +415,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Returns
         -------
         probabilities : pandas.Series
-            Probability of selection associated with each item
-            in `alt_choices`. Index will be `alt_choices` if `alt_choices`
-            is an Index, otherwise it will be the index of `alt_choices`.
-            Probabilities are repeated for each chooser.
-        alt_choices : pandas.Series or pandas.Index
-            The alternatives corresponding to `probabilities`.
+            Probability of selection associated with each chooser
+            and alternative. Index will be a MultiIndex with alternative
+            IDs in the inner index and chooser IDs in the out index.
 
         """
         logger.debug('start: calculate probabilities for LCM model {}'.format(
@@ -444,34 +441,34 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
                 'This suggests there are null values in one or more of '
                 'the input columns.')
 
+        # get the order of the coefficients in the same order as the
+        # columns in the design matrix
         coeffs = [self.fit_parameters['Coefficient'][x]
                   for x in model_design.columns]
 
         # probabilities are returned from mnl_simulate as a 2d array
-        # and need to be flatted for use in unit_choice.
+        # with choosers along rows and alternatives along columns
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
             coeffs,
-            numalts=len(merged), returnprobs=True).flatten()
+            numalts=len(merged), returnprobs=True)
 
-        # figure out which set choices are drawn from
-        alt_choices = (
-            merged[self.choice_column] if self.choice_column else merged.index)
-
-        if self.choice_column:
-            alt_choices = merged[self.choice_column]
-            probabilities = pd.Series(probabilities, index=alt_choices.index)
-        else:
-            alt_choices = merged.index
-            probabilities = pd.Series(probabilities, index=alt_choices)
+        # want to turn probabilities into a Series with a MultiIndex
+        # of chooser IDs and alternative IDs.
+        # indexing by chooser ID will get you the probabilities
+        # across alternatives for that chooser
+        mi = pd.MultiIndex.from_arrays(
+            [merged['join_index'].values, merged.index.values],
+            names=('chooser_id', 'alternative_id'))
+        probabilities = pd.Series(probabilities.flatten(), index=mi)
 
         logger.debug('finish: calculate probabilities for LCM model {}'.format(
             self.name))
-        return probabilities, alt_choices
+        return probabilities
 
     def summed_probabilities(self, choosers, alternatives):
         """
-        Calculate probabilities multiplied by the number of choosers.
+        Calculate total probability associated with each alternative.
 
         Parameters
         ----------
@@ -483,11 +480,12 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Returns
         -------
         probs : pandas.Series
-            Probabilities normalized and multiplied by the number of choosers.
+            Total probability associated with each alternative.
 
         """
-        p = self.probabilities(choosers, alternatives)[0]
-        return p.groupby(p.index).sum()
+        # groupby the the alternatives ID and sum
+        return self.probabilities(choosers, alternatives)\
+            .groupby(level=1).sum()
 
     def predict(self, choosers, alternatives, debug=False):
         """
@@ -524,14 +522,16 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         if len(alternatives) == 0:
             return pd.Series(index=choosers.index)
 
-        probabilities, alt_choices = self.probabilities(
+        probabilities = self.probabilities(
             choosers, alternatives, filter_tables=False)
 
         if debug:
             self.sim_pdf = probabilities
 
         result = unit_choice(
-            choosers.index, alt_choices, probabilities)
+            choosers.index,
+            probabilities.index.get_level_values('alternative_id'),
+            probabilities.values)
         logger.debug('finish: predict LCM model {}'.format(self.name))
         return result
 
@@ -933,7 +933,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         probs = {}
 
         for name, df in self._iter_groups(choosers):
-            probs[name] = self.models[name].probabilities(df, alternatives)[0]
+            probs[name] = self.models[name].probabilities(df, alternatives)
 
         logger.debug(
             'finish: calculate probabilities in LCM group {}'.format(

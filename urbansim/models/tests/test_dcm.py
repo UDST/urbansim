@@ -100,8 +100,7 @@ def test_mnl_dcm(choosers, alternatives):
     filtered_choosers, filtered_alts = model.apply_predict_filters(
         choosers, alternatives)
 
-    probs, alt_choices = model.probabilities(choosers, alternatives)
-    assert len(probs) == len(alt_choices)
+    probs = model.probabilities(choosers, alternatives)
     assert len(probs) == len(filtered_choosers) * len(filtered_alts)
 
     sprobs = model.summed_probabilities(choosers, alternatives)
@@ -153,7 +152,7 @@ def test_mnl_dcm_repeated_alts(choosers, alternatives):
     choices = model.predict(choosers, repeated_alts)
 
     pdt.assert_index_equal(choices.index, pd.Index([0, 1, 3, 4]))
-    assert choices.isin(alternatives.index).all()
+    assert choices.isin(repeated_alts.index).all()
 
 
 def test_mnl_dcm_group(grouped_choosers, alternatives):
