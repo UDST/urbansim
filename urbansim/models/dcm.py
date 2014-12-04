@@ -528,12 +528,15 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         if debug:
             self.sim_pdf = probabilities
 
-        result = unit_choice(
-            choosers.index,
-            probabilities.index.get_level_values('alternative_id'),
-            probabilities.values)
+        def mkchoice(probs):
+            probs.reset_index(0, drop=True, inplace=True)
+            return np.random.choice(
+                probs.index.values, p=probs.values / probs.sum())
+        choices = probabilities.groupby(level='chooser_id', sort=False)\
+            .apply(mkchoice)
+
         logger.debug('finish: predict LCM model {}'.format(self.name))
-        return result
+        return choices
 
     def to_dict(self):
         """
@@ -1006,8 +1009,6 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
 
         for name, df in self._iter_groups(choosers):
             choices = self.models[name].predict(df, alternatives, debug=debug)
-            # remove chosen alternatives
-            alternatives = alternatives.loc[~alternatives.index.isin(choices)]
             results.append(choices)
 
         logger.debug(

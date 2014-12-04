@@ -195,7 +195,7 @@ def test_mnl_dcm_group(grouped_choosers, alternatives):
 
     choices = group.predict(grouped_choosers, alternatives)
 
-    assert len(choices.unique()) == len(choices)
+    assert len(choices) == len(filtered_choosers)
     assert choices.isin(alternatives.index).all()
 
 
@@ -237,7 +237,7 @@ def test_mnl_dcm_segmented(grouped_choosers, alternatives):
 
     choices = group.predict(grouped_choosers, alternatives)
 
-    assert len(choices.unique()) == len(choices)
+    assert len(choices) == len(grouped_choosers)
     assert choices.isin(alternatives.index).all()
 
 
