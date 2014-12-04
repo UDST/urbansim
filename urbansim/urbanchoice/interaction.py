@@ -5,14 +5,10 @@ Used for location choice models.
 
 """
 import logging
-import random
-import sys
-import time
 
 import numpy as np
 import pandas as pd
 
-import mnl
 import pmat
 
 logger = logging.getLogger(__name__)
@@ -65,8 +61,6 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
             sample[::SAMPLE_SIZE] = chosenalts
     else:
         assert chosenalts is None  # if not sampling, must be simulating
-        # we're about to do a huge join - do this with a discretized population
-        assert numchoosers < 10
         sample = np.tile(alternatives.index.values, numchoosers)
 
     if not choosers.index.is_unique:
