@@ -1,7 +1,7 @@
 from .regression import RegressionModel, RegressionModelGroup, \
     SegmentedRegressionModel
-from .lcm import MNLLocationChoiceModel, MNLLocationChoiceModelGroup, \
-    SegmentedMNLLocationChoiceModel
+from .dcm import MNLDiscreteChoiceModel, MNLDiscreteChoiceModelGroup, \
+    SegmentedMNLDiscreteChoiceModel
 from .transition import (
     GrowthRateTransition, TabularGrowthRateTransition,
     TabularTotalsTransition, TransitionModel)
