@@ -251,7 +251,7 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
     group.add_segment('y', 'var3 + var1:var2')
 
     expected_dict = {
-        'model_type': 'segmented_locationchoice',
+        'model_type': 'segmented_discretechoice',
         'name': 'test_seg',
         'segmentation_col': 'group',
         'sample_size': sample_size,
