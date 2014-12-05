@@ -56,7 +56,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         'start: unit choice with {} choosers and {} alternatives'.format(
             len(chooser_ids), len(alternative_ids)))
 
-    choices = pd.Series([np.nan] * len(chooser_ids), index=chooser_ids)
+    choices = pd.Series(index=chooser_ids)
 
     if probabilities.sum() == 0:
         # return all nan if there are no available units
