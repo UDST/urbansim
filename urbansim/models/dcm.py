@@ -158,6 +158,33 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
+    probability_mode : str or callable, optional
+        Specify the method to use for calculating probabilities
+        during prediction.
+        Available string options are 'single_chooser' and 'full_product'.
+        In "single chooser" mode one agent is chosen for calculating
+        probabilities across all alternatives. In "full product" mode
+        probabilities are calculated for every chooser across all alternatives.
+
+        You may also provide your own function for calculating probabilities.
+        It will be called with three arguments: this MNLDiscreteChoiceModel,
+        the choosers table, and the alternatives table.
+        It should return a single Series with a MultiIndex of chooser IDs
+        on the outside and alternative IDs on the outside.
+    choice_mode : str or callable, optional
+        Specify the method to use for making choices among alternatives.
+        Available string options are 'individual' and 'aggregate'.
+        In "individual" mode choices will be made separately for each chooser.
+        In "aggregate" mode choices are made for all choosers at once.
+        Aggregate mode implies that an alternative chosen by one agent
+        is unavailable to other agents and that the same probabilities
+        can be used for all choosers.
+
+        You may also provide your function for assigning choosers to
+        alternatives. The function will be called with this
+        MNLDiscreteChoiceModel, the probabilities Series, the choosers
+        table, and the alternatives table. It should return a Series
+        mapping chooser IDs to alternative IDs.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -182,14 +209,18 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         in output.
 
     """
-    def __init__(self, model_expression, sample_size,
-                 choosers_fit_filters=None, choosers_predict_filters=None,
-                 alts_fit_filters=None, alts_predict_filters=None,
-                 interaction_predict_filters=None,
-                 estimation_sample_size=None,
-                 choice_column=None, name=None):
+    def __init__(
+            self, model_expression, sample_size,
+            probability_mode='full_product', choice_mode='individual',
+            choosers_fit_filters=None, choosers_predict_filters=None,
+            alts_fit_filters=None, alts_predict_filters=None,
+            interaction_predict_filters=None,
+            estimation_sample_size=None,
+            choice_column=None, name=None):
         self.model_expression = model_expression
         self.sample_size = sample_size
+        self.probability_mode = probability_mode
+        self.choice_mode = choice_mode
         self.choosers_fit_filters = choosers_fit_filters
         self.choosers_predict_filters = choosers_predict_filters
         self.alts_fit_filters = alts_fit_filters
@@ -226,6 +257,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         model = cls(
             cfg['model_expression'],
             cfg['sample_size'],
+            probability_mode=cfg.get('probability_mode', 'full_product'),
+            choice_mode=cfg.get('choice_mode', 'individual'),
             choosers_fit_filters=cfg.get('choosers_fit_filters', None),
             choosers_predict_filters=cfg.get('choosers_predict_filters', None),
             alts_fit_filters=cfg.get('alts_fit_filters', None),
@@ -549,6 +582,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             'model_expression': self.model_expression,
             'sample_size': self.sample_size,
             'name': self.name,
+            'probability_mode': self.probability_mode,
+            'choice_mode': self.choice_mode,
             'choosers_fit_filters': self.choosers_fit_filters,
             'choosers_predict_filters': self.choosers_predict_filters,
             'alts_fit_filters': self.alts_fit_filters,
@@ -581,6 +616,11 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         """
         logger.debug('serializing LCM model {} to YAML'.format(self.name))
+        if (not isinstance(self.probability_mode, str) or
+                not isinstance(self.choice_mode, str)):
+            raise TypeError(
+                'Cannot serialize model with non-string probability_mode '
+                'or choice_mode attributes.')
         return yamlio.convert_to_yaml(self.to_dict(), str_or_buffer)
 
     def choosers_columns_used(self):
@@ -743,6 +783,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
 
     def add_model_from_params(
             self, name, model_expression, sample_size,
+            probability_mode='full_product', choice_mode='individual',
             choosers_fit_filters=None, choosers_predict_filters=None,
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None, estimation_sample_size=None,
@@ -758,6 +799,35 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             A patsy model expression. Should contain only a right-hand side.
         sample_size : int
             Number of choices to sample for estimating the model.
+        probability_mode : str or callable, optional
+            Specify the method to use for calculating probabilities
+            during prediction.
+            Available string options are 'single_chooser' and 'full_product'.
+            In "single chooser" mode one agent is chosen for calculating
+            probabilities across all alternatives. In "full product" mode
+            probabilities are calculated for every chooser across all
+            alternatives.
+
+            You may also provide your own function for calculating
+            probabilities. It will be called with three arguments:
+            this MNLDiscreteChoiceModel, the choosers table,
+            and the alternatives table.
+            It should return a single Series with a MultiIndex of chooser IDs
+            on the outside and alternative IDs on the outside.
+        choice_mode : str or callable, optional
+            Specify the method to use for making choices among alternatives.
+            Available string options are 'individual' and 'aggregate'.
+            In "individual" mode choices will be made separately for each
+            chooser. In "aggregate" mode choices are made for all choosers at
+            once. Aggregate mode implies that an alternative chosen by one
+            agent is unavailable to other agents and that the same
+            probabilities can be used for all choosers.
+
+            You may also provide your function for assigning choosers to
+            alternatives. The function will be called with this
+            MNLDiscreteChoiceModel, the probabilities Series, the choosers
+            table, and the alternatives table. It should return a Series
+            mapping chooser IDs to alternative IDs.
         choosers_fit_filters : list of str, optional
             Filters applied to choosers table before fitting the model.
         choosers_predict_filters : list of str, optional
@@ -782,6 +852,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         logger.debug('adding model {} to LCM group {}'.format(name, self.name))
         self.models[name] = MNLDiscreteChoiceModel(
             model_expression, sample_size,
+            probability_mode, choice_mode,
             choosers_fit_filters, choosers_predict_filters,
             alts_fit_filters, alts_predict_filters,
             interaction_predict_filters, estimation_sample_size,
@@ -1063,6 +1134,33 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Name of column in the choosers table that will be used for groupby.
     sample_size : int
         Number of choices to sample for estimating the model.
+    probability_mode : str or callable, optional
+        Specify the method to use for calculating probabilities
+        during prediction.
+        Available string options are 'single_chooser' and 'full_product'.
+        In "single chooser" mode one agent is chosen for calculating
+        probabilities across all alternatives. In "full product" mode
+        probabilities are calculated for every chooser across all alternatives.
+
+        You may also provide your own function for calculating probabilities.
+        It will be called with three arguments: this MNLDiscreteChoiceModel,
+        the choosers table, and the alternatives table.
+        It should return a single Series with a MultiIndex of chooser IDs
+        on the outside and alternative IDs on the outside.
+    choice_mode : str or callable, optional
+        Specify the method to use for making choices among alternatives.
+        Available string options are 'individual' and 'aggregate'.
+        In "individual" mode choices will be made separately for each chooser.
+        In "aggregate" mode choices are made for all choosers at once.
+        Aggregate mode implies that an alternative chosen by one agent
+        is unavailable to other agents and that the same probabilities
+        can be used for all choosers.
+
+        You may also provide your function for assigning choosers to
+        alternatives. The function will be called with this
+        MNLDiscreteChoiceModel, the probabilities Series, the choosers
+        table, and the alternatives table. It should return a Series
+        mapping chooser IDs to alternative IDs.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -1088,14 +1186,18 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         An optional string used to identify the model in places.
 
     """
-    def __init__(self, segmentation_col, sample_size,
-                 choosers_fit_filters=None, choosers_predict_filters=None,
-                 alts_fit_filters=None, alts_predict_filters=None,
-                 interaction_predict_filters=None,
-                 estimation_sample_size=None,
-                 choice_column=None, default_model_expr=None, name=None):
+    def __init__(
+            self, segmentation_col, sample_size,
+            probability_mode='full_product', choice_mode='individual',
+            choosers_fit_filters=None, choosers_predict_filters=None,
+            alts_fit_filters=None, alts_predict_filters=None,
+            interaction_predict_filters=None,
+            estimation_sample_size=None,
+            choice_column=None, default_model_expr=None, name=None):
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
+        self.probability_mode = probability_mode
+        self.choice_mode = choice_mode
         self.choosers_fit_filters = choosers_fit_filters
         self.choosers_predict_filters = choosers_predict_filters
         self.alts_fit_filters = alts_fit_filters
@@ -1133,6 +1235,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         seg = cls(
             cfg['segmentation_col'],
             cfg['sample_size'],
+            cfg['probability_mode'],
+            cfg['choice_mode'],
             cfg['choosers_fit_filters'],
             cfg['choosers_predict_filters'],
             cfg['alts_fit_filters'],
@@ -1197,6 +1301,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             name=name,
             model_expression=model_expression,
             sample_size=self.sample_size,
+            probability_mode=self.probability_mode,
+            choice_mode=self.choice_mode,
             choosers_fit_filters=None,
             choosers_predict_filters=None,
             alts_fit_filters=None,
@@ -1424,6 +1530,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         """
         del d['model_type']
         del d['sample_size']
+        del d['probability_mode']
+        del d['choice_mode']
         del d['choosers_fit_filters']
         del d['choosers_predict_filters']
         del d['alts_fit_filters']
@@ -1450,6 +1558,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             'name': self.name,
             'segmentation_col': self.segmentation_col,
             'sample_size': self.sample_size,
+            'probability_mode': self.probability_mode,
+            'choice_mode': self.choice_mode,
             'choosers_fit_filters': self.choosers_fit_filters,
             'choosers_predict_filters': self.choosers_predict_filters,
             'alts_fit_filters': self.alts_fit_filters,

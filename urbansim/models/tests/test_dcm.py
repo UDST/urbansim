@@ -68,6 +68,8 @@ def test_unit_choice_none_available(choosers, alternatives):
 def test_mnl_dcm(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
+    probability_mode = 'full_product'
+    choice_mode = 'individual'
     choosers_fit_filters = ['var1 != 5']
     choosers_predict_filters = ['var1 != 7']
     alts_fit_filters = ['var3 != 15']
@@ -79,6 +81,7 @@ def test_mnl_dcm(choosers, alternatives):
 
     model = dcm.MNLDiscreteChoiceModel(
         model_exp, sample_size,
+        probability_mode, choice_mode,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
@@ -122,6 +125,8 @@ def test_mnl_dcm(choosers, alternatives):
 def test_mnl_dcm_repeated_alts(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
+    probability_mode = 'full_product'
+    choice_mode = 'individual'
     choosers_fit_filters = ['var1 != 5']
     choosers_predict_filters = ['var1 != 7']
     alts_fit_filters = ['var3 != 15']
@@ -133,6 +138,7 @@ def test_mnl_dcm_repeated_alts(choosers, alternatives):
 
     model = dcm.MNLDiscreteChoiceModel(
         model_exp, sample_size,
+        probability_mode, choice_mode,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
@@ -153,6 +159,68 @@ def test_mnl_dcm_repeated_alts(choosers, alternatives):
 
     pdt.assert_index_equal(choices.index, pd.Index([0, 1, 3, 4]))
     assert choices.isin(repeated_alts.index).all()
+
+
+def test_mnl_dcm_yaml(choosers, alternatives):
+    model_exp = 'var2 + var1:var3'
+    sample_size = 5
+    probability_mode = 'full_product'
+    choice_mode = 'individual'
+    choosers_fit_filters = ['var1 != 5']
+    choosers_predict_filters = ['var1 != 7']
+    alts_fit_filters = ['var3 != 15']
+    alts_predict_filters = ['var2 != 14']
+    interaction_predict_filters = None
+    estimation_sample_size = None
+    choice_column = None
+    name = 'Test LCM'
+
+    model = dcm.MNLDiscreteChoiceModel(
+        model_exp, sample_size,
+        probability_mode, choice_mode,
+        choosers_fit_filters, choosers_predict_filters,
+        alts_fit_filters, alts_predict_filters,
+        interaction_predict_filters, estimation_sample_size,
+        choice_column, name)
+
+    expected_dict = {
+        'model_type': 'discretechoice',
+        'model_expression': model_exp,
+        'sample_size': sample_size,
+        'name': name,
+        'probability_mode': probability_mode,
+        'choice_mode': choice_mode,
+        'choosers_fit_filters': choosers_fit_filters,
+        'choosers_predict_filters': choosers_predict_filters,
+        'alts_fit_filters': alts_fit_filters,
+        'alts_predict_filters': alts_predict_filters,
+        'interaction_predict_filters': interaction_predict_filters,
+        'estimation_sample_size': estimation_sample_size,
+        'choice_column': choice_column,
+        'fitted': False,
+        'log_likelihoods': None,
+        'fit_parameters': None
+    }
+
+    assert yaml.load(model.to_yaml()) == expected_dict
+
+    new_mod = dcm.MNLDiscreteChoiceModel.from_yaml(model.to_yaml())
+    assert yaml.load(new_mod.to_yaml()) == expected_dict
+
+    model.fit(choosers, alternatives, 'thing_id')
+
+    expected_dict['fitted'] = True
+    del expected_dict['log_likelihoods']
+    del expected_dict['fit_parameters']
+
+    actual_dict = yaml.load(model.to_yaml())
+    assert isinstance(actual_dict.pop('log_likelihoods'), dict)
+    assert isinstance(actual_dict.pop('fit_parameters'), dict)
+
+    assert actual_dict == expected_dict
+
+    new_mod = dcm.MNLDiscreteChoiceModel.from_yaml(model.to_yaml())
+    assert new_mod.fitted is True
 
 
 def test_mnl_dcm_group(grouped_choosers, alternatives):
@@ -255,6 +323,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
         'name': 'test_seg',
         'segmentation_col': 'group',
         'sample_size': sample_size,
+        'probability_mode': 'full_product',
+        'choice_mode': 'individual',
         'choosers_fit_filters': None,
         'choosers_predict_filters': None,
         'alts_fit_filters': None,
@@ -328,6 +398,8 @@ def test_segmented_dcm_removes_old_models(grouped_choosers, alternatives):
 def test_fit_from_cfg(choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
+    probability_mode = 'full_product'
+    choice_mode = 'individual'
     choosers_fit_filters = ['var1 != 5']
     choosers_predict_filters = ['var1 != 7']
     alts_fit_filters = ['var3 != 15']
@@ -339,6 +411,7 @@ def test_fit_from_cfg(choosers, alternatives):
 
     model = dcm.MNLDiscreteChoiceModel(
         model_exp, sample_size,
+        probability_mode, choice_mode,
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
