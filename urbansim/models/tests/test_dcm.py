@@ -1,3 +1,4 @@
+import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
@@ -9,6 +10,17 @@ from pandas.util import testing as pdt
 from ...utils import testing
 
 from .. import dcm
+
+
+@pytest.fixture
+def seed(request):
+    current = np.random.get_state()
+
+    def fin():
+        np.random.set_state(current)
+    request.addfinalizer(fin)
+
+    np.random.seed(0)
 
 
 @pytest.fixture
@@ -56,6 +68,12 @@ def basic_dcm():
         choice_column, name)
 
     return model
+
+
+@pytest.fixture
+def basic_dcm_fit(basic_dcm, choosers, alternatives):
+    basic_dcm.fit(choosers, alternatives, choosers.thing_id)
+    return basic_dcm
 
 
 def test_unit_choice_uniform(choosers, alternatives):
@@ -115,6 +133,7 @@ def test_mnl_dcm(basic_dcm, choosers, alternatives):
 
     sprobs = basic_dcm.summed_probabilities(choosers, alternatives)
     assert len(sprobs) == len(filtered_alts)
+    npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
     choices = basic_dcm.predict(choosers.iloc[1:], alternatives)
 
@@ -194,6 +213,34 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
 
     new_mod = dcm.MNLDiscreteChoiceModel.from_yaml(basic_dcm.to_yaml())
     assert new_mod.fitted is True
+
+
+def test_mnl_dcm_prob_mode_single(seed, basic_dcm_fit, choosers, alternatives):
+    basic_dcm_fit.probability_mode = 'single_chooser'
+
+    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+        choosers, alternatives)
+
+    probs = basic_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
+
+    pdt.assert_series_equal(
+        probs,
+        pd.Series(
+            [0.25666709612190147,
+             0.20225620916965448,
+             0.15937989234214262,
+             0.1255929308043417,
+             0.077988133629030815,
+             0.061455420294827229,
+             0.04842747874412457,
+             0.038161332007195688,
+             0.030071506886781514],
+            index=pd.MultiIndex.from_product(
+                [[1], filtered_alts.index.values],
+                names=['chooser_ids', 'alternative_ids'])))
+
+    sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
 
 def test_mnl_dcm_group(grouped_choosers, alternatives):

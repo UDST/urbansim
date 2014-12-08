@@ -158,19 +158,13 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         A patsy model expression. Should contain only a right-hand side.
     sample_size : int
         Number of choices to sample for estimating the model.
-    probability_mode : str or callable, optional
+    probability_mode : str, optional
         Specify the method to use for calculating probabilities
         during prediction.
         Available string options are 'single_chooser' and 'full_product'.
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
-
-        You may also provide your own function for calculating probabilities.
-        It will be called with three arguments: this MNLDiscreteChoiceModel,
-        the choosers table, and the alternatives table.
-        It should return a single Series with a MultiIndex of chooser IDs
-        on the outside and alternative IDs on the outside.
     choice_mode : str or callable, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
@@ -461,8 +455,17 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             choosers, alternatives = self.apply_predict_filters(
                 choosers, alternatives)
 
-        _, merged, _ = interaction.mnl_interaction_dataset(
-            choosers, alternatives, len(alternatives))
+        if self.probability_mode == 'single_chooser':
+            _, merged, _ = interaction.mnl_interaction_dataset(
+                choosers.head(1), alternatives, len(alternatives))
+        elif self.probability_mode == 'full_product':
+            _, merged, _ = interaction.mnl_interaction_dataset(
+                choosers, alternatives, len(alternatives))
+        else:
+            raise ValueError(
+                'Unrecognized probability_mode option: {}'.format(
+                    self.probability_mode))
+
         merged = util.apply_filter_query(
             merged, self.interaction_predict_filters)
         model_design = dmatrix(
@@ -516,9 +519,23 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             Total probability associated with each alternative.
 
         """
+        def normalize(s):
+            return s / s.sum()
+
+        choosers, alternatives = self.apply_predict_filters(
+            choosers, alternatives)
+        probs = self.probabilities(choosers, alternatives, filter_tables=False)
+
         # groupby the the alternatives ID and sum
-        return self.probabilities(choosers, alternatives)\
-            .groupby(level=1).sum()
+        if self.probability_mode == 'single_chooser':
+            return normalize(probs) * len(choosers)
+        elif self.probability_mode == 'full_product':
+            return probs.groupby(level=0).apply(normalize)\
+                .groupby(level=1).sum()
+        else:
+            raise ValueError(
+                'Unrecognized probability_mode option: {}'.format(
+                    self.probability_mode))
 
     def predict(self, choosers, alternatives, debug=False):
         """
@@ -799,7 +816,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             A patsy model expression. Should contain only a right-hand side.
         sample_size : int
             Number of choices to sample for estimating the model.
-        probability_mode : str or callable, optional
+        probability_mode : str, optional
             Specify the method to use for calculating probabilities
             during prediction.
             Available string options are 'single_chooser' and 'full_product'.
@@ -807,13 +824,6 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             probabilities across all alternatives. In "full product" mode
             probabilities are calculated for every chooser across all
             alternatives.
-
-            You may also provide your own function for calculating
-            probabilities. It will be called with three arguments:
-            this MNLDiscreteChoiceModel, the choosers table,
-            and the alternatives table.
-            It should return a single Series with a MultiIndex of chooser IDs
-            on the outside and alternative IDs on the outside.
         choice_mode : str or callable, optional
             Specify the method to use for making choices among alternatives.
             Available string options are 'individual' and 'aggregate'.
@@ -1134,19 +1144,13 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Name of column in the choosers table that will be used for groupby.
     sample_size : int
         Number of choices to sample for estimating the model.
-    probability_mode : str or callable, optional
+    probability_mode : str, optional
         Specify the method to use for calculating probabilities
         during prediction.
         Available string options are 'single_chooser' and 'full_product'.
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
-
-        You may also provide your own function for calculating probabilities.
-        It will be called with three arguments: this MNLDiscreteChoiceModel,
-        the choosers table, and the alternatives table.
-        It should return a single Series with a MultiIndex of chooser IDs
-        on the outside and alternative IDs on the outside.
     choice_mode : str or callable, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
@@ -1434,7 +1438,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         Returns
         -------
-        probabilties : pandas.Series
+        probabilties : dict of pandas.Series
 
         """
         logger.debug(
