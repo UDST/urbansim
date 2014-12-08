@@ -165,7 +165,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
-    choice_mode : str or callable, optional
+    choice_mode : str, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
         In "individual" mode choices will be made separately for each chooser.
@@ -173,12 +173,6 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Aggregate mode implies that an alternative chosen by one agent
         is unavailable to other agents and that the same probabilities
         can be used for all choosers.
-
-        You may also provide your function for assigning choosers to
-        alternatives. The function will be called with this
-        MNLDiscreteChoiceModel, the probabilities Series, the choosers
-        table, and the alternatives table. It should return a Series
-        mapping chooser IDs to alternative IDs.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -578,12 +572,21 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         if debug:
             self.sim_pdf = probabilities
 
-        def mkchoice(probs):
-            probs.reset_index(0, drop=True, inplace=True)
-            return np.random.choice(
-                probs.index.values, p=probs.values / probs.sum())
-        choices = probabilities.groupby(level='chooser_id', sort=False)\
-            .apply(mkchoice)
+        if self.choice_mode == 'aggregate':
+            choices = unit_choice(
+                choosers.index.values,
+                probabilities.index.get_level_values('alternative_id').values,
+                probabilities.values)
+        elif self.choice_mode == 'individual':
+            def mkchoice(probs):
+                probs.reset_index(0, drop=True, inplace=True)
+                return np.random.choice(
+                    probs.index.values, p=probs.values / probs.sum())
+            choices = probabilities.groupby(level='chooser_id', sort=False)\
+                .apply(mkchoice)
+        else:
+            raise ValueError(
+                'Unrecognized choice_mode option: {}'.format(self.choice_mode))
 
         logger.debug('finish: predict LCM model {}'.format(self.name))
         return choices
@@ -832,12 +835,6 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             once. Aggregate mode implies that an alternative chosen by one
             agent is unavailable to other agents and that the same
             probabilities can be used for all choosers.
-
-            You may also provide your function for assigning choosers to
-            alternatives. The function will be called with this
-            MNLDiscreteChoiceModel, the probabilities Series, the choosers
-            table, and the alternatives table. It should return a Series
-            mapping chooser IDs to alternative IDs.
         choosers_fit_filters : list of str, optional
             Filters applied to choosers table before fitting the model.
         choosers_predict_filters : list of str, optional
@@ -1159,12 +1156,6 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Aggregate mode implies that an alternative chosen by one agent
         is unavailable to other agents and that the same probabilities
         can be used for all choosers.
-
-        You may also provide your function for assigning choosers to
-        alternatives. The function will be called with this
-        MNLDiscreteChoiceModel, the probabilities Series, the choosers
-        table, and the alternatives table. It should return a Series
-        mapping chooser IDs to alternative IDs.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional

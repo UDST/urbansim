@@ -109,7 +109,7 @@ def test_unit_choice_none_available(choosers, alternatives):
     assert choices.isnull().all()
 
 
-def test_mnl_dcm(basic_dcm, choosers, alternatives):
+def test_mnl_dcm(seed, basic_dcm, choosers, alternatives):
     assert basic_dcm.choosers_columns_used() == ['var1']
     assert set(basic_dcm.alts_columns_used()) == {'var2', 'var3'}
     assert set(basic_dcm.interaction_columns_used()) == \
@@ -137,8 +137,9 @@ def test_mnl_dcm(basic_dcm, choosers, alternatives):
 
     choices = basic_dcm.predict(choosers.iloc[1:], alternatives)
 
-    pdt.assert_index_equal(choices.index, pd.Index([1, 3, 4]))
-    assert choices.isin(alternatives.index).all()
+    pdt.assert_series_equal(
+        choices,
+        pd.Series(['h', 'c', 'f'], index=[1, 3, 4]))
 
     # check that we can do a YAML round-trip
     yaml_str = basic_dcm.to_yaml()
@@ -241,6 +242,20 @@ def test_mnl_dcm_prob_mode_single(seed, basic_dcm_fit, choosers, alternatives):
 
     sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
+
+
+def test_mnl_dcm_choice_mode_agg(seed, basic_dcm_fit, choosers, alternatives):
+    basic_dcm_fit.probability_mode = 'single_chooser'
+    basic_dcm_fit.choice_mode = 'aggregate'
+
+    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+        choosers, alternatives)
+
+    choices = basic_dcm_fit.predict(choosers, alternatives)
+
+    pdt.assert_series_equal(
+        choices,
+        pd.Series(['f', 'a', 'd', 'c'], index=[0, 1, 3, 4]))
 
 
 def test_mnl_dcm_group(grouped_choosers, alternatives):
