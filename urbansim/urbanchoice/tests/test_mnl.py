@@ -138,3 +138,75 @@ def test_mnl_simulate(dm, fit_coeffs, num_alts, test_data, choosers_dm):
     results = pd.DataFrame(probs, columns=test_data['sim_expected'].columns)
     results, expected = results.align(test_data['sim_expected'])
     npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
+
+
+def test_alternative_specific_coeffs(num_alts):
+    template = np.array(
+        [[0, 0, 0],
+         [1, 0, 0],
+         [0, 1, 0],
+         [0, 0, 1]])
+
+    fish = df({'data': 'fish.csv'})
+    fish_choosers = choosers({'choosers': 'fish_choosers.csv'})
+    fish_chosen = chosen(fish, num_alts, {'column': 'mode'})
+
+    # construct design matrix with columns repeated for 3 / 4 of alts
+    num_choosers = len(fish['chid'].unique())
+
+    intercept_df = pd.DataFrame(
+        np.tile(template, (num_choosers, 1)),
+        columns=[
+            'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)'])
+    income_df = pd.DataFrame(
+        np.tile(template, (num_choosers, 1)),
+        columns=[
+            'boat:income', 'charter:income', 'pier:income'])
+
+    for idx, row in fish.iterrows():
+        income_df.loc[idx] = income_df.loc[idx] * row['income']
+
+    dm = pd.concat([intercept_df, income_df], axis=1)
+
+    # construct choosers design matrix
+    num_choosers = len(fish_choosers['chid'].unique())
+
+    intercept_df = pd.DataFrame(
+        np.tile(template, (num_choosers, 1)),
+        columns=[
+            'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)'])
+    income_df = pd.DataFrame(
+        np.tile(template, (num_choosers, 1)),
+        columns=[
+            'boat:income', 'charter:income', 'pier:income'])
+
+    for idx, row in fish_choosers.iterrows():
+        income_df.loc[idx] = income_df.loc[idx] * row['income']
+
+    choosers_dm = pd.concat([intercept_df, income_df], axis=1)
+
+    # test estimation
+    expected = pd.Series([
+        7.389208e-01, 1.341291e+00, 8.141503e-01, 9.190636e-05,
+        -3.163988e-05, -1.434029e-04],
+        index=[
+            'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)',
+            'boat:income', 'charter:income', 'pier:income'])
+
+    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), fish_chosen, num_alts)
+    result = pd.Series(fit.Coefficient.values, index=dm.columns)
+    result, expected = result.align(expected)
+    npt.assert_allclose(result.values, expected.values, rtol=1e-4)
+
+    # test simulation
+    expected = pd.DataFrame([
+        [0.1137676, 0.2884583, 0.4072931, 0.190481],
+        [0.1153440, 0.3408657, 0.3917253, 0.152065]],
+        columns=['beach', 'boat', 'charter', 'pier'])
+
+    fit_coeffs = fit.Coefficient.values
+    probs = mnl.mnl_simulate(
+        choosers_dm.as_matrix(), fit_coeffs, num_alts, returnprobs=True)
+    results = pd.DataFrame(probs, columns=expected.columns)
+    results, expected = results.align(expected)
+    npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
