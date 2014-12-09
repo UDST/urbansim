@@ -28,6 +28,14 @@ print(predict(mnl, newdata=fish_choosers))
 print('******************')
 print('******************')
 
+mnl = mlogit(mode ~ 0 | income, data=Fish)
+summary(mnl)
+print(mnl$coefficients)
+print(predict(mnl, newdata=fish_choosers))
+
+print('******************')
+print('******************')
+
 data('TravelMode', package='AER')
 TravelMode = mlogit.data(TravelMode, shape='long', choice='choice', varying=c(3:7), alt.var='mode')
 write.csv(TravelMode, file='travel_mode.csv')
