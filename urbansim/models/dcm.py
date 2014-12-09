@@ -776,13 +776,22 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
 
     Parameters
     ----------
-    segmentation_col
+    segmentation_col : str
         Name of a column in the table of choosers. Will be used to perform
         a pandas groupby on the choosers table.
+    remove_alts : bool, optional
+        Specify how to handle alternatives between prediction for different
+        models. If False, the alternatives table is not modified between
+        predictions. If True, alternatives that have been chosen
+        are removed from the alternatives table before doing another
+        round of prediction.
+    name : str, optional
+        A name that may be used in places to identify this group.
 
     """
-    def __init__(self, segmentation_col, name=None):
+    def __init__(self, segmentation_col, remove_alts=False, name=None):
         self.segmentation_col = segmentation_col
+        self.remove_alts = remove_alts
         self.name = name if name is not None else 'MNLDiscreteChoiceModelGroup'
         self.models = {}
 
@@ -1088,6 +1097,9 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
 
         for name, df in self._iter_groups(choosers):
             choices = self.models[name].predict(df, alternatives, debug=debug)
+            if self.remove_alts:
+                alternatives = alternatives.loc[
+                    ~alternatives.index.isin(choices)]
             results.append(choices)
 
         logger.debug(
@@ -1177,6 +1189,12 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         the alternatives index is used.
     default_model_expr : str, iterable, or dict, optional
         A patsy model expression. Should contain only a right-hand side.
+    remove_alts : bool, optional
+        Specify how to handle alternatives between prediction for different
+        models. If False, the alternatives table is not modified between
+        predictions. If True, alternatives that have been chosen
+        are removed from the alternatives table before doing another
+        round of prediction.
     name : str, optional
         An optional string used to identify the model in places.
 
@@ -1188,7 +1206,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None,
             estimation_sample_size=None,
-            choice_column=None, default_model_expr=None, name=None):
+            choice_column=None, default_model_expr=None, remove_alts=False,
+            name=None):
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
         self.probability_mode = probability_mode
@@ -1201,7 +1220,9 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.estimation_sample_size = estimation_sample_size
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
-        self._group = MNLDiscreteChoiceModelGroup(segmentation_col)
+        self.remove_alts = remove_alts
+        self._group = MNLDiscreteChoiceModelGroup(
+            segmentation_col, remove_alts=remove_alts)
         self.name = (name if name is not None else
                      'SegmentedMNLDiscreteChoiceModel')
 
@@ -1240,6 +1261,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             cfg['estimation_sample_size'],
             cfg['choice_column'],
             default_model_expr,
+            cfg['remove_alts'],
             cfg['name'])
 
         if "models" not in cfg:
@@ -1565,6 +1587,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             'default_config': {
                 'model_expression': self.default_model_expr,
             },
+            'remove_alts': self.remove_alts,
             'fitted': self.fitted,
             'models': {
                 yamlio.to_scalar_safe(name):

@@ -258,7 +258,7 @@ def test_mnl_dcm_choice_mode_agg(seed, basic_dcm_fit, choosers, alternatives):
         pd.Series(['f', 'a', 'd', 'c'], index=[0, 1, 3, 4]))
 
 
-def test_mnl_dcm_group(grouped_choosers, alternatives):
+def test_mnl_dcm_group(seed, grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
     choosers_predict_filters = ['var1 != 7']
@@ -296,10 +296,22 @@ def test_mnl_dcm_group(grouped_choosers, alternatives):
     sprobs = group.summed_probabilities(grouped_choosers, alternatives)
     assert len(sprobs) == len(filtered_alts)
 
+    choice_state = np.random.get_state()
     choices = group.predict(grouped_choosers, alternatives)
 
-    assert len(choices) == len(filtered_choosers)
-    assert choices.isin(alternatives.index).all()
+    pdt.assert_series_equal(
+        choices,
+        pd.Series(['c', 'a', 'a', 'g'], index=[0, 3, 1, 4]))
+
+    # check that we don't get the same alt twice if they are removed
+    # make sure we're starting from the same random state as the last draw
+    np.random.set_state(choice_state)
+    group.remove_alts = True
+    choices = group.predict(grouped_choosers, alternatives)
+
+    pdt.assert_series_equal(
+        choices,
+        pd.Series(['c', 'a', 'b', 'g'], index=[0, 3, 1, 4]))
 
 
 def test_mnl_dcm_segmented_raises():
@@ -309,7 +321,7 @@ def test_mnl_dcm_segmented_raises():
         group.add_segment('x')
 
 
-def test_mnl_dcm_segmented(grouped_choosers, alternatives):
+def test_mnl_dcm_segmented(seed, grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
@@ -338,10 +350,22 @@ def test_mnl_dcm_segmented(grouped_choosers, alternatives):
     sprobs = group.summed_probabilities(grouped_choosers, alternatives)
     assert len(sprobs) == len(alternatives)
 
+    choice_state = np.random.get_state()
     choices = group.predict(grouped_choosers, alternatives)
 
-    assert len(choices) == len(grouped_choosers)
-    assert choices.isin(alternatives.index).all()
+    pdt.assert_series_equal(
+        choices,
+        pd.Series(['c', 'a', 'b', 'a', 'j'], index=[0, 2, 3, 1, 4]))
+
+    # check that we don't get the same alt twice if they are removed
+    # make sure we're starting from the same random state as the last draw
+    np.random.set_state(choice_state)
+    group._group.remove_alts = True
+    choices = group.predict(grouped_choosers, alternatives)
+
+    pdt.assert_series_equal(
+        choices,
+        pd.Series(['c', 'a', 'b', 'd', 'j'], index=[0, 2, 3, 1, 4]))
 
 
 def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
@@ -370,6 +394,7 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
         'default_config': {
             'model_expression': model_exp,
         },
+        'remove_alts': False,
         'fitted': False,
         'models': {
             'x': {
