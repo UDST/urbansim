@@ -1,6 +1,6 @@
+import numpy as np
 import numpy.testing as npt
 import pandas as pd
-import pandas.util.testing as pdt
 import pytest
 
 from .. import interaction as inter
@@ -37,4 +37,17 @@ def test_interaction_dataset_sim(choosers, alternatives):
     npt.assert_array_equal(merged.index.values, sample)
     assert list(merged.columns) == [
         'var2', 'var3', 'join_index', 'thing_id', 'var1']
-    assert merged['join_index'].isin(choosers.index).all()
+    npt.assert_array_equal(
+        merged['var1'].values,
+        choosers['var1'].values.repeat(len(alternatives)))
+    npt.assert_array_equal(
+        merged['thing_id'].values,
+        choosers['thing_id'].values.repeat(len(alternatives)))
+    npt.assert_array_equal(
+        merged['join_index'], choosers.index.values.repeat(len(alternatives)))
+    npt.assert_array_equal(
+        merged['var2'].values,
+        np.tile(alternatives['var2'].values, len(choosers)))
+    npt.assert_array_equal(
+        merged['var3'].values,
+        np.tile(alternatives['var3'].values, len(choosers)))
