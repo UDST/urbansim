@@ -52,16 +52,18 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     # SAMPLE_SIZE >= numalts. That may not happen often in
     # practical situations but it should be supported
     # because a) why not? and b) testing.
+    alts_idx = np.arange(len(alternatives))
     if SAMPLE_SIZE < numalts:
-        sample = np.random.choice(
-            alternatives.index.values, SAMPLE_SIZE * numchoosers)
+        sample = np.random.choice(alts_idx, SAMPLE_SIZE * numchoosers)
         if chosenalts is not None:
             # replace the first row for each chooser with
             # the currently chosen alternative.
-            sample[::SAMPLE_SIZE] = chosenalts
+            # chosenalts -> integer position
+            sample[::SAMPLE_SIZE] = pd.Series(
+                alts_idx, index=alternatives.index).loc[chosenalts].values
     else:
         assert chosenalts is None  # if not sampling, must be simulating
-        sample = np.tile(alternatives.index.values, numchoosers)
+        sample = np.tile(alts_idx, numchoosers)
 
     if not choosers.index.is_unique:
         raise Exception(
@@ -72,7 +74,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
             "ERROR: alternatives index is not unique, "
             "sample will not work correctly")
 
-    alts_sample = alternatives.loc[sample]
+    alts_sample = alternatives.take(sample)
     assert len(alts_sample.index) == SAMPLE_SIZE * len(choosers.index)
     alts_sample['join_index'] = np.repeat(choosers.index.values, SAMPLE_SIZE)
 
@@ -84,4 +86,4 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     chosen[:, 0] = 1
 
     logger.debug('finish: compute MNL interaction dataset')
-    return sample, alts_sample, chosen
+    return alternatives.index.values[sample], alts_sample, chosen
