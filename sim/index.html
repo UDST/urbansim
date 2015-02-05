@@ -471,9 +471,20 @@ Use the <a class="reference internal" href="#urbansim.sim.simulation.add_injecta
 </div>
 <p>Be default injectable functions are evaluated before injection and the return
 value is passed into other functions. Use <tt class="docutils literal"><span class="pre">autocall=False</span></tt> to disable this
-behavior and instead inject the wrapped function itself.
-Like tables and columns, injectable functions can have their results
-cached with <tt class="docutils literal"><span class="pre">cache=True</span></tt>.</p>
+behavior and instead inject the function itself.
+Like tables and columns, injectable functions that are automatically evaluated
+can have their results cached with <tt class="docutils literal"><span class="pre">cache=True</span></tt>.</p>
+<p>Functions that are not automatically evaluated can also have their results
+cached using the <tt class="docutils literal"><span class="pre">memoize=True</span></tt> keyword along with <tt class="docutils literal"><span class="pre">autocall=False</span></tt>.
+A memoized injectable will cache results based on the function inputs,
+so this only works if the function inputs are hashable
+(usable as dictionary keys).
+Memoized functions can have their caches cleared manually using their
+<tt class="docutils literal"><span class="pre">clear_cached</span></tt> function attribute.
+The caches of memoized functions are also hooked into the global simulation
+caching system,
+so you can also manage their caches via the <tt class="docutils literal"><span class="pre">cache_scope</span></tt> keyword argument
+and the <a class="reference internal" href="#urbansim.sim.simulation.clear_cache" title="urbansim.sim.simulation.clear_cache"><tt class="xref py py-func docutils literal"><span class="pre">clear_cache()</span></tt></a> function.</p>
 <p>An example of the above injectables in IPython:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">38</span><span class="p">]:</span> <span class="n">wrapped</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="s">&#39;ztable&#39;</span><span class="p">)</span>
 
@@ -819,7 +830,7 @@ like to specifically document that in the function&#8217;s arguments.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.add_injectable" title="urbansim.sim.simulation.add_injectable"><tt class="xref py py-obj docutils literal"><span class="pre">add_injectable</span></tt></a>(name,&nbsp;value[,&nbsp;autocall,&nbsp;...])</td>
 <td>Add a value that will be injected into other functions.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.injectable" title="urbansim.sim.simulation.injectable"><tt class="xref py py-obj docutils literal"><span class="pre">injectable</span></tt></a>([name,&nbsp;autocall,&nbsp;cache,&nbsp;cache_scope])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.sim.simulation.injectable" title="urbansim.sim.simulation.injectable"><tt class="xref py py-obj docutils literal"><span class="pre">injectable</span></tt></a>([name,&nbsp;autocall,&nbsp;cache,&nbsp;...])</td>
 <td>Decorates functions that will be injected into other functions.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.sim.simulation.get_injectable" title="urbansim.sim.simulation.get_injectable"><tt class="xref py py-obj docutils literal"><span class="pre">get_injectable</span></tt></a>(name)</td>
@@ -1238,7 +1249,7 @@ a single step of the simulation.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.add_injectable">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_injectable</tt><big>(</big><em>name</em>, <em>value</em>, <em>autocall=True</em>, <em>cache=False</em>, <em>cache_scope='forever'</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_injectable" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">add_injectable</tt><big>(</big><em>name</em>, <em>value</em>, <em>autocall=True</em>, <em>cache=False</em>, <em>cache_scope='forever'</em>, <em>memoize=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#add_injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.add_injectable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a value that will be injected into other functions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1266,11 +1277,19 @@ the function itself.</p>
 Only applies when <cite>value</cite> is a callable and <cite>autocall</cite> is True.</p>
 </div></blockquote>
 <p><strong>cache_scope</strong> : {&#8216;step&#8217;, &#8216;iteration&#8217;, &#8216;forever&#8217;}, optional</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Scope for which to cache data. Default is to cache forever
 (or until manually cleared). &#8216;iteration&#8217; caches data for each
 complete iteration of the simulation, &#8216;step&#8217; caches data for
 a single step of the simulation.</p>
+</div></blockquote>
+<p><strong>memoize</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>If autocall is False it is still possible to cache function results
+by setting this flag to True. Cached values are stored in a dictionary
+keyed by argument values, so the argument values must be hashable.
+Memoized functions have their caches cleared according to the same
+rules as universal caching.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -1544,7 +1563,7 @@ had been injected into a function.</p>
 
 <dl class="function">
 <dt id="urbansim.sim.simulation.injectable">
-<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">injectable</tt><big>(</big><em>name=None</em>, <em>autocall=True</em>, <em>cache=False</em>, <em>cache_scope='forever'</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.injectable" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">urbansim.sim.simulation.</tt><tt class="descname">injectable</tt><big>(</big><em>name=None</em>, <em>autocall=True</em>, <em>cache=False</em>, <em>cache_scope='forever'</em>, <em>memoize=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/sim/simulation.html#injectable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.sim.simulation.injectable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorates functions that will be injected into other functions.</p>
 <p>Decorator version of <cite>add_injectable</cite>. Name defaults to
 name of function.</p>
