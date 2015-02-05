@@ -340,9 +340,21 @@ Use the :py:func:`~urbansim.sim.simulation.add_injectable` function or the
 
 Be default injectable functions are evaluated before injection and the return
 value is passed into other functions. Use ``autocall=False`` to disable this
-behavior and instead inject the wrapped function itself.
-Like tables and columns, injectable functions can have their results
-cached with ``cache=True``.
+behavior and instead inject the function itself.
+Like tables and columns, injectable functions that are automatically evaluated
+can have their results cached with ``cache=True``.
+
+Functions that are not automatically evaluated can also have their results
+cached using the ``memoize=True`` keyword along with ``autocall=False``.
+A memoized injectable will cache results based on the function inputs,
+so this only works if the function inputs are hashable
+(usable as dictionary keys).
+Memoized functions can have their caches cleared manually using their
+``clear_cached`` function attribute.
+The caches of memoized functions are also hooked into the global simulation
+caching system,
+so you can also manage their caches via the ``cache_scope`` keyword argument
+and the :py:func:`~urbansim.sim.simulation.clear_cache` function.
 
 An example of the above injectables in IPython:
 
