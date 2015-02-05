@@ -598,6 +598,54 @@ def test_injectables_cache_disabled():
     assert i()() == 16
 
 
+def test_memoized_injectable():
+    outside = 'x'
+
+    @sim.injectable(autocall=False, memoize=True)
+    def x(s):
+        return outside + s
+
+    assert 'x' in sim._MEMOIZED
+
+    getx = lambda: sim.get_injectable('x')
+
+    assert hasattr(getx(), 'cache')
+    assert hasattr(getx(), 'clear_cached')
+
+    assert getx()('y') == 'xy'
+    outside = 'z'
+    assert getx()('y') == 'xy'
+
+    getx().clear_cached()
+
+    assert getx()('y') == 'zy'
+
+
+def test_memoized_injectable_cache_off():
+    outside = 'x'
+
+    @sim.injectable(autocall=False, memoize=True)
+    def x(s):
+        return outside + s
+
+    getx = lambda: sim.get_injectable('x')('y')
+
+    sim.disable_cache()
+
+    assert getx() == 'xy'
+    outside = 'z'
+    assert getx() == 'zy'
+
+    sim.enable_cache()
+    outside = 'a'
+
+    assert getx() == 'zy'
+
+    sim.disable_cache()
+
+    assert getx() == 'ay'
+
+
 def test_clear_cache_all(df):
     @sim.table(cache=True)
     def table():
@@ -611,18 +659,25 @@ def test_clear_cache_all(df):
     def x():
         return 'x'
 
+    @sim.injectable(autocall=False, memoize=True)
+    def y(s):
+        return s + 'y'
+
     sim.eval_variable('table.z')
     sim.eval_variable('x')
+    sim.get_injectable('y')('x')
 
     assert sim._TABLE_CACHE.keys() == ['table']
     assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
     assert sim._INJECTABLE_CACHE.keys() == ['x']
+    assert sim._MEMOIZED['y'].value.cache == {(('x',), None): 'xy'}
 
     sim.clear_cache()
 
     assert sim._TABLE_CACHE == {}
     assert sim._COLUMN_CACHE == {}
     assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {}
 
 
 def test_clear_cache_scopes(df):
@@ -638,30 +693,39 @@ def test_clear_cache_scopes(df):
     def x():
         return 'x'
 
+    @sim.injectable(autocall=False, memoize=True, cache_scope='iteration')
+    def y(s):
+        return s + 'y'
+
     sim.eval_variable('table.z')
     sim.eval_variable('x')
+    sim.get_injectable('y')('x')
 
     assert sim._TABLE_CACHE.keys() == ['table']
     assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
     assert sim._INJECTABLE_CACHE.keys() == ['x']
+    assert sim._MEMOIZED['y'].value.cache == {(('x',), None): 'xy'}
 
     sim.clear_cache(scope='step')
 
     assert sim._TABLE_CACHE.keys() == ['table']
     assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
     assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {(('x',), None): 'xy'}
 
     sim.clear_cache(scope='iteration')
 
     assert sim._TABLE_CACHE.keys() == ['table']
     assert sim._COLUMN_CACHE == {}
     assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {}
 
     sim.clear_cache(scope='forever')
 
     assert sim._TABLE_CACHE == {}
     assert sim._COLUMN_CACHE == {}
     assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {}
 
 
 def test_cache_scope(df):
