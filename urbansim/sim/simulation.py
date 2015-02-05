@@ -6,6 +6,7 @@ import time
 import warnings
 from collections import Callable, namedtuple
 from contextlib import contextmanager
+from functools import wraps
 
 import pandas as pd
 import tables
@@ -27,6 +28,7 @@ _CACHING = True
 _TABLE_CACHE = {}
 _COLUMN_CACHE = {}
 _INJECTABLE_CACHE = {}
+_MEMOIZED = {}
 
 _CS_FOREVER = 'forever'
 _CS_ITER = 'iteration'
@@ -48,6 +50,9 @@ def clear_sim():
     _TABLE_CACHE.clear()
     _COLUMN_CACHE.clear()
     _INJECTABLE_CACHE.clear()
+    for m in _MEMOIZED.values():
+        m.value.clear_cached()
+    _MEMOIZED.clear()
     logger.debug('simulation state cleared')
 
 
@@ -66,12 +71,16 @@ def clear_cache(scope=None):
         _TABLE_CACHE.clear()
         _COLUMN_CACHE.clear()
         _INJECTABLE_CACHE.clear()
+        for m in _MEMOIZED.values():
+            m.value.clear_cached()
         logger.debug('simulation cache cleared')
     else:
         for d in (_TABLE_CACHE, _COLUMN_CACHE, _INJECTABLE_CACHE):
             items = toolz.valfilter(lambda x: x.scope == scope, d)
             for k in items:
                 del d[k]
+        for m in toolz.filter(lambda x: x.scope == scope, _MEMOIZED.values()):
+            m.value.clear_cached()
         logger.debug('cleared cached values with scope {!r}'.format(scope))
 
 
@@ -1022,8 +1031,52 @@ def _columns_for_table(table_name):
             if tname == table_name}
 
 
+def _memoize_function(f, name, cache_scope=_CS_FOREVER):
+    """
+    Wraps a function for memoization and ties it's cache into the
+    simulation cacheing system.
+
+    Parameters
+    ----------
+    f : function
+    name : str
+        Name of injectable.
+    cache_scope : {'step', 'iteration', 'forever'}, optional
+        Scope for which to cache data. Default is to cache forever
+        (or until manually cleared). 'iteration' caches data for each
+        complete iteration of the simulation, 'step' caches data for
+        a single step of the simulation.
+
+    """
+    cache = {}
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            cache_key = (
+                args or None, frozenset(kwargs.items()) if kwargs else None)
+            in_cache = cache_key in cache
+        except TypeError:
+            raise TypeError(
+                'function arguments must be hashable for memoization')
+
+        if _CACHING and in_cache:
+            return cache[cache_key]
+        else:
+            result = f(*args, **kwargs)
+            cache[cache_key] = result
+            return result
+
+    wrapper.cache = cache
+    wrapper.clear_cached = lambda: cache.clear()
+    _MEMOIZED[name] = CacheItem(name, wrapper, cache_scope)
+
+    return wrapper
+
+
 def add_injectable(
-        name, value, autocall=True, cache=False, cache_scope=_CS_FOREVER):
+        name, value, autocall=True, cache=False, cache_scope=_CS_FOREVER,
+        memoize=False):
     """
     Add a value that will be injected into other functions.
 
@@ -1049,18 +1102,30 @@ def add_injectable(
         (or until manually cleared). 'iteration' caches data for each
         complete iteration of the simulation, 'step' caches data for
         a single step of the simulation.
+    memoize : bool, optional
+        If autocall is False it is still possible to cache function results
+        by setting this flag to True. Cached values are stored in a dictionary
+        keyed by argument values, so the argument values must be hashable.
+        Memoized functions have their caches cleared according to the same
+        rules as universal caching.
 
     """
-    if isinstance(value, Callable) and autocall:
-        value = _InjectableFuncWrapper(
-            name, value, cache=cache, cache_scope=cache_scope)
-        # clear any cached data from a previously registered value
-        value.clear_cached()
+    if isinstance(value, Callable):
+        if autocall:
+            value = _InjectableFuncWrapper(
+                name, value, cache=cache, cache_scope=cache_scope)
+            # clear any cached data from a previously registered value
+            value.clear_cached()
+        elif not autocall and memoize:
+            value = _memoize_function(value, name, cache_scope=cache_scope)
+
     logger.debug('registering injectable {!r}'.format(name))
     _INJECTABLES[name] = value
 
 
-def injectable(name=None, autocall=True, cache=False, cache_scope=_CS_FOREVER):
+def injectable(
+        name=None, autocall=True, cache=False, cache_scope=_CS_FOREVER,
+        memoize=False):
     """
     Decorates functions that will be injected into other functions.
 
@@ -1078,7 +1143,8 @@ def injectable(name=None, autocall=True, cache=False, cache_scope=_CS_FOREVER):
         else:
             n = func.__name__
         add_injectable(
-            n, func, autocall=autocall, cache=cache, cache_scope=cache_scope)
+            n, func, autocall=autocall, cache=cache, cache_scope=cache_scope,
+            memoize=memoize)
         return func
     return decorator
 
