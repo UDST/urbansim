@@ -146,8 +146,8 @@ class SqFtProFormaConfig(object):
             }
         }
 
-        self.profit_factor = 1.1
-        self.building_efficiency = .7
+        self.profit_factor = 1.05
+        self.building_efficiency = .9
         self.parcel_coverage = .8
         self.cap_rate = .05
 
@@ -162,9 +162,9 @@ class SqFtProFormaConfig(object):
         self.parking_configs = ['surface', 'deck', 'underground']
 
         self.costs = {
-            "retail": [160.0, 175.0, 200.0, 230.0],
+            "retail": [130.0, 150.0, 170.0, 200.0],
             "industrial": [140.0, 175.0, 200.0, 230.0],
-            "office": [160.0, 175.0, 200.0, 230.0],
+            "office": [130.0, 150.0, 170.0, 200.0],
             "residential": [170.0, 190.0, 210.0, 240.0]
         }
 
@@ -317,6 +317,7 @@ class SqFtProForma(object):
         keys = c.forms.keys()
         keys.sort()
         df_d = {}
+        self.parking_space_use_ratio = {}
         for name in keys:
             # get the use distribution for each
             uses_distrib = c.forms[name]
@@ -347,9 +348,10 @@ class SqFtProForma(object):
                                     c.parking_sqft_d[parking_config])
                                 > 10.0)[0].size == 0:
                             break
-                        building_bulk = orig_bulk - parkingstalls * \
-                            c.parking_sqft_d[parking_config]
-
+                        # slowly shrink the building until the parking spots
+                        # can fit in it - this algorithm converges a bit slower
+                        # but at least it's guaranteed to converge
+                        building_bulk *= .99
                 df['building_sqft'] = building_bulk
 
                 parkingstalls = building_bulk * \
@@ -374,12 +376,16 @@ class SqFtProForma(object):
                     stories = building_bulk / \
                         (c.tiled_parcel_sizes - parkingstalls *
                          c.parking_sqft_d[parking_config])
-                    df['park_sqft'] = parkingstalls * \
-                        c.parking_sqft_d[parking_config]
+                    df['park_sqft'] = 0 
                     # not all fars support surface parking
                     stories[np.where(stories < 0.0)] = np.nan
 
                 df['total_sqft'] = df.building_sqft + df.park_sqft
+                # keep track of the max parking space use proportion for each form
+                self.parking_space_use_ratio[name] = \
+                    max(self.parking_space_use_ratio.get(name, 0),
+                        (df.park_sqft / df.total_sqft).max())
+ 
                 stories /= c.parcel_coverage
                 df['stories'] = np.ceil(stories)
                 df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
@@ -569,16 +575,29 @@ class SqFtProForma(object):
             # cancels here as it should, but the calc was hard to get right
             # and it's just so much more transparent to have it in there twice
             df['max_far_from_dua'] = df.max_dua * \
-                (df.parcel_size / 43560) * \
+                (df.parcel_size / 43560.0) * \
                 df.ave_unit_size / self.config.building_efficiency / \
                 df.parcel_size
-            df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
+
+            # if max_far_from_dua is nan, then use max_far
+            df['max_far_from_dua'] = \
+                df.max_far_from_dua.combine_first(df.max_far)
+
+            df['min_max_fars'] = df[['max_far_from_heights',
                                      'max_far_from_dua']].min(axis=1)
         else:
-            df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
+            df['min_max_fars'] = df[['max_far_from_heights', 
+                                     'max_far']].min(axis=1)
 
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
+        
+        # this caused an issue - need to make sure we're not making "full"
+        # revenue on parking sqft - we will make an assumption about the value a parking
+        # space being some percentage as valuable as interior space so that it has *some* value
+        # this is essentially a tuning parameter (though it would be nice if we could estimate it)
+        # and the parameter can be REDUCED to reduce the impact of parking on space use
+        usable_ratio = c.building_efficiency * (1.0-self.parking_space_use_ratio[form]*.32)
 
         # all possible fars on all parcels
         fars = np.repeat(cost_sqft_index_col, len(df.index), axis=1)
@@ -596,7 +615,7 @@ class SqFtProForma(object):
         total_costs = building_costs + df.land_cost.values
 
         # rent to make for the new building
-        building_revenue = building_bulks * c.building_efficiency *\
+        building_revenue = building_bulks * usable_ratio *\
             df.weighted_rent.values / c.cap_rate
 
         # profit for each form
@@ -626,8 +645,8 @@ class SqFtProForma(object):
 
         resratio = c.res_ratios[form]
         nonresratio = 1.0 - resratio
-        outdf["residential_sqft"] = outdf.building_sqft * c.building_efficiency * resratio
-        outdf["non_residential_sqft"] = outdf.building_sqft * nonresratio
+        outdf["residential_sqft"] = outdf.building_sqft * usable_ratio * resratio
+        outdf["non_residential_sqft"] = outdf.building_sqft * usable_ratio * nonresratio
         outdf["stories"] = outdf["max_profit_far"] / c.parcel_coverage
 
         return outdf
