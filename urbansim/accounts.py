@@ -141,10 +141,10 @@ class Account(object):
         col_names = _column_names_from_metadata(
             t.metadata for t in self.transactions)
 
-        trow = lambda t: (
-            toolz.concatv(
+        def trow(t):
+            return toolz.concatv(
                 (t.amount, t.subaccount),
-                (t.metadata.get(c) for c in col_names)))
+                (t.metadata.get(c) for c in col_names))
         rows = [trow(t) for t in self.transactions]
 
         if len(rows) == 0:

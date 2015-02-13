@@ -49,7 +49,8 @@ def test_predict(test_df):
 
 
 def test_predict_ytransform(test_df):
-    yt = lambda x: x / 2.
+    def yt(x):
+        return x / 2.
     filters = ['col1 in [0, 2, 4]']
     model_exp = 'col1 ~ col2'
     fit = regression.fit_model(test_df, filters, model_exp)
@@ -105,7 +106,10 @@ def test_RegressionModel(test_df):
     fit_filters = ['col1 in [0, 2, 4]']
     predict_filters = ['col1 in [1, 3]']
     model_exp = 'col1 ~ col2'
-    ytransform = lambda x: x / 2.
+
+    def ytransform(x):
+        return x / 2.
+
     name = 'test hedonic'
 
     model = regression.RegressionModel(

@@ -154,7 +154,9 @@ def test_table_copy(df):
                   copy_col=False)
     for column_name in ['a', 'b']:
         label = "test_frame_uncopied.{}".format(column_name)
-        func = lambda col=label: col
+
+        def func(col=label):
+            return col
         for table_name in ['test_copied_columns', 'test_uncopied_columns']:
             sim.add_column(table_name, column_name, func)
 
@@ -288,7 +290,8 @@ def test_column_cache(df):
     def column(variable='x'):
         return series * variable
 
-    c = lambda: sim._COLUMNS[key]
+    def c():
+        return sim._COLUMNS[key]
 
     pdt.assert_series_equal(c()(), series * 2)
     sim.add_injectable('x', 3)
@@ -322,7 +325,8 @@ def test_column_cache_disabled(df):
     def column(x):
         return series * x
 
-    c = lambda: sim._COLUMNS[key]
+    def c():
+        return sim._COLUMNS[key]
 
     sim.disable_cache()
 
@@ -556,7 +560,8 @@ def test_injectables_cache():
     def inj():
         return x * x
 
-    i = lambda: sim._INJECTABLES['inj']
+    def i():
+        return sim._INJECTABLES['inj']
 
     assert i()() == 4
     x = 3
@@ -580,7 +585,8 @@ def test_injectables_cache_disabled():
     def inj():
         return x * x
 
-    i = lambda: sim._INJECTABLES['inj']
+    def i():
+        return sim._INJECTABLES['inj']
 
     sim.disable_cache()
 
@@ -607,7 +613,8 @@ def test_memoized_injectable():
 
     assert 'x' in sim._MEMOIZED
 
-    getx = lambda: sim.get_injectable('x')
+    def getx():
+        return sim.get_injectable('x')
 
     assert hasattr(getx(), 'cache')
     assert hasattr(getx(), 'clear_cached')
@@ -628,7 +635,8 @@ def test_memoized_injectable_cache_off():
     def x(s):
         return outside + s
 
-    getx = lambda: sim.get_injectable('x')('y')
+    def getx():
+        return sim.get_injectable('x')('y')
 
     sim.disable_cache()
 
@@ -819,8 +827,11 @@ def test_write_tables(df, store_name):
 def test_run_and_write_tables(df, store_name):
     sim.add_table('table', df)
 
-    year_key = lambda y: '{}'.format(y)
-    series_year = lambda y: pd.Series([y] * 3, index=df.index)
+    def year_key(y):
+        return '{}'.format(y)
+
+    def series_year(y):
+        return pd.Series([y] * 3, index=df.index)
 
     @sim.model()
     def model(year, table):
