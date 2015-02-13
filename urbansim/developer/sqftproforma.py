@@ -146,8 +146,8 @@ class SqFtProFormaConfig(object):
             }
         }
 
-        self.profit_factor = 1.05
-        self.building_efficiency = .9
+        self.profit_factor = 1.1
+        self.building_efficiency = .7
         self.parcel_coverage = .8
         self.cap_rate = .05
 
@@ -162,9 +162,9 @@ class SqFtProFormaConfig(object):
         self.parking_configs = ['surface', 'deck', 'underground']
 
         self.costs = {
-            "retail": [130.0, 150.0, 170.0, 200.0],
+            "retail": [160.0, 175.0, 200.0, 230.0],
             "industrial": [140.0, 175.0, 200.0, 230.0],
-            "office": [130.0, 150.0, 170.0, 200.0],
+            "office": [160.0, 175.0, 200.0, 230.0],
             "residential": [170.0, 190.0, 210.0, 240.0]
         }
 
@@ -376,7 +376,7 @@ class SqFtProForma(object):
                     stories = building_bulk / \
                         (c.tiled_parcel_sizes - parkingstalls *
                          c.parking_sqft_d[parking_config])
-                    df['park_sqft'] = 0 
+                    df['park_sqft'] = 0
                     # not all fars support surface parking
                     stories[np.where(stories < 0.0)] = np.nan
 
@@ -385,7 +385,7 @@ class SqFtProForma(object):
                 self.parking_space_use_ratio[name] = \
                     max(self.parking_space_use_ratio.get(name, 0),
                         (df.park_sqft / df.total_sqft).max())
- 
+
                 stories /= c.parcel_coverage
                 df['stories'] = np.ceil(stories)
                 df['build_cost_sqft'] = self._building_cost(uses_distrib, stories)
@@ -586,12 +586,12 @@ class SqFtProForma(object):
             df['min_max_fars'] = df[['max_far_from_heights',
                                      'max_far_from_dua']].min(axis=1)
         else:
-            df['min_max_fars'] = df[['max_far_from_heights', 
+            df['min_max_fars'] = df[['max_far_from_heights',
                                      'max_far']].min(axis=1)
 
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
-        
+
         # this caused an issue - need to make sure we're not making "full"
         # revenue on parking sqft - we will make an assumption about the value a parking
         # space being some percentage as valuable as interior space so that it has *some* value
