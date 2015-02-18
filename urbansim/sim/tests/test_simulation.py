@@ -46,7 +46,7 @@ def test_tables(df):
     pdt.assert_series_equal(table.a, df.a)
     pdt.assert_series_equal(table['b'], df['b'])
 
-    table = sim.get_table('test_func')
+    table = sim._TABLES['test_func']
     assert table.index is None
     assert table.columns == []
     assert len(table) is 0
@@ -99,6 +99,99 @@ def test_table_func_cache_disabled(df):
 
     sim.add_injectable('x', 4)
     pdt.assert_frame_equal(sim.get_table('table').to_frame(), df * 3)
+
+
+def test_table_copy(df):
+    sim.add_table('test_frame_copied', df, copy_col=True)
+    sim.add_table('test_frame_uncopied', df, copy_col=False)
+    sim.add_table('test_func_copied', lambda: df, copy_col=True)
+    sim.add_table('test_func_uncopied', lambda: df, copy_col=False)
+
+    @sim.table(copy_col=True)
+    def test_funcd_copied():
+        return df
+
+    @sim.table(copy_col=False)
+    def test_funcd_uncopied():
+        return df
+
+    @sim.table(copy_col=True)
+    def test_funcd_copied2(test_frame_copied):
+        # local returns original, but it is copied by copy_col.
+        return test_frame_copied.local
+
+    @sim.table(copy_col=True)
+    def test_funcd_copied3(test_frame_uncopied):
+        # local returns original, but it is copied by copy_col.
+        return test_frame_uncopied.local
+
+    @sim.table(copy_col=False)
+    def test_funcd_uncopied2(test_frame_copied):
+        # local returns original.
+        return test_frame_copied.local
+
+    @sim.table(copy_col=False)
+    def test_funcd_uncopied3(test_frame_uncopied):
+        # local returns original.
+        return test_frame_uncopied.local
+
+    sim.add_table('test_cache_copied', lambda: df, cache=True, copy_col=True)
+    sim.add_table(
+        'test_cache_uncopied', lambda: df, cache=True, copy_col=False)
+
+    @sim.table(cache=True, copy_col=True)
+    def test_cached_copied():
+        return df
+
+    @sim.table(cache=True, copy_col=False)
+    def test_cached_uncopied():
+        return df
+
+    # Create tables with computed columns.
+    sim.add_table('test_copied_columns', pd.DataFrame(index=df.index),
+                  copy_col=True)
+    sim.add_table('test_uncopied_columns', pd.DataFrame(index=df.index),
+                  copy_col=False)
+    for column_name in ['a', 'b']:
+        label = "test_frame_uncopied.{}".format(column_name)
+
+        def func(col=label):
+            return col
+        for table_name in ['test_copied_columns', 'test_uncopied_columns']:
+            sim.add_column(table_name, column_name, func)
+
+    for name in ['test_frame_uncopied', 'test_func_uncopied',
+                 'test_funcd_uncopied', 'test_funcd_uncopied2',
+                 'test_funcd_uncopied3', 'test_cache_uncopied',
+                 'test_cached_uncopied', 'test_uncopied_columns',
+                 'test_frame_copied', 'test_func_copied',
+                 'test_funcd_copied', 'test_funcd_copied2',
+                 'test_funcd_copied3', 'test_cache_copied',
+                 'test_cached_copied', 'test_copied_columns']:
+        table = sim.get_table(name)
+        table2 = sim.get_table(name)
+
+        # to_frame will always return a copy.
+        pdt.assert_frame_equal(table.to_frame(), df)
+        assert table.to_frame() is not df
+        pdt.assert_frame_equal(table.to_frame(), table.to_frame())
+        assert table.to_frame() is not table.to_frame()
+        pdt.assert_series_equal(table.to_frame()['a'], df['a'])
+        assert table.to_frame()['a'] is not df['a']
+        pdt.assert_series_equal(table.to_frame()['a'],
+                                table.to_frame()['a'])
+        assert table.to_frame()['a'] is not table.to_frame()['a']
+
+        if 'uncopied' in name:
+            pdt.assert_series_equal(table['a'], df['a'])
+            assert table['a'] is df['a']
+            pdt.assert_series_equal(table['a'], table2['a'])
+            assert table['a'] is table2['a']
+        else:
+            pdt.assert_series_equal(table['a'], df['a'])
+            assert table['a'] is not df['a']
+            pdt.assert_series_equal(table['a'], table2['a'])
+            assert table['a'] is not table2['a']
 
 
 def test_columns_for_table():
@@ -161,7 +254,7 @@ def test_columns_and_tables(df):
              'c': [7, 8, 9]},
             index=['x', 'y', 'z']))
 
-    test_func_df = sim.get_table('test_func')
+    test_func_df = sim._TABLES['test_func']
     assert set(test_func_df.columns) == set(['d', 'e'])
     assert_frames_equal(
         test_func_df.to_frame(),
@@ -197,7 +290,8 @@ def test_column_cache(df):
     def column(variable='x'):
         return series * variable
 
-    c = lambda: sim._COLUMNS[key]
+    def c():
+        return sim._COLUMNS[key]
 
     pdt.assert_series_equal(c()(), series * 2)
     sim.add_injectable('x', 3)
@@ -231,7 +325,8 @@ def test_column_cache_disabled(df):
     def column(x):
         return series * x
 
-    c = lambda: sim._COLUMNS[key]
+    def c():
+        return sim._COLUMNS[key]
 
     sim.disable_cache()
 
@@ -367,7 +462,7 @@ def test_collect_variables(df):
     def injected():
         return 'injected'
 
-    @sim.table_source('source table')
+    @sim.table('source table', cache=True)
     def source():
         return df
 
@@ -383,9 +478,18 @@ def test_collect_variables(df):
 
     assert set(things.keys()) == set(names)
     assert isinstance(things['source_label'], sim.DataFrameWrapper)
-    pdt.assert_frame_equal(things['source_label']._frame, df)
+    pdt.assert_frame_equal(things['source_label'].to_frame(), df)
     assert isinstance(things['df_a'], pd.Series)
     pdt.assert_series_equal(things['df_a'], df['a'])
+
+
+def test_collect_variables_expression_only(df):
+    @sim.table()
+    def table():
+        return df
+
+    vars = sim._collect_variables(['a'], ['table.a'])
+    pdt.assert_series_equal(vars['a'], df.a)
 
 
 def test_injectables():
@@ -456,7 +560,8 @@ def test_injectables_cache():
     def inj():
         return x * x
 
-    i = lambda: sim._INJECTABLES['inj']
+    def i():
+        return sim._INJECTABLES['inj']
 
     assert i()() == 4
     x = 3
@@ -480,7 +585,8 @@ def test_injectables_cache_disabled():
     def inj():
         return x * x
 
-    i = lambda: sim._INJECTABLES['inj']
+    def i():
+        return sim._INJECTABLES['inj']
 
     sim.disable_cache()
 
@@ -498,45 +604,177 @@ def test_injectables_cache_disabled():
     assert i()() == 16
 
 
-def test_table_source(df):
-    @sim.table_source()
-    def source():
+def test_memoized_injectable():
+    outside = 'x'
+
+    @sim.injectable(autocall=False, memoize=True)
+    def x(s):
+        return outside + s
+
+    assert 'x' in sim._MEMOIZED
+
+    def getx():
+        return sim.get_injectable('x')
+
+    assert hasattr(getx(), 'cache')
+    assert hasattr(getx(), 'clear_cached')
+
+    assert getx()('y') == 'xy'
+    outside = 'z'
+    assert getx()('y') == 'xy'
+
+    getx().clear_cached()
+
+    assert getx()('y') == 'zy'
+
+
+def test_memoized_injectable_cache_off():
+    outside = 'x'
+
+    @sim.injectable(autocall=False, memoize=True)
+    def x(s):
+        return outside + s
+
+    def getx():
+        return sim.get_injectable('x')('y')
+
+    sim.disable_cache()
+
+    assert getx() == 'xy'
+    outside = 'z'
+    assert getx() == 'zy'
+
+    sim.enable_cache()
+    outside = 'a'
+
+    assert getx() == 'zy'
+
+    sim.disable_cache()
+
+    assert getx() == 'ay'
+
+
+def test_clear_cache_all(df):
+    @sim.table(cache=True)
+    def table():
         return df
 
-    _source = lambda: sim._TABLES['source']
+    @sim.column('table', cache=True)
+    def z(table):
+        return df.a
 
-    table = _source()
-    assert isinstance(table, sim._TableSourceWrapper)
+    @sim.injectable(cache=True)
+    def x():
+        return 'x'
 
-    test_df = table.to_frame()
-    pdt.assert_frame_equal(test_df, df)
-    assert table.columns == list(df.columns)
-    assert len(table) == len(df)
-    pdt.assert_index_equal(table.index, df.index)
+    @sim.injectable(autocall=False, memoize=True)
+    def y(s):
+        return s + 'y'
 
-    table = _source()
-    assert isinstance(table, sim.DataFrameWrapper)
+    sim.eval_variable('table.z')
+    sim.eval_variable('x')
+    sim.get_injectable('y')('x')
 
-    test_df = table.to_frame()
-    pdt.assert_frame_equal(test_df, df)
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
+    assert sim._INJECTABLE_CACHE.keys() == ['x']
+    assert sim._MEMOIZED['y'].value.cache == {(('x',), None): 'xy'}
+
+    sim.clear_cache()
+
+    assert sim._TABLE_CACHE == {}
+    assert sim._COLUMN_CACHE == {}
+    assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {}
 
 
-def test_table_source_convert(df):
-    @sim.table_source()
-    def source():
+def test_clear_cache_scopes(df):
+    @sim.table(cache=True, cache_scope='forever')
+    def table():
         return df
 
-    _source = lambda: sim._TABLES['source']
+    @sim.column('table', cache=True, cache_scope='iteration')
+    def z(table):
+        return df.a
 
-    table = _source()
-    assert isinstance(table, sim._TableSourceWrapper)
+    @sim.injectable(cache=True, cache_scope='step')
+    def x():
+        return 'x'
 
-    table = table.convert()
-    assert isinstance(table, sim.DataFrameWrapper)
-    pdt.assert_frame_equal(table.to_frame(), df)
+    @sim.injectable(autocall=False, memoize=True, cache_scope='iteration')
+    def y(s):
+        return s + 'y'
 
-    table2 = _source()
-    assert table2 is table
+    sim.eval_variable('table.z')
+    sim.eval_variable('x')
+    sim.get_injectable('y')('x')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
+    assert sim._INJECTABLE_CACHE.keys() == ['x']
+    assert sim._MEMOIZED['y'].value.cache == {(('x',), None): 'xy'}
+
+    sim.clear_cache(scope='step')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE.keys() == [('table', 'z')]
+    assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {(('x',), None): 'xy'}
+
+    sim.clear_cache(scope='iteration')
+
+    assert sim._TABLE_CACHE.keys() == ['table']
+    assert sim._COLUMN_CACHE == {}
+    assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {}
+
+    sim.clear_cache(scope='forever')
+
+    assert sim._TABLE_CACHE == {}
+    assert sim._COLUMN_CACHE == {}
+    assert sim._INJECTABLE_CACHE == {}
+    assert sim._MEMOIZED['y'].value.cache == {}
+
+
+def test_cache_scope(df):
+    sim.add_injectable('x', 11)
+    sim.add_injectable('y', 22)
+    sim.add_injectable('z', 33)
+    sim.add_injectable('iterations', 1)
+
+    @sim.injectable(cache=True, cache_scope='forever')
+    def a(x):
+        return x
+
+    @sim.injectable(cache=True, cache_scope='iteration')
+    def b(y):
+        return y
+
+    @sim.injectable(cache=True, cache_scope='step')
+    def c(z):
+        return z
+
+    @sim.model()
+    def m1(year, a, b, c):
+        sim.add_injectable('x', year + a)
+        sim.add_injectable('y', year + b)
+        sim.add_injectable('z', year + c)
+
+        assert a == 11
+
+    @sim.model()
+    def m2(year, a, b, c, iterations):
+        assert a == 11
+        if year == 1000:
+            assert b == 22
+            assert c == 1033
+        elif year == 2000:
+            assert b == 1022
+            assert c == 3033
+
+        sim.add_injectable('iterations', iterations + 1)
+
+    sim.run(['m1', 'm2'], years=[1000, 2000])
 
 
 def test_table_func_local_cols(df):
@@ -546,15 +784,6 @@ def test_table_func_local_cols(df):
     sim.add_column('table', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
 
     assert sim.get_table('table').local_columns == ['a', 'b']
-
-
-def test_table_source_local_cols(df):
-    @sim.table_source()
-    def source():
-        return df
-    sim.add_column('source', 'new', pd.Series(['a', 'b', 'c'], index=df.index))
-
-    assert sim.get_table('source').local_columns == ['a', 'b']
 
 
 def test_is_table(df):
@@ -598,8 +827,11 @@ def test_write_tables(df, store_name):
 def test_run_and_write_tables(df, store_name):
     sim.add_table('table', df)
 
-    year_key = lambda y: '{}'.format(y)
-    series_year = lambda y: pd.Series([y] * 3, index=df.index)
+    def year_key(y):
+        return '{}'.format(y)
+
+    def series_year(y):
+        return pd.Series([y] * 3, index=df.index)
 
     @sim.model()
     def model(year, table):
@@ -630,7 +862,7 @@ def test_get_table(df):
     def table():
         return df
 
-    @sim.table_source()
+    @sim.table(cache=True)
     def source():
         return df
 
@@ -642,9 +874,94 @@ def test_get_table(df):
         sim.get_table('asdf')
 
     assert isinstance(fr, sim.DataFrameWrapper)
-    assert isinstance(ta, sim.TableFuncWrapper)
+    assert isinstance(ta, sim.DataFrameWrapper)
     assert isinstance(so, sim.DataFrameWrapper)
 
     pdt.assert_frame_equal(fr.to_frame(), df)
     pdt.assert_frame_equal(ta.to_frame(), df)
     pdt.assert_frame_equal(so.to_frame(), df)
+
+
+def test_cache_disabled_cm():
+    x = 3
+
+    @sim.injectable(cache=True)
+    def xi():
+        return x
+
+    assert sim.get_injectable('xi') == 3
+    x = 5
+    assert sim.get_injectable('xi') == 3
+
+    with sim.cache_disabled():
+        assert sim.get_injectable('xi') == 5
+
+    # cache still gets updated even when cacheing is off
+    assert sim.get_injectable('xi') == 5
+
+
+def test_injectables_cm():
+    sim.add_injectable('a', 'a')
+    sim.add_injectable('b', 'b')
+    sim.add_injectable('c', 'c')
+
+    with sim.injectables():
+        assert sim._INJECTABLES == {
+            'a': 'a', 'b': 'b', 'c': 'c'
+        }
+
+    with sim.injectables(c='d', x='x', y='y', z='z'):
+        assert sim._INJECTABLES == {
+            'a': 'a', 'b': 'b', 'c': 'd',
+            'x': 'x', 'y': 'y', 'z': 'z'
+        }
+
+    assert sim._INJECTABLES == {
+        'a': 'a', 'b': 'b', 'c': 'c'
+    }
+
+
+def test_is_expression():
+    assert sim.is_expression('name') is False
+    assert sim.is_expression('table.column') is True
+
+
+def test_eval_variable(df):
+    sim.add_injectable('x', 3)
+    assert sim.eval_variable('x') == 3
+
+    @sim.injectable()
+    def func(x):
+        return 'xyz' * x
+    assert sim.eval_variable('func') == 'xyzxyzxyz'
+    assert sim.eval_variable('func', x=2) == 'xyzxyz'
+
+    @sim.table()
+    def table(x):
+        return df * x
+    pdt.assert_series_equal(sim.eval_variable('table.a'), df.a * 3)
+
+
+def test_eval_model(df):
+    sim.add_injectable('x', 3)
+
+    @sim.model()
+    def model(x):
+        return df * x
+
+    pdt.assert_frame_equal(sim.eval_model('model'), df * 3)
+    pdt.assert_frame_equal(sim.eval_model('model', x=5), df * 5)
+
+
+def test_always_dataframewrapper(df):
+    @sim.table()
+    def table():
+        return df / 2
+
+    @sim.table()
+    def table2(table):
+        assert isinstance(table, sim.DataFrameWrapper)
+        return table.to_frame() / 2
+
+    result = sim.eval_variable('table2')
+    pdt.assert_frame_equal(result.to_frame(), df / 4)

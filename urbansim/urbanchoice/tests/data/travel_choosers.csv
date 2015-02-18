@@ -1,0 +1,9 @@
+"","individual","mode","choice","wait","vcost","travel","gcost","income","size"
+"107.air","107","air",FALSE,69,108,180,128,35,1
+"107.train","107","train",FALSE,34,89,901,187,35,1
+"107.bus","107","bus",FALSE,35,44,891,141,35,1
+"107.car","107","car",TRUE,0,34,720,112,35,1
+"182.air","182","air",FALSE,69,59,121,72,26,1
+"182.train","182","train",FALSE,34,31,386,73,26,1
+"182.bus","182","bus",FALSE,35,25,431,72,26,1
+"182.car","182","car",TRUE,0,14,270,43,26,1

@@ -340,9 +340,21 @@ Use the :py:func:`~urbansim.sim.simulation.add_injectable` function or the
 
 Be default injectable functions are evaluated before injection and the return
 value is passed into other functions. Use ``autocall=False`` to disable this
-behavior and instead inject the wrapped function itself.
-Like tables and columns, injectable functions can have their results
-cached with ``cache=True``.
+behavior and instead inject the function itself.
+Like tables and columns, injectable functions that are automatically evaluated
+can have their results cached with ``cache=True``.
+
+Functions that are not automatically evaluated can also have their results
+cached using the ``memoize=True`` keyword along with ``autocall=False``.
+A memoized injectable will cache results based on the function inputs,
+so this only works if the function inputs are hashable
+(usable as dictionary keys).
+Memoized functions can have their caches cleared manually using their
+``clear_cached`` function attribute.
+The caches of memoized functions are also hooked into the global simulation
+caching system,
+so you can also manage their caches via the ``cache_scope`` keyword argument
+and the :py:func:`~urbansim.sim.simulation.clear_cache` function.
 
 An example of the above injectables in IPython:
 
@@ -356,6 +368,58 @@ An example of the above injectables in IPython:
     0  25
     1  50
     2  75
+
+Caching
+-------
+
+The UrbanSim simulation framework has cache system so that function results
+can be stored for re-use when it is not necessary to recompute them
+every time they are used.
+
+The decorators
+:py:func:`~urbansim.sim.simulation.table`,
+:py:func:`~urbansim.sim.simulation.column`, and
+:py:func:`~urbansim.sim.simulation.injectable`
+all take two keyword arguments related to caching:
+``cache`` and ``cache_scope``.
+
+By default results are not cached. Register functions with ``cache=True``
+to enable caching of their results.
+
+Cache Scope
+~~~~~~~~~~~
+
+Cached items have an associated "scope" that allows the simulation framework
+to automatically manage how long functions have their results cached before
+re-evaluating them. The three scope settings are:
+
+* ``'forever'`` (the default setting) -
+  Results are cached until manually cleared by user commands.
+* ``'iteration'`` -
+  Results are cached for the remainder of the current simulation iteration.
+* ``'step'`` -
+  Results are cached until the current simulation step finishes.
+
+Managing the Cache
+~~~~~~~~~~~~~~~~~~
+
+We hope that users will be able to do most of their cache management via
+cache scopes, but there may be situations, especially during testing,
+when more manual management is required.
+
+Caching can be turned off globally using the
+:py:func:`~urbansim.sim.simulation.disable_cache` function
+(and turned back on by :py:func:`~urbansim.sim.simulation.enable_cache`).
+
+To run a block of commands with the cache disabled, but have it automatically
+re-enabled, use the :py:func:`~urbansim.sim.simulation.cache_disabled`
+context manager::
+
+    with sim.cache_disabled():
+        result = sim.eval_variable('my_table')
+
+Finally, users can manually clear the cache using
+:py:func:`~urbansim.sim.simulation.clear_cache`.
 
 Models
 ------
@@ -453,6 +517,88 @@ The variable ``year`` is provided as an injectable to model functions:
     Running model 'print_year'
     *** the year is 2014 ***
 
+Running Sim Components a la Carte
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It can be useful to have the simulation framework evaluate single variables
+and models, especially during simulation development and testing.
+To achieve this, use the
+:py:func:`~urbansim.sim.simulation.eval_variable` and
+:py:func:`~urbansim.sim.simulation.eval_model` functions.
+
+``eval_variable`` takes the name of a variable (including variable expressions)
+and returns that variable as it would be injected into a function by the
+simulation framework. ``eval_model`` takes the name of a model, runs that
+model under the simulation framework, and returns any result.
+
+.. note::
+   Most models don't have return values because the simulation framework
+   ignores them, but they can be useful for testing.
+
+Both :py:func:`~urbansim.sim.simulation.eval_variable` and
+:py:func:`~urbansim.sim.simulation.eval_model`
+take arbitrary keyword arguments that are temporarily turned into injectables
+within the simulation framework while the evaluation is taking place.
+When the evaluation is complete the simulation state is reset to whatever
+it was before calling the ``eval`` function.
+
+An example of :py:func:`~urbansim.sim.simulation.eval_variable`:
+
+.. code-block:: python
+
+    In [15]: @sim.injectable()
+       ....: def func(x, y):
+       ....:     return x + y
+       ....:
+
+    In [16]: sim.eval_variable('func', x=1, y=2)
+    Out[16]: 3
+
+The keyword arguments are only temporarily set as injectables,
+which can lead to errors in a situation like this with a table
+where the evaluation of the table is delayed until
+:py:meth:`~urbansim.sim.simulation.DataFrameWrapper.to_frame` is called:
+
+.. code-block:: python
+
+    In [12]: @sim.table()
+       ....: def table(x, y):
+       ....:     return pd.DataFrame({'a': [x], 'b': [y]})
+       ....:
+
+    In [13]: sim.eval_variable('table', x=1, y=2)
+    Out[13]: <urbansim.sim.simulation.TableFuncWrapper at 0x100733850>
+
+    In [14]: sim.eval_variable('table', x=1, y=2).to_frame()
+    ---------------------------------------------------------------------------
+    KeyError                                  Traceback (most recent call last)
+    <ipython-input-14-5bf660fb07b7> in <module>()
+    ----> 1 sim.eval_variable('table', x=1, y=2).to_frame()
+
+    <truncated>
+
+    KeyError: 'y'
+
+In order to get the injectables to be set for a controlled term you can
+use the :py:func:`~urbansim.sim.simulation.injectables` context manager
+to set the injectables:
+
+.. code-block:: python
+
+    In [12]: @sim.table()
+       ....: def table(x, y):
+       ....:     return pd.DataFrame({'a': [x], 'b': [y]})
+       ....:
+
+    In [20]: with sim.injectables(x=1, y=2):
+       ....:     df = sim.eval_variable('table').to_frame()
+       ....:
+
+    In [21]: df
+    Out[21]:
+       a  b
+    0  1  2
+
 Archiving Data
 ~~~~~~~~~~~~~~
 
@@ -532,8 +678,6 @@ Table API
 
    add_table
    table
-   add_table_source
-   table_source
    get_table
    list_tables
    DataFrameWrapper
@@ -587,6 +731,7 @@ Cache API
    disable_cache
    enable_cache
    cache_on
+   cache_disabled
 
 API Docs
 ~~~~~~~~

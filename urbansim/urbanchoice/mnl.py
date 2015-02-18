@@ -4,6 +4,8 @@ Number crunching code for multinomial logit.
 ``urbansim.models.lcm``.
 
 """
+from __future__ import print_function
+
 import logging
 
 import numpy as np
@@ -116,7 +118,33 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
+def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
+    """
+    Get the probabilities for each chooser choosing between `numalts`
+    alternatives.
+
+    Parameters
+    ----------
+    data : 2D array
+        The data are expected to be in "long" form where each row is for
+        one alternative. Alternatives are in groups of `numalts` rows per
+        choosers. Alternatives must be in the same order for each chooser.
+    coeff : 1D array
+        The model coefficients corresponding to each column in `data`.
+    numalts : int
+        The number of alternatives available to each chooser.
+    GPU : bool, optional
+    returnprobs : bool, optional
+        If True, return the probabilities for each chooser/alternative instead
+        of actual choices.
+
+    Returns
+    -------
+    probs or choices: 2D array
+        If `returnprobs` is True the probabilities are a 2D array with a
+        row for each chooser and columns for each alternative.
+
+    """
     logger.debug(
         'start: MNL simulation with len(data)={} and numalts={}'.format(
             len(data), numalts))
@@ -147,18 +175,28 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=False):
 def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
                  weights=None, lcgrad=False, beta=None):
     """
-
+    Calculate coefficients of the MNL model.
 
     Parameters
     ----------
-    data
-    chosen
-    numalts
-    GPU : bool
-    coeffrange
-    weights
-    lcgrad : bool
-    beta
+    data : 2D array
+        The data are expected to be in "long" form where each row is for
+        one alternative. Alternatives are in groups of `numalts` rows per
+        choosers. Alternatives must be in the same order for each chooser.
+    chosen : 2D array
+        This boolean array has a row for each chooser and a column for each
+        alternative. The column ordering for alternatives is expected to be
+        the same as their row ordering in the `data` array.
+        A one (True) indicates which alternative each chooser has chosen.
+    numalts : int
+        The number of alternatives.
+    GPU : bool, optional
+    coeffrange : tuple of floats, optional
+        Limits of (min, max) to which coefficients are clipped.
+    weights : ndarray, optional
+    lcgrad : bool, optional
+    beta : 1D array, optional
+        Any initial guess for the coefficients.
 
     Returns
     -------
@@ -167,7 +205,12 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
         the model fit.
     fit_parameters : pandas.DataFrame
         Table of fit parameters with columns 'Coefficient', 'Std. Error',
-        'T-Score'.
+        'T-Score'. Each row corresponds to a column in `data` and are given
+        in the same order as in `data`.
+
+    See Also
+    --------
+    scipy.optimize.fmin_l_bfgs_b : The optimization routine used.
 
     """
     logger.debug(
@@ -190,7 +233,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
 
     if beta is None:
         beta = np.zeros(numvars)
-    bounds = np.array([coeffrange for i in range(numvars)])
+    bounds = [coeffrange] * numvars
 
     with log_start_finish('scipy optimization for MNL fit', logger):
         args = (data, chosen, numalts, weights, lcgrad)
@@ -198,7 +241,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
                                                    beta,
                                                    args=args,
                                                    fprime=None,
-                                                   factr=1e5,
+                                                   factr=10,
                                                    approx_grad=False,
                                                    bounds=bounds
                                                    )
