@@ -339,13 +339,14 @@ class SqFtProForma(object):
                     orig_bulk = building_bulk
                     while 1:
                         parkingstalls = building_bulk * \
-                            np.sum(uses_distrib * c.parking_rates) / c.sqft_per_rate
+                            np.sum(uses_distrib * c.parking_rates) / \
+                            c.sqft_per_rate
                         if np.where(
                                 np.absolute(
                                     orig_bulk - building_bulk -
                                     parkingstalls *
-                                    c.parking_sqft_d[parking_config])
-                                > 10.0)[0].size == 0:
+                                    c.parking_sqft_d[parking_config]) > 10.0
+                                )[0].size == 0:
                             break
                         building_bulk = orig_bulk - parkingstalls * \
                             c.parking_sqft_d[parking_config]
