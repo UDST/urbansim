@@ -373,7 +373,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
     sample_size = 4
 
     group = dcm.SegmentedMNLDiscreteChoiceModel(
-        'group', sample_size, default_model_expr=model_exp, name='test_seg')
+        'group', sample_size, default_model_expr=model_exp, name='test_seg',
+        probability_mode='single_chooser', choice_mode='aggregate')
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
 
@@ -382,8 +383,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
         'name': 'test_seg',
         'segmentation_col': 'group',
         'sample_size': sample_size,
-        'probability_mode': 'full_product',
-        'choice_mode': 'individual',
+        'probability_mode': 'single_chooser',
+        'choice_mode': 'aggregate',
         'choosers_fit_filters': None,
         'choosers_predict_filters': None,
         'alts_fit_filters': None,
@@ -438,6 +439,21 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
 
     new_seg = dcm.SegmentedMNLDiscreteChoiceModel.from_yaml(group.to_yaml())
     assert new_seg.fitted is True
+
+    # check that the segmented model's probability mode and choice mode
+    # are propogated to individual segments' models
+    assert (
+        new_seg._group.models['x'].probability_mode ==
+        expected_dict['probability_mode'])
+    assert (
+        new_seg._group.models['x'].choice_mode ==
+        expected_dict['choice_mode'])
+    assert (
+        new_seg._group.models['y'].probability_mode ==
+        expected_dict['probability_mode'])
+    assert (
+        new_seg._group.models['y'].choice_mode ==
+        expected_dict['choice_mode'])
 
 
 def test_segmented_dcm_removes_old_models(grouped_choosers, alternatives):

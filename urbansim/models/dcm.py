@@ -1271,6 +1271,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             m['model_expression'] = m.get(
                 'model_expression', default_model_expr)
             m['sample_size'] = cfg['sample_size']
+            m['probability_mode'] = cfg['probability_mode']
+            m['choice_mode'] = cfg['choice_mode']
             m['choosers_fit_filters'] = None
             m['choosers_predict_filters'] = None
             m['alts_fit_filters'] = None
