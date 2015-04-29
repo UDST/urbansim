@@ -491,10 +491,15 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         # probabilities are returned from mnl_simulate as a 2d array
         # with choosers along rows and alternatives along columns
+        if self.probability_mode == 'single_chooser':
+            numalts = len(merged)
+        else:
+            numalts = sample_size
+
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
             coeffs,
-            numalts=sample_size, returnprobs=True)
+            numalts=numalts, returnprobs=True)
 
         # want to turn probabilities into a Series with a MultiIndex
         # of chooser IDs and alternative IDs.

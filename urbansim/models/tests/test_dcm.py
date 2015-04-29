@@ -155,6 +155,8 @@ def test_mnl_dcm_repeated_alts(basic_dcm, choosers, alternatives):
     interaction_predict_filters = ['var1 * var2 > 50']
     choice_column = 'thing_id'
 
+    basic_dcm.probability_mode = 'single_chooser'
+    basic_dcm.choice_mode = 'aggregate'
     basic_dcm.interaction_predict_filters = interaction_predict_filters
     basic_dcm.choice_column = choice_column
 
