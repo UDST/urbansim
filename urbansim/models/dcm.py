@@ -186,8 +186,13 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
     interaction_predict_filters : list of str, optional
         Filters applied to the merged choosers/alternatives table
         before predicting agent choices.
-    estimation_sample_size : int, optional, whether to sample choosers
-        during estimation (needs to be applied after choosers_fit_filters)
+    estimation_sample_size : int, optional
+        Whether to sample choosers during estimation
+        (needs to be applied after choosers_fit_filters).
+    prediction_sample_size : int, optional
+        Whether (and how much) to sample alternatives during prediction.
+        Note that this can lead to multiple choosers picking the same
+        alternative.
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -204,6 +209,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None,
             estimation_sample_size=None,
+            prediction_sample_size=None,
             choice_column=None, name=None):
         self.model_expression = model_expression
         self.sample_size = sample_size
@@ -215,6 +221,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.alts_predict_filters = alts_predict_filters
         self.interaction_predict_filters = interaction_predict_filters
         self.estimation_sample_size = estimation_sample_size
+        self.prediction_sample_size = prediction_sample_size
         self.choice_column = choice_column
         self.name = name if name is not None else 'MNLDiscreteChoiceModel'
         self.sim_pdf = None
@@ -254,6 +261,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             interaction_predict_filters=cfg.get(
                 'interaction_predict_filters', None),
             estimation_sample_size=cfg.get('estimation_sample_size', None),
+            prediction_sample_size=cfg.get('prediction_sample_size', None),
             choice_column=cfg.get('choice_column', None),
             name=cfg.get('name', None)
         )
@@ -449,12 +457,17 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             choosers, alternatives = self.apply_predict_filters(
                 choosers, alternatives)
 
+        if self.prediction_sample_size is not None:
+            sample_size = self.prediction_sample_size
+        else:
+            sample_size = len(alternatives)
+
         if self.probability_mode == 'single_chooser':
             _, merged, _ = interaction.mnl_interaction_dataset(
-                choosers.head(1), alternatives, len(alternatives))
+                choosers.head(1), alternatives, sample_size)
         elif self.probability_mode == 'full_product':
             _, merged, _ = interaction.mnl_interaction_dataset(
-                choosers, alternatives, len(alternatives))
+                choosers, alternatives, sample_size)
         else:
             raise ValueError(
                 'Unrecognized probability_mode option: {}'.format(
@@ -481,7 +494,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
             coeffs,
-            numalts=len(merged), returnprobs=True)
+            numalts=sample_size, returnprobs=True)
 
         # want to turn probabilities into a Series with a MultiIndex
         # of chooser IDs and alternative IDs.
@@ -610,6 +623,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             'alts_predict_filters': self.alts_predict_filters,
             'interaction_predict_filters': self.interaction_predict_filters,
             'estimation_sample_size': self.estimation_sample_size,
+            'prediction_sample_size': self.prediction_sample_size,
             'choice_column': self.choice_column,
             'fitted': self.fitted,
             'log_likelihoods': self.log_likelihoods,
@@ -816,7 +830,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             choosers_fit_filters=None, choosers_predict_filters=None,
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None, estimation_sample_size=None,
-            choice_column=None):
+            prediction_sample_size=None, choice_column=None):
         """
         Add a model by passing parameters through to MNLDiscreteChoiceModel.
 
@@ -857,8 +871,13 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         interaction_predict_filters : list of str, optional
             Filters applied to the merged choosers/alternatives table
             before predicting agent choices.
-        estimation_sample_size : int, optional, whether to sample choosers
-            during estimation (needs to be applied after choosers_fit_filters)
+        estimation_sample_size : int, optional
+            Whether to sample choosers during estimation
+            (needs to be applied after choosers_fit_filters)
+        prediction_sample_size : int, optional
+            Whether (and how much) to sample alternatives during prediction.
+            Note that this can lead to multiple choosers picking the same
+            alternative.
         choice_column : optional
             Name of the column in the `alternatives` table that choosers
             should choose. e.g. the 'building_id' column. If not provided
@@ -872,7 +891,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             choosers_fit_filters, choosers_predict_filters,
             alts_fit_filters, alts_predict_filters,
             interaction_predict_filters, estimation_sample_size,
-            choice_column, name)
+            prediction_sample_size, choice_column, name)
 
     def _iter_groups(self, data):
         """
@@ -1181,8 +1200,13 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
     interaction_predict_filters : list of str, optional
         Filters applied to the merged choosers/alternatives table
         before predicting agent choices.
-    estimation_sample_size : int, optional, whether to sample choosers
-        during estimation (needs to be applied after choosers_fit_filters)
+    estimation_sample_size : int, optional
+        Whether to sample choosers during estimation
+        (needs to be applied after choosers_fit_filters)
+    prediction_sample_size : int, optional
+        Whether (and how much) to sample alternatives during prediction.
+        Note that this can lead to multiple choosers picking the same
+        alternative.
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -1205,7 +1229,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             choosers_fit_filters=None, choosers_predict_filters=None,
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None,
-            estimation_sample_size=None,
+            estimation_sample_size=None, prediction_sample_size=None,
             choice_column=None, default_model_expr=None, remove_alts=False,
             name=None):
         self.segmentation_col = segmentation_col
@@ -1218,6 +1242,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.alts_predict_filters = alts_predict_filters
         self.interaction_predict_filters = interaction_predict_filters
         self.estimation_sample_size = estimation_sample_size
+        self.prediction_sample_size = prediction_sample_size
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
         self.remove_alts = remove_alts
@@ -1259,6 +1284,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             cfg['alts_predict_filters'],
             cfg['interaction_predict_filters'],
             cfg['estimation_sample_size'],
+            cfg['prediction_sample_size'],
             cfg['choice_column'],
             default_model_expr,
             cfg['remove_alts'],
@@ -1280,6 +1306,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             m['interaction_predict_filters'] = \
                 cfg['interaction_predict_filters']
             m['estimation_sample_size'] = cfg['estimation_sample_size']
+            m['prediction_sample_size'] = cfg['prediction_sample_size']
             m['choice_column'] = cfg['choice_column']
 
             model = MNLDiscreteChoiceModel.from_yaml(
@@ -1557,6 +1584,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         del d['alts_predict_filters']
         del d['interaction_predict_filters']
         del d['estimation_sample_size']
+        del d['prediction_sample_size']
         del d['choice_column']
 
         if d['model_expression'] == self.default_model_expr:
@@ -1585,6 +1613,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             'alts_predict_filters': self.alts_predict_filters,
             'interaction_predict_filters': self.interaction_predict_filters,
             'estimation_sample_size': self.estimation_sample_size,
+            'prediction_sample_size': self.prediction_sample_size,
             'choice_column': self.choice_column,
             'default_config': {
                 'model_expression': self.default_model_expr,

@@ -56,6 +56,7 @@ def basic_dcm():
     alts_predict_filters = ['var2 != 14']
     interaction_predict_filters = None
     estimation_sample_size = None
+    prediction_sample_size = None
     choice_column = None
     name = 'Test LCM'
 
@@ -65,7 +66,7 @@ def basic_dcm():
         choosers_fit_filters, choosers_predict_filters,
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
-        choice_column, name)
+        prediction_sample_size, choice_column, name)
 
     return model
 
@@ -189,6 +190,7 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
         'alts_predict_filters': basic_dcm.alts_predict_filters,
         'interaction_predict_filters': basic_dcm.interaction_predict_filters,
         'estimation_sample_size': basic_dcm.estimation_sample_size,
+        'prediction_sample_size': basic_dcm.prediction_sample_size,
         'choice_column': basic_dcm.choice_column,
         'fitted': False,
         'log_likelihoods': None,
@@ -239,6 +241,48 @@ def test_mnl_dcm_prob_mode_single(seed, basic_dcm_fit, choosers, alternatives):
             index=pd.MultiIndex.from_product(
                 [[1], filtered_alts.index.values],
                 names=['chooser_ids', 'alternative_ids'])))
+
+    sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
+
+
+def test_mnl_dcm_prob_mode_single_prediction_sample_size(
+        seed, basic_dcm_fit, choosers, alternatives):
+    basic_dcm_fit.probability_mode = 'single_chooser'
+    basic_dcm_fit.prediction_sample_size = 5
+
+    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+        choosers, alternatives)
+
+    probs = basic_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
+
+    pdt.assert_series_equal(
+        probs,
+        pd.Series(
+            [0.11137766,
+             0.05449957,
+             0.14134044,
+             0.22761617,
+             0.46516616],
+            index=pd.MultiIndex.from_product(
+                [[1], ['g', 'j', 'f', 'd', 'a']],
+                names=['chooser_ids', 'alternative_ids'])))
+
+    sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
+
+
+def test_mnl_dcm_prob_mode_full_prediction_sample_size(
+        seed, basic_dcm_fit, choosers, alternatives):
+    basic_dcm_fit.probability_mode = 'full_product'
+    basic_dcm_fit.prediction_sample_size = 5
+
+    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+        choosers, alternatives)
+
+    probs = basic_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
+    assert len(probs) == (len(filtered_choosers) - 1) * 5
+    npt.assert_allclose(probs.sum(), len(filtered_choosers) - 1)
 
     sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
@@ -374,7 +418,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
 
     group = dcm.SegmentedMNLDiscreteChoiceModel(
         'group', sample_size, default_model_expr=model_exp, name='test_seg',
-        probability_mode='single_chooser', choice_mode='aggregate')
+        probability_mode='single_chooser', choice_mode='aggregate',
+        estimation_sample_size=20, prediction_sample_size=30)
     group.add_segment('x')
     group.add_segment('y', 'var3 + var1:var2')
 
@@ -390,7 +435,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
         'alts_fit_filters': None,
         'alts_predict_filters': None,
         'interaction_predict_filters': None,
-        'estimation_sample_size': None,
+        'estimation_sample_size': 20,
+        'prediction_sample_size': 30,
         'choice_column': None,
         'default_config': {
             'model_expression': model_exp,
@@ -446,14 +492,15 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
         new_seg._group.models['x'].probability_mode ==
         expected_dict['probability_mode'])
     assert (
-        new_seg._group.models['x'].choice_mode ==
-        expected_dict['choice_mode'])
-    assert (
-        new_seg._group.models['y'].probability_mode ==
-        expected_dict['probability_mode'])
-    assert (
         new_seg._group.models['y'].choice_mode ==
         expected_dict['choice_mode'])
+
+    assert (
+        new_seg._group.models['x'].estimation_sample_size ==
+        expected_dict['estimation_sample_size'])
+    assert (
+        new_seg._group.models['y'].prediction_sample_size ==
+        expected_dict['prediction_sample_size'])
 
 
 def test_segmented_dcm_removes_old_models(grouped_choosers, alternatives):
