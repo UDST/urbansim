@@ -94,6 +94,41 @@ class DiscreteChoiceModel(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    @staticmethod
+    def _check_prob_choice_mode_compat(probability_mode, choice_mode):
+        """
+        Check that the probability and choice modes are compatibly with
+        each other. Currently 'single_chooser' must be paired with
+        'aggregate' and 'full_product' must be paired with 'individual'.
+
+        """
+        if (probability_mode == 'full_product' and
+                choice_mode == 'aggregate'):
+            raise ValueError(
+                "'full_product' probability mode is not compatible with "
+                "'aggregate' choice mode")
+
+        if (probability_mode == 'single_chooser' and
+                choice_mode == 'individual'):
+            raise ValueError(
+                "'single_chooser' probability mode is not compatible with "
+                "'individual' choice mode")
+
+    @staticmethod
+    def _check_prob_mode_interaction_compat(
+            probability_mode, interaction_predict_filters):
+        """
+        The 'full_product' probability mode is currently incompatible with
+        post-interaction prediction filters, so make sure we don't have
+        both of those.
+
+        """
+        if (interaction_predict_filters is not None and
+                probability_mode == 'full_product'):
+            raise ValueError(
+                "interaction filters may not be used in "
+                "'full_product' mode")
+
     @abc.abstractmethod
     def apply_fit_filters(self, choosers, alternatives):
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
@@ -165,6 +200,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
+        Currently "single chooser" mode must be used with a `choice_mode`
+        of 'aggregate' and "full product" mode must be used with a
+        `choice_mode` of 'individual'.
     choice_mode : str, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
@@ -173,6 +211,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Aggregate mode implies that an alternative chosen by one agent
         is unavailable to other agents and that the same probabilities
         can be used for all choosers.
+        Currently "individual" mode must be used with a `probability_mode`
+        of 'full_product' and "aggregate" mode must be used with a
+        `probability_mode` of 'single_chooser'.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -211,6 +252,10 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             estimation_sample_size=None,
             prediction_sample_size=None,
             choice_column=None, name=None):
+        self._check_prob_choice_mode_compat(probability_mode, choice_mode)
+        self._check_prob_mode_interaction_compat(
+            probability_mode, interaction_predict_filters)
+
         self.model_expression = model_expression
         self.sample_size = sample_size
         self.probability_mode = probability_mode
@@ -1184,7 +1229,10 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
-    choice_mode : str or callable, optional
+        Currently "single chooser" mode must be used with a `choice_mode`
+        of 'aggregate' and "full product" mode must be used with a
+        `choice_mode` of 'individual'.
+    choice_mode : str, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
         In "individual" mode choices will be made separately for each chooser.
@@ -1192,6 +1240,9 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Aggregate mode implies that an alternative chosen by one agent
         is unavailable to other agents and that the same probabilities
         can be used for all choosers.
+        Currently "individual" mode must be used with a `probability_mode`
+        of 'full_product' and "aggregate" mode must be used with a
+        `probability_mode` of 'single_chooser'.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -1237,6 +1288,10 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             estimation_sample_size=None, prediction_sample_size=None,
             choice_column=None, default_model_expr=None, remove_alts=False,
             name=None):
+        self._check_prob_choice_mode_compat(probability_mode, choice_mode)
+        self._check_prob_mode_interaction_compat(
+            probability_mode, interaction_predict_filters)
+
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
         self.probability_mode = probability_mode

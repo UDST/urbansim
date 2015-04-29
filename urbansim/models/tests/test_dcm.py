@@ -110,6 +110,26 @@ def test_unit_choice_none_available(choosers, alternatives):
     assert choices.isnull().all()
 
 
+def test_mnl_dcm_prob_choice_mode_compat(basic_dcm):
+    with pytest.raises(ValueError):
+        dcm.MNLDiscreteChoiceModel(
+            basic_dcm.model_expression, basic_dcm.sample_size,
+            probability_mode='single_chooser', choice_mode='individual')
+
+    with pytest.raises(ValueError):
+        dcm.MNLDiscreteChoiceModel(
+            basic_dcm.model_expression, basic_dcm.sample_size,
+            probability_mode='full_product', choice_mode='aggregate')
+
+
+def test_mnl_dcm_prob_mode_interaction_compat(basic_dcm):
+    with pytest.raises(ValueError):
+        dcm.MNLDiscreteChoiceModel(
+            basic_dcm.model_expression, basic_dcm.sample_size,
+            probability_mode='full_product', choice_mode='individual',
+            interaction_predict_filters=['var1 > 9000'])
+
+
 def test_mnl_dcm(seed, basic_dcm, choosers, alternatives):
     assert basic_dcm.choosers_columns_used() == ['var1']
     assert set(basic_dcm.alts_columns_used()) == {'var2', 'var3'}
@@ -365,6 +385,26 @@ def test_mnl_dcm_segmented_raises():
 
     with pytest.raises(ValueError):
         group.add_segment('x')
+
+
+def test_mnl_dcm_segmented_prob_choice_mode_compat():
+    with pytest.raises(ValueError):
+        dcm.SegmentedMNLDiscreteChoiceModel(
+            'group', 10,
+            probability_mode='single_chooser', choice_mode='individual')
+
+    with pytest.raises(ValueError):
+        dcm.SegmentedMNLDiscreteChoiceModel(
+            'group', 10,
+            probability_mode='full_product', choice_mode='aggregate')
+
+
+def test_mnl_dcm_segmented_prob_mode_interaction_compat():
+    with pytest.raises(ValueError):
+        dcm.SegmentedMNLDiscreteChoiceModel(
+            'group', 10,
+            probability_mode='full_product', choice_mode='individual',
+            interaction_predict_filters=['var1 > 9000'])
 
 
 def test_mnl_dcm_segmented(seed, grouped_choosers, alternatives):
