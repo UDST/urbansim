@@ -14,7 +14,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='urbansim',
-    version='2.0.0',
+    version='2.0.1',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
     author='Synthicity',
