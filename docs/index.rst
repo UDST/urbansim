@@ -19,7 +19,6 @@ Contents
 
    gettingstarted
    examples
-   sim/index
    models/index
    developer/index
    utils/index
