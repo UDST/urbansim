@@ -204,7 +204,10 @@
     <span class="c"># because a) why not? and b) testing.</span>
     <span class="n">alts_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">SAMPLE_SIZE</span> <span class="o">&lt;</span> <span class="n">numalts</span><span class="p">:</span>
-        <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alts_idx</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span> <span class="o">*</span> <span class="n">numchoosers</span><span class="p">)</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alts_idx</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numchoosers</span><span class="p">)))</span>
+
         <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># replace the first row for each chooser with</span>
             <span class="c"># the currently chosen alternative.</span>
