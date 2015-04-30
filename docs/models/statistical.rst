@@ -7,7 +7,7 @@ Introduction
 ------------
 
 UrbanSim has two sets of statistical models: regressions and
-location choice models.
+discrete choice models.
 Each has a three stage usage pattern:
 
 #. Create a configured model instance. This is where you will supply
@@ -92,16 +92,16 @@ Regression API
    SegmentedRegressionModel
    RegressionModelGroup
 
-Location Choice API
+Discrete Choice API
 ~~~~~~~~~~~~~~~~~~~
 
-.. currentmodule:: urbansim.models.lcm
+.. currentmodule:: urbansim.models.dcm
 
 .. autosummary::
 
-   MNLLocationChoiceModel
-   SegmentedMNLLocationChoiceModel
-   MNLLocationChoiceModelGroup
+   MNLDiscreteChoiceModel
+   SegmentedMNLDiscreteChoiceModel
+   MNLDiscreteChoiceModelGroup
 
 Regression API Docs
 ~~~~~~~~~~~~~~~~~~~
@@ -109,10 +109,10 @@ Regression API Docs
 .. automodule:: urbansim.models.regression
    :members:
 
-Location Choice API Docs
+Discrete Choice API Docs
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: urbansim.models.lcm
+.. automodule:: urbansim.models.dcm
    :members:
 
 .. _patsy: http://patsy.readthedocs.org/
