@@ -43,7 +43,8 @@ setup(
         'simplejson>=3.3',
         'statsmodels>=0.5.0',
         'tables>=3.1.0',
-        'toolz>=0.7.0'
+        'toolz>=0.7.0',
+        'zbox>=1.2'
     ],
     extras_require={
         'pandana': ['pandana>=0.1']

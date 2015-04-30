@@ -11,7 +11,7 @@ from tokenize import generate_tokens, NAME
 import numpy as np
 import pandas as pd
 import patsy
-import toolz
+from zbox import toolz as tz
 
 from ..utils.logutil import log_start_finish
 
@@ -280,7 +280,7 @@ def columns_in_filters(filters):
         if toknum == NAME and tokval not in reserved:
             columns.append(tokval)
 
-    return list(toolz.unique(columns))
+    return list(tz.unique(columns))
 
 
 def _tokens_from_patsy(node):
@@ -323,7 +323,7 @@ def columns_in_formula(formula):
 
     tokens = map(
         lambda x: x.extra,
-        toolz.remove(
+        tz.remove(
             lambda x: x.extra is None,
             _tokens_from_patsy(patsy.parse_formula.parse_formula(formula))))
 
@@ -341,4 +341,4 @@ def columns_in_formula(formula):
                 if toknum == NAME:
                     columns.append(tokval)
 
-    return list(toolz.unique(columns))
+    return list(tz.unique(columns))

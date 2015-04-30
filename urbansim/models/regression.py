@@ -10,9 +10,9 @@ import logging
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
-import toolz
 from patsy import dmatrix
 from prettytable import PrettyTable
+from zbox import toolz as tz
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -463,7 +463,7 @@ class RegressionModel(object):
         and in the model expression.
 
         """
-        return list(toolz.unique(toolz.concatv(
+        return list(tz.unique(tz.concatv(
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.model_expression))))
@@ -668,7 +668,7 @@ class RegressionModelGroup(object):
         for filtering and in the model expression.
 
         """
-        return list(toolz.unique(toolz.concat(
+        return list(tz.unique(tz.concat(
             m.columns_used() for m in self.models.values())))
 
 
@@ -956,7 +956,7 @@ class SegmentedRegressionModel(object):
         for filtering and in the model expression.
 
         """
-        return list(toolz.unique(toolz.concatv(
+        return list(tz.unique(tz.concatv(
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.default_model_expr),
