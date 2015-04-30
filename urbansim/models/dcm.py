@@ -585,7 +585,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         # groupby the the alternatives ID and sum
         if self.probability_mode == 'single_chooser':
-            return normalize(probs) * len(choosers)
+            return (
+                normalize(probs) * len(choosers)
+                ).reset_index(level=0, drop=True)
         elif self.probability_mode == 'full_product':
             return probs.groupby(level=0).apply(normalize)\
                 .groupby(level=1).sum()

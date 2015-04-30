@@ -154,6 +154,7 @@ def test_mnl_dcm(seed, basic_dcm, choosers, alternatives):
 
     sprobs = basic_dcm.summed_probabilities(choosers, alternatives)
     assert len(sprobs) == len(filtered_alts)
+    pdt.assert_index_equal(sprobs.index, filtered_alts.index)
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
     choices = basic_dcm.predict(choosers.iloc[1:], alternatives)
@@ -266,6 +267,7 @@ def test_mnl_dcm_prob_mode_single(seed, basic_dcm_fit, choosers, alternatives):
                 names=['chooser_ids', 'alternative_ids'])))
 
     sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    pdt.assert_index_equal(sprobs.index, filtered_alts.index)
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
 
@@ -293,6 +295,8 @@ def test_mnl_dcm_prob_mode_single_prediction_sample_size(
                 names=['chooser_ids', 'alternative_ids'])))
 
     sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    pdt.assert_index_equal(
+        sprobs.index, pd.Index(['j', 'b', 'g', 'h', 'd']))
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
 
@@ -309,6 +313,7 @@ def test_mnl_dcm_prob_mode_full_prediction_sample_size(
     npt.assert_allclose(probs.sum(), len(filtered_choosers) - 1)
 
     sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    pdt.assert_index_equal(sprobs.index, filtered_alts.index)
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
 
@@ -363,6 +368,7 @@ def test_mnl_dcm_group(seed, grouped_choosers, alternatives):
 
     sprobs = group.summed_probabilities(grouped_choosers, alternatives)
     assert len(sprobs) == len(filtered_alts)
+    pdt.assert_index_equal(sprobs.index, filtered_alts.index)
 
     choice_state = np.random.get_state()
     choices = group.predict(grouped_choosers, alternatives)
@@ -437,6 +443,7 @@ def test_mnl_dcm_segmented(seed, grouped_choosers, alternatives):
 
     sprobs = group.summed_probabilities(grouped_choosers, alternatives)
     assert len(sprobs) == len(alternatives)
+    pdt.assert_index_equal(sprobs.index, alternatives.index)
 
     choice_state = np.random.get_state()
     choices = group.predict(grouped_choosers, alternatives)
