@@ -1,12 +1,12 @@
+import logging
 import yaml
 
 import numpy as np
+import orca
 import pandas as pd
-import logging
 
 from . import misc
 from ..models import util
-import urbansim.sim.simulation as sim
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def from_yaml(net, cfgname):
             flds += util.columns_in_filters(variable["filters"])
         logger.info("    Fields available to aggregate = " + ', '.join(flds))
 
-        df = sim.get_table(dfname).to_frame(flds)
+        df = orca.get_table(dfname).to_frame(flds)
 
         if "filters" in variable:
             df = util.apply_filter_query(df, variable["filters"])

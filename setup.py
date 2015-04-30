@@ -34,6 +34,7 @@ setup(
         'bottle>=0.12',
         'matplotlib>=1.3.1',
         'numpy>=1.8.0',
+        'orca>=1.1',
         'pandas>=0.13.1',
         'patsy>=0.2.1',
         'prettytable>=0.7.2',
