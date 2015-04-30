@@ -1,3 +1,10 @@
+v2.0.1
+======
+
+* Fix index of summed probabilities
+
+  * https://github.com/synthicity/urbansim/pull/144
+
 v2.0.0
 ======
 
