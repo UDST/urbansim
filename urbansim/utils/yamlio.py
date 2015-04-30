@@ -79,6 +79,7 @@ def ordered_yaml(cfg):
              'alts_fit_filters', 'alts_predict_filters',
              'interaction_predict_filters',
              'choice_column', 'sample_size', 'estimation_sample_size',
+             'prediction_sample_size',
              'model_expression', 'ytransform', 'min_segment_size',
              'default_config', 'models', 'coefficients', 'fitted']
 

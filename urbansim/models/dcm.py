@@ -94,6 +94,41 @@ class DiscreteChoiceModel(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    @staticmethod
+    def _check_prob_choice_mode_compat(probability_mode, choice_mode):
+        """
+        Check that the probability and choice modes are compatibly with
+        each other. Currently 'single_chooser' must be paired with
+        'aggregate' and 'full_product' must be paired with 'individual'.
+
+        """
+        if (probability_mode == 'full_product' and
+                choice_mode == 'aggregate'):
+            raise ValueError(
+                "'full_product' probability mode is not compatible with "
+                "'aggregate' choice mode")
+
+        if (probability_mode == 'single_chooser' and
+                choice_mode == 'individual'):
+            raise ValueError(
+                "'single_chooser' probability mode is not compatible with "
+                "'individual' choice mode")
+
+    @staticmethod
+    def _check_prob_mode_interaction_compat(
+            probability_mode, interaction_predict_filters):
+        """
+        The 'full_product' probability mode is currently incompatible with
+        post-interaction prediction filters, so make sure we don't have
+        both of those.
+
+        """
+        if (interaction_predict_filters is not None and
+                probability_mode == 'full_product'):
+            raise ValueError(
+                "interaction filters may not be used in "
+                "'full_product' mode")
+
     @abc.abstractmethod
     def apply_fit_filters(self, choosers, alternatives):
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
@@ -165,6 +200,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
+        Currently "single chooser" mode must be used with a `choice_mode`
+        of 'aggregate' and "full product" mode must be used with a
+        `choice_mode` of 'individual'.
     choice_mode : str, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
@@ -173,6 +211,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Aggregate mode implies that an alternative chosen by one agent
         is unavailable to other agents and that the same probabilities
         can be used for all choosers.
+        Currently "individual" mode must be used with a `probability_mode`
+        of 'full_product' and "aggregate" mode must be used with a
+        `probability_mode` of 'single_chooser'.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -186,8 +227,13 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
     interaction_predict_filters : list of str, optional
         Filters applied to the merged choosers/alternatives table
         before predicting agent choices.
-    estimation_sample_size : int, optional, whether to sample choosers
-        during estimation (needs to be applied after choosers_fit_filters)
+    estimation_sample_size : int, optional
+        Whether to sample choosers during estimation
+        (needs to be applied after choosers_fit_filters).
+    prediction_sample_size : int, optional
+        Whether (and how much) to sample alternatives during prediction.
+        Note that this can lead to multiple choosers picking the same
+        alternative.
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -204,7 +250,12 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None,
             estimation_sample_size=None,
+            prediction_sample_size=None,
             choice_column=None, name=None):
+        self._check_prob_choice_mode_compat(probability_mode, choice_mode)
+        self._check_prob_mode_interaction_compat(
+            probability_mode, interaction_predict_filters)
+
         self.model_expression = model_expression
         self.sample_size = sample_size
         self.probability_mode = probability_mode
@@ -215,6 +266,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.alts_predict_filters = alts_predict_filters
         self.interaction_predict_filters = interaction_predict_filters
         self.estimation_sample_size = estimation_sample_size
+        self.prediction_sample_size = prediction_sample_size
         self.choice_column = choice_column
         self.name = name if name is not None else 'MNLDiscreteChoiceModel'
         self.sim_pdf = None
@@ -254,6 +306,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             interaction_predict_filters=cfg.get(
                 'interaction_predict_filters', None),
             estimation_sample_size=cfg.get('estimation_sample_size', None),
+            prediction_sample_size=cfg.get('prediction_sample_size', None),
             choice_column=cfg.get('choice_column', None),
             name=cfg.get('name', None)
         )
@@ -449,12 +502,17 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             choosers, alternatives = self.apply_predict_filters(
                 choosers, alternatives)
 
+        if self.prediction_sample_size is not None:
+            sample_size = self.prediction_sample_size
+        else:
+            sample_size = len(alternatives)
+
         if self.probability_mode == 'single_chooser':
             _, merged, _ = interaction.mnl_interaction_dataset(
-                choosers.head(1), alternatives, len(alternatives))
+                choosers.head(1), alternatives, sample_size)
         elif self.probability_mode == 'full_product':
             _, merged, _ = interaction.mnl_interaction_dataset(
-                choosers, alternatives, len(alternatives))
+                choosers, alternatives, sample_size)
         else:
             raise ValueError(
                 'Unrecognized probability_mode option: {}'.format(
@@ -478,10 +536,15 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         # probabilities are returned from mnl_simulate as a 2d array
         # with choosers along rows and alternatives along columns
+        if self.probability_mode == 'single_chooser':
+            numalts = len(merged)
+        else:
+            numalts = sample_size
+
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
             coeffs,
-            numalts=len(merged), returnprobs=True)
+            numalts=numalts, returnprobs=True)
 
         # want to turn probabilities into a Series with a MultiIndex
         # of chooser IDs and alternative IDs.
@@ -610,6 +673,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             'alts_predict_filters': self.alts_predict_filters,
             'interaction_predict_filters': self.interaction_predict_filters,
             'estimation_sample_size': self.estimation_sample_size,
+            'prediction_sample_size': self.prediction_sample_size,
             'choice_column': self.choice_column,
             'fitted': self.fitted,
             'log_likelihoods': self.log_likelihoods,
@@ -816,7 +880,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             choosers_fit_filters=None, choosers_predict_filters=None,
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None, estimation_sample_size=None,
-            choice_column=None):
+            prediction_sample_size=None, choice_column=None):
         """
         Add a model by passing parameters through to MNLDiscreteChoiceModel.
 
@@ -857,8 +921,13 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         interaction_predict_filters : list of str, optional
             Filters applied to the merged choosers/alternatives table
             before predicting agent choices.
-        estimation_sample_size : int, optional, whether to sample choosers
-            during estimation (needs to be applied after choosers_fit_filters)
+        estimation_sample_size : int, optional
+            Whether to sample choosers during estimation
+            (needs to be applied after choosers_fit_filters)
+        prediction_sample_size : int, optional
+            Whether (and how much) to sample alternatives during prediction.
+            Note that this can lead to multiple choosers picking the same
+            alternative.
         choice_column : optional
             Name of the column in the `alternatives` table that choosers
             should choose. e.g. the 'building_id' column. If not provided
@@ -872,7 +941,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             choosers_fit_filters, choosers_predict_filters,
             alts_fit_filters, alts_predict_filters,
             interaction_predict_filters, estimation_sample_size,
-            choice_column, name)
+            prediction_sample_size, choice_column, name)
 
     def _iter_groups(self, data):
         """
@@ -1160,7 +1229,10 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         In "single chooser" mode one agent is chosen for calculating
         probabilities across all alternatives. In "full product" mode
         probabilities are calculated for every chooser across all alternatives.
-    choice_mode : str or callable, optional
+        Currently "single chooser" mode must be used with a `choice_mode`
+        of 'aggregate' and "full product" mode must be used with a
+        `choice_mode` of 'individual'.
+    choice_mode : str, optional
         Specify the method to use for making choices among alternatives.
         Available string options are 'individual' and 'aggregate'.
         In "individual" mode choices will be made separately for each chooser.
@@ -1168,6 +1240,9 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Aggregate mode implies that an alternative chosen by one agent
         is unavailable to other agents and that the same probabilities
         can be used for all choosers.
+        Currently "individual" mode must be used with a `probability_mode`
+        of 'full_product' and "aggregate" mode must be used with a
+        `probability_mode` of 'single_chooser'.
     choosers_fit_filters : list of str, optional
         Filters applied to choosers table before fitting the model.
     choosers_predict_filters : list of str, optional
@@ -1181,8 +1256,13 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
     interaction_predict_filters : list of str, optional
         Filters applied to the merged choosers/alternatives table
         before predicting agent choices.
-    estimation_sample_size : int, optional, whether to sample choosers
-        during estimation (needs to be applied after choosers_fit_filters)
+    estimation_sample_size : int, optional
+        Whether to sample choosers during estimation
+        (needs to be applied after choosers_fit_filters)
+    prediction_sample_size : int, optional
+        Whether (and how much) to sample alternatives during prediction.
+        Note that this can lead to multiple choosers picking the same
+        alternative.
     choice_column : optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
@@ -1205,9 +1285,13 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             choosers_fit_filters=None, choosers_predict_filters=None,
             alts_fit_filters=None, alts_predict_filters=None,
             interaction_predict_filters=None,
-            estimation_sample_size=None,
+            estimation_sample_size=None, prediction_sample_size=None,
             choice_column=None, default_model_expr=None, remove_alts=False,
             name=None):
+        self._check_prob_choice_mode_compat(probability_mode, choice_mode)
+        self._check_prob_mode_interaction_compat(
+            probability_mode, interaction_predict_filters)
+
         self.segmentation_col = segmentation_col
         self.sample_size = sample_size
         self.probability_mode = probability_mode
@@ -1218,6 +1302,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.alts_predict_filters = alts_predict_filters
         self.interaction_predict_filters = interaction_predict_filters
         self.estimation_sample_size = estimation_sample_size
+        self.prediction_sample_size = prediction_sample_size
         self.choice_column = choice_column
         self.default_model_expr = default_model_expr
         self.remove_alts = remove_alts
@@ -1259,6 +1344,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             cfg['alts_predict_filters'],
             cfg['interaction_predict_filters'],
             cfg['estimation_sample_size'],
+            cfg['prediction_sample_size'],
             cfg['choice_column'],
             default_model_expr,
             cfg['remove_alts'],
@@ -1280,6 +1366,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             m['interaction_predict_filters'] = \
                 cfg['interaction_predict_filters']
             m['estimation_sample_size'] = cfg['estimation_sample_size']
+            m['prediction_sample_size'] = cfg['prediction_sample_size']
             m['choice_column'] = cfg['choice_column']
 
             model = MNLDiscreteChoiceModel.from_yaml(
@@ -1557,6 +1644,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         del d['alts_predict_filters']
         del d['interaction_predict_filters']
         del d['estimation_sample_size']
+        del d['prediction_sample_size']
         del d['choice_column']
 
         if d['model_expression'] == self.default_model_expr:
@@ -1585,6 +1673,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             'alts_predict_filters': self.alts_predict_filters,
             'interaction_predict_filters': self.interaction_predict_filters,
             'estimation_sample_size': self.estimation_sample_size,
+            'prediction_sample_size': self.prediction_sample_size,
             'choice_column': self.choice_column,
             'default_config': {
                 'model_expression': self.default_model_expr,
