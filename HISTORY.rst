@@ -39,3 +39,7 @@ v2.0.0
   * https://github.com/synthicity/urbansim/pull/138
   * Allows users to define a function injectable that has argument-based
     caching that is tied into the larger caching system.
+
+* Allow sampling of alternatives during prediction
+
+  * https://github.com/synthicity/urbansim/pull/142
