@@ -37,8 +37,7 @@ after_success:
 - coveralls
 - bin/build_docs.sh
 notifications:
-  slack:
-    secure: "JZol2I53hqYOKMZYBTpgePpWXX8Kv8HfmcM7GhcBybef9yBdLkKh3FKdk9N0yAipE1lGz8sTgE3H0/d457MPbTEgE/01Tel+J27H7xq0usBWO+z3pqIzHFTVKQ0ohPo6GYukzjrmw646FQqJSgIpuN30CLmgGVAQlAAZQfJE+zY="
+  slack: synthicity-autodesk:k12GgnGnVKZdmlxqiayfHa5s
 env:
   global:
   - secure: c2olC+qzN1VHJZlznPy7mUtRvAyU7I2C7N3sYkv71Ds+dx5WN8InF6mpwNs/ZKfERbbA9slSVmYjB4j2c+VT8S1J33o6aI4F4hWNr6l7DgBKoPmozvaDx0GQ45hMOeSHSG5OF+DZCSTEXtxQK82uj61sCvZ6dIlDOqRvAHCjQDI=
