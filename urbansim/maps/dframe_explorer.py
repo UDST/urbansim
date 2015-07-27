@@ -114,13 +114,16 @@ def start(views,
     global DFRAMES, CONFIG
     DFRAMES = {str(k): views[k] for k in views}
 
+    root = "http://%s:%d/" % (host, port)
+
     config = {
         'center': str(center),
         'zoom': zoom,
         'shape_json': shape_json,
         'geom_name': geom_name,
         'join_name': join_name,
-        'precision': precision
+        'precision': precision,
+        'root': root
     }
 
     for k in views:
