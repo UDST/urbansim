@@ -114,7 +114,7 @@ def start(views,
     global DFRAMES, CONFIG
     DFRAMES = {str(k): views[k] for k in views}
 
-    root = "http://%s:%d/" % (host, port)
+    root = "http://%s:%d/" % (host, int(port))
 
     config = {
         'center': str(center),
