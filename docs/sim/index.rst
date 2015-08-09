@@ -338,7 +338,7 @@ Use the :py:func:`~urbansim.sim.simulation.add_injectable` function or the
         df = my_table.to_frame(columns=['a'])
         return df * zsquared
 
-Be default injectable functions are evaluated before injection and the return
+By default injectable functions are evaluated before injection and the return
 value is passed into other functions. Use ``autocall=False`` to disable this
 behavior and instead inject the function itself.
 Like tables and columns, injectable functions that are automatically evaluated
@@ -432,7 +432,7 @@ return values are discarded. For example, a model might replace a column
 in a table (a new table, though similar to ``my_table`` above)::
 
     df = pd.DataFrame({'a': [1, 2, 3]})
-    sim.add_table('new_table')
+    sim.add_table('new_table',df)
 
     @sim.model()
     def replace_col(new_table):
