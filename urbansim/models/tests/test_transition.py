@@ -436,7 +436,7 @@ def test_update_linked_table(basic_df):
     npt.assert_array_equal(updated[col_name].values, [1, 2, 3, 4, 5, 7, 6])
     pdt.assert_series_equal(
         updated['y'],
-        pd.Series([6, 7, 8, 9, 6, 6, 8], index=updated.index))
+        pd.Series([6, 7, 8, 9, 6, 6, 8], index=updated.index, name='y'))
 
 
 def test_updated_linked_table_remove_only(basic_df):

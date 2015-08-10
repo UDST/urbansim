@@ -23,7 +23,7 @@ def series_to_yaml_safe(series):
     safe : dict
 
     """
-    index = series.index.to_native_types()
+    index = series.index.to_native_types(quoting=True)
     values = series.values.tolist()
 
     return {i: v for i, v in itertools.izip(index, values)}

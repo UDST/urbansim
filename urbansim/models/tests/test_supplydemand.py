@@ -118,7 +118,7 @@ def test_supply_and_demand(
         new_price,
         pd.Series(
             [w, x, y, z, x, y, w, y, y],
-            index=filtered_alts.index) ** 5)
+            index=filtered_alts.index, name='price_col') ** 5)
     pdt.assert_series_equal(
         submarkets_multiplier,
         pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z']) ** 5)
@@ -144,7 +144,7 @@ def test_supply_and_demand_base_ratio(
         new_price,
         pd.Series(
             [w, x, y, z, x, y, w, y, y],
-            index=filtered_alts.index) ** 6)
+            index=filtered_alts.index, name='price_col') ** 6)
     pdt.assert_series_equal(
         submarkets_multiplier,
         pd.Series([w, x, y, z], index=['w', 'x', 'y', 'z']) ** 6)
