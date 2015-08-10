@@ -52,7 +52,7 @@ def test_apply_filter_query_empty(test_df):
     expected = pd.DataFrame(
         {'col1': [], 'col2': []},
         index=[])
-    pdt.assert_frame_equal(filtered, expected)
+    pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 
 def test_apply_filter_query_or(test_df):

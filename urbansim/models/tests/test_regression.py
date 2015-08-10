@@ -95,9 +95,9 @@ def test_FakeRegressionResults(test_df):
 
     npt.assert_array_equal(
         wrapper.predict(test_predict), fit.predict(test_predict))
-    pdt.assert_series_equal(wrapper.params, fit.params)
-    pdt.assert_series_equal(wrapper.bse, fit.bse)
-    pdt.assert_series_equal(wrapper.tvalues, fit.tvalues)
+    pdt.assert_series_equal(wrapper.params, fit.params, check_names=False)
+    pdt.assert_series_equal(wrapper.bse, fit.bse, check_names=False)
+    pdt.assert_series_equal(wrapper.tvalues, fit.tvalues, check_names=False)
     assert wrapper.rsquared == fit.rsquared
     assert wrapper.rsquared_adj == fit.rsquared_adj
 
@@ -162,7 +162,8 @@ def test_RegressionModelGroup(groupby_df):
     predicted = hmg.predict(groupby_df)
     assert isinstance(predicted, pd.Series)
     pdt.assert_series_equal(
-        predicted.sort_index(), groupby_df.col1, check_dtype=False)
+        predicted.sort_index(), groupby_df.col1,
+        check_dtype=False, check_names=False)
 
 
 def assert_dict_specs_equal(j1, j2):
@@ -276,9 +277,10 @@ def test_model_fit_to_table(test_df):
     fit = regression.fit_model(test_df, filters, model_exp)
     params = regression._model_fit_to_table(fit)
 
-    pdt.assert_series_equal(params['Coefficient'], fit.params)
-    pdt.assert_series_equal(params['Std. Error'], fit.bse)
-    pdt.assert_series_equal(params['T-Score'], fit.tvalues)
+    pdt.assert_series_equal(
+        params['Coefficient'], fit.params, check_names=False)
+    pdt.assert_series_equal(params['Std. Error'], fit.bse, check_names=False)
+    pdt.assert_series_equal(params['T-Score'], fit.tvalues, check_names=False)
 
     assert params.rsquared == fit.rsquared
     assert params.rsquared_adj == fit.rsquared_adj
