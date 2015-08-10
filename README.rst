@@ -1,25 +1,25 @@
 UrbanSim
 ========
 
-.. image:: https://travis-ci.org/synthicity/urbansim.svg?branch=master
+.. image:: https://travis-ci.org/UDST/urbansim.svg?branch=master
    :alt: Build Status
-   :target: https://travis-ci.org/synthicity/urbansim
+   :target: https://travis-ci.org/UDST/urbansim
 
-.. image:: https://coveralls.io/repos/synthicity/urbansim/badge.png?branch=master
+.. image:: https://coveralls.io/repos/UDST/urbansim/badge.png?branch=master
    :alt: Test Coverage
-   :target: https://coveralls.io/r/synthicity/urbansim?branch=master
+   :target: https://coveralls.io/r/UDST/urbansim?branch=master
 
 New version of UrbanSim, a tool for modeling metropolitan real estate
 markets
 
 .. image:: http://i.imgur.com/4YyN8ob.jpg
-   :alt: synthicity
+   :alt: UrbanSim
 
-`Detailed documentation <http://synthicity.github.io/urbansim/>`__ for
+`Detailed documentation <http://udst.github.io/urbansim/>`__ for
 UrbanSim is now available.
 
 `Click
-here <http://synthicity.github.io/urbansim/gettingstarted.html#installation>`__
+here <http://udst.github.io/urbansim/gettingstarted.html#installation>`__
 for installation instructions.
 
 UrbanSim History
@@ -37,7 +37,7 @@ the Open Platform for Urban Simulation (OPUS) software implementation at
 that time. Now, almost a decade later, it is time again to revisit the
 implementation to take advantage of an amazing amount of innovation in
 the scientific computing community. The new implementation is hosted on
-this GitHub site, and maintained by Synthicity and hopefully a growing
+this GitHub site, and maintained by Autodesk and hopefully a growing
 community of contributors.
 
 New UrbanSim Implementation
@@ -72,7 +72,7 @@ set of hedonic price models, location choice models, relocation and
 transition models, as well as a new real estate development model using
 proforma analysis.
 
-We do strongly recommend that you contact info@synthicity.com about your
+We do strongly recommend that you contact udst@autodesk.com about your
 project to make sure you can get professional support when you need it,
 and know what you are getting into. For major applied projects,
 professional support is highly recommended.

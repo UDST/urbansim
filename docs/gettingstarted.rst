@@ -86,12 +86,12 @@ Development Version
 ^^^^^^^^^^^^^^^^^^^
 
 UrbanSim can be installed from our
-`development repository <https://github.com/synthicity/urbansim>`__
+`development repository <https://github.com/udst/urbansim>`__
 using `pip <https://pip.pypa.io/en/latest/>`__, a Python package manager.
 pip is included with Anaconda so you should now be able to open a terminal
 and run the following command to install UrbanSim::
 
-    pip install -U https://github.com/synthicity/urbansim/archive/master.zip
+    pip install -U https://github.com/udst/urbansim/archive/master.zip
 
 This will download urbansim and install the remaining dependencies not
 included in Anaconda.
@@ -102,7 +102,7 @@ Developer Install
 ^^^^^^^^^^^^^^^^^
 
 If you are going to be developing on UrbanSim you will want to fork our
-`GitHub repository <https://github.com/synthicity/urbansim>`_ and clone
+`GitHub repository <https://github.com/udst/urbansim>`_ and clone
 your fork to your computer. Then run ``python setup.py develop`` to install
 UrbanSim in developer mode. In this mode you won't have to reinstall
 UrbanSim every time you make changes.
@@ -241,7 +241,7 @@ assumptions can include, but are not limited to the following.
   ``max_far`` and ``max_dua`` are `passed to the pro formas <developer/index
   .html#urbansim.developer.sqftproforma.SqFtProForma.lookup>`_
   when testing for feasibility.  Simple `utility functions <https://github
-  .com/synthicity/sanfran_urbansim/blob
+  .com/udst/sanfran_urbansim/blob
   /98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29>`_ are also common to
   *upzone* certain parcels only if certain policies affect them.
 

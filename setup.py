@@ -17,10 +17,10 @@ setup(
     version='1.4dev',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
-    author='Synthicity',
-    author_email='ffoti@synthicity.com',
+    author='Autodesk',
+    author_email='udst@autodesk.com',
     license='BSD',
-    url='https://github.com/synthicity/urbansim',
+    url='https://github.com/udst/urbansim',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 2.7',

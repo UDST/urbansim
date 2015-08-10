@@ -22,7 +22,7 @@ and adds the new buildings to the set of current buildings.  Thus
 An example of the sample code required to generate the set of feasible
 buildings is shown below.  This code comes from the ``utils`` module of the
 current `sanfran_urbansim <https://github
-.com/synthicity/sanfran_urbansim>`_ demo.  Notice that the SqFtProForma is
+.com/udst/sanfran_urbansim>`_ demo.  Notice that the SqFtProForma is
 first initialized and a DataFrame of parcels is tested for feasibliity (each
 individual parcel is tested for feasibility).  Each *use* (e.g. retail, office,
 residential, etc) is assigned a price per parcel, typically from empirical data
@@ -75,7 +75,7 @@ translation to units. ::
 
 The ``developer model`` is responsible for picking among feasible buildings
 in order to meet demand.  An example usage of the model is shown below - which
-is also lifted form the `sanfran_urbansim <https://github.com/synthicity/sanfran_urbansim>`_ demo.
+is also lifted form the `sanfran_urbansim <https://github.com/udst/sanfran_urbansim>`_ demo.
 
 This module provides a simple utility to compute the number of units (or
 amount of floorspace) to build.  Although the vacancy rate *can* be applied

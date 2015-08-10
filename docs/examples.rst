@@ -4,7 +4,7 @@ Examples
 Basic Example - Residential Price Hedonic
 -----------------------------------------
 
-A fairly complete case study of using UrbanSim can be shown entirely within a single IPython Notebook, as is the case with `this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/6539736cbc9dbe5bbe4e2cd4559168308d46ded0/Hedonic%20Example.ipynb>`_ from the `example repository <https://github.com/synthicity/sanfran_urbansim>`_.
+A fairly complete case study of using UrbanSim can be shown entirely within a single IPython Notebook, as is the case with `this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/6539736cbc9dbe5bbe4e2cd4559168308d46ded0/Hedonic%20Example.ipynb>`_ from the `example repository <https://github.com/udst/sanfran_urbansim>`_.
 
 As the canonical example of using UrbanSim, take the case of a residential sales hedonic model used to perform an ordinary least squares regression on a table of building price data. The best practice would be to store the building data in a Pandas HDFStore, and the buildings table can include millions of rows (all of the buildings in a region) and attributes like square footage, lot size, number of bedrooms and bathrooms and the like. Importantly, the dependent variable should also be included which in this case might be the assessed or observed price of each unit.  The example repository includes sample data so that this Notebook can be executed.
 
@@ -28,32 +28,32 @@ Note that there is often some overlap in data needs for different models - for i
 Complete Example - San Francisco UrbanSim Modules
 -------------------------------------------------
 
-A complete example of the latest UrbanSim framework is now being maintained on `GitHub <https://github.com/synthicity/sanfran_urbansim>`_.  The example requires that the UrbanSim package is already installed (no other dependencies are required).  The example is maintained under `Travis Continuous Integration <https://travis-ci.org/synthicity/sanfran_urbansim>`_ so should always run with the latest version of UrbanSim.
+A complete example of the latest UrbanSim framework is now being maintained on `GitHub <https://github.com/udst/sanfran_urbansim>`_.  The example requires that the UrbanSim package is already installed (no other dependencies are required).  The example is maintained under `Travis Continuous Integration <https://travis-ci.org/udst/sanfran_urbansim>`_ so should always run with the latest version of UrbanSim.
 
 The example has a number of Python modules including ``dataset.py``, ``assumptions.py``, ``variables.py``, ``models.py`` which will be discussed one at a time below.  The modules are then used in *workflows* which are IPython Notebooks and will be described in detail in the following section.
 
 Table Sources
 ~~~~~~~~~~~~~
 
-Table sources are a decorator that describes from where UrbanSim data comes.  All table sources return `Pandas DataFrames <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`_ but the data can come from different locations, including HDF5 files, CSV files, databases, Excel files, and others.  Pandas has a large and ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/dev/io.html>`_ although this example keeps data in a single HDF5 data store which is `provided directly in the repo <https://github.com/synthicity/sanfran_urbansim/blob/master/data>`_.
+Table sources are a decorator that describes from where UrbanSim data comes.  All table sources return `Pandas DataFrames <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`_ but the data can come from different locations, including HDF5 files, CSV files, databases, Excel files, and others.  Pandas has a large and ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/dev/io.html>`_ although this example keeps data in a single HDF5 data store which is `provided directly in the repo <https://github.com/udst/sanfran_urbansim/blob/master/data>`_.
 
-Specifying a source of data for a dataframe is done with the `table_source <sim/index.html#urbansim.sim.simulation.table_source>`_ decorator as in the code below, which is lifted `directly from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`_. ::
+Specifying a source of data for a dataframe is done with the `table_source <sim/index.html#urbansim.sim.simulation.table_source>`_ decorator as in the code below, which is lifted `directly from the example <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`_. ::
 
     @sim.table_source('households')
     def households(store):
         df = store['households']
         return df
 
-The complete example includes mappings of tables stored in the HDF5 file to table sources for a typical UrbanSim schema, including parcels, buildings, households, jobs, zoning (density limits and allowable uses), and zones (aggregate geographic shapes in the city).  By convention these table sources are stored in the `dataset.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py>`_ file but this is not a strict requirement.
+The complete example includes mappings of tables stored in the HDF5 file to table sources for a typical UrbanSim schema, including parcels, buildings, households, jobs, zoning (density limits and allowable uses), and zones (aggregate geographic shapes in the city).  By convention these table sources are stored in the `dataset.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py>`_ file but this is not a strict requirement.
 
-Arbitrary Python can occur in these table sources as shown in the `zoning_baseline table source <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L69>`_ which uses injections of ``zoning`` and ``zoning_for_parcels`` that were defined in the prior lines of code.
+Arbitrary Python can occur in these table sources as shown in the `zoning_baseline table source <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L69>`_ which uses injections of ``zoning`` and ``zoning_for_parcels`` that were defined in the prior lines of code.
 
-Finally, the relationships between all tables can be specified with the `sim.broadcast decorator <sim/index.html#urbansim.sim.simulation.broadcast>`_ and all of the broadcasts for the example are specified together at the `bottom of the dataset.py file <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L78>`_.  Once these relationships are set they can be used later in the simulation using the `merge_tables helper <sim/index.html#urbansim.sim.simulation.merge_tables>`_.
+Finally, the relationships between all tables can be specified with the `sim.broadcast decorator <sim/index.html#urbansim.sim.simulation.broadcast>`_ and all of the broadcasts for the example are specified together at the `bottom of the dataset.py file <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L78>`_.  Once these relationships are set they can be used later in the simulation using the `merge_tables helper <sim/index.html#urbansim.sim.simulation.merge_tables>`_.
 
 Assumptions
 ~~~~~~~~~~~
 
-By convention `assumptions.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py>`_ contains all of the high-level assumptions for the simulation. A typical assumption would be the `one below <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L28>`_, which sets a Python dictionary that can be used to map building types to land use category names. ::
+By convention `assumptions.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py>`_ contains all of the high-level assumptions for the simulation. A typical assumption would be the `one below <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L28>`_, which sets a Python dictionary that can be used to map building types to land use category names. ::
 
     # this maps building type ids to general building types
     # basically just reduces dimensionality
@@ -74,16 +74,16 @@ By convention `assumptions.py <https://github.com/synthicity/sanfran_urbansim/bl
         14: "Office"
     })
 
-All assumptions are registered with the simulation with the `add_injectable <file:///Users/ffoti/src/urbansim/docs/_build/html/sim/index.html#urbansim.sim.simulation.add_injectable>`_ method, which is used to register Python data types with names that can be injected to other simulation methods.  Although not all injectables are assumptions, this file mostly contains high-level assumptions including a `dictionary of building square feet per job for each building type <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L7>`_, `a map of building forms to building types <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L52>`_, etc.
+All assumptions are registered with the simulation with the `add_injectable <file:///Users/ffoti/src/urbansim/docs/_build/html/sim/index.html#urbansim.sim.simulation.add_injectable>`_ method, which is used to register Python data types with names that can be injected to other simulation methods.  Although not all injectables are assumptions, this file mostly contains high-level assumptions including a `dictionary of building square feet per job for each building type <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L7>`_, `a map of building forms to building types <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L52>`_, etc.
 
-Note that the above code simply sets the map to the name ``building_type_map`` - it must be injected and used somewhere else to have an effect.  In fact, this map is used in ``variables.py`` to compute the `general_type <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L125>`_ attribute on the ``buildings`` table.
+Note that the above code simply sets the map to the name ``building_type_map`` - it must be injected and used somewhere else to have an effect.  In fact, this map is used in ``variables.py`` to compute the `general_type <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L125>`_ attribute on the ``buildings`` table.
 
-Perhaps most importantly, the `location of the HDFStore <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L62>`_ is set using the ``store`` injectable.  An observant reader will notice that this ``store`` injectable which is set here was used in the table_source described above.  Note that the ``store`` injectable could be defined *after* the ``households`` ``table_source`` as long as they're both registered before the simulation makes an attempt to call the registered methods.
+Perhaps most importantly, the `location of the HDFStore <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L62>`_ is set using the ``store`` injectable.  An observant reader will notice that this ``store`` injectable which is set here was used in the table_source described above.  Note that the ``store`` injectable could be defined *after* the ``households`` ``table_source`` as long as they're both registered before the simulation makes an attempt to call the registered methods.
 
 Variables
 ~~~~~~~~~
 
-`variables.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py>`_ is similar to the `variable library <http://www.urbansim.org/downloads/manual/dev-version/opus-userguide/node211.html>`_ from the OPUS version of UrbanSim.  By convention all variables which are computed from underlying attributes are stored in this file.  Although the previous version of UrbanSim used a domain-specific *expression language*, the current version uses native Pandas, along with the ``@sim.column`` decorator and dependency injection.  As before, the convention is to name the underlying data the *primary attributes* and the functions specified here as *computed columns*.  A typical example is shown below: ::
+`variables.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py>`_ is similar to the `variable library <http://www.urbansim.org/downloads/manual/dev-version/opus-userguide/node211.html>`_ from the OPUS version of UrbanSim.  By convention all variables which are computed from underlying attributes are stored in this file.  Although the previous version of UrbanSim used a domain-specific *expression language*, the current version uses native Pandas, along with the ``@sim.column`` decorator and dependency injection.  As before, the convention is to name the underlying data the *primary attributes* and the functions specified here as *computed columns*.  A typical example is shown below: ::
 
     @sim.column('zones', 'sum_residential_units')
     def sum_residential_units(buildings):
@@ -91,7 +91,7 @@ Variables
 
 This creates a new column ``sum_residential_units`` for the ``zones`` table.  Notice that because of the magic of ``groupby``, the grouping column is used as the index after the operation so although ``buildings`` has been passed in here, because ``zone_id`` is available on the ``buildings`` table, the Series that is returned is appropriate as a column on the ``zones`` table.  In other words ``groupby`` is used to *aggregate* from the buildings table to the zones table, which is a very common operation.
 
-To move an attribute from one table to another using a foreign key, the ``misc`` module has a `reindex method <utils/misc.html#urbansim.utils.misc.reindex>`_.  Thus even though ``zone_id`` is *only* a primary attribute on the ``parcels`` table, it can be moved using ``reindex`` to the ``buildings`` table using the ``parcel_id`` (foreign key) of that table.  This is shown below and extracted `from the example <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L122>`_.  ::
+To move an attribute from one table to another using a foreign key, the ``misc`` module has a `reindex method <utils/misc.html#urbansim.utils.misc.reindex>`_.  Thus even though ``zone_id`` is *only* a primary attribute on the ``parcels`` table, it can be moved using ``reindex`` to the ``buildings`` table using the ``parcel_id`` (foreign key) of that table.  This is shown below and extracted `from the example <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L122>`_.  ::
 
     @sim.column('buildings', 'zone_id', cache=True)
     def zone_id(buildings, parcels):
@@ -130,9 +130,9 @@ Finally, if all the attributes being used are primary, the user can call ``local
 Models
 ~~~~~~
 
-The main objective of the `models.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py>`_ file is to define the "entry points" into the model system. Although UrbanSim provides the direct API for a `Regression Model <models/statistical.html#urbansim.models.regression.RegressionModel>`_, a `Location Choice Model <models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel>`_, etc, it is the models.py file which defines the specific *steps* that outline a simulation or even a more general data processing workflow.
+The main objective of the `models.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py>`_ file is to define the "entry points" into the model system. Although UrbanSim provides the direct API for a `Regression Model <models/statistical.html#urbansim.models.regression.RegressionModel>`_, a `Location Choice Model <models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel>`_, etc, it is the models.py file which defines the specific *steps* that outline a simulation or even a more general data processing workflow.
 
-In the San Francisco example, there are two price/rent `hedonic models <http://en.wikipedia.org/wiki/Hedonic_regression>`_ which both use the RegressionModel, one which is the residential sales hedonic which is estimated with the entry point `rsh_estimate <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L9>`_ and then run in simulation mode with the entry point rsh_simulate.  The non-residential rent hedonic has similar entry points `nrh_estimate <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L20>`_ and nrh_simulate.  Note that both functions call `hedonic_estimate <https://github.com/synthicity/sanfran_urbansim/blob/master/utils.py#L110>`_ and hedonic_simulate in `utils.py <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/utils.py>`_.  In this case ``utils.py`` actually uses the UrbanSim API by calling the `fit_from_cfg <models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg>`_ method on the Regressionmodel.
+In the San Francisco example, there are two price/rent `hedonic models <http://en.wikipedia.org/wiki/Hedonic_regression>`_ which both use the RegressionModel, one which is the residential sales hedonic which is estimated with the entry point `rsh_estimate <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L9>`_ and then run in simulation mode with the entry point rsh_simulate.  The non-residential rent hedonic has similar entry points `nrh_estimate <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L20>`_ and nrh_simulate.  Note that both functions call `hedonic_estimate <https://github.com/udst/sanfran_urbansim/blob/master/utils.py#L110>`_ and hedonic_simulate in `utils.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/utils.py>`_.  In this case ``utils.py`` actually uses the UrbanSim API by calling the `fit_from_cfg <models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg>`_ method on the Regressionmodel.
 
 There are two things that warrant further explanation at this point.
 
@@ -168,7 +168,7 @@ Model Configuration
 
 Bridging the divide between the modules above and the workflows below are the configuration files.  Note that models can be configured directly in Python code (as in the basic example) or in YAML configuration files (as in the complete example).  If using the ``utils.py`` methods above, the simulation is set up to read and write from the configuration files.
 
-The example has `four configuration files <https://github.com/synthicity/sanfran_urbansim/tree/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs>`_ which can be navigated on the GitHub site.  The `rsh.yaml <https://github.com/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs/rsh.yaml>`_ file has a mixture of input and output parameters and the complete set of input parameters is displayed below. ::
+The example has `four configuration files <https://github.com/udst/sanfran_urbansim/tree/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs>`_ which can be navigated on the GitHub site.  The `rsh.yaml <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs/rsh.yaml>`_ file has a mixture of input and output parameters and the complete set of input parameters is displayed below. ::
 
     name: rsh
 
@@ -192,7 +192,7 @@ The example has `four configuration files <https://github.com/synthicity/sanfran
 
 Notice that the parameters ``name``, ``fit_filters``, ``predict_filters``, ``model_expression``, and ``y_transform`` are the exact same parameters provided to the `RegressionModel object <models/statistical.html#urbansim.models.regression.RegressionModel>`_ in the api. This is by design, so that the API documentation also documents the configuration files although an example configuration is a great place to get started while using the API pages as a reference.
 
-YAML configuration files currently can also be used to define location choice models and even accessibility variables, and in theory can be added to any UrbanSim model that supports `YAML persistence <models/statistical.html#yaml-persistence>`_ as described in the API docs.  Using configuration files specified in YAML also allows interactivity with the `UrbanSim web portal <https://github.com/synthicity/usui>`_, which is one of the main reasons for following this architecture.
+YAML configuration files currently can also be used to define location choice models and even accessibility variables, and in theory can be added to any UrbanSim model that supports `YAML persistence <models/statistical.html#yaml-persistence>`_ as described in the API docs.  Using configuration files specified in YAML also allows interactivity with the `UrbanSim web portal <https://github.com/udst/usui>`_, which is one of the main reasons for following this architecture.
 
 As can be seen, these configuration files are a great way to separate specification of the model from the actual infrastructure that stores and uses these configuration files and the data which gets passed to the models, both of which are defined in the ``models.py`` file.  As stated before, ``models.py`` entry points define the structure of the simulation while the YAML files are used to configure the models.
 
@@ -208,14 +208,14 @@ One thing to note is the `autoreload magic <http://ipython.org/ipython-doc/dev/c
 Estimation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-A sample estimation workflow is available `in this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`__.
+A sample estimation workflow is available `in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`__.
 
 This notebook estimates all of the models in the example that need estimation (because they are statistical models).  In fact, every cell simply calls the `sim.run <sim/index.html#running-simulations>`_ method with one of the names of the model entry points defined in ``models.py``. The ``sim.run`` method resolves all of the dependencies and prints the output of the model estimation in the result cell of the IPython Notebook.  Note that the hedonic models are estimated first, then simulated, and then the location choice models are estimated since the hedonic models are dependencies of the location choice models.  In other words, the ``rsh_simulate`` method is configured to create the ``residential_sales_price`` column which is then a right hand side variable in the ``hlcm_estimate`` model (because residential price is theorized to impact the location choices of households).
 
 Simulation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
-A sample simulation workflow (a complete UrbanSim simulation) is available `in this Notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`__.
+A sample simulation workflow (a complete UrbanSim simulation) is available `in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`__.
 
 This notebook is possibly even simpler than the estimation workflow as it has only one substantive cell which runs all of the available models in the appropriate sequence.  Passing a range of years will run the simulation for multiple years (the example simply runs the simulation for a single year).  Other parameters are available to the  `sim.run <sim/index.html#running-simulations>`_ method which write the output to an HDF5 file.
 
@@ -224,7 +224,7 @@ This notebook is possibly even simpler than the estimation workflow as it has on
 Exploration Workflow
 ~~~~~~~~~~~~~~~~~~~~
 
-UrbanSim now also provides a method to interactively explore UrbanSim inputs and outputs using web mapping tools, and the `exploration notebook <http://nbviewer.ipython.org/github/synthicity/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb>`_ demonstrates how to set up and use this interactive display tool.
+UrbanSim now also provides a method to interactively explore UrbanSim inputs and outputs using web mapping tools, and the `exploration notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb>`_ demonstrates how to set up and use this interactive display tool.
 
 This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (``buildings``, ``househlds``, ``jobs``, and others).  Once the DataFrames have been created, they are passed to the `start <maps/index.html#module-urbansim.maps.dframe_explorer>`_ method.
 
@@ -274,9 +274,9 @@ is not strictly required.
 Although this is the easiest implementation method, a pedestrian-scale
 network-based method is perhaps more appropriate when analyses are happening
 at the parcel- and building-scale and this is the exactly the intended purpose
-of the `urbanaccess <https://github.com/synthicity/urbanaccess>`_ framework.
+of the `Pandana <https://github.com/udst/pandana>`_ framework.
 Most full UrbanSim implementations now use aggregations along the local street
-network, and ``urbanaccess`` will be released as an official product by the
+network, and ``Pandana`` will be released as an official product by the
 end of 2014.
 
 Jobs or Establishments
@@ -329,5 +329,5 @@ of the tuple is what to call the Pandas ``fillna`` function with,
 and can be a choice of "zero," "median," or "mode" and should be set
 appropriately by the user for the specific column.  The second argument is
 the data type to convert to. The user can then call
-``utils.fill_na_from_config`` as in the `example <https://github.com/synthicity/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/dataset.py#L22>`_ with a DataFrame and table name and all NaNs will be filled. This
+``utils.fill_na_from_config`` as in the `example <https://github.com/udst/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/dataset.py#L22>`_ with a DataFrame and table name and all NaNs will be filled. This
 functionality will eventually be moved into UrbanSim.

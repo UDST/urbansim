@@ -41,7 +41,7 @@ So what is this doing?  The web service is translating the drop downs to a simpl
 
     df.groupby('zone_id')['residential_units'].sum()
 
-The web service will print out each statement it executes.  The website then transparently joins the output Pandas series to the shapes and create an interactive *slippy* web map using the `Leaflet <http://leafletjs.com/>`_ Javasript library.  The code for this map is really `quite simple <https://github.com/synthicity/urbansim/tree/master/urbansim/maps>`_ - feel free to browse the code and add functionality as required.
+The web service will print out each statement it executes.  The website then transparently joins the output Pandas series to the shapes and create an interactive *slippy* web map using the `Leaflet <http://leafletjs.com/>`_ Javasript library.  The code for this map is really `quite simple <https://github.com/udst/urbansim/tree/master/urbansim/maps>`_ - feel free to browse the code and add functionality as required.
 
 To be clear, the website is performing a Pandas aggregation on the fly.  If you have a buildings DataFrame with millions of records, Pandas will ``groupby`` the ``zone_id`` and perform an aggregation of your choice.  This is designed to give you a quickly navigable map interface to understand the underlying disaggregate data, similar to that supplied by commercial projects such as `Tableau <http://kb.tableausoftware.com/articles/knowledgebase/mapping-basics>`_.
 

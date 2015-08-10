@@ -3,14 +3,14 @@ v2.0.1
 
 * Fix index of summed probabilities
 
-  * https://github.com/synthicity/urbansim/pull/144
+  * https://github.com/udst/urbansim/pull/144
 
 v2.0.0
 ======
 
 * Renamed Location Choice Models to Discscrete Choice Models
 
-  * https://github.com/synthicity/urbansim/pull/134
+  * https://github.com/udst/urbansim/pull/134
   * We generalized the existing location choice model classes into
     discrete choice models with varying capabilities.
     The ``urbansim.models.lcm`` module has been renamed to
@@ -43,10 +43,10 @@ v2.0.0
 
 * Memoized function injectables
 
-  * https://github.com/synthicity/urbansim/pull/138
+  * https://github.com/udst/urbansim/pull/138
   * Allows users to define a function injectable that has argument-based
     caching that is tied into the larger caching system.
 
 * Allow sampling of alternatives during prediction
 
-  * https://github.com/synthicity/urbansim/pull/142
+  * https://github.com/udst/urbansim/pull/142
