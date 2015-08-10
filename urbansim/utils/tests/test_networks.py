@@ -1,12 +1,12 @@
 import os.path
-
-import numpy as np
-import pandas as pd
-import pytest
 import tempfile
 
-from ...sim import simulation as sim
+import numpy as np
+import orca
 import pandana as pdna
+import pandas as pd
+import pytest
+
 from .. import networks
 
 
@@ -50,7 +50,7 @@ def sample_df(sample_osm):
 
 def test_networks_yaml(sample_osm, sample_df, test_file):
 
-    @sim.table('testing_df', cache=True)
+    @orca.table('testing_df', cache=True)
     def source():
         return sample_df
 
