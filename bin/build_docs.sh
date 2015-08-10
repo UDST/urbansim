@@ -2,7 +2,7 @@
 
 # Copied from github.com/sympy/sympy
 #
-# This file automatically deploys changes to http://synthicity.github.io/urbansim/.
+# This file automatically deploys changes to http://udst.github.io/urbansim/.
 # This will only happen when building a non-pull request build on the master
 # branch of UrbanSim.
 # It requires an access token which should be present in .travis.yml file.
@@ -48,7 +48,7 @@ if [ "$TRAVIS_REPO_SLUG" == "UDST/urbansim" ] && \
         git config --global user.name "Matt Davis"
 
         echo "Cloning repository"
-        git clone --quiet --single-branch --branch=gh-pages https://${GH_TOKEN}@github.com/synthicity/urbansim.git  gh-pages > /dev/null 2>&1
+        git clone --quiet --single-branch --branch=gh-pages https://${GH_TOKEN}@github.com/UDST/urbansim.git  gh-pages > /dev/null 2>&1
 
         cd gh-pages
         rm -rf *
