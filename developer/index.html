@@ -79,18 +79,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#columns">Columns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#caching">Caching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#argument-matching">Argument Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../models/index.html#contents">Contents</a></li>
@@ -168,7 +156,7 @@ and adds the new buildings to the set of current buildings.  Thus
 <tt class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></tt> is primarily useful in the context of an urban forecast.</p>
 <p>An example of the sample code required to generate the set of feasible
 buildings is shown below.  This code comes from the <tt class="docutils literal"><span class="pre">utils</span></tt> module of the
-current <a class="reference external" href="https://github.com/synthicity/sanfran_urbansim">sanfran_urbansim</a> demo.  Notice that the SqFtProForma is
+current <a class="reference external" href="https://github.com/udst/sanfran_urbansim">sanfran_urbansim</a> demo.  Notice that the SqFtProForma is
 first initialized and a DataFrame of parcels is tested for feasibliity (each
 individual parcel is tested for feasibility).  Each <em>use</em> (e.g. retail, office,
 residential, etc) is assigned a price per parcel, typically from empirical data
@@ -218,7 +206,7 @@ translation to units.</p>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></tt> is responsible for picking among feasible buildings
 in order to meet demand.  An example usage of the model is shown below - which
-is also lifted form the <a class="reference external" href="https://github.com/synthicity/sanfran_urbansim">sanfran_urbansim</a> demo.</p>
+is also lifted form the <a class="reference external" href="https://github.com/udst/sanfran_urbansim">sanfran_urbansim</a> demo.</p>
 <p>This module provides a simple utility to compute the number of units (or
 amount of floorspace) to build.  Although the vacancy rate <em>can</em> be applied
 at the regional level, it can also be used to meet vacancy rates at a
@@ -779,7 +767,7 @@ DataFrame that is returned from feasibility.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014, Synthicity.
+        &copy; Copyright 2015, Autodesk.
     </p>
   </div>
 

@@ -79,18 +79,6 @@
 <li class="toctree-l2"><a class="reference internal" href="examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="sim/index.html">Simulation Framework</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#tables">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#columns">Columns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#injectables">Injectables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#caching">Caching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#argument-matching">Argument Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sim/index.html#api">API</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="models/index.html">Core Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="models/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="models/index.html#contents">Contents</a></li>
@@ -231,11 +219,11 @@ libraries.</p>
 <div class="section" id="development-version">
 <h4>Development Version<a class="headerlink" href="#development-version" title="Permalink to this headline">¶</a></h4>
 <p>UrbanSim can be installed from our
-<a class="reference external" href="https://github.com/synthicity/urbansim">development repository</a>
+<a class="reference external" href="https://github.com/udst/urbansim">development repository</a>
 using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
 pip is included with Anaconda so you should now be able to open a terminal
 and run the following command to install UrbanSim:</p>
-<div class="highlight-python"><div class="highlight"><pre>pip install -U https://github.com/synthicity/urbansim/archive/master.zip
+<div class="highlight-python"><div class="highlight"><pre>pip install -U https://github.com/udst/urbansim/archive/master.zip
 </pre></div>
 </div>
 <p>This will download urbansim and install the remaining dependencies not
@@ -245,7 +233,7 @@ included in Anaconda.</p>
 <div class="section" id="developer-install">
 <h4>Developer Install<a class="headerlink" href="#developer-install" title="Permalink to this headline">¶</a></h4>
 <p>If you are going to be developing on UrbanSim you will want to fork our
-<a class="reference external" href="https://github.com/synthicity/urbansim">GitHub repository</a> and clone
+<a class="reference external" href="https://github.com/udst/urbansim">GitHub repository</a> and clone
 your fork to your computer. Then run <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></tt> to install
 UrbanSim in developer mode. In this mode you won&#8217;t have to reinstall
 UrbanSim every time you make changes.</p>
@@ -355,7 +343,7 @@ These files control the transition models and which new households and jobs
 are added to the simulation.</li>
 <li><em>Zoning Changes</em> in the form of scenario-specific density limits such as
 <tt class="docutils literal"><span class="pre">max_far</span></tt> and <tt class="docutils literal"><span class="pre">max_dua</span></tt> are <a class="reference external" href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">passed to the pro formas</a>
-when testing for feasibility.  Simple <a class="reference external" href="https://github.com/synthicity/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29">utility functions</a> are also common to
+when testing for feasibility.  Simple <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29">utility functions</a> are also common to
 <em>upzone</em> certain parcels only if certain policies affect them.</li>
 <li><em>Fees and Subsidies</em> may also come in to play by adjusting the feasibility
 of buildings that are market-rate infeasible.  Fees can also be collected on
@@ -417,7 +405,7 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014, Synthicity.
+        &copy; Copyright 2015, Autodesk.
     </p>
   </div>
 

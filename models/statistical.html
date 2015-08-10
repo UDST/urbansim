@@ -80,18 +80,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../sim/index.html">Simulation Framework</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#tables">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#columns">Columns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#injectables">Injectables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#caching">Caching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#argument-matching">Argument Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../sim/index.html#api">API</a></li>
-</ul>
-</li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a></li>
@@ -156,7 +144,7 @@
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>UrbanSim has two sets of statistical models: regressions and
-location choice models.
+discrete choice models.
 Each has a three stage usage pattern:</p>
 <ol class="arabic simple">
 <li>Create a configured model instance. This is where you will supply
@@ -244,22 +232,22 @@ YAML and load them into Python only for fitting and prediction.</p>
 </tbody>
 </table>
 </div>
-<div class="section" id="location-choice-api">
-<h3>Location Choice API<a class="headerlink" href="#location-choice-api" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="discrete-choice-api">
+<h3>Discrete Choice API<a class="headerlink" href="#discrete-choice-api" title="Permalink to this headline">¶</a></h3>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">MNLLocationChoiceModel</span></tt></td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><tt class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></tt></a>(model_expression,&nbsp;...)</td>
+<td>A discrete choice model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><tt class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLLocationChoiceModel</span></tt></td>
-<td></td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><tt class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></tt></a>(...[,&nbsp;...])</td>
+<td>An MNL LCM group that allows segments to have different model expressions but otherwise share configurations.</td>
 </tr>
-<tr class="row-odd"><td><tt class="xref py py-obj docutils literal"><span class="pre">MNLLocationChoiceModelGroup</span></tt></td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="urbansim.models.dcm.MNLDiscreteChoiceModelGroup"><tt class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModelGroup</span></tt></a>(segmentation_col)</td>
+<td>Manages a group of discrete choice models that refer to different segments of choosers.</td>
 </tr>
 </tbody>
 </table>
@@ -1019,8 +1007,1380 @@ after applying filters.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="location-choice-api-docs">
-<h3>Location Choice API Docs<a class="headerlink" href="#location-choice-api-docs" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="module-urbansim.models.dcm">
+<span id="discrete-choice-api-docs"></span><h3>Discrete Choice API Docs<a class="headerlink" href="#module-urbansim.models.dcm" title="Permalink to this headline">¶</a></h3>
+<p>Use the <tt class="docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></tt> class to train a choice module using
+multinomial logit and make subsequent choice predictions.</p>
+<dl class="class">
+<dt id="urbansim.models.dcm.DiscreteChoiceModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">DiscreteChoiceModel</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#DiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.DiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract base class for discrete choice models.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">MNLDiscreteChoiceModel</tt><big>(</big><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A discrete choice model with the ability to store an estimated
+model and predict new data based on the model.
+Based on multinomial logit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model_expression</strong> : str, iterable, or dict</p>
+<blockquote>
+<div><p>A patsy model expression. Should contain only a right-hand side.</p>
+</div></blockquote>
+<p><strong>sample_size</strong> : int</p>
+<blockquote>
+<div><p>Number of choices to sample for estimating the model.</p>
+</div></blockquote>
+<p><strong>probability_mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Specify the method to use for calculating probabilities
+during prediction.
+Available string options are &#8216;single_chooser&#8217; and &#8216;full_product&#8217;.
+In &#8220;single chooser&#8221; mode one agent is chosen for calculating
+probabilities across all alternatives. In &#8220;full product&#8221; mode
+probabilities are calculated for every chooser across all alternatives.
+Currently &#8220;single chooser&#8221; mode must be used with a <cite>choice_mode</cite>
+of &#8216;aggregate&#8217; and &#8220;full product&#8221; mode must be used with a
+<cite>choice_mode</cite> of &#8216;individual&#8217;.</p>
+</div></blockquote>
+<p><strong>choice_mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Specify the method to use for making choices among alternatives.
+Available string options are &#8216;individual&#8217; and &#8216;aggregate&#8217;.
+In &#8220;individual&#8221; mode choices will be made separately for each chooser.
+In &#8220;aggregate&#8221; mode choices are made for all choosers at once.
+Aggregate mode implies that an alternative chosen by one agent
+is unavailable to other agents and that the same probabilities
+can be used for all choosers.
+Currently &#8220;individual&#8221; mode must be used with a <cite>probability_mode</cite>
+of &#8216;full_product&#8217; and &#8220;aggregate&#8221; mode must be used with a
+<cite>probability_mode</cite> of &#8216;single_chooser&#8217;.</p>
+</div></blockquote>
+<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to choosers table before fitting the model.</p>
+</div></blockquote>
+<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the choosers table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>alts_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before fitting the model.</p>
+</div></blockquote>
+<p><strong>alts_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the merged choosers/alternatives table
+before predicting agent choices.</p>
+</div></blockquote>
+<p><strong>estimation_sample_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Whether to sample choosers during estimation
+(needs to be applied after choosers_fit_filters).</p>
+</div></blockquote>
+<p><strong>prediction_sample_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Whether (and how much) to sample alternatives during prediction.
+Note that this can lead to multiple choosers picking the same
+alternative.</p>
+</div></blockquote>
+<p><strong>choice_column</strong> : optional</p>
+<blockquote>
+<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+the alternatives index is used.</p>
+</div></blockquote>
+<p><strong>name</strong> : optional</p>
+<blockquote class="last">
+<div><p>Optional descriptive name for this model that may be used
+in output.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.alts_columns_used">
+<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.apply_fit_filters">
+<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.apply_predict_filters">
+<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.assert_fitted">
+<tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raises <cite>RuntimeError</cite> if the model is not ready for prediction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.choosers_columns_used">
+<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the choosers table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from any table used in the model. May come from either
+the choosers or alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.fit">
+<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and save model parameters based on given data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+<p><strong>current_choice</strong> : pandas.Series or any</p>
+<blockquote>
+<div><p>A Series describing the <cite>alternatives</cite> currently chosen
+by the <cite>choosers</cite>. Should have an index matching <cite>choosers</cite>
+and values matching the index of <cite>alternatives</cite>.</p>
+<p>If a non-Series is given it should be a column in <cite>choosers</cite>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict</p>
+<blockquote class="last">
+<div><p>Dict of log-liklihood values describing the quality of the
+model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8216;ratio&#8217;.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg">
+<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe in which rows represent choosers.</p>
+</div></blockquote>
+<p><strong>chosen_fname</strong> : string</p>
+<blockquote>
+<div><p>A string indicating the column in the choosers dataframe which
+gives which alternatives the choosers have chosen.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : DataFrame</p>
+<blockquote>
+<div><p>A table of alternatives. It should include the choices
+from the choosers table as well as other alternatives from
+which to sample.  Values in choosers[chosen_fname] should index
+into the alternatives dataframe.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the discrete
+choice model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : MNLDiscreteChoiceModel which was used to fit</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if model is ready for prediction.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.from_yaml">
+<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DiscreteChoiceModel instance from a saved YAML configuration.
+Arguments are mutally exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<blockquote>
+<div><p>A YAML string from which to load model.</p>
+</div></blockquote>
+<p><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MNLDiscreteChoiceModel</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.interaction_columns_used">
+<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the interaction dataset used for filtering and in
+the model. These may come originally from either the choosers or
+alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.predict">
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose from among alternatives for a group of agents.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, will set the variable &#8220;sim_pdf&#8221; on
+the object to store the probabilities for mapping of the
+outcome.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg">
+<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate choices for the specified choosers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of agents doing the choosing.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of locations which the choosers are locating in and
+which have a supply.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the discrete
+choice model.</p>
+</div></blockquote>
+<p><strong>alternative_ratio</strong> : float, optional</p>
+<blockquote>
+<div><p>Above the ratio of alternatives to choosers (default of 2.0),
+the alternatives will be sampled to meet this ratio
+(for performance reasons).</p>
+</div></blockquote>
+<p><strong>debug</strong> : boolean, optional (default False)</p>
+<blockquote>
+<div><p>Whether to generate debug information on the model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+<p class="last"><strong>lcm</strong> : MNLDiscreteChoiceModel which was used to predict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.probabilities">
+<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>filter_tables=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the probabilities for a set of choosers to choose
+from among a set of alternatives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>filter_tables</strong> : bool, optional</p>
+<blockquote>
+<div><p>If True, filter <cite>choosers</cite> and <cite>alternatives</cite> with prediction
+filters before calculating probabilities.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probabilities</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Probability of selection associated with each chooser
+and alternative. Index will be a MultiIndex with alternative
+IDs in the inner index and chooser IDs in the out index.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.report_fit">
+<tt class="descname">report_fit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.report_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a report of the fit results.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.str_model_expression">
+<tt class="descname">str_model_expression</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model expression as a string suitable for use with patsy/statsmodels.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.summed_probabilities">
+<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate total probability associated with each alternative.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Total probability associated with each alternative.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict respresentation of an MNLDiscreteChoiceModel
+instance.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.to_yaml">
+<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model respresentation to YAML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>By default a YAML string is returned. If a string is
+given here the YAML will be written to that file.
+If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+YAML will be written to that object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<blockquote class="last">
+<div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup">
+<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">MNLDiscreteChoiceModelGroup</tt><big>(</big><em>segmentation_col</em>, <em>remove_alts=False</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages a group of discrete choice models that refer to different
+segments of choosers.</p>
+<p>Model names must match the segment names after doing a pandas groupby.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> : str</p>
+<blockquote>
+<div><p>Name of a column in the table of choosers. Will be used to perform
+a pandas groupby on the choosers table.</p>
+</div></blockquote>
+<p><strong>remove_alts</strong> : bool, optional</p>
+<blockquote>
+<div><p>Specify how to handle alternatives between prediction for different
+models. If False, the alternatives table is not modified between
+predictions. If True, alternatives that have been chosen
+are removed from the alternatives table before doing another
+round of prediction.</p>
+</div></blockquote>
+<p><strong>name</strong> : str, optional</p>
+<blockquote class="last">
+<div><p>A name that may be used in places to identify this group.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model">
+<tt class="descname">add_model</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an MNLDiscreteChoiceModel instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : MNLDiscreteChoiceModel</p>
+<blockquote class="last">
+<div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of the segments
+in the choosers table.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params">
+<tt class="descname">add_model_from_params</tt><big>(</big><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a model by passing parameters through to MNLDiscreteChoiceModel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
+<blockquote>
+<div><p>Must match a segment in the choosers table.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str, iterable, or dict</p>
+<blockquote>
+<div><p>A patsy model expression. Should contain only a right-hand side.</p>
+</div></blockquote>
+<p><strong>sample_size</strong> : int</p>
+<blockquote>
+<div><p>Number of choices to sample for estimating the model.</p>
+</div></blockquote>
+<p><strong>probability_mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Specify the method to use for calculating probabilities
+during prediction.
+Available string options are &#8216;single_chooser&#8217; and &#8216;full_product&#8217;.
+In &#8220;single chooser&#8221; mode one agent is chosen for calculating
+probabilities across all alternatives. In &#8220;full product&#8221; mode
+probabilities are calculated for every chooser across all
+alternatives.</p>
+</div></blockquote>
+<p><strong>choice_mode</strong> : str or callable, optional</p>
+<blockquote>
+<div><p>Specify the method to use for making choices among alternatives.
+Available string options are &#8216;individual&#8217; and &#8216;aggregate&#8217;.
+In &#8220;individual&#8221; mode choices will be made separately for each
+chooser. In &#8220;aggregate&#8221; mode choices are made for all choosers at
+once. Aggregate mode implies that an alternative chosen by one
+agent is unavailable to other agents and that the same
+probabilities can be used for all choosers.</p>
+</div></blockquote>
+<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to choosers table before fitting the model.</p>
+</div></blockquote>
+<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the choosers table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>alts_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before fitting the model.</p>
+</div></blockquote>
+<p><strong>alts_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the merged choosers/alternatives table
+before predicting agent choices.</p>
+</div></blockquote>
+<p><strong>estimation_sample_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Whether to sample choosers during estimation
+(needs to be applied after choosers_fit_filters)</p>
+</div></blockquote>
+<p><strong>prediction_sample_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Whether (and how much) to sample alternatives during prediction.
+Note that this can lead to multiple choosers picking the same
+alternative.</p>
+</div></blockquote>
+<p><strong>choice_column</strong> : optional</p>
+<blockquote class="last">
+<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+the alternatives index is used.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.alts_columns_used">
+<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_fit_filters">
+<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.
+This is done by filtering each submodel and concatenating
+the results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_predict_filters">
+<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.
+This is done by filtering each submodel and concatenating
+the results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.choosers_columns_used">
+<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the choosers table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from any table used in the model. May come from either
+the choosers or alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fit">
+<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and save models based on given data after segmenting
+the <cite>choosers</cite> table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column with the same name as the .segmentation_col
+attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+<p><strong>current_choice</strong></p>
+<blockquote>
+<div><p>Name of column in <cite>choosers</cite> that indicates which alternative
+they have currently chosen.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
+<blockquote class="last">
+<div><p>Keys will be model names and values will be dictionaries of
+log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether all models in the group have been fitted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.interaction_columns_used">
+<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the interaction dataset used for filtering and in
+the model. These may come originally from either the choosers or
+alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.predict">
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose from among alternatives for a group of agents after
+segmenting the <cite>choosers</cite> table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, will set the variable &#8220;sim_pdf&#8221; on
+the object to store the probabilities for mapping of the
+outcome.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.probabilities">
+<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns alternative probabilties for each chooser segment as
+a dictionary keyed by segment name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>probabilties</strong> : dict of pandas.Series</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.summed_probabilities">
+<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of probabilities for alternatives across all
+chooser segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Summed probabilities from each segment added together.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel">
+<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">SegmentedMNLDiscreteChoiceModel</tt><big>(</big><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>An MNL LCM group that allows segments to have different model expressions
+but otherwise share configurations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
+<blockquote>
+<div><p>Name of column in the choosers table that will be used for groupby.</p>
+</div></blockquote>
+<p><strong>sample_size</strong> : int</p>
+<blockquote>
+<div><p>Number of choices to sample for estimating the model.</p>
+</div></blockquote>
+<p><strong>probability_mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Specify the method to use for calculating probabilities
+during prediction.
+Available string options are &#8216;single_chooser&#8217; and &#8216;full_product&#8217;.
+In &#8220;single chooser&#8221; mode one agent is chosen for calculating
+probabilities across all alternatives. In &#8220;full product&#8221; mode
+probabilities are calculated for every chooser across all alternatives.
+Currently &#8220;single chooser&#8221; mode must be used with a <cite>choice_mode</cite>
+of &#8216;aggregate&#8217; and &#8220;full product&#8221; mode must be used with a
+<cite>choice_mode</cite> of &#8216;individual&#8217;.</p>
+</div></blockquote>
+<p><strong>choice_mode</strong> : str, optional</p>
+<blockquote>
+<div><p>Specify the method to use for making choices among alternatives.
+Available string options are &#8216;individual&#8217; and &#8216;aggregate&#8217;.
+In &#8220;individual&#8221; mode choices will be made separately for each chooser.
+In &#8220;aggregate&#8221; mode choices are made for all choosers at once.
+Aggregate mode implies that an alternative chosen by one agent
+is unavailable to other agents and that the same probabilities
+can be used for all choosers.
+Currently &#8220;individual&#8221; mode must be used with a <cite>probability_mode</cite>
+of &#8216;full_product&#8217; and &#8220;aggregate&#8221; mode must be used with a
+<cite>probability_mode</cite> of &#8216;single_chooser&#8217;.</p>
+</div></blockquote>
+<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to choosers table before fitting the model.</p>
+</div></blockquote>
+<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the choosers table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>alts_fit_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before fitting the model.</p>
+</div></blockquote>
+<p><strong>alts_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the alternatives table before calculating
+new data points.</p>
+</div></blockquote>
+<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
+<blockquote>
+<div><p>Filters applied to the merged choosers/alternatives table
+before predicting agent choices.</p>
+</div></blockquote>
+<p><strong>estimation_sample_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Whether to sample choosers during estimation
+(needs to be applied after choosers_fit_filters)</p>
+</div></blockquote>
+<p><strong>prediction_sample_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Whether (and how much) to sample alternatives during prediction.
+Note that this can lead to multiple choosers picking the same
+alternative.</p>
+</div></blockquote>
+<p><strong>choice_column</strong> : optional</p>
+<blockquote>
+<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+the alternatives index is used.</p>
+</div></blockquote>
+<p><strong>default_model_expr</strong> : str, iterable, or dict, optional</p>
+<blockquote>
+<div><p>A patsy model expression. Should contain only a right-hand side.</p>
+</div></blockquote>
+<p><strong>remove_alts</strong> : bool, optional</p>
+<blockquote>
+<div><p>Specify how to handle alternatives between prediction for different
+models. If False, the alternatives table is not modified between
+predictions. If True, alternatives that have been chosen
+are removed from the alternatives table before doing another
+round of prediction.</p>
+</div></blockquote>
+<p><strong>name</strong> : str, optional</p>
+<blockquote class="last">
+<div><p>An optional string used to identify the model in places.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.add_segment">
+<tt class="descname">add_segment</tt><big>(</big><em>name</em>, <em>model_expression=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new segment with its own model expression.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
+<blockquote>
+<div><p>Segment name. Must match a segment in the groupby of the data.</p>
+</div></blockquote>
+<p><strong>model_expression</strong> : str or dict, optional</p>
+<blockquote class="last">
+<div><p>A patsy model expression that can be used with statsmodels.
+Should contain both the left- and right-hand sides.
+If not given the default model will be used, which must not be
+None.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.alts_columns_used">
+<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the alternatives table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_fit_filters">
+<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_predict_filters">
+<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.choosers_columns_used">
+<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the choosers table that are used for filtering.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.columns_used">
+<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from any table used in the model. May come from either
+the choosers or alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit">
+<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit and save models based on given data after segmenting
+the <cite>choosers</cite> table. Segments that have not already been explicitly
+added will be automatically added with default model.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column with the same name as the .segmentation_col
+attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing,
+e.g. buildings.</p>
+</div></blockquote>
+<p><strong>current_choice</strong></p>
+<blockquote>
+<div><p>Name of column in <cite>choosers</cite> that indicates which alternative
+they have currently chosen.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
+<blockquote class="last">
+<div><p>Keys will be model names and values will be dictionaries of
+log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg">
+<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of rows of agents that have made choices.</p>
+</div></blockquote>
+<p><strong>chosen_fname</strong> : string</p>
+<blockquote>
+<div><p>A string indicating the column in the choosers dataframe which
+gives which alternative the choosers have chosen.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of alternatives. It should include the current choices
+from the choosers dataframe as well as some other alternatives from
+which to sample.  Values in choosers[chosen_fname] should index
+into the alternatives dataframe.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the discrete
+choice model.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : SegmentedMNLDiscreteChoiceModel which was used to fit</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fitted">
+<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether models for all segments have been fit.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.from_yaml">
+<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a SegmentedMNLDiscreteChoiceModel instance from a saved YAML
+configuration. Arguments are mutally exclusive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
+<blockquote>
+<div><p>A YAML string from which to load model.</p>
+</div></blockquote>
+<p><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedMNLDiscreteChoiceModel</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.interaction_columns_used">
+<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Columns from the interaction dataset used for filtering and in
+the model. These may come originally from either the choosers or
+alternatives tables.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict">
+<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Choose from among alternatives for a group of agents after
+segmenting the <cite>choosers</cite> table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+<p><strong>debug</strong> : bool</p>
+<blockquote>
+<div><p>If debug is set to true, will set the variable &#8220;sim_pdf&#8221; on
+the object to store the probabilities for mapping of the
+outcome.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg">
+<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate the discrete choices for the specified choosers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of agents doing the choosing.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : DataFrame</p>
+<blockquote>
+<div><p>A dataframe of alternatives which the choosers are locating in and
+which have a supply.</p>
+</div></blockquote>
+<p><strong>cfgname</strong> : string</p>
+<blockquote>
+<div><p>The name of the yaml config file from which to read the discrete
+choice model.</p>
+</div></blockquote>
+<p><strong>alternative_ratio</strong> : float</p>
+<blockquote>
+<div><p>Above the ratio of alternatives to choosers (default of 2.0),
+the alternatives will be sampled to meet this ratio
+(for performance reasons).</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote>
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+<p class="last"><strong>lcm</strong> : SegmentedMNLDiscreteChoiceModel which was used to predict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.probabilities">
+<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns alternative probabilties for each chooser segment as
+a dictionary keyed by segment name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>probabilties</strong> : dict of pandas.Series</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.summed_probabilities">
+<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of probabilities for alternatives across all
+chooser segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the agents making choices, e.g. households.
+Must have a column matching the .segmentation_col attribute.</p>
+</div></blockquote>
+<p><strong>alternatives</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table describing the things from which agents are choosing.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Summed probabilities from each segment added together.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict representation of this instance suitable for
+conversion to YAML.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_yaml">
+<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a model respresentation to YAML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
+<blockquote>
+<div><p>By default a YAML string is returned. If a string is
+given here the YAML will be written to that file.
+If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+YAML will be written to that object.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
+<blockquote class="last">
+<div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="urbansim.models.dcm.unit_choice">
+<tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">unit_choice</tt><big>(</big><em>chooser_ids</em>, <em>alternative_ids</em>, <em>probabilities</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#unit_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.unit_choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Have a set of choosers choose from among alternatives according
+to a probability distribution. Choice is binary: each
+alternative can only be chosen once.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chooser_ids</strong> : 1d array_like</p>
+<blockquote>
+<div><p>Array of IDs of the agents that are making choices.</p>
+</div></blockquote>
+<p><strong>alternative_ids</strong> : 1d array_like</p>
+<blockquote>
+<div><p>Array of IDs of alternatives among which agents are making choices.</p>
+</div></blockquote>
+<p><strong>probabilities</strong> : 1d array_like</p>
+<blockquote>
+<div><p>The probability that an agent will choose an alternative.
+Must be the same shape as <cite>alternative_ids</cite>. Unavailable
+alternatives should have a probability of 0.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
+<blockquote class="last">
+<div><p>Mapping of chooser ID to alternative ID. Some choosers
+will map to a nan value when there are not enough alternatives
+for all the choosers.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 </div>
@@ -1043,7 +2403,7 @@ after applying filters.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014, Synthicity.
+        &copy; Copyright 2015, Autodesk.
     </p>
   </div>
 

@@ -78,18 +78,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../../sim/index.html">Simulation Framework</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#tables">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#columns">Columns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#injectables">Injectables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#caching">Caching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#running-simulations">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#argument-matching">Argument Matching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../sim/index.html#api">API</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Core Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../models/index.html#contents">Contents</a></li>
@@ -173,7 +161,7 @@
 <span class="sd">    safe : dict</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_native_types</span><span class="p">()</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_native_types</span><span class="p">(</span><span class="n">quoting</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">izip</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">)}</span>
@@ -321,7 +309,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2014, Synthicity.
+        &copy; Copyright 2015, Autodesk.
     </p>
   </div>
 
