@@ -54,6 +54,10 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     # because a) why not? and b) testing.
     alts_idx = np.arange(len(alternatives))
     if SAMPLE_SIZE < numalts:
+        # TODO: Use stdlib random.sample to individually choose
+        # alternatives for each chooser (to avoid repeatedly choosing the
+        # same alternative).
+        # random.sample is much faster than np.random.choice.
         sample = np.random.choice(alts_idx, SAMPLE_SIZE * numchoosers)
         if chosenalts is not None:
             # replace the first row for each chooser with
