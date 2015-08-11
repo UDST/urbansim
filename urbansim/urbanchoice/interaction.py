@@ -54,10 +54,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
     # because a) why not? and b) testing.
     alts_idx = np.arange(len(alternatives))
     if SAMPLE_SIZE < numalts:
-        sample = np.concatenate(tuple(
-            np.random.choice(alts_idx, SAMPLE_SIZE, replace=False)
-            for _ in range(numchoosers)))
-
+        sample = np.random.choice(alts_idx, SAMPLE_SIZE * numchoosers)
         if chosenalts is not None:
             # replace the first row for each chooser with
             # the currently chosen alternative.
