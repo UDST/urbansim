@@ -252,13 +252,16 @@
     <span class="k">global</span> <span class="n">DFRAMES</span><span class="p">,</span> <span class="n">CONFIG</span>
     <span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">views</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">}</span>
 
+    <span class="n">root</span> <span class="o">=</span> <span class="s">&quot;http://{}:{}/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;center&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">center</span><span class="p">),</span>
         <span class="s">&#39;zoom&#39;</span><span class="p">:</span> <span class="n">zoom</span><span class="p">,</span>
         <span class="s">&#39;shape_json&#39;</span><span class="p">:</span> <span class="n">shape_json</span><span class="p">,</span>
         <span class="s">&#39;geom_name&#39;</span><span class="p">:</span> <span class="n">geom_name</span><span class="p">,</span>
         <span class="s">&#39;join_name&#39;</span><span class="p">:</span> <span class="n">join_name</span><span class="p">,</span>
-        <span class="s">&#39;precision&#39;</span><span class="p">:</span> <span class="n">precision</span>
+        <span class="s">&#39;precision&#39;</span><span class="p">:</span> <span class="n">precision</span><span class="p">,</span>
+        <span class="s">&#39;root&#39;</span><span class="p">:</span> <span class="n">root</span>
     <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">:</span>
