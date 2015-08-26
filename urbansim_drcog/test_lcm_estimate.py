@@ -134,3 +134,4 @@ results = hlcm.fit(choosers, alternatives, current_choice='building_id')
 
 hlcm.report_fit()
 hlcm.to_yaml('c:/users/jmartinez/documents/hlcm_yaml.yaml')
+
