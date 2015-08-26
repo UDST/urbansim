@@ -1,3 +1,11 @@
+v3.0.0
+======
+
+2015/8/26
+
+* Remove simulation framework, which has been moved to a separate library
+  called `Orca <https://udst.github.io/orca/>`_
+
 v2.0.1
 ======
 
