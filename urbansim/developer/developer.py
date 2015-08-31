@@ -183,7 +183,6 @@ class Developer(object):
             print "WARNING THERE ARE NO FEASIBLE BUILDING TO CHOOSE FROM"
             return
 
-        # print "Describe of net units\n", df.net_units.describe()
         print "Sum of net units that are profitable: {:,}".\
             format(int(df.net_units.sum()))
         if df.net_units.sum() < target_units:
