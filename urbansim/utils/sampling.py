@@ -91,8 +91,8 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
             else:
                 # curr_ids = sample_idx[sample_pos:sample_pos + num_samples]
                 # sample_pos += num_samples
-                curr_ids = sample_idx
-                new_sample_idx = np.delete(sample_idx, curr_ids)
+                curr_ids = sample_ids
+                new_sample_idx = data.drop(sample_ids, axis=0).index
                 if prob_dist is not None:
                     new_ids = np.random.choice(new_sample_idx, num_samples, p=prob_dist)
                 else:

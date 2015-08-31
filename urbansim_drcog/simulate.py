@@ -10,7 +10,7 @@ from urbansim.utils import sampling
 hh = orca.get_table('establishments').to_frame()
 prob_dist = np.absolute(np.random.randn(hh.shape[0]))
 prob = prob_dist / prob_dist.sum()
-result = sampling.sample_rows(1500, hh, accounting_column='employees', prob_dist=prob)
+result = sampling.sample_rows(1500, hh, accounting_column='employees', replace=False)
 print result.employees.sum()
 
 # b = orca.get_table('buildings').to_frame(['zone_id','vacant_residential_units', 'residential_units'])
