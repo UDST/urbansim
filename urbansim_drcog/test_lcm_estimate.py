@@ -3,7 +3,9 @@ __author__ = 'JMartinez'
 import orca
 import pandas as pd
 import numpy as np
-import urbansim.utils_drcog as utils
+
+import urbansim_drcog.utils_drcog as utils
+
 
 
 #####This module combines the all the of the functionality of urbansim to test a HLCM estimation#####

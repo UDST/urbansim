@@ -34,49 +34,11 @@ elcm = SegmentedMNLDiscreteChoiceModel(segmentation_col=seg_col, sample_size=sam
                                        alts_fit_filters=alts_filter)
 
 
-alts = pd.DataFrame(index=orca.get_table('buildings').building_type_id.index)
+alts = orca.get_table('alts_elcm').to_frame()
 choosers = establishments_for_estimation
 
-##add columns to alts table for RHS of equation
-alts.loc[:, 'non_residential_sqft'] = orca.get_table('buildings').non_residential_sqft
-alts.loc[:, 'ln_jobs_within_30min'] = orca.get_table('buildings').ln_jobs_within_30min
-alts.loc[:, 'ln_avg_nonres_unit_price_zone'] = orca.get_table('buildings').ln_avg_nonres_unit_price_zone
-alts.loc[:, 'median_year_built'] = orca.get_table('buildings').median_year_built
-alts.loc[:, 'ln_residential_unit_density_zone'] = orca.get_table('buildings').ln_residential_unit_density_zone
-alts.loc[:, 'ln_pop_within_20min'] = orca.get_table('buildings').ln_pop_within_20min
-alts.loc[:, 'nonres_far'] = orca.get_table('buildings').nonres_far
-alts.loc[:, 'office'] = orca.get_table('buildings').office
-alts.loc[:, 'retail_or_restaurant'] = orca.get_table('buildings').retail_or_restaurant
-alts.loc[:, 'industrial_building'] = orca.get_table('buildings').industrial_building
-alts.loc[:, 'employees_x_ln_non_residential_sqft_zone'] = orca.get_table('buildings').employees_x_ln_non_residential_sqft_zone
-alts.loc[:, 'ln_dist_rail'] = orca.get_table('buildings').ln_dist_rail
-alts.loc[:, 'rail_within_mile'] = orca.get_table('buildings').rail_within_mile
-alts.loc[:, 'ln_emp_sector1_within_15min'] = orca.get_table('buildings').ln_emp_sector1_within_15min
-alts.loc[:, 'ln_emp_sector2_within_15min'] = orca.get_table('buildings').ln_emp_sector2_within_15min
-alts.loc[:, 'ln_emp_sector3_within_15min'] = orca.get_table('buildings').ln_emp_sector3_within_15min
-alts.loc[:, 'ln_emp_sector4_within_15min'] = orca.get_table('buildings').ln_emp_sector4_within_15min
-alts.loc[:, 'ln_emp_sector5_within_15min'] = orca.get_table('buildings').ln_emp_sector5_within_15min
-alts.loc[:, 'ln_emp_sector6_within_15min'] = orca.get_table('buildings').ln_emp_sector6_within_15min
 
 
-alts.ln_jobs_within_30min.fillna(0, inplace=True)
-alts.ln_avg_nonres_unit_price_zone.fillna(0, inplace=True)
-alts.median_year_built.fillna(0, inplace=True)
-alts.ln_residential_unit_density_zone.fillna(0, inplace=True)
-alts.ln_pop_within_20min.fillna(0, inplace=True)
-alts.nonres_far.fillna(0, inplace=True)
-alts.office.fillna(0, inplace=True)
-alts.retail_or_restaurant.fillna(0, inplace=True)
-alts.industrial_building.fillna(0, inplace=True)
-alts.employees_x_ln_non_residential_sqft_zone.fillna(0, inplace=True)
-alts.ln_dist_rail.fillna(0, inplace=True)
-alts.rail_within_mile.fillna(0, inplace=True)
-alts.ln_emp_sector1_within_15min.fillna(0, inplace=True)
-alts.ln_emp_sector2_within_15min.fillna(0, inplace=True)
-alts.ln_emp_sector3_within_15min.fillna(0, inplace=True)
-alts.ln_emp_sector4_within_15min.fillna(0, inplace=True)
-alts.ln_emp_sector5_within_15min.fillna(0, inplace=True)
-alts.ln_emp_sector6_within_15min.fillna(0, inplace=True)
 
 
 ##define models
@@ -221,4 +183,4 @@ elcm.add_segment(7223, model_expression=model7223)
 elcm.add_segment(7224, model_expression=model7224)
 
 results = elcm.fit(choosers, alts, current_choice='building_id')
-elcm.to_yaml('c:/users/jmartinez/documents/elcm_yaml.yaml')
+elcm.to_yaml('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml')

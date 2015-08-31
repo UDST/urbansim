@@ -1,7 +1,6 @@
 """
 Use the ``TransitionModel`` class with the different transitioners to
 add or remove agents based on growth rates or target totals.
-
 """
 from __future__ import division
 
@@ -21,11 +20,10 @@ def _empty_index():
     return pd.Index([])
 
 
-def add_rows(data, nrows, starting_index=None, accounting_column=None):
+def add_rows(data, nrows, starting_index=None, accounting_column=None, prob_dist=None):
     """
     Add rows to data table according to a given nrows.
     New rows will have their IDs set to NaN.
-
     Parameters
     ----------
     data : pandas.DataFrame
@@ -37,7 +35,6 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
     accounting_column: string, optional
         Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
-
     Returns
     -------
     updated : pandas.DataFrame
@@ -48,7 +45,6 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
     copied : pandas.Index
         Indexes of rows that were copied. A row copied multiple times
         will have multiple entries.
-
     """
     logger.debug('start: adding {} rows in transition model'.format(nrows))
     if nrows == 0:
@@ -68,10 +64,9 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
     return pd.concat([data, new_rows]), added_index, copied_index
 
 
-def remove_rows(data, nrows, accounting_column=None):
+def remove_rows(data, nrows, accounting_column=None, prob_dist=None):
     """
     Remove a random `nrows` number of rows from a table.
-
     Parameters
     ----------
     data : DataFrame
@@ -80,14 +75,12 @@ def remove_rows(data, nrows, accounting_column=None):
     accounting_column: string, optional
         Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
-
     Returns
     -------
     updated : pandas.DataFrame
         Table with random rows removed.
     removed : pandas.Index
         Indexes of the rows removed from the table.
-
     """
     logger.debug('start: removing {} rows in transition model'.format(nrows))
     nrows = abs(nrows)  # in case a negative number came in
@@ -103,11 +96,10 @@ def remove_rows(data, nrows, accounting_column=None):
     return data.loc[data.index.diff(remove_index)], remove_index
 
 
-def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None):
+def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None, prob_dist=None):
     """
     Add or remove rows to/from a table. Rows are added
     for positive `nrows` and removed for negative `nrows`.
-
     Parameters
     ----------
     data : DataFrame
@@ -117,7 +109,6 @@ def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None)
         The starting index from which to calculate indexes for new rows.
         If not given the max + 1 of the index of `data` will be used.
         (Not applicable if rows are being removed.)
-
     Returns
     -------
     updated : pandas.DataFrame
@@ -129,7 +120,6 @@ def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None)
         will have multiple entries.
     removed : pandas.Index
         Index of rows that were removed.
-
     """
     if nrows > 0:
         updated, added, copied = add_rows(
@@ -151,7 +141,6 @@ def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None)
 class GrowthRateTransition(object):
     """
     Transition given tables using a simple growth rate.
-
     Parameters
     ----------
     growth_rate : float
@@ -167,7 +156,6 @@ class GrowthRateTransition(object):
         """
         Add or remove rows to/from a table according to the prescribed
         growth rate for this model.
-
         Parameters
         ----------
         data : pandas.DataFrame
@@ -175,7 +163,6 @@ class GrowthRateTransition(object):
         year : None, optional
             Here for compatibility with other transition models,
             but ignored.
-
         Returns
         -------
         updated : pandas.DataFrame
@@ -187,7 +174,6 @@ class GrowthRateTransition(object):
             will have multiple entries.
         removed : pandas.Index
             Index of rows that were removed.
-
         """
         if self.accounting_column is None:
             nrows = int(round(len(data) * self.growth_rate))
@@ -202,7 +188,6 @@ class GrowthRateTransition(object):
     def __call__(self, data, year):
         """
         Call `self.transition` with inputs.
-
         """
         return self.transition(data, year)
 
@@ -211,7 +196,6 @@ class TabularGrowthRateTransition(object):
     """
     Growth rate based transitions where the rates are stored in
     a table indexed by year with optional segmentation.
-
     Parameters
     ----------
     growth_rates : pandas.DataFrame
@@ -230,7 +214,6 @@ class TabularGrowthRateTransition(object):
     def _config_table(self):
         """
         Table that has transition configuration.
-
         """
         return self.growth_rates
 
@@ -238,14 +221,12 @@ class TabularGrowthRateTransition(object):
     def _config_column(self):
         """
         Non-filter column in config table.
-
         """
         return self.rates_column
 
     def _calc_nrows(self, len_data, growth_rate):
         """
         Calculate the number of rows to add to or remove from some data.
-
         Parameters
         ----------
         len_data : int
@@ -253,15 +234,13 @@ class TabularGrowthRateTransition(object):
         growth_rate : float
             Growth rate as a fraction. Positive for growth, negative
             for removing rows.
-
         """
         return int(round(len_data * growth_rate))
 
-    def transition(self, data, year):
+    def transition(self, data, year, prob_dist=None):
         """
         Add or remove rows to/from a table according to the prescribed
         growth rate for this model and year.
-
         Parameters
         ----------
         data : pandas.DataFrame
@@ -269,7 +248,6 @@ class TabularGrowthRateTransition(object):
         year : None, optional
             Here for compatibility with other transition models,
             but ignored.
-
         Returns
         -------
         updated : pandas.DataFrame
@@ -281,7 +259,6 @@ class TabularGrowthRateTransition(object):
             will have multiple entries.
         removed : pandas.Index
             Index of rows that were removed.
-
         """
         logger.debug('start: tabular transition')
         if year not in self._config_table.index:
@@ -299,7 +276,7 @@ class TabularGrowthRateTransition(object):
         # since we're looping over discrete segments we need to track
         # out here where their new indexes will begin
         starting_index = data.index.values.max() + 1
-
+        i = 0
         for _, row in year_config.iterrows():
             subset = util.filter_table(data, row, ignore={self._config_column})
 
@@ -315,8 +292,14 @@ class TabularGrowthRateTransition(object):
                     subset[self.accounting_column].sum(),
                     row[self._config_column])
 
+            #if a probability distribution is used, pass from list
+            if prob_dist:
+                prob = prob_dist[i]
+            else:
+                prob = None
+
             updated, added, copied, removed = \
-                add_or_remove_rows(subset, nrows, starting_index, self.accounting_column)
+                add_or_remove_rows(subset, nrows, starting_index, self.accounting_column, prob_dist=prob)
             if nrows > 0:
                 # only update the starting index if rows were added
                 starting_index = starting_index + nrows
@@ -336,7 +319,6 @@ class TabularGrowthRateTransition(object):
     def __call__(self, data, year):
         """
         Call `self.transition` with inputs.
-
         """
         return self.transition(data, year)
 
@@ -345,7 +327,6 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
     """
     Transition data via control totals in pandas DataFrame with
     optional segmentation.
-
     Parameters
     ----------
     targets : pandas.DataFrame
@@ -354,39 +335,49 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
     accounting_column: string, optional
         Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
+    prob_dist : None, optional
+            Optional list of np.array probabilities
+            to use for sampling. The sum of each np.array must be
+            equal to 1. The number of list items must be equal to the number of items in
+            filter_list and in the same order as filter list combos
+
     """
-    def __init__(self, targets, totals_column, accounting_column=None):
+    def __init__(self, targets, totals_column, accounting_column=None, prob_dist=None):
         self.targets = targets
         self.totals_column = totals_column
         self.accounting_column = accounting_column
+        self.prob_dist = prob_dist
 
     @property
     def _config_table(self):
         """
         Table that has transition configuration.
-
         """
         return self.targets
+
+    @property
+    def _prob_dist(self):
+        """
+        List of probability distributions
+        """
+        return self.prob_dist
 
     @property
     def _config_column(self):
         """
         Non-filter column in config table.
-
         """
         return self.totals_column
 
     def _calc_nrows(self, len_data, target_pop):
         """
         Calculate the number of rows to add to or remove from some data.
-
         Parameters
         ----------
         len_data : int
             The current number of rows in the data table.
         target_pop : int
             Target population.
-
         """
         return target_pop - len_data
 
@@ -394,7 +385,6 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
         """
         Add or remove rows to/from a table according to the prescribed
         totals for this model and year.
-
         Parameters
         ----------
         data : pandas.DataFrame
@@ -402,7 +392,6 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
         year : None, optional
             Here for compatibility with other transition models,
             but ignored.
-
         Returns
         -------
         updated : pandas.DataFrame
@@ -414,7 +403,6 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
             will have multiple entries.
         removed : pandas.Index
             Index of rows that were removed.
-
         """
         with log_start_finish('tabular totals transition', logger):
             return super(TabularTotalsTransition, self).transition(data, year)
@@ -424,7 +412,6 @@ def _update_linked_table(table, col_name, added, copied, removed):
     """
     Copy and update rows in a table that has a column referencing another
     table that has had rows added via copying.
-
     Parameters
     ----------
     table : pandas.DataFrame
@@ -438,11 +425,9 @@ def _update_linked_table(table, col_name, added, copied, removed):
         Indexes of rows that were copied to make new rows in linked table.
     removed : pandas.Index
         Indexes of rows that were removed from the linked table.
-
     Returns
     -------
     updated : pandas.DataFrame
-
     """
     logger.debug('start: update linked table after transition')
 
@@ -470,14 +455,12 @@ def _update_linked_table(table, col_name, added, copied, removed):
 class TransitionModel(object):
     """
     Models things moving into or out of a region.
-
     Parameters
     ----------
     transitioner : callable
         A callable that takes a data table and a year number and returns
         and new data table, the indexes of rows added, the indexes
         of rows copied, and the indexes of rows removed.
-
     """
     def __init__(self, transitioner):
         self.transitioner = transitioner
@@ -485,7 +468,6 @@ class TransitionModel(object):
     def transition(self, data, year, linked_tables=None):
         """
         Add or remove rows from a table based on population targets.
-
         Parameters
         ----------
         data : pandas.DataFrame
@@ -498,7 +480,6 @@ class TransitionModel(object):
             are copied or removed will also be copied and removed in
             linked tables. They dictionary keys are used in the
             returned `updated_links`.
-
         Returns
         -------
         updated : pandas.DataFrame
@@ -506,7 +487,6 @@ class TransitionModel(object):
         added : pandas.Series
             Indexes of new rows in `updated`.
         updated_links : dict of pandas.DataFrame
-
         """
         logger.debug('start: transition')
         linked_tables = linked_tables or {}

@@ -6,8 +6,9 @@ import orca
 import pandas as pd
 from urbansim.models import RegressionModel, SegmentedRegressionModel, \
     MNLDiscreteChoiceModel, SegmentedMNLDiscreteChoiceModel, \
-    GrowthRateTransition
+    GrowthRateTransition, RelocationModel, TabularTotalsTransition
 from urbansim.developer import sqftproforma, developer
+#from urbansim.models.transition import TabularFilteredTotalsTransition
 from urbansim.utils import misc
 
 
@@ -95,7 +96,10 @@ def to_frame(tables, cfg, additional_columns=[]):
                                tables=tables, columns=columns)
     else:
         df = tables[0].to_frame(columns)
-    df = deal_with_nas(df)
+    try:
+        df = deal_with_nas(df)
+    except:
+        df.fillna(0, inplace=True)
     return df
 
 
@@ -133,7 +137,7 @@ def lcm_estimate(cfg, choosers, chosen_fname, buildings, nodes):
                                            cfg)
 
 
-def lcm_simulate(cfg, choosers, buildings, nodes, out_fname,
+def lcm_simulate(cfg, choosers, buildings, out_fname,
                  supply_fname, vacant_fname):
     """
     Simulate the location choices for the specified choosers
@@ -164,8 +168,7 @@ def lcm_simulate(cfg, choosers, buildings, nodes, out_fname,
     cfg = misc.config(cfg)
 
     choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
-    locations_df = to_frame([buildings, nodes], cfg,
-                            [supply_fname, vacant_fname])
+    locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname])
 
     available_units = buildings[supply_fname]
     vacant_units = buildings[vacant_fname]
@@ -203,6 +206,7 @@ def lcm_simulate(cfg, choosers, buildings, nodes, out_fname,
     _print_number_unplaced(choosers, out_fname)
 
     vacant_units = buildings[vacant_fname]
+    vacant_units = vacant_units[vacant_units > 0]
     print "    and there are now %d empty units" % vacant_units.sum()
     print "    and %d overfull buildings" % len(vacant_units[vacant_units < 0])
 
@@ -219,6 +223,28 @@ def simple_relocation(choosers, relocation_rate, fieldname):
 
     _print_number_unplaced(choosers, fieldname)
 
+def hh_relocation_model(choosers, control_table, field_name):
+    print "Total agents: %d" % len(choosers)
+    _print_number_unplaced(choosers, field_name)
+
+    print "Assigning for relocation..."
+    hh_relo_model = RelocationModel(control_table.to_frame())
+    movers = hh_relo_model.find_movers(choosers.to_frame())
+
+    print "%d agents relocating" % len(movers)
+    choosers.update_col_from_series(field_name, pd.Series(-1, index=movers))
+
+
+def emp_relocation_model(choosers, control_table, field_name):
+    print "Total agents: %d" % len(choosers)
+    _print_number_unplaced(choosers, field_name)
+
+    print "Assigning for relocation..."
+    emp_relo_model = RelocationModel(control_table.to_frame())
+    movers = emp_relo_model.find_movers(choosers.to_frame())
+
+    print "%d agents relocating" % len(movers)
+    choosers.update_col_from_series(field_name, pd.Series(-1, index=movers))
 
 def simple_transition(tbl, rate, location_fname):
     transition = GrowthRateTransition(rate)
@@ -230,6 +256,30 @@ def simple_transition(tbl, rate, location_fname):
 
     df.loc[added, location_fname] = -1
     orca.add_table(tbl.name, df)
+
+def hh_transition(households, tbl, location_fname, year):
+    tran = TabularTotalsTransition(tbl.to_frame(), 'total_number_of_households')
+    df = households.to_frame(households.local_columns)
+
+    print "%d households before transition" % len(df.index)
+    df, added, copied, removed = tran.transition(df, year)
+    print "%d households after transition" % len(df.index)
+
+    df.loc[added, location_fname] = -1
+    orca.add_table(households.name, df)
+
+def emp_transition(establishments, tbl, location_fname, year):
+    #tran = TabularFilteredTotalsTransition(tbl.to_frame(), 'total_number_of_jobs', ['sector_id_six','home_based_status'],
+    #                                       accounting_column='employees')
+    tran = TabularTotalsTransition(tbl.to_frame(), 'total_number_of_jobs', accounting_column='employees')
+    df = establishments.to_frame()
+
+    print "%d establishments with %d employees before transition" % (len(df.index), df.employees.sum())
+    df, added, copied, removed = tran.transition(df, year)
+    print "%d establishments with %d employees after transition" % (len(df.index), df.employees.sum())
+
+    df.loc[added, location_fname] = -1
+    orca.add_table(establishments.name, df)
 
 
 def _print_number_unplaced(df, fieldname):

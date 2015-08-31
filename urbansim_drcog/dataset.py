@@ -58,6 +58,143 @@ def households_for_estimation(store):
 def zone_to_county():
     return pd.read_csv('C:/urbansim/data/TAZ_County_Table.csv').set_index('zone_id')
 
+@orca.table('alts_hlcm', cache=True, cache_scope='iteration')
+def alts_hlcm(buildings):
+    columns = [
+        'residential_units',
+        'ln_dist_rail',
+        'ln_avg_unit_price_zone',
+        'median_age_of_head',
+        'median_yearbuilt_post_1990',
+        'percent_hh_with_child_x_hh_with_child',
+        'percent_renter_hh_in_zone',
+        'townhome',
+        'multifamily',
+        'jobs_within_45min',
+        'income5xlt_x_avg_unit_price_zone',
+        'median_yearbuilt_pre_1950',
+        'ln_income_x_average_resunit_size',
+        'wkrs_hhs_x_ln_jobs_within_30min',
+        'mean_income',
+        'cherry_creek_school_district',
+        'percent_younghead_x_younghead',
+        'ln_jobs_within_30min',
+        'ln_emp_sector3_within_20min',
+        'allpurpose_agglosum_floor',
+    ]
+    alts = buildings.to_frame(columns=columns)
+    alts.fillna(0, inplace=True)
+    return alts
+
+@orca.table('alts_elcm', cache=True, cache_scope='iteration')
+def alts_elcm(buildings):
+    columns = [
+        'non_residential_sqft',
+        'ln_jobs_within_30min',
+        'ln_avg_nonres_unit_price_zone',
+        'median_year_built',
+        'ln_residential_unit_density_zone',
+        'ln_pop_within_20min',
+        'nonres_far',
+        'office',
+        'retail_or_restaurant',
+        'industrial_building',
+        'employees_x_ln_non_residential_sqft_zone',
+        'ln_dist_rail',
+        'rail_within_mile',
+        'ln_emp_sector1_within_15min',
+        'ln_emp_sector2_within_15min',
+        'ln_emp_sector3_within_15min',
+        'ln_emp_sector4_within_15min',
+        'ln_emp_sector5_within_15min',
+        'ln_emp_sector6_within_15min'
+    ]
+    alts = buildings.to_frame(columns=columns)
+    alts.fillna(0, inplace=True)
+    return alts
+
+@orca.table('alts_repm', cache=True, cache_scope='iteration')
+def alts_repm(buildings):
+    columns=[
+        'ln_non_residential_sqft_zone',
+        'building_type_id',
+        'unit_price_residential',
+        'improvement_value',
+        'ln_pop_within_20min',
+        'ln_units_per_acre',
+        'mean_income',
+        'year_built',
+        'ln_dist_bus',
+        'ln_dist_rail',
+        'ln_avg_land_value_per_sqft_zone',
+        'ln_residential_unit_density_zone',
+        'ln_non_residential_sqft_zone',
+        'allpurpose_agglosum_floor',
+        'county8001',
+        'county8005',
+        'county8013',
+        'county8014',
+        'county8019',
+        'county8035',
+        'county8039',
+        'county8047',
+        'county8059',
+        'county8123'
+
+    ]
+    alts = buildings.to_frame(columns=columns)
+    alts.fillna(0, inplace=True)
+    return alts
+
+@orca.table('alts_nrepm', cache=True, cache_scope='iteration')
+def alts_repm(buildings):
+    columns=[
+        'improvement_value',
+        'building_type_id',
+        'unit_price_non_residential',
+        'ln_jobs_within_20min',
+        'nonres_far',
+        'year_built',
+        'ln_dist_bus',
+        'ln_dist_rail',
+        'ln_avg_land_value_per_sqft_zone',
+        'ln_residential_unit_density_zone',
+        'ln_non_residential_sqft_zone',
+        'allpurpose_agglosum_floor',
+        'county8001',
+        'county8005',
+        'county8013',
+        'county8014',
+        'county8019',
+        'county8035',
+        'county8039',
+        'county8047',
+        'county8059',
+        'county8123'
+
+    ]
+    alts = buildings.to_frame(columns=columns)
+    alts.fillna(0, inplace=True)
+    return alts
+
+@orca.table('household_relocation_rates')
+def household_relocation_rates(store):
+    df = store['annual_household_relocation_rates']
+    df.probability_of_relocating = df.probability_of_relocating / 100
+    return df
+
+@orca.table('job_relocation_rates')
+def job_relocation_rates(store):
+    return store['annual_job_relocation_rates']
+
+@orca.table('household_control_totals')
+def household_control_totals(store):
+    df = store['annual_household_control_totals']
+    return df
+
+@orca.table('employment_control_totals')
+def employment_control_totals(store):
+    return store['annual_employment_control_totals']
 
 #automagic merging
 orca.broadcast('zones', 'parcels', cast_index=True, onto_on='zone_id')

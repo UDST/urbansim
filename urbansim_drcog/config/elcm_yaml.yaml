@@ -1,0 +1,1379 @@
+name: SegmentedMNLDiscreteChoiceModel
+
+model_type: segmented_discretechoice
+
+segmentation_col: sector_id_retail_agg
+
+choosers_fit_filters: null
+
+choosers_predict_filters: null
+
+alts_fit_filters:
+- non_residential_sqft > 0
+
+alts_predict_filters: null
+
+interaction_predict_filters: null
+
+choice_column: building_id
+
+sample_size: 100
+
+estimation_sample_size: null
+
+prediction_sample_size: null
+
+default_config:
+    model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_dist_rail+rail_within_mile
+
+models:
+    11:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -0.0004507704189573429
+                industrial_building: -3.0
+                ln_avg_nonres_unit_price_zone: 0.6340215983952677
+                ln_dist_rail: -1.884973068860175e-05
+                ln_jobs_within_30min: 3.0
+                ln_pop_within_20min: -2.0185376043274004
+                ln_residential_unit_density_zone: -3.0
+                median_year_built: 0.05339082283894794
+                nonres_far: 0.030093414598605112
+                office: -3.0
+                rail_within_mile: -3.0
+                retail_or_restaurant: 1.7306804011691053
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 0.011532398141523889
+                industrial_building: 68.15464453144446
+                ln_avg_nonres_unit_price_zone: 2.4359638488634574
+                ln_dist_rail: 0.0001509012396288718
+                ln_jobs_within_30min: 15.294100715329128
+                ln_pop_within_20min: 10.181940408354881
+                ln_residential_unit_density_zone: 20.085803322898336
+                median_year_built: 0.07348225593369537
+                nonres_far: 5.16844445824359
+                office: 729.6724245334456
+                rail_within_mile: 111.09473921313713
+                retail_or_restaurant: 14.607272044961832
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.0390873098054329
+                industrial_building: -0.044017543054103846
+                ln_avg_nonres_unit_price_zone: 0.26027545469982316
+                ln_dist_rail: -0.12491435282414502
+                ln_jobs_within_30min: 0.196154063311034
+                ln_pop_within_20min: -0.1982468491635515
+                ln_residential_unit_density_zone: -0.14935922411327818
+                median_year_built: 0.7265811611326092
+                nonres_far: 0.005822528391614343
+                office: -0.004111433979320526
+                rail_within_mile: -0.027003978957495452
+                retail_or_restaurant: 0.118480739993203
+        fitted: true
+        log_likelihoods:
+            convergence: -3.7588105431652714
+            'null': -9.210340371976182
+            ratio: 0.5918923306458894
+        name: 11
+    21:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 2.2785308257006766e-05
+                industrial_building: 1.1807090525059398
+                ln_avg_nonres_unit_price_zone: -0.15664212091245375
+                ln_emp_sector3_within_15min: -0.489149608712908
+                ln_jobs_within_30min: 0.5406618833913576
+                ln_pop_within_20min: 0.6879340692984109
+                ln_residential_unit_density_zone: -0.9413338143623818
+                median_year_built: 0.023790620405218264
+                nonres_far: 0.7756178593713766
+                office: 3.0
+                rail_within_mile: 0.9005682756722146
+                retail_or_restaurant: -0.7448814236492007
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 1.9318445362995818e-05
+                industrial_building: 2.2824551749102073
+                ln_avg_nonres_unit_price_zone: 0.4425464946560578
+                ln_emp_sector3_within_15min: 1.8044525957684188
+                ln_jobs_within_30min: 4.166250433109263
+                ln_pop_within_20min: 4.053503509696203
+                ln_residential_unit_density_zone: 2.4364792048057855
+                median_year_built: 0.02648013469845732
+                nonres_far: 0.4701208243758558
+                office: 1.7713919623408694
+                rail_within_mile: 2.143404478279191
+                retail_or_restaurant: 5.403547086155349
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 1.1794586898100854
+                industrial_building: 0.5172978052251954
+                ln_avg_nonres_unit_price_zone: -0.35395630245403764
+                ln_emp_sector3_within_15min: -0.27107922361607156
+                ln_jobs_within_30min: 0.12977181570620633
+                ln_pop_within_20min: 0.16971345100672416
+                ln_residential_unit_density_zone: -0.3863500302016395
+                median_year_built: 0.898432756333534
+                nonres_far: 1.6498266385053382
+                office: 1.6935833874031712
+                rail_within_mile: 0.420157877245468
+                retail_or_restaurant: -0.13785045485357056
+        fitted: true
+        log_likelihoods:
+            convergence: -27.033110671990716
+            'null': -64.47238260383328
+            ratio: 0.5807024716598044
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 21
+    22:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 4.2732395228393e-06
+                industrial_building: 1.181645674901507
+                ln_avg_nonres_unit_price_zone: 0.018850048490652523
+                ln_emp_sector3_within_15min: 0.14753948217923965
+                ln_jobs_within_30min: 1.4848309002228532
+                ln_pop_within_20min: -0.29293559825481225
+                ln_residential_unit_density_zone: -1.3883822278872475
+                median_year_built: 0.001161577229932154
+                nonres_far: 0.13374970514405526
+                office: 0.8162768057536504
+                rail_within_mile: 0.5155760298421764
+                retail_or_restaurant: 0.2618958756513706
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 2.1844805157534835e-05
+                industrial_building: 7.336938332311778
+                ln_avg_nonres_unit_price_zone: 1.1695012927285418
+                ln_emp_sector3_within_15min: 2.6011793751860037
+                ln_jobs_within_30min: 7.5904242280681755
+                ln_pop_within_20min: 5.453757867264138
+                ln_residential_unit_density_zone: 7.416218296716964
+                median_year_built: 0.045190311022251156
+                nonres_far: 1.5663110016964983
+                office: 11.631291396273474
+                rail_within_mile: 2.1395320850385837
+                retail_or_restaurant: 10.029359990831987
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 0.1956181111263128
+                industrial_building: 0.16105432830170527
+                ln_avg_nonres_unit_price_zone: 0.01611802279129921
+                ln_emp_sector3_within_15min: 0.05672022605849298
+                ln_jobs_within_30min: 0.19561896089182815
+                ln_pop_within_20min: -0.053712615298369036
+                ln_residential_unit_density_zone: -0.18720892135845857
+                median_year_built: 0.02570412116349913
+                nonres_far: 0.08539153782306877
+                office: 0.07017937887921677
+                rail_within_mile: 0.24097606829433393
+                retail_or_restaurant: 0.026112920055793614
+        fitted: true
+        log_likelihoods:
+            convergence: -23.88537878170813
+            'null': -27.631021115928544
+            ratio: 0.13555931641126184
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 22
+    23:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 1.9943846316797246e-06
+                industrial_building: 1.768751430313317
+                ln_avg_nonres_unit_price_zone: 0.04953785938280615
+                ln_emp_sector3_within_15min: -0.026556252342937705
+                ln_jobs_within_30min: -0.2038737817075719
+                ln_pop_within_20min: 0.2307923825418245
+                ln_residential_unit_density_zone: -0.6442452200461823
+                median_year_built: 0.00015237734128274602
+                nonres_far: 0.31470002347132037
+                office: 1.3268619771645274
+                rail_within_mile: 0.44958852866660687
+                retail_or_restaurant: 0.9828861773033922
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 5.0840201730027064e-06
+                industrial_building: 0.43252767485414817
+                ln_avg_nonres_unit_price_zone: 0.05455972641375668
+                ln_emp_sector3_within_15min: 0.18904593684316698
+                ln_jobs_within_30min: 0.23025200680527677
+                ln_pop_within_20min: 0.30309267064669193
+                ln_residential_unit_density_zone: 0.2750807925734073
+                median_year_built: 0.0003621192251712911
+                nonres_far: 0.10951056312202471
+                office: 0.4960932158370413
+                rail_within_mile: 0.2648038755634646
+                retail_or_restaurant: 0.4729521889936235
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 0.39228495635606575
+                industrial_building: 4.089337013891086
+                ln_avg_nonres_unit_price_zone: 0.9079565210267566
+                ln_emp_sector3_within_15min: -0.14047512888345676
+                ln_jobs_within_30min: -0.8854375887372272
+                ln_pop_within_20min: 0.761458144300869
+                ln_residential_unit_density_zone: -2.3420218257305656
+                median_year_built: 0.4207932931775933
+                nonres_far: 2.8736956006760597
+                office: 2.674622298403654
+                rail_within_mile: 1.697817026695501
+                retail_or_restaurant: 2.078193526061984
+        fitted: true
+        log_likelihoods:
+            convergence: -355.803491967028
+            'null': -396.04463599497547
+            ratio: 0.10160759765588145
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 23
+    31:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -0.00011047874094648563
+                industrial_building: 3.0
+                ln_avg_nonres_unit_price_zone: -0.06580537435388394
+                ln_emp_sector3_within_15min: 0.34424091050590155
+                ln_jobs_within_30min: 1.239851003480219
+                ln_pop_within_20min: -1.3094594084875457
+                ln_residential_unit_density_zone: 1.051895779003215
+                median_year_built: 0.0007042584656757433
+                nonres_far: 1.0357789546135663
+                office: -3.0
+                rail_within_mile: 0.8295935869426317
+                retail_or_restaurant: 1.160323159384162
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 0.0005420040723504296
+                industrial_building: 13.537157472606369
+                ln_avg_nonres_unit_price_zone: 0.8403008245850109
+                ln_emp_sector3_within_15min: 1.0166668119972992
+                ln_jobs_within_30min: 6.574039120922086
+                ln_pop_within_20min: 5.933219388183253
+                ln_residential_unit_density_zone: 3.368501091423538
+                median_year_built: 0.04655420661839413
+                nonres_far: 3.0609001712035466
+                office: 37.69084441175954
+                rail_within_mile: 4.444131939554043
+                retail_or_restaurant: 13.184448685471253
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.20383378388171267
+                industrial_building: 0.22161225545841248
+                ln_avg_nonres_unit_price_zone: -0.07831168603979703
+                ln_emp_sector3_within_15min: 0.33859756848915024
+                ln_jobs_within_30min: 0.1885980567919583
+                ln_pop_within_20min: -0.2206996442935344
+                ln_residential_unit_density_zone: 0.3122741392845092
+                median_year_built: 0.015127708467863403
+                nonres_far: 0.33839030895486466
+                office: -0.07959492674735619
+                rail_within_mile: 0.18667168262017875
+                retail_or_restaurant: 0.08800695327236495
+        fitted: true
+        log_likelihoods:
+            convergence: -13.804857918936317
+            'null': -23.025850929940454
+            ratio: 0.4004626382347548
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 31
+    32:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -8.45899634572651e-06
+                industrial_building: 1.2030342948750554
+                ln_avg_nonres_unit_price_zone: -0.13627949977063566
+                ln_emp_sector3_within_15min: 0.16791383530105752
+                ln_jobs_within_30min: 0.7783529234452103
+                ln_pop_within_20min: -0.5905506204112999
+                ln_residential_unit_density_zone: -0.9794126079722757
+                median_year_built: 0.044956693917656464
+                nonres_far: 0.4020819510479374
+                office: 1.1347769907849834
+                rail_within_mile: -0.7318459902448438
+                retail_or_restaurant: 0.21582119932432864
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 3.840863555427897e-05
+                industrial_building: 1.2502027268101008
+                ln_avg_nonres_unit_price_zone: 0.22678927916596245
+                ln_emp_sector3_within_15min: 0.9056247888156469
+                ln_jobs_within_30min: 1.2255480545785868
+                ln_pop_within_20min: 1.4183600806981125
+                ln_residential_unit_density_zone: 1.196497700725845
+                median_year_built: 0.005449472226764129
+                nonres_far: 0.2593541918518449
+                office: 0.9936123832605476
+                rail_within_mile: 1.1680540562500938
+                retail_or_restaurant: 1.6518827008153663
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.22023683537969685
+                industrial_building: 0.9622713733352702
+                ln_avg_nonres_unit_price_zone: -0.6009080335358687
+                ln_emp_sector3_within_15min: 0.18541214570843514
+                ln_jobs_within_30min: 0.6351060005662955
+                ln_pop_within_20min: -0.416361563222107
+                ln_residential_unit_density_zone: -0.8185662265611738
+                median_year_built: 8.249733560776681
+                nonres_far: 1.5503198470669997
+                office: 1.1420721097106328
+                rail_within_mile: -0.6265514736487051
+                retail_or_restaurant: 0.13065164930766554
+        fitted: true
+        log_likelihoods:
+            convergence: -62.08054340527049
+            'null': -78.28789316179754
+            ratio: 0.20702242839810914
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 32
+    33:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 7.001915424043987e-06
+                industrial_building: 2.817119055339318
+                ln_avg_nonres_unit_price_zone: -0.042821777748594414
+                ln_emp_sector3_within_15min: -0.07400252667059026
+                ln_jobs_within_30min: 0.9774072379871956
+                ln_pop_within_20min: -0.2398152823766177
+                ln_residential_unit_density_zone: -0.09540897312179915
+                median_year_built: 0.001487159691253039
+                nonres_far: 0.4737975723060233
+                office: 0.5696094355012249
+                rail_within_mile: -0.5741095236833662
+                retail_or_restaurant: 0.9601977398622347
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 2.5728464199856585e-05
+                industrial_building: 3.965947304681055
+                ln_avg_nonres_unit_price_zone: 0.21569300720026005
+                ln_emp_sector3_within_15min: 0.32536338116924485
+                ln_jobs_within_30min: 1.3736800512229708
+                ln_pop_within_20min: 0.8523190648971989
+                ln_residential_unit_density_zone: 0.8588936922646735
+                median_year_built: 0.006990023520189911
+                nonres_far: 0.6804227405586025
+                office: 4.711268027255332
+                rail_within_mile: 0.8684957539533847
+                retail_or_restaurant: 4.127887411995824
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 0.27214665320299286
+                industrial_building: 0.7103269002122743
+                ln_avg_nonres_unit_price_zone: -0.19853113600867253
+                ln_emp_sector3_within_15min: -0.22744577587265802
+                ln_jobs_within_30min: 0.7115246647987803
+                ln_pop_within_20min: -0.2813679668253609
+                ln_residential_unit_density_zone: -0.11108356480093728
+                median_year_built: 0.21275460475312316
+                nonres_far: 0.696328244286857
+                office: 0.12090363617734252
+                rail_within_mile: -0.6610389527755604
+                retail_or_restaurant: 0.23261238595603584
+        fitted: true
+        log_likelihoods:
+            convergence: -70.29132608445111
+            'null': -87.49823353377371
+            ratio: 0.19665434094370438
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 33
+    42:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -1.1129040805118832e-05
+                industrial_building: 2.120910408871351
+                ln_avg_nonres_unit_price_zone: -0.022042772150427745
+                ln_emp_sector2_within_15min: 0.07211416607710469
+                ln_jobs_within_30min: 0.7429028571908317
+                ln_pop_within_20min: -0.15607241459665225
+                ln_residential_unit_density_zone: -0.9306839581964963
+                median_year_built: -7.719104069975898e-05
+                nonres_far: 0.3292753385199125
+                office: 2.483137944043865
+                rail_within_mile: 0.014929417415003478
+                retail_or_restaurant: 1.2512568881034116
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 1.5133664931251165e-05
+                industrial_building: 0.6543606206833119
+                ln_avg_nonres_unit_price_zone: 0.06232397095076055
+                ln_emp_sector2_within_15min: 0.13963134558565393
+                ln_jobs_within_30min: 0.2847834768919407
+                ln_pop_within_20min: 0.30328743572978
+                ln_residential_unit_density_zone: 0.27125336676568457
+                median_year_built: 0.0002892141394574807
+                nonres_far: 0.13610161916212274
+                office: 0.6703261867351012
+                rail_within_mile: 0.26871625479387506
+                retail_or_restaurant: 0.6893227822437787
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.7353830586097657
+                industrial_building: 3.2411950564149223
+                ln_avg_nonres_unit_price_zone: -0.35368048303345073
+                ln_emp_sector2_within_15min: 0.5164611554421192
+                ln_jobs_within_30min: 2.6086585686034076
+                ln_pop_within_20min: -0.514602308602418
+                ln_residential_unit_density_zone: -3.4310503471112463
+                median_year_built: -0.26689926310157924
+                nonres_far: 2.4193344689579583
+                office: 3.7043725773839546
+                rail_within_mile: 0.055558296711359825
+                retail_or_restaurant: 1.8151973506961578
+        fitted: true
+        log_likelihoods:
+            convergence: -349.9788371842604
+            'null': -414.46531673892775
+            ratio: 0.1555895679331052
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector2_within_15min+rail_within_mile
+        name: 42
+    44:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -4.6812597373462005e-06
+                industrial_building: -0.1662794907388539
+                ln_avg_nonres_unit_price_zone: -0.028314319085141152
+                ln_emp_sector5_within_15min: -0.01681537669058106
+                ln_jobs_within_30min: 0.2719274357855791
+                ln_pop_within_20min: 0.12710359727888804
+                ln_residential_unit_density_zone: -0.5195772500880411
+                median_year_built: -0.00040516804918211706
+                nonres_far: 0.2744898659693428
+                office: 0.638138334093085
+                rail_within_mile: 0.23077252452561614
+                retail_or_restaurant: 1.9510678720109216
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 9.46012233431048e-06
+                industrial_building: 0.3646541147531719
+                ln_avg_nonres_unit_price_zone: 0.04368864357209313
+                ln_emp_sector5_within_15min: 0.09249374197170979
+                ln_jobs_within_30min: 0.21318986950816365
+                ln_pop_within_20min: 0.23783816629552665
+                ln_residential_unit_density_zone: 0.14911221266605904
+                median_year_built: 0.00020589875450433158
+                nonres_far: 0.07413582711023844
+                office: 0.3541292253630375
+                rail_within_mile: 0.20657049564032567
+                retail_or_restaurant: 0.27837551090666734
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.4948413531998372
+                industrial_building: -0.45599236101149065
+                ln_avg_nonres_unit_price_zone: -0.648093343489094
+                ln_emp_sector5_within_15min: -0.18180015568755156
+                ln_jobs_within_30min: 1.2755176238576675
+                ln_pop_within_20min: 0.5344121141640279
+                ln_residential_unit_density_zone: -3.484471464799794
+                median_year_built: -1.967802331575509
+                nonres_far: 3.7025265201557946
+                office: 1.80199285568395
+                rail_within_mile: 1.1171611115627582
+                retail_or_restaurant: 7.0087626086659185
+        fitted: true
+        log_likelihoods:
+            convergence: -605.6692188848276
+            'null': -695.3806980842002
+            ratio: 0.12901059728366204
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector5_within_15min+rail_within_mile
+        name: 44
+    45:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 3.2900186201861038e-06
+                industrial_building: -0.7668043000794514
+                ln_avg_nonres_unit_price_zone: -0.0543652923900119
+                ln_emp_sector5_within_15min: -0.1812084080136774
+                ln_jobs_within_30min: 0.4774718266000547
+                ln_pop_within_20min: 0.08159928522676976
+                ln_residential_unit_density_zone: -0.10333248951585625
+                median_year_built: 0.0037068302454380275
+                nonres_far: 0.519531631403976
+                office: 0.5215762274068986
+                rail_within_mile: -0.46997709763486284
+                retail_or_restaurant: 1.7642577272086848
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 2.64435285014272e-06
+                industrial_building: 0.6748976006901243
+                ln_avg_nonres_unit_price_zone: 0.08118857390167811
+                ln_emp_sector5_within_15min: 0.14377079854687244
+                ln_jobs_within_30min: 0.44398269660509837
+                ln_pop_within_20min: 0.43539109540853493
+                ln_residential_unit_density_zone: 0.30114240146738175
+                median_year_built: 0.002525742977657209
+                nonres_far: 0.15624703199527007
+                office: 0.5474972004217715
+                rail_within_mile: 0.4138822879544154
+                retail_or_restaurant: 0.44348284556317996
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 1.2441677819238595
+                industrial_building: -1.1361787318481307
+                ln_avg_nonres_unit_price_zone: -0.6696175308590833
+                ln_emp_sector5_within_15min: -1.2603978683098118
+                ln_jobs_within_30min: 1.0754289080431063
+                ln_pop_within_20min: 0.1874160635972671
+                ln_residential_unit_density_zone: -0.343134972067521
+                median_year_built: 1.4676197373322417
+                nonres_far: 3.3250656013722124
+                office: 0.9526555149598859
+                rail_within_mile: -1.1355332453526634
+                retail_or_restaurant: 3.978187081775958
+        fitted: true
+        log_likelihoods:
+            convergence: -241.71640342811523
+            'null': -285.52055153126173
+            ratio: 0.15341854681991385
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector5_within_15min+rail_within_mile
+        name: 45
+    48:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -7.947468472656265e-05
+                industrial_building: 1.6968607121225605
+                ln_avg_nonres_unit_price_zone: 0.1351256562133635
+                ln_emp_sector3_within_15min: -0.6944098894700985
+                ln_jobs_within_30min: 0.039395747859535125
+                ln_pop_within_20min: 2.101865812619099
+                ln_residential_unit_density_zone: -1.672812123441309
+                median_year_built: -0.00045726017460638124
+                nonres_far: -0.0682703002392948
+                office: 1.1931111919894166
+                rail_within_mile: -0.519000810469168
+                retail_or_restaurant: -0.09315617839865797
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 0.000504831598886645
+                industrial_building: 1.0585479037887386
+                ln_avg_nonres_unit_price_zone: 0.24774486541231622
+                ln_emp_sector3_within_15min: 0.6743175302396985
+                ln_jobs_within_30min: 1.6968529296884933
+                ln_pop_within_20min: 1.9167909154151332
+                ln_residential_unit_density_zone: 1.8156848806129606
+                median_year_built: 0.0005069988846859267
+                nonres_far: 0.24294567575215034
+                office: 1.2656122396284
+                rail_within_mile: 1.3937750399319486
+                retail_or_restaurant: 4.3605808501067775
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.15742811048641966
+                industrial_building: 1.6030079565121071
+                ln_avg_nonres_unit_price_zone: 0.5454226306102324
+                ln_emp_sector3_within_15min: -1.0297965844418397
+                ln_jobs_within_30min: 0.02321694895901636
+                ln_pop_within_20min: 1.0965545567414603
+                ln_residential_unit_density_zone: -0.9213119199828227
+                median_year_built: -0.901895819533494
+                nonres_far: -0.2810105593686021
+                office: 0.9427146440522173
+                rail_within_mile: -0.3723705731554128
+                retail_or_restaurant: -0.021363249897402282
+        fitted: true
+        log_likelihoods:
+            convergence: -57.538449778732094
+            'null': -73.68272297580945
+            ratio: 0.2191052738696646
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 48
+    49:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -3.751704988039802e-05
+                industrial_building: 1.5496292135790124
+                ln_avg_nonres_unit_price_zone: -0.21107204152961398
+                ln_emp_sector3_within_15min: 0.3228683842928981
+                ln_jobs_within_30min: 0.05717140715552389
+                ln_pop_within_20min: -0.33175522876293356
+                ln_residential_unit_density_zone: 0.019730394770284754
+                median_year_built: 0.0018923575120390942
+                nonres_far: 0.3454087386729218
+                office: 0.9413895662180141
+                rail_within_mile: -0.3872927409331106
+                retail_or_restaurant: 1.0089488582678017
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 0.000976449097506999
+                industrial_building: 3.595563318848039
+                ln_avg_nonres_unit_price_zone: 1.3962347804289426
+                ln_emp_sector3_within_15min: 0.5240773769448328
+                ln_jobs_within_30min: 1.477725558822916
+                ln_pop_within_20min: 1.6167930982222396
+                ln_residential_unit_density_zone: 1.1221088425850272
+                median_year_built: 0.010217443969895754
+                nonres_far: 1.1042415270439572
+                office: 3.5606644984139253
+                rail_within_mile: 1.6267783249997545
+                retail_or_restaurant: 3.698591914358315
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.03842192079052959
+                industrial_building: 0.4309837085765712
+                ln_avg_nonres_unit_price_zone: -0.15117231320134408
+                ln_emp_sector3_within_15min: 0.6160700661705627
+                ln_jobs_within_30min: 0.038688785488060345
+                ln_pop_within_20min: -0.2051933726880194
+                ln_residential_unit_density_zone: 0.01758331636067621
+                median_year_built: 0.18520850396778848
+                nonres_far: 0.312801801248661
+                office: 0.26438592196410243
+                rail_within_mile: -0.23807345781618344
+                retail_or_restaurant: 0.27279269560693037
+        fitted: true
+        log_likelihoods:
+            convergence: -48.093302414834604
+            'null': -55.2620422318571
+            ratio: 0.12972267269720827
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile
+        name: 49
+    51:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.134670966085292e-06
+                industrial_building: -0.12124824007081103
+                ln_avg_nonres_unit_price_zone: -0.02857845629710409
+                ln_emp_sector6_within_15min: -0.3643174897875846
+                ln_jobs_within_30min: 1.562604685144983
+                ln_pop_within_20min: -0.01792597438473188
+                ln_residential_unit_density_zone: -0.9669551072830334
+                median_year_built: -0.0005478073175647714
+                nonres_far: 0.2641812347320527
+                office: 2.14869730111074
+                rail_within_mile: 0.8441101570570927
+                retail_or_restaurant: 0.905579428159699
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 3.943026452271006e-05
+                industrial_building: 0.9879963587788324
+                ln_avg_nonres_unit_price_zone: 0.11722538921188355
+                ln_emp_sector6_within_15min: 0.2853101937507378
+                ln_jobs_within_30min: 0.7021036338269728
+                ln_pop_within_20min: 0.8256692179598928
+                ln_residential_unit_density_zone: 0.5897427908552987
+                median_year_built: 0.0008351922149678772
+                nonres_far: 0.20078653878873975
+                office: 0.9516407394954803
+                rail_within_mile: 0.5593235055291416
+                retail_or_restaurant: 0.785141998896237
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.05413788093802459
+                industrial_building: -0.12272134304287756
+                ln_avg_nonres_unit_price_zone: -0.24379067102476287
+                ln_emp_sector6_within_15min: -1.2769171861622013
+                ln_jobs_within_30min: 2.225604041710562
+                ln_pop_within_20min: -0.021710842544214407
+                ln_residential_unit_density_zone: -1.6396217508325401
+                median_year_built: -0.6559056798510041
+                nonres_far: 1.315731803166419
+                office: 2.2578870491083523
+                rail_within_mile: 1.5091626736811856
+                retail_or_restaurant: 1.1533957289672117
+        fitted: true
+        log_likelihoods:
+            convergence: -115.25643599553368
+            'null': -151.970616137607
+            ratio: 0.24158736126218783
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 51
+    52:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -3.3126112839808746e-07
+                industrial_building: -2.0652092589214943
+                ln_avg_nonres_unit_price_zone: -0.04528639931022519
+                ln_emp_sector6_within_15min: -0.041891985162707306
+                ln_jobs_within_30min: 0.41915195782960585
+                ln_pop_within_20min: -0.21610913320390882
+                ln_residential_unit_density_zone: -0.5652911938272428
+                median_year_built: 0.00013667309122868658
+                nonres_far: 0.5544864647947645
+                office: 3.0
+                rail_within_mile: 0.10533294236909943
+                retail_or_restaurant: 1.5415588672949994
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 5.937338994683704e-06
+                industrial_building: 1.3102230891147624
+                ln_avg_nonres_unit_price_zone: 0.049987175036408
+                ln_emp_sector6_within_15min: 0.11174233917535233
+                ln_jobs_within_30min: 0.24055817205668642
+                ln_pop_within_20min: 0.26139408039346046
+                ln_residential_unit_density_zone: 0.22868845563942397
+                median_year_built: 0.000325090650060931
+                nonres_far: 0.09694643521196482
+                office: 0.7567579295738763
+                rail_within_mile: 0.24008932989076434
+                retail_or_restaurant: 0.8050293141739008
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.05579286085815528
+                industrial_building: -1.576227190681573
+                ln_avg_nonres_unit_price_zone: -0.9059603643782826
+                ln_emp_sector6_within_15min: -0.3748980509256036
+                ln_jobs_within_30min: 1.7424141289651744
+                ln_pop_within_20min: -0.8267560339492501
+                ln_residential_unit_density_zone: -2.4718833849599506
+                median_year_built: 0.4204153247811656
+                nonres_far: 5.719513704474319
+                office: 3.96427957046882
+                rail_within_mile: 0.43872396335573816
+                retail_or_restaurant: 1.9149102276814667
+        fitted: true
+        log_likelihoods:
+            convergence: -367.3340416179826
+            'null': -557.225592504558
+            ratio: 0.34078038309954706
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 52
+    53:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.1823909757185924e-07
+                industrial_building: 0.08432360162381092
+                ln_avg_nonres_unit_price_zone: -0.04713958096301435
+                ln_emp_sector6_within_15min: 0.03093454481068153
+                ln_jobs_within_30min: 0.2176393091070186
+                ln_pop_within_20min: 0.11216519618036602
+                ln_residential_unit_density_zone: -0.5356389986262098
+                median_year_built: 2.6557503909603135e-05
+                nonres_far: 0.5616487705844141
+                office: 1.9516816548974267
+                rail_within_mile: 0.47989268062544216
+                retail_or_restaurant: 0.12173233389026641
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 1.2823549677872144e-05
+                industrial_building: 0.6219569028690732
+                ln_avg_nonres_unit_price_zone: 0.08763975789456961
+                ln_emp_sector6_within_15min: 0.19273441414403564
+                ln_jobs_within_30min: 0.4766526065526654
+                ln_pop_within_20min: 0.46824744303034566
+                ln_residential_unit_density_zone: 0.31857432811485503
+                median_year_built: 0.0006017520394232397
+                nonres_far: 0.12174184469548063
+                office: 0.4927982649656346
+                rail_within_mile: 0.35330148399893896
+                retail_or_restaurant: 0.6491173782953319
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.01701861832753257
+                industrial_building: 0.13557788527601838
+                ln_avg_nonres_unit_price_zone: -0.5378789500961783
+                ln_emp_sector6_within_15min: 0.1605034832417801
+                ln_jobs_within_30min: 0.4565994313575029
+                ln_pop_within_20min: 0.23954257059999995
+                ln_residential_unit_density_zone: -1.6813627193246306
+                median_year_built: 0.04413363340663982
+                nonres_far: 4.613440612710413
+                office: 3.960406912214936
+                rail_within_mile: 1.358309269447856
+                retail_or_restaurant: 0.18753516384040067
+        fitted: true
+        log_likelihoods:
+            convergence: -185.03170482350777
+            'null': -244.07401985736902
+            ratio: 0.24190331715093705
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 53
+    54:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -1.2987664694440207e-05
+                industrial_building: 0.366284794984019
+                ln_avg_nonres_unit_price_zone: -0.03848983991360157
+                ln_emp_sector6_within_15min: -0.1852821354791237
+                ln_jobs_within_30min: 0.8119457237859067
+                ln_pop_within_20min: 0.05954840514461769
+                ln_residential_unit_density_zone: -0.3071514571959693
+                median_year_built: -0.0002856097927085702
+                nonres_far: 0.48705599637679564
+                office: 2.776752036435999
+                rail_within_mile: 0.3438930944517845
+                retail_or_restaurant: 1.0116897383081815
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 9.22559421895008e-06
+                industrial_building: 0.32371196758059867
+                ln_avg_nonres_unit_price_zone: 0.03753100448425233
+                ln_emp_sector6_within_15min: 0.08435682681383648
+                ln_jobs_within_30min: 0.18621366340443096
+                ln_pop_within_20min: 0.21073615270270807
+                ln_residential_unit_density_zone: 0.13662349451554429
+                median_year_built: 0.00019873256883711155
+                nonres_far: 0.05867680474030839
+                office: 0.26764445047781465
+                rail_within_mile: 0.15346074721865272
+                retail_or_restaurant: 0.30527127695416223
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -1.4077862505336018
+                industrial_building: 1.1315145304067895
+                ln_avg_nonres_unit_price_zone: -1.025547822194622
+                ln_emp_sector6_within_15min: -2.1964094961515683
+                ln_jobs_within_30min: 4.3602908021978495
+                ln_pop_within_20min: 0.28257327649245095
+                ln_residential_unit_density_zone: -2.24815986653762
+                median_year_built: -1.4371564478828147
+                nonres_far: 8.30065642688634
+                office: 10.37477904540437
+                rail_within_mile: 2.24091893650043
+                retail_or_restaurant: 3.3140678952906892
+        fitted: true
+        log_likelihoods:
+            convergence: -914.2932662551589
+            'null': -1248.001120402769
+            ratio: 0.267393873845171
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 54
+    55:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 1.2809331702296561e-05
+                industrial_building: 0.5575846225876645
+                ln_avg_nonres_unit_price_zone: 0.14609823148189427
+                ln_emp_sector6_within_15min: -0.8363130258559834
+                ln_jobs_within_30min: -1.025321559280664
+                ln_pop_within_20min: 2.599570116956499
+                ln_residential_unit_density_zone: -1.1471877320264672
+                median_year_built: 0.0044309831794557995
+                nonres_far: 0.6691832972165888
+                office: 2.2777392039681184
+                rail_within_mile: 0.5187351765676776
+                retail_or_restaurant: 0.7582565390850714
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 9.700806159580155e-06
+                industrial_building: 2.8113473024279156
+                ln_avg_nonres_unit_price_zone: 0.4184807504717529
+                ln_emp_sector6_within_15min: 1.087965752121048
+                ln_jobs_within_30min: 1.3349419768372603
+                ln_pop_within_20min: 3.3382672114664107
+                ln_residential_unit_density_zone: 1.3268885223491849
+                median_year_built: 0.0138907654804502
+                nonres_far: 0.5350717505895382
+                office: 2.4414206964252276
+                rail_within_mile: 1.436635465143247
+                retail_or_restaurant: 2.4179327266294073
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 1.3204399192789293
+                industrial_building: 0.19833359688649185
+                ln_avg_nonres_unit_price_zone: 0.34911577490051304
+                ln_emp_sector6_within_15min: -0.7686942573564894
+                ln_jobs_within_30min: -0.7680645129684602
+                ln_pop_within_20min: 0.7787184045745033
+                ln_residential_unit_density_zone: -0.8645697906825156
+                median_year_built: 0.3189876890292292
+                nonres_far: 1.2506421736510804
+                office: 0.9329564574033575
+                rail_within_mile: 0.36107641023323517
+                retail_or_restaurant: 0.3135970371442382
+        fitted: true
+        log_likelihoods:
+            convergence: -40.73863974265085
+            'null': -55.2620422318571
+            ratio: 0.26280973164675947
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 55
+    56:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.873254526182941e-05
+                industrial_building: 0.8982131798785548
+                ln_avg_nonres_unit_price_zone: -0.06955362381787837
+                ln_emp_sector6_within_15min: -0.05817084297903058
+                ln_jobs_within_30min: -0.11602756006166823
+                ln_pop_within_20min: 0.48640591966907215
+                ln_residential_unit_density_zone: 0.00495775133257559
+                median_year_built: -0.00018398919030625325
+                nonres_far: 0.3082142963649733
+                office: 2.0444236496938233
+                rail_within_mile: 0.27519243675954363
+                retail_or_restaurant: -0.05649087029510252
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 3.39870671435091e-05
+                industrial_building: 0.5356395185652049
+                ln_avg_nonres_unit_price_zone: 0.08108328035492696
+                ln_emp_sector6_within_15min: 0.1833464174383731
+                ln_jobs_within_30min: 0.3661963187582577
+                ln_pop_within_20min: 0.42666506947655813
+                ln_residential_unit_density_zone: 0.28510907744705855
+                median_year_built: 0.0003886974805115462
+                nonres_far: 0.1231679613923247
+                office: 0.502797485823685
+                rail_within_mile: 0.3067605985662935
+                retail_or_restaurant: 0.6349954889030647
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.8453964309573205
+                industrial_building: 1.6768986393770213
+                ln_avg_nonres_unit_price_zone: -0.857804759667102
+                ln_emp_sector6_within_15min: -0.3172728640775494
+                ln_jobs_within_30min: -0.3168452387918818
+                ln_pop_within_20min: 1.1400181417846214
+                ln_residential_unit_density_zone: 0.01738896346959064
+                median_year_built: -0.4733480393649937
+                nonres_far: 2.502390174204668
+                office: 4.066097598607995
+                rail_within_mile: 0.8970918626632953
+                retail_or_restaurant: -0.08896263246324596
+        fitted: true
+        log_likelihoods:
+            convergence: -234.71254079912566
+            'null': -280.91538134527366
+            ratio: 0.16447244833973684
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 56
+    61:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 3.9212657659731e-06
+                industrial_building: -3.0
+                ln_avg_nonres_unit_price_zone: -0.1557408813772072
+                ln_emp_sector6_within_15min: 0.011857743457135231
+                ln_jobs_within_30min: 0.0430447304318838
+                ln_pop_within_20min: 0.504805285895075
+                ln_residential_unit_density_zone: 0.43595715207962193
+                median_year_built: -0.0005618784970851821
+                nonres_far: 0.25422686355745305
+                office: -0.24482259593492955
+                rail_within_mile: -1.016879553423426
+                retail_or_restaurant: -0.9789903076026649
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 1.412590092838235e-06
+                industrial_building: 25.78625103481938
+                ln_avg_nonres_unit_price_zone: 0.1047511591432292
+                ln_emp_sector6_within_15min: 0.20908214604758327
+                ln_jobs_within_30min: 0.487495362391495
+                ln_pop_within_20min: 0.4644542750745775
+                ln_residential_unit_density_zone: 0.2880942184692808
+                median_year_built: 0.0006582077541520183
+                nonres_far: 0.23479136937308864
+                office: 0.47223421060175497
+                rail_within_mile: 0.5911796277106713
+                retail_or_restaurant: 0.4818133065054256
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 2.7759402999169627
+                industrial_building: -0.11634106857755616
+                ln_avg_nonres_unit_price_zone: -1.4867700047524852
+                ln_emp_sector6_within_15min: 0.05671332383606119
+                ln_jobs_within_30min: 0.08829772291724015
+                ln_pop_within_20min: 1.086878327934474
+                ln_residential_unit_density_zone: 1.5132450571065785
+                median_year_built: -0.8536491609842258
+                nonres_far: 1.0827777197954878
+                office: -0.5184346886324879
+                rail_within_mile: -1.7200855810293518
+                retail_or_restaurant: -2.0318872359571096
+        fitted: true
+        log_likelihoods:
+            convergence: -146.19425079804492
+            'null': -170.3912968815594
+            ratio: 0.142008697194987
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 61
+    62:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.2358577751667637e-06
+                industrial_building: -2.1112614262272973
+                ln_avg_nonres_unit_price_zone: -0.006278004794849644
+                ln_emp_sector6_within_15min: -0.08344255039414086
+                ln_jobs_within_30min: 0.5018832869411837
+                ln_pop_within_20min: 0.05695686422921907
+                ln_residential_unit_density_zone: 0.23957339799881186
+                median_year_built: -0.0004401636575888738
+                nonres_far: 0.5671564417942878
+                office: 0.9857342505522373
+                rail_within_mile: -0.8086799778083715
+                retail_or_restaurant: -0.7422602461200097
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 5.710607374097851e-06
+                industrial_building: 0.45805780438381055
+                ln_avg_nonres_unit_price_zone: 0.04611418275028395
+                ln_emp_sector6_within_15min: 0.1302318932933838
+                ln_jobs_within_30min: 0.2636204548005348
+                ln_pop_within_20min: 0.30566850447298477
+                ln_residential_unit_density_zone: 0.16695083884799336
+                median_year_built: 0.0002832810707936546
+                nonres_far: 0.0915124900301196
+                office: 0.1930268158864271
+                rail_within_mile: 0.2345939058560897
+                retail_or_restaurant: 0.2736860958907607
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.3915271404068433
+                industrial_building: -4.609159381243187
+                ln_avg_nonres_unit_price_zone: -0.1361404327351109
+                ln_emp_sector6_within_15min: -0.640722854317745
+                ln_jobs_within_30min: 1.9038101095794235
+                ln_pop_within_20min: 0.18633540386315126
+                ln_residential_unit_density_zone: 1.4349936762937767
+                median_year_built: -1.5538054002538504
+                nonres_far: 6.197585068525827
+                office: 5.106721809741827
+                rail_within_mile: -3.4471482746207895
+                retail_or_restaurant: -2.7120860623342593
+        fitted: true
+        log_likelihoods:
+            convergence: -589.5113575922367
+            'null': -732.2220595721047
+            ratio: 0.19490085024652937
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 62
+    71:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: 3.2605145054048923e-06
+                industrial_building: -0.6571462665096545
+                ln_avg_nonres_unit_price_zone: -0.29056015198564367
+                ln_emp_sector2_within_15min: -0.4067654777418698
+                ln_jobs_within_30min: 0.494399078614547
+                ln_pop_within_20min: 0.55045755940125
+                ln_residential_unit_density_zone: 0.6147782740242298
+                median_year_built: -0.0006349144389095632
+                nonres_far: 0.25424584082585977
+                office: -0.12476406386430565
+                rail_within_mile: -0.6012599903343463
+                retail_or_restaurant: 0.2542529092770364
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 2.03385461429237e-05
+                industrial_building: 1.710502181260075
+                ln_avg_nonres_unit_price_zone: 0.4091303479823142
+                ln_emp_sector2_within_15min: 1.2004499520328074
+                ln_jobs_within_30min: 1.1486692082556835
+                ln_pop_within_20min: 1.4146534942011821
+                ln_residential_unit_density_zone: 0.8924323248740985
+                median_year_built: 0.0007763297602975166
+                nonres_far: 0.46697469365245614
+                office: 1.4005764951629693
+                rail_within_mile: 1.7670491745277173
+                retail_or_restaurant: 0.9485619712526483
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: 0.16031207356182187
+                industrial_building: -0.3841832379456861
+                ln_avg_nonres_unit_price_zone: -0.7101896826245799
+                ln_emp_sector2_within_15min: -0.33884417842915054
+                ln_jobs_within_30min: 0.43041031748846026
+                ln_pop_within_20min: 0.38911122876212095
+                ln_residential_unit_density_zone: 0.6888794330830192
+                median_year_built: -0.8178411692812624
+                nonres_far: 0.5444531454954625
+                office: -0.08908050670219785
+                rail_within_mile: -0.3402621721011506
+                retail_or_restaurant: 0.26804037794312596
+        fitted: true
+        log_likelihoods:
+            convergence: -54.021290207253195
+            'null': -59.867212417845195
+            ratio: 0.09764814452676018
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector2_within_15min+rail_within_mile
+        name: 71
+    81:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -1.0882704084761348e-05
+                industrial_building: -0.18181119792168698
+                ln_avg_nonres_unit_price_zone: -0.023925948868931686
+                ln_emp_sector6_within_15min: 0.06027887659908727
+                ln_jobs_within_30min: 0.07580606292379019
+                ln_pop_within_20min: 0.09340150025705776
+                ln_residential_unit_density_zone: 0.3965669280950204
+                median_year_built: -0.0003674733253249383
+                nonres_far: 0.2670181761962832
+                office: 1.0262324696583778
+                rail_within_mile: 0.19034200242254543
+                retail_or_restaurant: 0.9635301196565175
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 9.438179042349589e-06
+                industrial_building: 0.3422888860086283
+                ln_avg_nonres_unit_price_zone: 0.04656860262919383
+                ln_emp_sector6_within_15min: 0.11379607070732119
+                ln_jobs_within_30min: 0.21525297410467145
+                ln_pop_within_20min: 0.2312726883210074
+                ln_residential_unit_density_zone: 0.1810090824049412
+                median_year_built: 0.00028699460974085763
+                nonres_far: 0.07468111013616105
+                office: 0.28249187555156885
+                rail_within_mile: 0.22968887657490758
+                retail_or_restaurant: 0.2546488986647261
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -1.1530512438819078
+                industrial_building: -0.5311630185886431
+                ln_avg_nonres_unit_price_zone: -0.513778544300415
+                ln_emp_sector6_within_15min: 0.5297096483596702
+                ln_jobs_within_30min: 0.3521719652845672
+                ln_pop_within_20min: 0.4038587562376415
+                ln_residential_unit_density_zone: 2.1908675676718135
+                median_year_built: -1.280418909807223
+                nonres_far: 3.5754446567471603
+                office: 3.632785784209356
+                rail_within_mile: 0.828694907915882
+                retail_or_restaurant: 3.7837592257766373
+        fitted: true
+        log_likelihoods:
+            convergence: -587.5519960613793
+            'null': -644.7238260383314
+            ratio: 0.08867646528321871
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 81
+    92:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.7218031036187287
+                industrial_building: -1.0287872429734661
+                ln_avg_nonres_unit_price_zone: -3.0
+                ln_emp_sector6_within_15min: -0.11340095552153596
+                ln_jobs_within_30min: 0.36302449686256794
+                ln_pop_within_20min: -0.3842818954678172
+                ln_residential_unit_density_zone: -1.1747055192891769
+                median_year_built: 0.004313699263600615
+                nonres_far: 0.3401293018171018
+                office: 0.6496556215656086
+                rail_within_mile: 0.2555474640136016
+                retail_or_restaurant: -3.0
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 10842293584.681911
+                industrial_building: 3.0684105936185975
+                ln_avg_nonres_unit_price_zone: 71232.79875040583
+                ln_emp_sector6_within_15min: 1.0331994371756361
+                ln_jobs_within_30min: 2.6051984763785563
+                ln_pop_within_20min: 3.524345366999507
+                ln_residential_unit_density_zone: 2.7499111048583176
+                median_year_built: 0.006438601485488124
+                nonres_far: 0.3635948016950361
+                office: 1.3025726952642533
+                rail_within_mile: 2.8588616183177367
+                retail_or_restaurant: 88.46514118658202
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -2.5103573172599904e-10
+                industrial_building: -0.33528343472449373
+                ln_avg_nonres_unit_price_zone: -4.211543070926872e-05
+                ln_emp_sector6_within_15min: -0.1097570821675338
+                ln_jobs_within_30min: 0.1393461957521188
+                ln_pop_within_20min: -0.1090363898686184
+                ln_residential_unit_density_zone: -0.42717945216985503
+                median_year_built: 0.6699745703043126
+                nonres_far: 0.9354624990001483
+                office: 0.4987480728926325
+                rail_within_mile: 0.08938783968283694
+                retail_or_restaurant: -0.03391166237640082
+        fitted: true
+        log_likelihoods:
+            convergence: -21.277498563168137
+            'null': -32.236191301916634
+            ratio: 0.33994998466512194
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector6_within_15min+rail_within_mile
+        name: 92
+    7211:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.012577728804674e-05
+                industrial_building: -3.0
+                ln_avg_nonres_unit_price_zone: 0.11666432961214858
+                ln_emp_sector5_within_15min: 0.34819385437705025
+                ln_jobs_within_30min: 1.6547221499809222
+                ln_pop_within_20min: 0.3040894952578681
+                ln_residential_unit_density_zone: -1.429484114850326
+                median_year_built: 0.0008890157879883241
+                nonres_far: 0.9379430235322572
+                office: -3.0
+                rail_within_mile: -2.053565748946628
+                retail_or_restaurant: -3.0
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 9.270127556139622e-05
+                industrial_building: 11.666147824303497
+                ln_avg_nonres_unit_price_zone: 0.2645084347462015
+                ln_emp_sector5_within_15min: 1.1090453851593358
+                ln_jobs_within_30min: 3.193904988498036
+                ln_pop_within_20min: 2.4739209172681713
+                ln_residential_unit_density_zone: 1.0106719745880721
+                median_year_built: 0.01371416160221967
+                nonres_far: 0.8930211676917791
+                office: 8.736205878520645
+                rail_within_mile: 1.3929282780231411
+                retail_or_restaurant: 28.24726647901493
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.21710356374457224
+                industrial_building: -0.25715429336067996
+                ln_avg_nonres_unit_price_zone: 0.4410609050107955
+                ln_emp_sector5_within_15min: 0.31395816531622417
+                ln_jobs_within_30min: 0.5180874684563084
+                ln_pop_within_20min: 0.12291803393362272
+                ln_residential_unit_density_zone: -1.41438978302822
+                median_year_built: 0.06482465452678016
+                nonres_far: 1.0503032374435077
+                office: -0.3433985006438525
+                rail_within_mile: -1.4742796031544934
+                retail_or_restaurant: -0.10620496684975585
+        fitted: true
+        log_likelihoods:
+            convergence: -18.191082914888735
+            'null': -36.84136148790473
+            ratio: 0.5062320668887063
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector5_within_15min+rail_within_mile
+        name: 7211
+    7221:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -1.183051568382302e-05
+                industrial_building: -3.0
+                ln_avg_nonres_unit_price_zone: -0.07678775677105332
+                ln_emp_sector4_within_15min: -0.0206465835257161
+                ln_jobs_within_30min: 0.321878924821152
+                ln_pop_within_20min: -0.04515462577001384
+                ln_residential_unit_density_zone: 0.19565008561628874
+                median_year_built: -0.0004147176533082095
+                nonres_far: 0.3191847378558151
+                office: -0.35113968135826273
+                rail_within_mile: 0.2540748696684118
+                retail_or_restaurant: 1.7687578830886899
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 1.889603323095766e-05
+                industrial_building: 95.24201266897657
+                ln_avg_nonres_unit_price_zone: 0.07689577919966058
+                ln_emp_sector4_within_15min: 0.2305919296451155
+                ln_jobs_within_30min: 0.5231183896937294
+                ln_pop_within_20min: 0.6247898787934262
+                ln_residential_unit_density_zone: 0.3041394854658187
+                median_year_built: 0.00044073450580600285
+                nonres_far: 0.13322160343304226
+                office: 0.7899501018524965
+                rail_within_mile: 0.4818962725372381
+                retail_or_restaurant: 0.5201141136331733
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.6260846146502804
+                industrial_building: -0.03149870436302946
+                ln_avg_nonres_unit_price_zone: -0.9985952099096782
+                ln_emp_sector4_within_15min: -0.08953732057098228
+                ln_jobs_within_30min: 0.615307989859815
+                ln_pop_within_20min: -0.072271698538419
+                ln_residential_unit_density_zone: 0.6432906444772599
+                median_year_built: -0.9409693315248497
+                nonres_far: 2.395893230756967
+                office: -0.4445086854660971
+                rail_within_mile: 0.5272397487755591
+                retail_or_restaurant: 3.4007111838079473
+        fitted: true
+        log_likelihoods:
+            convergence: -177.23273366394625
+            'null': -221.04816892742852
+            ratio: 0.19821668496999467
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector4_within_15min+rail_within_mile
+        name: 7221
+    !!python/long '7222':
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -1.59282060616085e-05
+                industrial_building: -3.0
+                ln_avg_nonres_unit_price_zone: 0.05572895426932437
+                ln_dist_rail: -1.1911380363386776e-05
+                ln_jobs_within_30min: 0.45057865934341573
+                ln_pop_within_20min: -0.443035573155868
+                ln_residential_unit_density_zone: -0.7519126660327858
+                median_year_built: 0.00161848643953509
+                nonres_far: -0.000385128009295576
+                office: 1.283794835685959
+                rail_within_mile: 0.5706478207843251
+                retail_or_restaurant: 3.0
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 4.044371428911532e-05
+                industrial_building: 255.22772180646177
+                ln_avg_nonres_unit_price_zone: 0.16822716584612296
+                ln_dist_rail: 7.646582948551342e-06
+                ln_jobs_within_30min: 0.6053788527212628
+                ln_pop_within_20min: 0.7525607732521661
+                ln_residential_unit_density_zone: 0.6328197996952045
+                median_year_built: 0.002900386879301419
+                nonres_far: 0.2820741941718828
+                office: 1.2503704666469686
+                rail_within_mile: 0.5787038286489709
+                retail_or_restaurant: 1.1780829195881974
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.39383638079688643
+                industrial_building: -0.011754209059919004
+                ln_avg_nonres_unit_price_zone: 0.33127202725569027
+                ln_dist_rail: -1.557738985312833
+                ln_jobs_within_30min: 0.7442920368261982
+                ln_pop_within_20min: -0.5887040474369992
+                ln_residential_unit_density_zone: -1.188193963581642
+                median_year_built: 0.5580243280940904
+                nonres_far: -0.0013653429390314844
+                office: 1.0267315727063053
+                rail_within_mile: 0.9860792214154637
+                retail_or_restaurant: 2.546510054698577
+        fitted: true
+        log_likelihoods:
+            convergence: -111.03243507322205
+            'null': -151.970616137607
+            ratio: 0.2693822141730088
+        name: !!python/long '7222'
+    7223:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -0.00040100147473553306
+                industrial_building: 1.5906127750759922
+                ln_avg_nonres_unit_price_zone: -0.02329158822415253
+                ln_emp_sector5_within_15min: -0.0891448776712392
+                ln_jobs_within_30min: 0.9364479694512299
+                ln_pop_within_20min: -0.590031886786371
+                ln_residential_unit_density_zone: -1.1022834294312431
+                median_year_built: 0.01607140300977497
+                nonres_far: 0.26428142785965936
+                office: 3.0
+                rail_within_mile: 1.2204559587476633
+                retail_or_restaurant: 2.400105100191581
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 0.004033872314149717
+                industrial_building: 21.22715894609355
+                ln_avg_nonres_unit_price_zone: 0.9315904351957007
+                ln_emp_sector5_within_15min: 1.5510244260569472
+                ln_jobs_within_30min: 5.155242931545698
+                ln_pop_within_20min: 5.156710427626998
+                ln_residential_unit_density_zone: 1.5153949800454267
+                median_year_built: 0.022348459431859858
+                nonres_far: 0.6016627090235425
+                office: 21.209764110808287
+                rail_within_mile: 3.35717497029
+                retail_or_restaurant: 21.324635494524482
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.09940856911333806
+                industrial_building: 0.07493290925626737
+                ln_avg_nonres_unit_price_zone: -0.02500196153179656
+                ln_emp_sector5_within_15min: -0.05747483803196157
+                ln_jobs_within_30min: 0.18164962968494958
+                ln_pop_within_20min: -0.11442020936938481
+                ln_residential_unit_density_zone: -0.7273901814022112
+                median_year_built: 0.7191280033765395
+                nonres_far: 0.4392517998806509
+                office: 0.14144428878731516
+                rail_within_mile: 0.3635365953661443
+                retail_or_restaurant: 0.11255081479858613
+        fitted: true
+        log_likelihoods:
+            convergence: -23.160796748244813
+            'null': -32.236191301916634
+            ratio: 0.28152812683960693
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector5_within_15min+rail_within_mile
+        name: 7223
+    7224:
+        fit_parameters:
+            Coefficient:
+                employees_x_ln_non_residential_sqft_zone: -2.281068567507917e-06
+                industrial_building: -3.0
+                ln_avg_nonres_unit_price_zone: 0.008229825855082609
+                ln_emp_sector4_within_15min: -0.027336643860639283
+                ln_jobs_within_30min: -0.4136347374411175
+                ln_pop_within_20min: 0.710944619793247
+                ln_residential_unit_density_zone: 0.26761139650278964
+                median_year_built: 0.003418292867185833
+                nonres_far: 0.7069186138046782
+                office: -3.0
+                rail_within_mile: -0.32385137157002614
+                retail_or_restaurant: 1.096333468238726
+            Std. Error:
+                employees_x_ln_non_residential_sqft_zone: 4.281138760721576e-05
+                industrial_building: 89.91608610314424
+                ln_avg_nonres_unit_price_zone: 0.3038796836921021
+                ln_emp_sector4_within_15min: 1.064504797976191
+                ln_jobs_within_30min: 1.4090626918513134
+                ln_pop_within_20min: 2.2061890432017006
+                ln_residential_unit_density_zone: 0.8742802228196843
+                median_year_built: 0.008219293534455852
+                nonres_far: 0.4669644508529427
+                office: 73.2399188444313
+                rail_within_mile: 1.1869214320882273
+                retail_or_restaurant: 0.9658143400172841
+            T-Score:
+                employees_x_ln_non_residential_sqft_zone: -0.05328181810961549
+                industrial_building: -0.03336444155897367
+                ln_avg_nonres_unit_price_zone: 0.027082514221060127
+                ln_emp_sector4_within_15min: -0.02568015091393764
+                ln_jobs_within_30min: -0.2935531114642307
+                ln_pop_within_20min: 0.3222500909357698
+                ln_residential_unit_density_zone: 0.30609338918785434
+                median_year_built: 0.4158864570119209
+                nonres_far: 1.5138595936231178
+                office: -0.04096126876344977
+                rail_within_mile: -0.27284988105763125
+                retail_or_restaurant: 1.1351389421481424
+        fitted: true
+        log_likelihoods:
+            convergence: -44.81047367519682
+            'null': -59.867212417845195
+            ratio: 0.2515022519765806
+        model_expression: ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building+employees_x_ln_non_residential_sqft_zone+ln_emp_sector4_within_15min+rail_within_mile
+        name: 7224
+
+fitted: true
+
+choice_mode: aggregate
+
+remove_alts: false
+
+probability_mode: single_chooser
