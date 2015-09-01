@@ -8,8 +8,9 @@ from urbansim.models import RegressionModel, SegmentedRegressionModel, \
     MNLDiscreteChoiceModel, SegmentedMNLDiscreteChoiceModel, \
     GrowthRateTransition, RelocationModel, TabularTotalsTransition
 from urbansim.developer import sqftproforma, developer
-#from urbansim.models.transition import TabularFilteredTotalsTransition
+from urbansim.models.transition import DRCOGHouseholdTransitionModel
 from urbansim.utils import misc
+
 
 
 
@@ -120,9 +121,9 @@ def hedonic_estimate(cfg, tbl, nodes):
     return yaml_to_class(cfg).fit_from_cfg(df, cfg)
 
 
-def hedonic_simulate(cfg, tbl, nodes, out_fname):
+def hedonic_simulate(cfg, tbl, out_fname):
     cfg = misc.config(cfg)
-    df = to_frame([tbl, nodes], cfg)
+    df = to_frame([tbl], cfg)
     price_or_rent, _ = yaml_to_class(cfg).predict_from_cfg(df, cfg)
     tbl.update_col_from_series(out_fname, price_or_rent)
 
@@ -223,7 +224,7 @@ def simple_relocation(choosers, relocation_rate, fieldname):
 
     _print_number_unplaced(choosers, fieldname)
 
-def hh_relocation_model(choosers, control_table, field_name):
+def relocation_model(choosers, control_table, field_name):
     print "Total agents: %d" % len(choosers)
     _print_number_unplaced(choosers, field_name)
 
@@ -240,7 +241,7 @@ def emp_relocation_model(choosers, control_table, field_name):
     _print_number_unplaced(choosers, field_name)
 
     print "Assigning for relocation..."
-    emp_relo_model = RelocationModel(control_table.to_frame())
+    emp_relo_model = RelocationModel(control_table.to_frame(), rate_column='job_relocation_probability')
     movers = emp_relo_model.find_movers(choosers.to_frame())
 
     print "%d agents relocating" % len(movers)
@@ -258,11 +259,16 @@ def simple_transition(tbl, rate, location_fname):
     orca.add_table(tbl.name, df)
 
 def hh_transition(households, tbl, location_fname, year):
-    tran = TabularTotalsTransition(tbl.to_frame(), 'total_number_of_households')
+    migration = orca.get_table('migration_data').to_frame()
+    pdf = migration['net_migration'] / migration.net_migration.sum()
+
+    tran = DRCOGHouseholdTransitionModel(tbl.to_frame(), 'total_number_of_households',
+                                         prob_dist = [pdf], migration_data=migration)
+
     df = households.to_frame(households.local_columns)
 
     print "%d households before transition" % len(df.index)
-    df, added, copied, removed = tran.transition(df, year)
+    df, added, copied, removed = tran.transition(df, year, [pdf])
     print "%d households after transition" % len(df.index)
 
     df.loc[added, location_fname] = -1
@@ -311,11 +317,63 @@ def run_feasibility(parcels, parcel_price_callback,
     """
     pf = sqftproforma.SqFtProForma()
 
-    df = parcels.to_frame()
+    df = orca.merge_tables('parcels', tables=['parcels', 'fars'])
 
     # add prices for each use
     for use in pf.config.uses:
         df[use] = parcel_price_callback(use)
+
+    #There are 179 zones without buildings. These zones will get county average prices for each use
+    #No buildings
+    df_dropna = df.replace([np.inf, -np.inf], np.nan).dropna()
+    subset = df.loc[(df.residential.isnull())&(df.retail.isnull())&(df.industrial.isnull())&(df.office.isnull())]
+    df.loc[subset.index, 'residential'] = df_dropna.groupby('county_id').residential.mean()[subset.county_id].values
+    df.loc[subset.index, 'retail'] = df_dropna.groupby('county_id').retail.mean()[subset.county_id].values
+    df.loc[subset.index, 'industrial'] = df_dropna.groupby('county_id').industrial.mean()[subset.county_id].values
+    df.loc[subset.index, 'office'] = df_dropna.groupby('county_id').office.mean()[subset.county_id].values
+
+    #No residential buildings
+    subset = df.loc[(df.residential.isnull())]
+    df.loc[subset.index, 'residential'] = df_dropna.groupby('county_id').residential.mean()[subset.county_id].values
+    subset = df.loc[(np.isinf(df.residential.values))]
+    df.loc[subset.index, 'residential'] = df_dropna.groupby('county_id').residential.mean()[subset.county_id].values
+
+
+    #No retail buildings
+    subset = df.loc[(df.retail.isnull())]
+    df.loc[subset.index, 'retail'] = df_dropna.groupby('county_id').retail.mean()[subset.county_id].values
+
+    #No industrial buildings
+    subset = df.loc[(df.industrial.isnull())]
+    df.loc[subset.index, 'industrial'] = df_dropna.groupby('county_id').industrial.mean()[subset.county_id].values
+
+    #No office buildings
+    subset = df.loc[(df.office.isnull())]
+    df.loc[subset.index, 'office'] = df_dropna.groupby('county_id').office.mean()[subset.county_id].values
+
+    #elbert county has no non_res buildings so it gets regional averages
+    subset = df.loc[(df.retail.isnull())]
+    df.loc[subset.index, 'retail'] = df.retail.mean()
+
+    subset = df.loc[(df.industrial.isnull())]
+    df.loc[subset.index, 'industrial'] = df.industrial.mean()
+
+    subset = df.loc[(df.office.isnull())]
+    df.loc[subset.index, 'office'] = df.office.mean()
+
+    #deal with fars
+    #environmental constraints
+    df['far'] = df['far']*(1-df.prop_constrained)
+    #ugb policies
+    #if restricting fars on ugb policies this would go here
+
+    #rename far column to max_far
+    df.rename(columns={'far':'max_far'}, inplace=True)
+
+    #max height series
+    df['max_height'] = np.nan
+
+
 
     # convert from cost to yearly rent
     if residential_to_yearly:

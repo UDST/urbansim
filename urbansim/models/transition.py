@@ -35,6 +35,11 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None, prob_dist
     accounting_column: string, optional
         Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
+    prob_dist : None, optional
+        Optional np.array of probabilities
+        to use for sampling. The sum of each np.array must be
+        equal to 1.
+
     Returns
     -------
     updated : pandas.DataFrame
@@ -75,6 +80,10 @@ def remove_rows(data, nrows, accounting_column=None, prob_dist=None):
     accounting_column: string, optional
         Name of column with accounting totals/quanties to apply towards the control. If not provided
         then row counts will be used for accounting.
+    prob_dist : None, optional
+        Optional np.array of probabilities
+        to use for sampling. The sum of each np.array must be
+        equal to 1.
     Returns
     -------
     updated : pandas.DataFrame
@@ -109,6 +118,10 @@ def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None,
         The starting index from which to calculate indexes for new rows.
         If not given the max + 1 of the index of `data` will be used.
         (Not applicable if rows are being removed.)
+    prob_dist : None, optional
+        Optional np.array of probabilities
+        to use for sampling. The sum of each np.array must be
+        equal to 1.
     Returns
     -------
     updated : pandas.DataFrame
@@ -248,6 +261,11 @@ class TabularGrowthRateTransition(object):
         year : None, optional
             Here for compatibility with other transition models,
             but ignored.
+        prob_dist : None, optional
+            Optional list of np.array of probabilities
+            to use for sampling. The sum of each np.array must be
+            equal to 1. The list have a length equal to the number
+            of filter columns in control table
         Returns
         -------
         updated : pandas.DataFrame
@@ -381,7 +399,7 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
         """
         return target_pop - len_data
 
-    def transition(self, data, year):
+    def transition(self, data, year, prob_dist=None):
         """
         Add or remove rows to/from a table according to the prescribed
         totals for this model and year.
@@ -392,6 +410,11 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
         year : None, optional
             Here for compatibility with other transition models,
             but ignored.
+        prob_dist : None, optional
+            Optional list of np.array of probabilities
+            to use for sampling. The sum of each np.array must be
+            equal to 1. The list have a length equal to the number
+            of filter columns in control table
         Returns
         -------
         updated : pandas.DataFrame
@@ -405,7 +428,213 @@ class TabularTotalsTransition(TabularGrowthRateTransition):
             Index of rows that were removed.
         """
         with log_start_finish('tabular totals transition', logger):
-            return super(TabularTotalsTransition, self).transition(data, year)
+            return super(TabularTotalsTransition, self).transition(data, year, prob_dist=prob_dist)
+
+
+class DRCOGHouseholdTransitionModel(TabularTotalsTransition):
+
+    def __init__(self, targets, totals_column, accounting_column=None, prob_dist=None, migration_data=None):
+        self.targets = targets
+        self.totals_column = totals_column
+        self.accounting_column = accounting_column
+        self.prob_dist = prob_dist
+        self.migration_data = migration_data
+
+    @property
+    def _migration_data(self):
+        return self.migration_data
+
+    def add_or_remove_rows(self,data, nrows, starting_index=None, accounting_column=None, prob_dist=None):
+        """
+        Add or remove rows to/from a table. Rows are added
+        for positive `nrows` and removed for negative `nrows`.
+        Parameters
+        ----------
+        data : DataFrame
+        nrows : float
+            Number of rows to add or remove.
+        starting_index : int, optional
+            The starting index from which to calculate indexes for new rows.
+            If not given the max + 1 of the index of `data` will be used.
+            (Not applicable if rows are being removed.)
+        prob_dist : None, optional
+            Optional np.array of probabilities
+            to use for sampling. The sum of each np.array must be
+            equal to 1.
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with random rows removed.
+        added : pandas.Index
+            New indexes of the rows that were added.
+        copied : pandas.Index
+            Indexes of rows that were copied. A row copied multiple times
+            will have multiple entries.
+        removed : pandas.Index
+            Index of rows that were removed.
+        """
+        if nrows > 0:
+            updated, added, copied = self.add_rows(
+                data, nrows, starting_index,
+                accounting_column=accounting_column, prob_dist=prob_dist)
+            removed = _empty_index()
+
+        elif nrows < 0:
+            updated, removed = remove_rows(data, nrows, accounting_column=accounting_column)
+            added, copied = _empty_index(), _empty_index()
+
+        else:
+            updated, added, copied, removed = \
+                data, _empty_index(), _empty_index(), _empty_index()
+
+        return updated, added, copied, removed
+
+    def add_rows(self, data, nrows, starting_index=None, accounting_column=None, prob_dist=None):
+        """
+        Add rows to data table according to a given nrows.
+        New rows will have their IDs set to NaN.
+        Parameters
+        ----------
+        data : pandas.DataFrame
+        nrows : int
+            Number of rows to add.
+        starting_index : int, optional
+            The starting index from which to calculate indexes for the new
+            rows. If not given the max + 1 of the index of `data` will be used.
+        accounting_column: string, optional
+            Name of column with accounting totals/quanties to apply towards the control. If not provided
+            then row counts will be used for accounting.
+        prob_dist : None, optional
+            Optional np.array of probabilities
+            to use for sampling. The sum of each np.array must be
+            equal to 1.
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows added. New rows will have their index values
+            set to NaN.
+        added : pandas.Index
+            New indexes of the rows that were added.
+        copied : pandas.Index
+            Indexes of rows that were copied. A row copied multiple times
+            will have multiple entries.
+        """
+        logger.debug('start: adding {} rows in transition model'.format(nrows))
+        if nrows == 0:
+            return data, _empty_index(), _empty_index()
+
+        if not starting_index:
+            starting_index = data.index.values.max() + 1
+
+        #sample ages from migration table. Want to sample nrows worth of ages.
+        #These ages will be how we sample households
+
+        random_ages = sample_rows(nrows, self._migration_data, replace=True, prob_dist=prob_dist)
+        grp = random_ages.groupby('age').size()  #group by age to know the number of ages randomly chosen from above
+
+        agg_list = []
+        for i in grp.iteritems():
+            age_val = i[0]
+            age_count = i[1]
+            subset = data[data.age_of_head == age_val]
+            sample = sample_rows(age_count, subset)
+            agg_list.append(sample)
+
+        new_rows = pd.concat(agg_list)
+        copied_index = new_rows.index
+        added_index = pd.Index(np.arange(
+            starting_index, starting_index + len(new_rows.index), dtype=np.int))
+        new_rows.index = added_index
+
+        logger.debug(
+            'finish: added {} rows in transition model'.format(len(new_rows)))
+        return pd.concat([data, new_rows]), added_index, copied_index
+
+    def transition(self, data, year, prob_dist=None):
+        """
+        Add or remove rows to/from a table according to the prescribed
+        growth rate for this model and year.
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Rows will be removed from or added to this table.
+        year : None, optional
+            Here for compatibility with other transition models,
+            but ignored.
+        prob_dist : None, optional
+            Optional list of np.array of probabilities
+            to use for sampling. The sum of each np.array must be
+            equal to 1. The list have a length equal to the number
+            of filter columns in control table
+        Returns
+        -------
+        updated : pandas.DataFrame
+            Table with rows removed or added.
+        added : pandas.Index
+            New indexes of the rows that were added.
+        copied : pandas.Index
+            Indexes of rows that were copied. A row copied multiple times
+            will have multiple entries.
+        removed : pandas.Index
+            Index of rows that were removed.
+        """
+        logger.debug('start: tabular transition')
+        if year not in self._config_table.index:
+            raise ValueError('No targets for given year: {}'.format(year))
+
+        # want this to be a DataFrame
+        year_config = self._config_table.loc[[year]]
+        logger.debug('transitioning {} segments'.format(len(year_config)))
+
+        segments = []
+        added_indexes = []
+        copied_indexes = []
+        removed_indexes = []
+
+        # since we're looping over discrete segments we need to track
+        # out here where their new indexes will begin
+        starting_index = data.index.values.max() + 1
+        i = 0
+        for _, row in year_config.iterrows():
+            subset = util.filter_table(data, row, ignore={self._config_column})
+
+            # Do not run on segment if it is empty
+            if len(subset) == 0:
+                logger.debug('empty segment encountered')
+                continue
+
+            if self.accounting_column is None:
+                nrows = self._calc_nrows(len(subset), row[self._config_column])
+            else:
+                nrows = self._calc_nrows(
+                    subset[self.accounting_column].sum(),
+                    row[self._config_column])
+
+            #if a probability distribution is used, pass from list
+            if prob_dist:
+                prob = prob_dist[i]
+            else:
+                prob = None
+
+            updated, added, copied, removed = \
+                self.add_or_remove_rows(subset, nrows, starting_index, self.accounting_column, prob_dist=prob)
+            if nrows > 0:
+                # only update the starting index if rows were added
+                starting_index = starting_index + nrows
+            segments.append(updated)
+            added_indexes.append(added)
+            copied_indexes.append(copied)
+            removed_indexes.append(removed)
+            i += 1
+
+        updated = pd.concat(segments)
+        added_indexes = util.concat_indexes(added_indexes)
+        copied_indexes = util.concat_indexes(copied_indexes)
+        removed_indexes = util.concat_indexes(removed_indexes)
+
+        logger.debug('finish: tabular transition')
+        return updated, added_indexes, copied_indexes, removed_indexes
+
 
 
 def _update_linked_table(table, col_name, added, copied, removed):

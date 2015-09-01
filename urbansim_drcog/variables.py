@@ -53,10 +53,38 @@ def ln_units_per_acre(buildings, parcels):
     return (buildings.residential_units.groupby(buildings.parcel_id).sum()/parcels.acres).apply(np.log1p)
 
 
+@orca.column('parcels','land_cost', cache=True)
+def land_cost(parcels):
+    return parcels.land_value
 
+@orca.column('parcels','parcel_size', cache=True)
+def land_cost(parcels):
+    return parcels.parcel_sqft
 
+@orca.column('parcels', 'ave_res_unit_size')
+def ave_unit_size(parcels, buildings):
+    series = pd.Series(index=parcels.index)
+    zonal_sqft_per_unit = buildings.sqft_per_unit.groupby(buildings.zone_id).mean()
+    series.loc[:] = zonal_sqft_per_unit[parcels.zone_id].values
+    return series
 
+@orca.column('parcels', 'ave_non_res_unit_size')
+def ave_unit_size(parcels, sqft_per_job):
+    series = pd.Series(index=parcels.index)
+    sqft = sqft_per_job.to_frame().reset_index()
+    zonal_sqft = sqft.groupby('zone_id').building_sqft_per_job.mean()
+    series.loc[:] = zonal_sqft[parcels.zone_id].values
+    return series
 
+@orca.column('parcels', 'total_units', cache=True, cache_scope='iteration')
+def total_units(parcels, buildings):
+    return buildings.residential_units.groupby(buildings.parcel_id).sum().\
+        reindex(parcels.index).fillna(0)
+
+@orca.column('parcels', 'total_job_spaces', cache=True, cache_scope='iteration')
+def total_job_spaces(parcels, buildings):
+    return buildings.non_residential_units.groupby(buildings.parcel_id).sum().\
+        reindex(parcels.index).fillna(0)
 
 #####################
 # BUILDING VARIABLES
@@ -69,7 +97,7 @@ def vacant_residential_units(buildings, households):
 @orca.column('buildings', 'vacant_job_spaces')
 def vacant_residential_units(buildings, establishments):
     return buildings.non_residential_units.sub(
-        establishments.building_id.value_counts(), fill_value=0)
+        establishments.employees.groupby(establishments.building_id).sum(), fill_value=0)
 
 @orca.column('buildings', 'zone_id', cache=True, cache_scope='iteration')
 def zone_id(buildings, parcels):
@@ -84,10 +112,10 @@ def county_id(buildings, zone_to_county):
     return series
 
 @orca.column('buildings', 'non_residential_units', cache=True, cache_scope='iteration')
-def non_residential_units(store, sqft_per_job, establishments):
-    b = store['buildings']
-    b = pd.merge(b, sqft_per_job.to_frame(), left_on=['zone_id','building_type_id'], right_index=True, how='left')
-    b.loc[:, 'non_residential_units'] = b.non_residential_sqft / b.building_sqft_per_job
+def non_residential_units(buildings, sqft_per_job, establishments):
+    b = buildings.to_frame(columns=['zone_id', 'building_type_id','non_residential_sqft'])
+    b = pd.merge(b, sqft_per_job.to_frame(), left_on=[b.zone_id,b.building_type_id], right_index=True, how='left')
+    b.loc[:, 'non_residential_units'] = (b.non_residential_sqft / b.building_sqft_per_job).fillna(0).astype('int')
     b.loc[:, 'base_year_jobs'] = establishments.employees.groupby(establishments.building_id).sum()
     return b[['non_residential_units', 'base_year_jobs']].max(axis=1)
 

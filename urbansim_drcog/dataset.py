@@ -190,14 +190,36 @@ def job_relocation_rates(store):
 @orca.table('household_control_totals')
 def household_control_totals(store):
     df = store['annual_household_control_totals']
+    df = df[['total_number_of_households']]
     return df
 
 @orca.table('employment_control_totals')
 def employment_control_totals(store):
     return store['annual_employment_control_totals']
 
+@orca.table('migration_data')
+def migration_data():
+    df = pd.read_csv('c:/urbansim/data/NetMigrationByAge.csv')
+    df.columns = ['county', 'age','net_migration']
+    df = df[15:90]
+    return df
+
+@orca.table('zoning')
+def zoning(store):
+    return store.zoning
+
+@orca.table('zoning_baseline')
+def zoning_baseline(store):
+    return pd.merge(store.parcels, store.zoning, left_on='zoning_id', right_index=True)
+
+@orca.table('fars')
+def fars(store):
+    return store.fars
+
 #automagic merging
 orca.broadcast('zones', 'parcels', cast_index=True, onto_on='zone_id')
 orca.broadcast('zones', 'households', cast_index=True, onto_on='zone_id')
 orca.broadcast('parcels', 'buildings', onto_on='parcel_id', cast_index=True, onto_index=False)
 orca.broadcast('zones', 'establishments', cast_index=True, onto_on='zone_id')
+orca.broadcast('zoning', 'parcels', cast_index=True, onto_on='zoning_id')
+orca.broadcast('fars', 'parcels', cast_index=True, onto_on='far_id')
