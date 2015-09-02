@@ -5,6 +5,8 @@ import dataset
 import utils_drcog
 import variables
 import assumptions
+import numpy as np
+import pandas as pd
 
 
 @orca.injectable('year')
@@ -68,25 +70,43 @@ def residential_developer(feasibility, households, buildings, parcels, year):
                         year=year,
                         target_vacancy=.15,
                         form_to_btype_callback=random_type,
+                        add_more_columns_callback=add_extra_columns,
                         bldg_sqft_per_job=400.0)
 
 @orca.step('non_residential_developer')
-def non_residential_developer(feasibility, jobs, buildings, parcels, year):
+def non_residential_developer(feasibility, establishments, buildings, parcels, year):
+    employees = establishments.employees
+    agents = employees.ix[np.repeat(employees.index.values, employees.values)]
     utils_drcog.run_developer(["office", "retail", "industrial"],
-                        jobs,
+                        agents,
                         buildings,
-                        "job_spaces",
+                        "non_residential_units",
                         parcels.parcel_size,
-                        parcels.ave_unit_size,
                         parcels.ave_non_res_unit_size,
+                        parcels.total_job_spaces,
                         feasibility,
                         year=year,
                         target_vacancy=.15,
                         form_to_btype_callback=random_type,
+                        add_more_columns_callback=add_extra_columns_non_res,
                         residential=False,
                         bldg_sqft_per_job=400.0)
 
+@orca.step('indicator_export')
+def indicator_export(zones,buildings, households, establishments, year):
+    utils_drcog.export_indicators(zones, buildings, households, establishments, year)
 
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")
     return random.choice(form_to_btype[form])
+
+def add_extra_columns(df):
+    for col in ['improvement_value','land_area','sqft_per_unit','tax_exempt','bldg_sq_ft','unit_price_non_residential','unit_price_residential']:
+        df[col] = 0
+    return df
+
+def add_extra_columns_non_res(df):
+    for col in ['improvement_value','land_area','sqft_per_unit','tax_exempt','bldg_sq_ft','unit_price_non_residential','unit_price_residential']:
+        df[col] = 0
+    df.rename(columns={'job_spaces':'non_residential_units'}, inplace=True)
+    return df

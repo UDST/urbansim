@@ -10,6 +10,7 @@ from urbansim.models import RegressionModel, SegmentedRegressionModel, \
 from urbansim.developer import sqftproforma, developer
 from urbansim.models.transition import DRCOGHouseholdTransitionModel
 from urbansim.utils import misc
+from sqlalchemy import create_engine
 
 
 
@@ -497,3 +498,26 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
                               new_buildings[buildings.local_columns])
 
     orca.add_table("buildings", all_buildings)
+
+def export_indicators(zones,buildings, households, establishments, year):
+    engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
+
+    ##zone_summary
+    zone_summary = pd.DataFrame(index=zones.index)
+    zone_summary['pop_sim'] = households.persons.groupby(households.zone_id).sum()
+    zone_summary['hh_sim'] = households.age_of_head.groupby(households.zone_id).size()
+    zone_summary['emp_sim'] = establishments.employees.groupby(establishments.zone_id).sum()
+    zone_summary['sim_year'] = year
+    
+    ##county_summary
+    county_summary = pd.DataFrame()
+
+    county_summary['pop_sim'] = households.persons.groupby(households.county_id).sum()
+    county_summary['hh_sim'] = households.age_of_head.groupby(households.county_id).size()
+    county_summary['emp_sim'] = establishments.employees.groupby(establishments.county_id).sum()
+    county_summary['sim_year'] = year
+
+    zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
+    county_summary.to_sql('county_summary_new', engine, if_exists='append')
+    
+
