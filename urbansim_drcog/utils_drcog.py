@@ -507,7 +507,7 @@ def export_indicators(zones,buildings, households, establishments, year):
     zone_summary['pop_sim'] = households.persons.groupby(households.zone_id).sum()
     zone_summary['hh_sim'] = households.age_of_head.groupby(households.zone_id).size()
     zone_summary['emp_sim'] = establishments.employees.groupby(establishments.zone_id).sum()
-    zone_summary['sim_year'] = year
+    zone_summary['sim_year'] = year - 1
     
     ##county_summary
     county_summary = pd.DataFrame()
@@ -515,7 +515,7 @@ def export_indicators(zones,buildings, households, establishments, year):
     county_summary['pop_sim'] = households.persons.groupby(households.county_id).sum()
     county_summary['hh_sim'] = households.age_of_head.groupby(households.county_id).size()
     county_summary['emp_sim'] = establishments.employees.groupby(establishments.county_id).sum()
-    county_summary['sim_year'] = year
+    county_summary['sim_year'] = year - 1
 
     zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
     county_summary.to_sql('county_summary_new', engine, if_exists='append')

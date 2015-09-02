@@ -54,7 +54,7 @@ def nrh_simulate(buildings):
 
 @orca.step('feasibility')
 def feasibility(parcels):
-    return utils_drcog.run_feasibility(parcels, assumptions.parcel_avg_price, assumptions.parcel_is_allowed)
+    return utils_drcog.run_feasibility(parcels, assumptions.parcel_avg_price, assumptions.parcel_is_allowed, residential_to_yearly=False)
 
 
 @orca.step('residential_developer')

@@ -33,40 +33,40 @@ models:
     1:
         fit_parameters:
             Coefficient:
-                jobs_within_45min: 3.775804971525647e-08
-                ln_avg_unit_price_zone: 0.030205409274651172
-                ln_dist_rail: -3.234816790577229e-06
-                median_age_of_head: -0.0455921021603338
-                median_yearbuilt_post_1990: 0.16976995071215376
-                multifamily: 1.8985853314682999
-                percent_hh_with_child_x_hh_with_child: -7.380398088332255e-06
-                percent_renter_hh_in_zone: -0.006835112008024204
-                townhome: 1.2926502974992253
+                jobs_within_45min: 2.439682961713293e-07
+                ln_avg_unit_price_zone: 0.07179622011528164
+                ln_dist_rail: -2.851058831994292e-06
+                median_age_of_head: -0.01856181827554005
+                median_yearbuilt_post_1990: -0.037255741340540965
+                multifamily: 1.9927289795814158
+                percent_hh_with_child_x_hh_with_child: -3.1849903282733905e-06
+                percent_renter_hh_in_zone: 0.0034855076349851024
+                townhome: 1.2271909486134787
             Std. Error:
-                jobs_within_45min: 4.145489994539023e-07
-                ln_avg_unit_price_zone: 0.03650707363195327
-                ln_dist_rail: 2.197197140336396e-06
-                median_age_of_head: 0.010628631441543027
-                median_yearbuilt_post_1990: 1.0788727348830482
-                multifamily: 0.16186445667208854
-                percent_hh_with_child_x_hh_with_child: 2.1448871743163154e-06
-                percent_renter_hh_in_zone: 0.005431600626816389
-                townhome: 0.23322438883873553
+                jobs_within_45min: 3.4779262794943883e-07
+                ln_avg_unit_price_zone: 0.06743131833958445
+                ln_dist_rail: 3.021455427262976e-06
+                median_age_of_head: 0.016437156538315466
+                median_yearbuilt_post_1990: 14.00728326699694
+                multifamily: 0.16287151037862443
+                percent_hh_with_child_x_hh_with_child: 1.8221941096472797e-06
+                percent_renter_hh_in_zone: 0.0033349042345234008
+                townhome: 0.2363419353150328
             T-Score:
-                jobs_within_45min: 0.09108223579117612
-                ln_avg_unit_price_zone: 0.8273851138869021
-                ln_dist_rail: -1.4722469509868246
-                median_age_of_head: -4.289555283865869
-                median_yearbuilt_post_1990: 0.15735864409490072
-                multifamily: 11.729476442839639
-                percent_hh_with_child_x_hh_with_child: -3.440926020122603
-                percent_renter_hh_in_zone: -1.2583973818469882
-                townhome: 5.542517675512214
+                jobs_within_45min: 0.7014763297593437
+                ln_avg_unit_price_zone: 1.0647310757549708
+                ln_dist_rail: -0.9436044650100829
+                median_age_of_head: -1.1292596886980992
+                median_yearbuilt_post_1990: -0.002659740695636573
+                multifamily: 12.234975748361116
+                percent_hh_with_child_x_hh_with_child: -1.7478875117700308
+                percent_renter_hh_in_zone: 1.045159737692805
+                townhome: 5.192438434498263
         fitted: true
         log_likelihoods:
-            convergence: -961.920796834048
+            convergence: -968.2966036599307
             'null': -1059.189142777258
-            ratio: 0.09183283892824512
+            ratio: 0.08581332214093651
         model_expression: ln_dist_rail + ln_avg_unit_price_zone + median_age_of_head
             + median_yearbuilt_post_1990 + percent_hh_with_child_x_hh_with_child +
             percent_renter_hh_in_zone +  townhome + multifamily + jobs_within_45min
@@ -74,43 +74,43 @@ models:
     2:
         fit_parameters:
             Coefficient:
-                income5xlt_x_avg_unit_price_zone: 6.881141485390589e-13
-                ln_dist_rail: -2.1170246702018794e-06
-                ln_income_x_average_resunit_size: 1.2384587027790636e-06
-                median_age_of_head: -1.1809297817025053e-06
-                median_yearbuilt_post_1990: -1.313173745890635e-08
-                median_yearbuilt_pre_1950: -4.103652777418656e-09
-                multifamily: 1.151477771856513e-06
-                percent_hh_with_child_x_hh_with_child: -1.3768349386754266e-06
-                percent_renter_hh_in_zone: 1.1812501546524704e-06
-                wkrs_hhs_x_ln_jobs_within_30min: 1.2000934661628056e-06
+                income5xlt_x_avg_unit_price_zone: 3.2626407051440315e-13
+                ln_dist_rail: -3.2626799631032447e-13
+                ln_income_x_average_resunit_size: 3.262668525269189e-13
+                median_age_of_head: -9.57000793890936e-17
+                median_yearbuilt_post_1990: -1.4251071177069237e-19
+                median_yearbuilt_pre_1950: -6.750507383108852e-20
+                multifamily: 1.1089584315772759e-17
+                percent_hh_with_child_x_hh_with_child: 6.8570312896702915e-15
+                percent_renter_hh_in_zone: -1.766252385276126e-16
+                wkrs_hhs_x_ln_jobs_within_30min: 4.8312792339421865e-15
             Std. Error:
-                income5xlt_x_avg_unit_price_zone: 1.143864985887937e-12
-                ln_dist_rail: 1.268657307274543e-06
-                ln_income_x_average_resunit_size: 8.240600265796425e-06
-                median_age_of_head: 0.0037538203539368587
-                median_yearbuilt_post_1990: 15.02911281292439
-                median_yearbuilt_pre_1950: 28.554423896921914
-                multifamily: 0.1776152283949206
-                percent_hh_with_child_x_hh_with_child: 1.1500735295616409e-06
-                percent_renter_hh_in_zone: 0.00336761234759805
-                wkrs_hhs_x_ln_jobs_within_30min: 0.0003796984533774855
+                income5xlt_x_avg_unit_price_zone: 9.097635749680257e-13
+                ln_dist_rail: 1.2208564278551823e-06
+                ln_income_x_average_resunit_size: 6.754141406737165e-06
+                median_age_of_head: 0.004028396310409647
+                median_yearbuilt_post_1990: 16.628459514393224
+                median_yearbuilt_pre_1950: 24.191353142571
+                multifamily: 0.18266031506331448
+                percent_hh_with_child_x_hh_with_child: 1.169092147217977e-06
+                percent_renter_hh_in_zone: 0.0027457192316143113
+                wkrs_hhs_x_ln_jobs_within_30min: 0.00036974941749373517
             T-Score:
-                income5xlt_x_avg_unit_price_zone: 0.6015693784043081
-                ln_dist_rail: -1.6687127863945264
-                ln_income_x_average_resunit_size: 0.1502874381517365
-                median_age_of_head: -0.0003145941122259601
-                median_yearbuilt_post_1990: -8.737533360993618e-10
-                median_yearbuilt_pre_1950: -1.4371338018348246e-10
-                multifamily: 6.482990125690386e-06
-                percent_hh_with_child_x_hh_with_child: -1.1971712271303363
-                percent_renter_hh_in_zone: 0.0003507678535194222
-                wkrs_hhs_x_ln_jobs_within_30min: 0.0031606488135196764
+                income5xlt_x_avg_unit_price_zone: 0.3586251191974464
+                ln_dist_rail: -2.6724518040464156e-07
+                ln_income_x_average_resunit_size: 4.8306192138866404e-08
+                median_age_of_head: -2.3756371522284975e-14
+                median_yearbuilt_post_1990: -8.570289487570287e-21
+                median_yearbuilt_pre_1950: -2.790462915953871e-21
+                multifamily: 6.071151422206208e-17
+                percent_hh_with_child_x_hh_with_child: 5.8652616100344045e-09
+                percent_renter_hh_in_zone: -6.432749441164384e-14
+                wkrs_hhs_x_ln_jobs_within_30min: 1.3066360636048994e-11
         fitted: true
         log_likelihoods:
-            convergence: -2118.8662085292076
+            convergence: -2122.5949942446805
             'null': -2122.9834557405065
-            ratio: 0.001939368486441051
+            ratio: 0.00018297904996655845
         model_expression: ln_dist_rail + income5xlt_x_avg_unit_price_zone + median_age_of_head
             + median_yearbuilt_post_1990 + median_yearbuilt_pre_1950 + percent_hh_with_child_x_hh_with_child
             + percent_renter_hh_in_zone + multifamily + ln_income_x_average_resunit_size
@@ -119,103 +119,103 @@ models:
     !!python/long '3':
         fit_parameters:
             Coefficient:
-                jobs_within_45min: 1.2341755090720326e-08
-                ln_avg_unit_price_zone: 0.034589798713938254
-                ln_dist_rail: -3.752937253645688e-06
-                median_age_of_head: -0.02520914716531201
-                median_yearbuilt_post_1990: -0.0153211457244832
-                multifamily: 0.1513097146962649
-                percent_renter_hh_in_zone: 0.011114363375237642
-                townhome: 0.31106321975460577
+                jobs_within_45min: 8.132562054236212e-07
+                ln_avg_unit_price_zone: 1.646575705868654
+                ln_dist_rail: 3.1951569596318126e-06
+                median_age_of_head: -0.04861343726584998
+                median_yearbuilt_post_1990: -0.03550764436567706
+                multifamily: 0.2625567045503872
+                percent_renter_hh_in_zone: 0.010242347374626622
+                townhome: 0.10096005153190163
             Std. Error:
-                jobs_within_45min: 4.57364421333272e-07
-                ln_avg_unit_price_zone: 0.04318292426517844
-                ln_dist_rail: 1.7708715772940375e-06
-                median_age_of_head: 0.011991756574347003
-                median_yearbuilt_post_1990: 27.1076686559104
-                multifamily: 0.27822268005548945
-                percent_renter_hh_in_zone: 0.004538258636923129
-                townhome: 0.2799729241285789
+                jobs_within_45min: 3.4167852677088365e-07
+                ln_avg_unit_price_zone: 0.06134592183941888
+                ln_dist_rail: 2.5747164381120796e-06
+                median_age_of_head: 0.017412316776898463
+                median_yearbuilt_post_1990: 25.474096947513583
+                multifamily: 0.276306149977754
+                percent_renter_hh_in_zone: 0.0032721116087925813
+                townhome: 0.2831216598947453
             T-Score:
-                jobs_within_45min: 0.02698451063321155
-                ln_avg_unit_price_zone: 0.8010064001578177
-                ln_dist_rail: -2.1192599744473433
-                median_age_of_head: -2.102206378942006
-                median_yearbuilt_post_1990: -0.0005651959937595986
-                multifamily: 0.543843926261106
-                percent_renter_hh_in_zone: 2.4490370127457113
-                townhome: 1.1110475083360152
+                jobs_within_45min: 2.3801794426752467
+                ln_avg_unit_price_zone: 26.84083401955855
+                ln_dist_rail: 1.2409743117089327
+                median_age_of_head: -2.791899428934532
+                median_yearbuilt_post_1990: -0.0013938725458585025
+                multifamily: 0.9502383662887207
+                percent_renter_hh_in_zone: 3.1301949930754587
+                townhome: 0.35659600035347006
         fitted: true
         log_likelihoods:
-            convergence: -1205.3944139629618
+            convergence: -1114.3220277536827
             'null': -1215.7649291008524
-            ratio: 0.008530033141818216
+            ratio: 0.08343956871843161
         name: !!python/long '3'
     4:
         fit_parameters:
             Coefficient:
-                allpurpose_agglosum_floor: 0.7624926064687805
-                ln_dist_rail: 3.167946001951426e-06
-                ln_emp_sector3_within_20min: -0.2154085103074419
-                percent_hh_with_child_x_hh_with_child: -1.5687383828687167e-05
-                percent_renter_hh_in_zone: -0.0077774557617434886
-                percent_younghead_x_younghead: -2.6743977799645276e-05
+                allpurpose_agglosum_floor: 0.5389117064781602
+                ln_dist_rail: -1.4332593902376516e-06
+                ln_emp_sector3_within_20min: -0.4410977308069351
+                percent_hh_with_child_x_hh_with_child: -9.821914711855665e-07
+                percent_renter_hh_in_zone: 0.035984253114283334
+                percent_younghead_x_younghead: 1.8275255767070595e-05
             Std. Error:
-                allpurpose_agglosum_floor: 0.0506346130097511
-                ln_dist_rail: 1.778801739498772e-06
-                ln_emp_sector3_within_20min: 0.06388503796449348
-                percent_hh_with_child_x_hh_with_child: 2.95099333466481e-06
-                percent_renter_hh_in_zone: 0.006591505333083393
-                percent_younghead_x_younghead: 9.96670659177432e-05
+                allpurpose_agglosum_floor: 0.08925320175563563
+                ln_dist_rail: 1.6689649461525986e-06
+                ln_emp_sector3_within_20min: 0.10443540514087572
+                percent_hh_with_child_x_hh_with_child: 2.0833156989407012e-06
+                percent_renter_hh_in_zone: 0.0037536985687242233
+                percent_younghead_x_younghead: 1.3006563021606454e-05
             T-Score:
-                allpurpose_agglosum_floor: 15.058722900122518
-                ln_dist_rail: 1.7809438407925577
-                ln_emp_sector3_within_20min: -3.371814702953817
-                percent_hh_with_child_x_hh_with_child: -5.315967218363449
-                percent_renter_hh_in_zone: -1.1799210299819827
-                percent_younghead_x_younghead: -0.268333150508489
+                allpurpose_agglosum_floor: 6.03800979547641
+                ln_dist_rail: -0.8587714161053471
+                ln_emp_sector3_within_20min: -4.22364168752854
+                percent_hh_with_child_x_hh_with_child: -0.4714558968115006
+                percent_renter_hh_in_zone: 9.586345961314995
+                percent_younghead_x_younghead: 1.4050795538153937
         fitted: true
         log_likelihoods:
-            convergence: -933.6181638202592
+            convergence: -873.6229582311887
             'null': -1100.6356744511506
-            ratio: 0.15174640846906706
+            ratio: 0.20625600413430667
         model_expression: ln_dist_rail + percent_hh_with_child_x_hh_with_child + percent_renter_hh_in_zone
             +  + percent_younghead_x_younghead + ln_emp_sector3_within_20min + allpurpose_agglosum_floor
         name: 4
     !!python/long '5':
         fit_parameters:
             Coefficient:
-                jobs_within_45min: 1.1319601790963824e-06
-                ln_avg_unit_price_zone: -0.006834717195464508
-                ln_dist_rail: 3.53130949207175e-06
-                median_age_of_head: -0.04286324889540237
-                median_yearbuilt_post_1990: -3.0
-                multifamily: 2.8626204321784847
-                percent_renter_hh_in_zone: 0.0002349741629869956
-                townhome: 1.365003177707593
+                jobs_within_45min: 1.817858100873209e-07
+                ln_avg_unit_price_zone: 0.8141352991730244
+                ln_dist_rail: 2.122800914255638e-06
+                median_age_of_head: -0.0037558210558645906
+                median_yearbuilt_post_1990: -0.03457272498016781
+                multifamily: 2.423590760572862
+                percent_renter_hh_in_zone: 0.023562906130180365
+                townhome: 1.035608428503152
             Std. Error:
-                jobs_within_45min: 5.004692213751734e-07
-                ln_avg_unit_price_zone: 0.03458969354568712
-                ln_dist_rail: 2.077904416810294e-06
-                median_age_of_head: 0.010129025114229936
-                median_yearbuilt_post_1990: 210.65330047566806
-                multifamily: 0.15421448282732134
-                percent_renter_hh_in_zone: 0.005260895110565466
-                townhome: 0.2774925756122984
+                jobs_within_45min: 4.932610187159056e-07
+                ln_avg_unit_price_zone: 0.06664511108417258
+                ln_dist_rail: 3.9952588839975165e-06
+                median_age_of_head: 0.015097606228462832
+                median_yearbuilt_post_1990: 49.76902571882458
+                multifamily: 0.18354826533680305
+                percent_renter_hh_in_zone: 0.0033402735360026263
+                townhome: 0.27911449514213194
             T-Score:
-                jobs_within_45min: 2.261797790453563
-                ln_avg_unit_price_zone: -0.19759403726537808
-                ln_dist_rail: 1.6994571374425964
-                median_age_of_head: -4.231725009269174
-                median_yearbuilt_post_1990: -0.014241409905402935
-                multifamily: 18.56259139670979
-                percent_renter_hh_in_zone: 0.04466429344221224
-                townhome: 4.919061977408438
+                jobs_within_45min: 0.3685387719478816
+                ln_avg_unit_price_zone: 12.215979325846932
+                ln_dist_rail: 0.5313300028586977
+                median_age_of_head: -0.2487693081293849
+                median_yearbuilt_post_1990: -0.000694663487597489
+                multifamily: 13.204106048758776
+                percent_renter_hh_in_zone: 7.054184597821464
+                townhome: 3.7103355308573094
         fitted: true
         log_likelihoods:
-            convergence: -767.3710365922637
+            convergence: -746.0101655034092
             'null': -921.0340371976157
-            ratio: 0.16683748308900148
+            ratio: 0.19002975419534207
         name: !!python/long '5'
 
 fitted: true
