@@ -499,23 +499,54 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
 
     orca.add_table("buildings", all_buildings)
 
-def export_indicators(zones,buildings, households, establishments, year):
+def export_indicators(zones,buildings, households, establishments, year, store, zone_to_county):
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
+    #TODO add county table to h5 file
+    counties = pd.read_csv('c:/urbansim/data/counties.csv', index_col=0)
 
     ##zone_summary
     zone_summary = pd.DataFrame(index=zones.index)
+    zone_summary['sim_year'] = year - 1
     zone_summary['pop_sim'] = households.persons.groupby(households.zone_id).sum()
     zone_summary['hh_sim'] = households.age_of_head.groupby(households.zone_id).size()
     zone_summary['emp_sim'] = establishments.employees.groupby(establishments.zone_id).sum()
-    zone_summary['sim_year'] = year - 1
+    zone_summary['unit_price_residential'] = buildings.unit_price_residential.groupby(buildings.zone_id).mean()
+    zone_summary['unit_price_non_residential'] = buildings.unit_price_non_residential.groupby(buildings.zone_id).mean()
+    zone_summary['ru_sim'] = buildings.residential_units.groupby(buildings.zone_id).sum()
+    zone_summary['nr_sim'] = buildings.non_residential_units.groupby(buildings.zone_id).sum()
+    zone_summary['buildings'] = buildings.building_type_id.groupby(buildings.zone_id).size()
+    zone_summary['median_income_sim'] = households.income.groupby(households.zone_id).median()
+    zone_summary['emp1_sim'] = establishments.employees.loc[establishments.sector_id_six == 1].groupby(establishments.zone_id).sum()
+    zone_summary['emp2_sim'] = establishments.employees.loc[establishments.sector_id_six == 2].groupby(establishments.zone_id).sum()
+    zone_summary['emp3_sim'] = establishments.employees.loc[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
+    zone_summary['emp4_sim'] = establishments.employees.loc[establishments.sector_id_six == 4].groupby(establishments.zone_id).sum()
+    zone_summary['emp5_sim'] = establishments.employees.loc[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
+    zone_summary['emp6_sim'] = establishments.employees.loc[establishments.sector_id_six == 6].groupby(establishments.zone_id).sum()
+
+
+
     
     ##county_summary
-    county_summary = pd.DataFrame()
-
+    county_summary = pd.DataFrame(index=counties.index)
+    county_summary['county_name'] = counties.values
+    county_summary['sim_year'] = year - 1
     county_summary['pop_sim'] = households.persons.groupby(households.county_id).sum()
     county_summary['hh_sim'] = households.age_of_head.groupby(households.county_id).size()
     county_summary['emp_sim'] = establishments.employees.groupby(establishments.county_id).sum()
-    county_summary['sim_year'] = year - 1
+    county_summary['unit_price_residential_sim'] = buildings.unit_price_residential.groupby(buildings.county_id).mean()
+    county_summary['unit_price_non_residential_sim'] = buildings.unit_price_non_residential.groupby(buildings.county_id).mean()
+    county_summary['ru_sim'] = buildings.residential_units.groupby(buildings.county_id).sum()
+    county_summary['nr_sim'] = buildings.non_residential_units.groupby(buildings.county_id).sum()
+    county_summary['buildings'] = buildings.building_type_id.groupby(buildings.county_id).size()
+    county_summary['median_income_sim'] = households.income.groupby(households.county_id).median()
+    county_summary['emp1_sim'] = establishments.employees.loc[establishments.sector_id_six == 1].groupby(establishments.county_id).sum()
+    county_summary['emp2_sim'] = establishments.employees.loc[establishments.sector_id_six == 2].groupby(establishments.county_id).sum()
+    county_summary['emp3_sim'] = establishments.employees.loc[establishments.sector_id_six == 3].groupby(establishments.county_id).sum()
+    county_summary['emp4_sim'] = establishments.employees.loc[establishments.sector_id_six == 4].groupby(establishments.county_id).sum()
+    county_summary['emp5_sim'] = establishments.employees.loc[establishments.sector_id_six == 5].groupby(establishments.county_id).sum()
+    county_summary['emp6_sim'] = establishments.employees.loc[establishments.sector_id_six == 6].groupby(establishments.county_id).sum()
+
+
 
     zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
     county_summary.to_sql('county_summary_new', engine, if_exists='append')

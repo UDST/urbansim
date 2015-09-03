@@ -1,4 +1,3 @@
-__author__ = 'JMartinez'
 import orca
 import pandas as pd
 import numpy as np
@@ -215,6 +214,30 @@ def zoning_baseline(store):
 @orca.table('fars')
 def fars(store):
     return store.fars
+
+
+#Travel data Table (to be computed before all simulations)
+
+@orca.table('t_data_dist20', cache=True)
+def dist30( travel_data):
+    t_data=travel_data.to_frame(columns=['am_single_vehicle_to_work_travel_time']).reset_index(level=1)
+    return t_data[['to_zone_id']][t_data.am_single_vehicle_to_work_travel_time<20]
+
+@orca.table('t_data_dist30', cache=True)
+def dist30( travel_data):
+    t_data=travel_data.to_frame(columns=['am_single_vehicle_to_work_travel_time']).reset_index(level=1)
+    return t_data[['to_zone_id']][t_data.am_single_vehicle_to_work_travel_time<30]
+
+@orca.table('t_data_dist15', cache=True)
+def dist30( travel_data):
+    t_data=travel_data.to_frame(columns=['am_single_vehicle_to_work_travel_time']).reset_index(level=1)
+    return t_data[['to_zone_id']][t_data.am_single_vehicle_to_work_travel_time<15]
+
+@orca.table('t_data_dist45', cache=True)
+def dist30( travel_data):
+    t_data=travel_data.to_frame(columns=['am_single_vehicle_to_work_travel_time']).reset_index(level=1)
+    return t_data[['to_zone_id']][t_data.am_single_vehicle_to_work_travel_time<45]
+
 
 #automagic merging
 orca.broadcast('zones', 'parcels', cast_index=True, onto_on='zone_id')

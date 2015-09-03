@@ -36,11 +36,17 @@ def emp_relocation(establishments, job_relocation_rates):
 
 @orca.step('hh_transition')
 def hh_transition(households, household_control_totals, year):
-    return utils_drcog.hh_transition(households,household_control_totals, 'building_id', year)
+    if(year <= 2040):
+        return utils_drcog.hh_transition(households,household_control_totals, 'building_id', year)
+    else:
+        return
 
 @orca.step('emp_transition')
 def emp_transition(establishments, employment_control_totals, year):
-    return utils_drcog.emp_transition(establishments, employment_control_totals, 'building_id', year)
+    if(year <= 2040):
+        return utils_drcog.emp_transition(establishments, employment_control_totals, 'building_id', year)
+    else:
+        return
 
 @orca.step('rsh_simulate')
 def rsh_simulate(buildings):
@@ -93,8 +99,8 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
                         bldg_sqft_per_job=400.0)
 
 @orca.step('indicator_export')
-def indicator_export(zones,buildings, households, establishments, year):
-    utils_drcog.export_indicators(zones, buildings, households, establishments, year)
+def indicator_export(zones,buildings, households, establishments, year, store, zone_to_county):
+    utils_drcog.export_indicators(zones, buildings, households, establishments, year, store, zone_to_county)
 
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")
