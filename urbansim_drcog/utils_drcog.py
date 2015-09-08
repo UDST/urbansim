@@ -6,7 +6,7 @@ import orca
 import pandas as pd
 from urbansim.models import RegressionModel, SegmentedRegressionModel, \
     MNLDiscreteChoiceModel, SegmentedMNLDiscreteChoiceModel, \
-    GrowthRateTransition, RelocationModel, TabularTotalsTransition
+    GrowthRateTransition, RelocationModel, TabularTotalsTransition, supplydemand
 from urbansim.developer import sqftproforma, developer
 from urbansim.models.transition import DRCOGHouseholdTransitionModel
 from urbansim.utils import misc
@@ -498,6 +498,13 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
                               new_buildings[buildings.local_columns])
 
     orca.add_table("buildings", all_buildings)
+
+def supply_demand(cfg, choosers, alternatives, buildings, alt_seg, price_col):
+    lcm = yaml_to_class(cfg).from_yaml(str_or_buffer=cfg)
+    choosers_frame = choosers.to_frame()
+    alts_frame = alternatives.to_frame()
+    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, choosers_frame, alts_frame, alt_seg, price_col)
+    buildings.update_col_from_series(price_col, new_price)
 
 def export_indicators(zones,buildings, households, establishments, year, store, zone_to_county):
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)

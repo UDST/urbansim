@@ -102,6 +102,16 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
 def indicator_export(zones,buildings, households, establishments, year, store, zone_to_county):
     utils_drcog.export_indicators(zones, buildings, households, establishments, year, store, zone_to_county)
 
+@orca.step('res_supply_demand')
+def res_supply_demand(households, alts_hlcm, buildings):
+    utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/hlcm_yaml.yaml',
+                              households, alts_hlcm, buildings, 'zone_id', 'unit_price_residential')
+
+@orca.step('non_res_supply_demand')
+def non_res_supply_demand(establishments, alts_elcm, buildings):
+    utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml',
+                              establishments, alts_elcm, buildings, 'zone_id', 'unit_price_non_residential')
+
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")
     return random.choice(form_to_btype[form])
