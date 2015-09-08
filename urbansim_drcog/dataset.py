@@ -60,6 +60,7 @@ def zone_to_county():
 @orca.table('alts_hlcm', cache=True, cache_scope='iteration')
 def alts_hlcm(buildings):
     columns = [
+        'zone_id',
         'residential_units',
         'ln_dist_rail',
         'ln_avg_unit_price_zone',
