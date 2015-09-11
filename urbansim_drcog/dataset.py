@@ -27,6 +27,8 @@ def households(store):
 @orca.table('zones', cache=True)
 def zones(store):
     df = store['zones']
+    amenities = pd.read_csv('c:/users/jmartinez/documents/data/urbansim/regression/processed/amenities.csv',index_col=0)
+    df = pd.merge(df, amenities, left_index=True, right_index=True)
     return df
 
 @orca.table('travel_data', cache=True)
@@ -82,6 +84,14 @@ def alts_hlcm(buildings):
         'ln_jobs_within_30min',
         'ln_emp_sector3_within_20min',
         'allpurpose_agglosum_floor',
+        'parks_3mi',
+        'golf_courses_3mi',
+        'schools_3mi',
+        'fast_food_3mi',
+        'restauraunt_3mi',
+        'supermarket_3mi',
+        'cafes_3mi',
+        'ln_emp_sector5_within_20min'
     ]
     alts = buildings.to_frame(columns=columns)
     alts.fillna(0, inplace=True)
@@ -110,7 +120,14 @@ def alts_elcm(buildings):
         'ln_emp_sector3_within_15min',
         'ln_emp_sector4_within_15min',
         'ln_emp_sector5_within_15min',
-        'ln_emp_sector6_within_15min'
+        'ln_emp_sector6_within_15min',
+        'parks_3mi',
+        'golf_courses_3mi',
+        'schools_3mi',
+        'fast_food_3mi',
+        'restauraunt_3mi',
+        'supermarket_3mi',
+        'cafes_3mi'
     ]
     alts = buildings.to_frame(columns=columns)
     alts.fillna(0, inplace=True)

@@ -269,11 +269,11 @@ def jobs_within_20min(buildings, t_data_dist20, establishments):
 def ln_jobs_within_20min(buildings):
     return np.log1p(buildings.jobs_within_20min)
 
-@orca.column('buildings', 'income5xlt_x_avg_unit_price_zone', cache=True, cache_scope='iteration')
+@orca.column('buildings', 'income5xlt_x_avg_unit_price_zone')
 def income5xlt_x_avg_unit_price_zone(households, buildings):
     zonal_avg_price = buildings.unit_price_residential[(buildings.residential_units>0)&(buildings.improvement_value>0)].groupby(buildings.zone_id).mean()
     income5xlt = households.income5xlt.groupby(households.zone_id).mean()
-    income5xlt_x_avg_unit_price_zone = zonal_avg_price * income5xlt
+    income5xlt_x_avg_unit_price_zone = (zonal_avg_price * income5xlt).apply(np.log1p)
     return reindex(income5xlt_x_avg_unit_price_zone,buildings.zone_id)
 
 
@@ -317,6 +317,14 @@ def percent_younghead_x_younghead(buildings, households):
 @orca.column('buildings', 'ln_emp_sector3_within_20min', cache=True, cache_scope='iteration')
 def ln_emp_sector3_within_20min(buildings, t_data_dist20, establishments):
     zonal_emp=establishments.employees[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
+    t_data=t_data_dist20.to_frame()
+    t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
+    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
+    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+
+@orca.column('buildings', 'ln_emp_sector5_within_20min', cache=True, cache_scope='iteration')
+def ln_emp_sector5_within_20min(buildings, t_data_dist20, establishments):
+    zonal_emp=establishments.employees[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
     t_data=t_data_dist20.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -376,6 +384,34 @@ def allpurpose_agglosum_floor(buildings, zones):
     allpurpose_agglosum_floor = (zones.allpurpose_agglosum>=0)*(zones.allpurpose_agglosum)
     series.loc[:] = allpurpose_agglosum_floor[buildings.zone_id].values
     return series
+
+@orca.column('buildings', 'parks_3mi')
+def parks_3mi(buildings, zones):
+    return reindex(zones.parks_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'golf_courses_3mi')
+def golf_courses_3mi(buildings, zones):
+    return reindex(zones.golf_courses_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'schools_3mi')
+def schools_3mi(buildings, zones):
+    return reindex(zones.schools_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'fast_food_3mi')
+def fast_food_3mi(buildings, zones):
+    return reindex(zones.fast_food_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'restauraunt_3mi')
+def restauraunt_3mi(buildings, zones):
+    return reindex(zones.restauraunt_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'supermarket_3mi')
+def supermarket_3mi(buildings, zones):
+    return reindex(zones.supemarket_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'cafes_3mi')
+def cafes_3mi(buildings, zones):
+    return reindex(zones.cafes_3mi, buildings.zone_id)
 
 #####variables for ELCM
 @orca.column('buildings', 'ln_avg_nonres_unit_price_zone', cache=True, cache_scope='iteration')
