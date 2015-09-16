@@ -117,7 +117,7 @@ def non_residential_units(buildings, sqft_per_job, establishments):
     b = pd.merge(b, sqft_per_job.to_frame(), left_on=[b.zone_id,b.building_type_id], right_index=True, how='left')
     b.loc[:, 'non_residential_units'] = (b.non_residential_sqft / b.building_sqft_per_job).fillna(0).astype('int')
     b.loc[:, 'base_year_jobs'] = establishments.employees.groupby(establishments.building_id).sum()
-    return b[['non_residential_units', 'base_year_jobs']].max(axis=1)
+    return b['non_residential_units']
 
 
 @orca.column('buildings','townhome', cache=True)

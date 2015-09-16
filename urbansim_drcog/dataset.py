@@ -43,8 +43,8 @@ def establishments(store):
 
 #this would go in the assumptions.py file
 @orca.table('sqft_per_job', cache=True)
-def sqft_per_job(store):
-    df = store['building_sqft_per_job']
+def sqft_per_job():
+    df = pd.read_csv('c:/urbansim/data/building_sqft_per_job.csv', index_col=[0,1])
     return df
 
 @orca.table('buildings_merged', cache=False)

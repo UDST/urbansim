@@ -14,8 +14,6 @@ orca.run(['indicator_export',
           'hh_transition',
           'hh_relocation',
           'hlcm_simulate',
-          'res_supply_demand',
-          'non_res_supply_demand',
           'feasibility',
           'residential_developer',
           'non_residential_developer'

@@ -82,7 +82,7 @@ def _calculate_adjustment(
 def supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
         base_multiplier=None, clip_change_low=0.75, clip_change_high=1.25,
-        iterations=5, multiplier_func=None):
+        iterations=5, multiplier_func=None, reg_col=None):
     """
     Adjust real estate prices to compensate for supply and demand effects.
 
@@ -155,6 +155,11 @@ def supply_and_demand(
             lcm, choosers, alternatives, alt_segmenter,
             clip_change_low, clip_change_high, multiplier_func=multiplier_func)
         alternatives[price_col] = alternatives[price_col] * alts_muliplier
+
+        if reg_col:
+            zonal_avg_price_ln = alternatives[price_col].groupby(alternatives.zone_id).mean().apply(np.log1p)
+            alternatives[reg_col] = zonal_avg_price_ln[alternatives.zone_id].values
+            alternatives.dropna(inplace=True)
 
         # might need to initialize this for holding cumulative multiplier
         if base_multiplier is None:

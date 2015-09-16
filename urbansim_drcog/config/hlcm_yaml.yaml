@@ -1,34 +1,47 @@
 name: SegmentedMNLDiscreteChoiceModel
-
+
+
 model_type: segmented_discretechoice
-
+
+
 segmentation_col: income_3_tenure
-
+
+
 choosers_fit_filters: null
-
+
+
 choosers_predict_filters: null
-
+
+
 alts_fit_filters:
 - residential_units > 0
-
+
+
 alts_predict_filters:
 - residential_units > 0
-
+
+
 interaction_predict_filters: null
-
+
+
 choice_column: building_id
-
+
+
 sample_size: 100
-
+
+
 estimation_sample_size: null
-
+
+
 prediction_sample_size: null
-
+
+
 default_config:
     model_expression: ln_dist_rail + ln_avg_unit_price_zone + median_age_of_head +
         median_yearbuilt_post_1990 + percent_renter_hh_in_zone + multifamily + townhome
         + jobs_within_45min
-
+
+
 models:
     1:
         fit_parameters:
@@ -318,11 +331,15 @@ models:
             + wkrs_hhs_x_ln_jobs_within_30min + parks_3mi + golf_courses_3mi + schools_3mi
             + fast_food_3mi + restauraunt_3mi + supermarket_3mi + cafes_3mi
         name: 5
-
+
+
 fitted: true
-
+
+
 choice_mode: aggregate
-
+
+
 remove_alts: false
-
+
+
 probability_mode: single_chooser

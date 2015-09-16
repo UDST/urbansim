@@ -74,7 +74,7 @@ def residential_developer(feasibility, households, buildings, parcels, year):
                         parcels.total_units,
                         feasibility,
                         year=year,
-                        target_vacancy=.15,
+                        target_vacancy=.05,
                         form_to_btype_callback=random_type,
                         add_more_columns_callback=add_extra_columns,
                         bldg_sqft_per_job=400.0)
@@ -92,7 +92,7 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
                         parcels.total_job_spaces,
                         feasibility,
                         year=year,
-                        target_vacancy=.15,
+                        target_vacancy=.05,
                         form_to_btype_callback=random_type,
                         add_more_columns_callback=add_extra_columns_non_res,
                         residential=False,
@@ -105,12 +105,12 @@ def indicator_export(zones,buildings, households, establishments, year, store, z
 @orca.step('res_supply_demand')
 def res_supply_demand(households, alts_hlcm, buildings):
     utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/hlcm_yaml.yaml',
-                              households, alts_hlcm, buildings, 'zone_id', 'unit_price_residential')
+                              households, alts_hlcm, buildings, 'zone_id', 'unit_price_residential', reg_col='ln_avg_unit_price_zone')
 
 @orca.step('non_res_supply_demand')
 def non_res_supply_demand(establishments, alts_elcm, buildings):
     utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml',
-                              establishments, alts_elcm, buildings, 'zone_id', 'unit_price_non_residential')
+                              establishments, alts_elcm, buildings, 'zone_id', 'unit_price_non_residential', reg_col='ln_avg_nonres_unit_price_zone')
 
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")

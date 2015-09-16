@@ -170,7 +170,7 @@ def lcm_simulate(cfg, choosers, buildings, out_fname,
     cfg = misc.config(cfg)
 
     choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
-    locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname])
+    locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
 
     available_units = buildings[supply_fname]
     vacant_units = buildings[vacant_fname]
@@ -199,10 +199,11 @@ def lcm_simulate(cfg, choosers, buildings, out_fname,
     # new_units returns nans when there aren't enough units,
     # get rid of them and they'll stay as -1s
     new_units = new_units.dropna()
-
+    print buildings.county_id.loc[new_units].value_counts()
     # go from units back to buildings
     new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
                               index=new_units.index)
+
 
     choosers.update_col_from_series(out_fname, new_buildings)
     _print_number_unplaced(choosers, out_fname)
@@ -499,11 +500,11 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
 
     orca.add_table("buildings", all_buildings)
 
-def supply_demand(cfg, choosers, alternatives, buildings, alt_seg, price_col):
+def supply_demand(cfg, choosers, alternatives, buildings, alt_seg, price_col, reg_col=None):
     lcm = yaml_to_class(cfg).from_yaml(str_or_buffer=cfg)
     choosers_frame = choosers.to_frame()
     alts_frame = alternatives.to_frame()
-    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, choosers_frame, alts_frame, alt_seg, price_col)
+    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, choosers_frame, alts_frame, alt_seg, price_col, reg_col=reg_col)
     buildings.update_col_from_series(price_col, new_price)
 
 def export_indicators(zones,buildings, households, establishments, year, store, zone_to_county):
