@@ -190,9 +190,12 @@ class Developer(object):
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
                   "MATCH DEMAND"
 
+        df['max_profit_per_size'] = df.max_profit / df.parcel_size
+
         choices = np.random.choice(df.index.values, size=len(df.index),
                                    replace=False,
-                                   p=(df.max_profit.values / df.max_profit.sum()))
+                                   p=(df.max_profit_per_size.values /
+                                      df.max_profit_per_size.sum()))
         net_units = df.net_units.loc[choices]
         tot_units = net_units.values.cumsum()
         ind = int(np.searchsorted(tot_units, target_units, side="left"))
