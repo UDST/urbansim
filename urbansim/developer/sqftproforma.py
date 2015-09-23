@@ -628,8 +628,6 @@ class SqFtProForma(object):
         outdf["residential_sqft"] = outdf.building_sqft * c.building_efficiency * resratio
         outdf["non_residential_sqft"] = outdf.building_sqft * c.building_efficiency * nonresratio
 
-        outdf.to_csv('debug_%s_%s.csv' % (form, parking_config))
-
         if only_built:
             outdf = outdf.query('max_profit > 0').copy()
 
