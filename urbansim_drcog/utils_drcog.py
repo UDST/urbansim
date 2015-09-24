@@ -10,6 +10,7 @@ from urbansim.models import RegressionModel, SegmentedRegressionModel, \
 from urbansim.developer import sqftproforma, developer
 from urbansim.models.transition import DRCOGHouseholdTransitionModel
 from urbansim.utils import misc
+from urbansim.utils import yamlio
 from sqlalchemy import create_engine
 
 
@@ -138,9 +139,9 @@ def lcm_estimate(cfg, choosers, chosen_fname, buildings, nodes):
                                            alternatives,
                                            cfg)
 
-
-def lcm_simulate(cfg, choosers, buildings, out_fname,
+def elcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
                  supply_fname, vacant_fname):
+
     """
     Simulate the location choices for the specified choosers
     Parameters
@@ -169,8 +170,94 @@ def lcm_simulate(cfg, choosers, buildings, out_fname,
     """
     cfg = misc.config(cfg)
 
+    chooser_cols = [out_fname, 'zone_id', 'county_id', 'employees']
+
+    #choosers_df = to_frame([choosers, buildings, parcels, zones], cfg, additional_columns=chooser_cols)
+    #TODO add join parameters to orca.merge_tables
     choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
     locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
+    #update choosers_df county_id to match that of transition model
+    choosers_df.loc[:, 'county_id'] = orca.get_table('updated_emp').county_id
+
+    available_units = buildings[supply_fname]
+    vacant_units = buildings[vacant_fname]
+
+    print "There are %d total available units" % available_units.sum()
+    print "    and %d total choosers" % len(choosers)
+    print "    but there are %d overfull buildings" % \
+          len(vacant_units[vacant_units < 0])
+
+    vacant_units = vacant_units[vacant_units > 0]
+    units = locations_df
+
+    print "    for a total of %d temporarily empty units" % vacant_units.sum()
+    print "    in %d buildings total in the region" % len(vacant_units)
+
+    movers = choosers_df[choosers_df[out_fname] == -1]
+
+    if len(movers) > vacant_units.sum():
+        print "WARNING: Not enough locations for movers"
+        print "    reducing locations to size of movers for performance gain"
+        movers = movers.head(vacant_units.sum())
+
+    new_units, _ = yaml_to_class(cfg).predict_from_cfg(movers, units, cfg)
+
+    # new_units returns nans when there aren't enough units,
+    # get rid of them and they'll stay as -1s
+    new_units = new_units.dropna()
+
+    # go from units back to buildings
+    #new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
+    #                          index=new_units.index)
+
+    print locations_df.county_id.loc[new_units].value_counts()
+    choosers.update_col_from_series(out_fname, new_units.groupby(level=0).first())
+    _print_number_unplaced(choosers, out_fname)
+
+    vacant_units = buildings[vacant_fname]
+    vacant_units = vacant_units[vacant_units > 0]
+    print "    and there are now %d empty units" % vacant_units.sum()
+    vacant_units = buildings[vacant_fname]
+    print "    and %d overfull buildings" % len(vacant_units[vacant_units < 0])
+
+
+
+def lcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
+                 supply_fname, vacant_fname):
+    """
+    Simulate the location choices for the specified choosers
+    Parameters
+    ----------
+    cfg : string
+        The name of the yaml config file from which to read the location
+        choice model.
+    choosers : DataFrame
+        A dataframe of agents doing the choosing.
+    buildings : DataFrame
+        A dataframe of buildings which the choosers are locating in and which
+        have a supply.
+    nodes : DataFrame
+        A land use dataset to give neighborhood info around the buildings -
+        will be joined to the buildings.
+    out_dfname : string
+        The name of the dataframe to write the simulated location to.
+    out_fname : string
+        The column name to write the simulated location to.
+    supply_fname : string
+        The string in the buildings table that indicates the amount of
+        available units there are for choosers, vacant or not.
+    vacant_fname : string
+        The string in the buildings table that indicates the amount of vacant
+        units there will be for choosers.
+    """
+    cfg = misc.config(cfg)
+    yaml_dict = yamlio.yaml_to_dict(str_or_buffer=cfg)
+
+    chooser_cols = [out_fname, 'zone_id', 'county_id']
+    choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
+    locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
+    #update choosers_df county_id to match that of transition model
+    choosers_df.loc[:, 'county_id'] = orca.get_table('updated_hh').county_id
 
     available_units = buildings[supply_fname]
     vacant_units = buildings[vacant_fname]
@@ -199,18 +286,19 @@ def lcm_simulate(cfg, choosers, buildings, out_fname,
     # new_units returns nans when there aren't enough units,
     # get rid of them and they'll stay as -1s
     new_units = new_units.dropna()
-    print buildings.county_id.loc[new_units].value_counts()
+
     # go from units back to buildings
     new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
                               index=new_units.index)
 
-
+    print locations_df.county_id.loc[new_buildings].value_counts()
     choosers.update_col_from_series(out_fname, new_buildings)
     _print_number_unplaced(choosers, out_fname)
 
     vacant_units = buildings[vacant_fname]
     vacant_units = vacant_units[vacant_units > 0]
     print "    and there are now %d empty units" % vacant_units.sum()
+    vacant_units = buildings[vacant_fname]
     print "    and %d overfull buildings" % len(vacant_units[vacant_units < 0])
 
 
@@ -236,6 +324,8 @@ def relocation_model(choosers, control_table, field_name):
 
     print "%d agents relocating" % len(movers)
     choosers.update_col_from_series(field_name, pd.Series(-1, index=movers))
+
+
 
 
 def emp_relocation_model(choosers, control_table, field_name):
@@ -267,27 +357,30 @@ def hh_transition(households, tbl, location_fname, year):
     tran = DRCOGHouseholdTransitionModel(tbl.to_frame(), 'total_number_of_households',
                                          prob_dist = [pdf], migration_data=migration)
 
-    df = households.to_frame(households.local_columns)
+
+    df = households.to_frame()
 
     print "%d households before transition" % len(df.index)
     df, added, copied, removed = tran.transition(df, year, [pdf])
     print "%d households after transition" % len(df.index)
 
     df.loc[added, location_fname] = -1
-    orca.add_table(households.name, df)
+    orca.add_table('households', df.loc[:, orca.get_table('households').local_columns])
+    orca.add_table('updated_hh', df, cache=True, cache_scope='iteration')
 
 def emp_transition(establishments, tbl, location_fname, year):
     #tran = TabularFilteredTotalsTransition(tbl.to_frame(), 'total_number_of_jobs', ['sector_id_six','home_based_status'],
     #                                       accounting_column='employees')
     tran = TabularTotalsTransition(tbl.to_frame(), 'total_number_of_jobs', accounting_column='employees')
-    df = establishments.to_frame()
 
+    df = establishments.to_frame()
     print "%d establishments with %d employees before transition" % (len(df.index), df.employees.sum())
     df, added, copied, removed = tran.transition(df, year)
     print "%d establishments with %d employees after transition" % (len(df.index), df.employees.sum())
 
     df.loc[added, location_fname] = -1
-    orca.add_table(establishments.name, df)
+    orca.add_table('establishments', df.loc[:, orca.get_table('establishments').local_columns])
+    orca.add_table('updated_emp', df, cache=True, cache_scope='iteration')
 
 
 def _print_number_unplaced(df, fieldname):
@@ -507,7 +600,7 @@ def supply_demand(cfg, choosers, alternatives, buildings, alt_seg, price_col, re
     new_price, zone_ratios = supplydemand.supply_and_demand(lcm, choosers_frame, alts_frame, alt_seg, price_col, reg_col=reg_col)
     buildings.update_col_from_series(price_col, new_price)
 
-def export_indicators(zones,buildings, households, establishments, year, store, zone_to_county):
+def export_indicators(parcels, zones, buildings, households, establishments, year, store, zone_to_county):
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
     #TODO add county table to h5 file
     counties = pd.read_csv('c:/urbansim/data/counties.csv', index_col=0)
@@ -533,7 +626,7 @@ def export_indicators(zones,buildings, households, establishments, year, store, 
 
 
 
-    
+
     ##county_summary
     county_summary = pd.DataFrame(index=counties.index)
     county_summary['county_name'] = counties.values

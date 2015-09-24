@@ -15,15 +15,15 @@ def year(iter_var):
 
 
 @orca.step('hlcm_simulate')
-def hlcm_simulate(households, buildings):
+def hlcm_simulate(households, buildings, parcels, zones):
     return utils_drcog.lcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/hlcm_yaml.yaml',
-                                    households, buildings, 'building_id', 'residential_units',
+                                    households, buildings, parcels, zones, 'building_id', 'residential_units',
                                     'vacant_residential_units')
 
 @orca.step('elcm_simulate')
-def elcm_simulate(establishments, buildings):
-    return utils_drcog.lcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml',
-                                    establishments, buildings, 'building_id', 'non_residential_units',
+def elcm_simulate(establishments, buildings, parcels, zones):
+    return utils_drcog.elcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml',
+                                    establishments, buildings, parcels, zones, 'building_id', 'non_residential_units',
                                     'vacant_job_spaces')
 
 @orca.step('hh_relocation')
@@ -49,12 +49,12 @@ def emp_transition(establishments, employment_control_totals, year):
         return
 
 @orca.step('rsh_simulate')
-def rsh_simulate(buildings):
+def rsh_simulate(buildings, parcels, zones):
     return utils_drcog.hedonic_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/repm_yaml.yaml',
                                         buildings, 'unit_price_residential')
 
 @orca.step('nrh_simulate')
-def nrh_simulate(buildings):
+def nrh_simulate(buildings, parcels, zones):
     return utils_drcog.hedonic_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/nrepm_yaml.yaml',
                                         buildings, 'unit_price_non_residential')
 
@@ -81,10 +81,10 @@ def residential_developer(feasibility, households, buildings, parcels, year):
 
 @orca.step('non_residential_developer')
 def non_residential_developer(feasibility, establishments, buildings, parcels, year):
-    employees = establishments.employees
-    agents = employees.ix[np.repeat(employees.index.values, employees.values)]
+    # employees = establishments.employees
+    # agents = employees.ix[np.repeat(employees.index.values, employees.values)]
     utils_drcog.run_developer(["office", "retail", "industrial"],
-                        agents,
+                        establishments,
                         buildings,
                         "non_residential_units",
                         parcels.parcel_size,
@@ -99,8 +99,8 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
                         bldg_sqft_per_job=400.0)
 
 @orca.step('indicator_export')
-def indicator_export(zones,buildings, households, establishments, year, store, zone_to_county):
-    utils_drcog.export_indicators(zones, buildings, households, establishments, year, store, zone_to_county)
+def indicator_export(parcels, zones,buildings, households, establishments, year, store, zone_to_county):
+    utils_drcog.export_indicators(parcels, zones, buildings, households, establishments, year, store, zone_to_county)
 
 @orca.step('res_supply_demand')
 def res_supply_demand(households, alts_hlcm, buildings):

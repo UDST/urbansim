@@ -205,17 +205,18 @@ def household_relocation_rates(store):
 
 @orca.table('job_relocation_rates')
 def job_relocation_rates(store):
-    return store['annual_job_relocation_rates']
+    df = store['annual_job_relocation_rates'] / 10
+    return df
 
 @orca.table('household_control_totals')
-def household_control_totals(store):
-    df = store['annual_household_control_totals']
-    df = df[['total_number_of_households']]
+def household_control_totals():
+    df = pd.read_csv('C:/Users/jmartinez/Documents/Projects/UrbanSim/Results/emp_sector/hh.csv', index_col=0)
     return df
 
 @orca.table('employment_control_totals')
-def employment_control_totals(store):
-    return store['annual_employment_control_totals']
+def employment_control_totals():
+    df = pd.read_csv('C:/Users/jmartinez/Documents/Projects/UrbanSim/Results/emp_sector/employment_control_totals.csv', index_col=0)
+    return df
 
 @orca.table('migration_data')
 def migration_data():

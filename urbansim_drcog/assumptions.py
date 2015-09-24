@@ -41,4 +41,3 @@ def parcel_is_allowed(form):
                ['type%d' % typ] == 1 for typ in form_to_btype[form]]
     return pd.concat(allowed, axis=1).max(axis=1).\
         reindex(orca.get_table('parcels').index).fillna(False)
-

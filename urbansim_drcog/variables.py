@@ -58,7 +58,7 @@ def land_cost(parcels):
     return parcels.land_value
 
 @orca.column('parcels','parcel_size', cache=True)
-def land_cost(parcels):
+def parcel_size(parcels):
     return parcels.parcel_sqft
 
 @orca.column('parcels', 'ave_res_unit_size')
@@ -117,7 +117,7 @@ def non_residential_units(buildings, sqft_per_job, establishments):
     b = pd.merge(b, sqft_per_job.to_frame(), left_on=[b.zone_id,b.building_type_id], right_index=True, how='left')
     b.loc[:, 'non_residential_units'] = (b.non_residential_sqft / b.building_sqft_per_job).fillna(0).astype('int')
     b.loc[:, 'base_year_jobs'] = establishments.employees.groupby(establishments.building_id).sum()
-    return b['non_residential_units']
+    return b[['non_residential_units', 'base_year_jobs']].max(axis=1)
 
 
 @orca.column('buildings','townhome', cache=True)
@@ -407,7 +407,7 @@ def restauraunt_3mi(buildings, zones):
 
 @orca.column('buildings', 'supermarket_3mi')
 def supermarket_3mi(buildings, zones):
-    return reindex(zones.supemarket_3mi, buildings.zone_id)
+    return reindex(zones.supermarket_3mi, buildings.zone_id)
 
 @orca.column('buildings', 'cafes_3mi')
 def cafes_3mi(buildings, zones):

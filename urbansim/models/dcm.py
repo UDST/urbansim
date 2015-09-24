@@ -13,6 +13,7 @@ import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
 from zbox import toolz as tz
+from functools import partial
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -21,6 +22,90 @@ from ..utils import yamlio
 from ..utils.logutil import log_start_finish
 
 logger = logging.getLogger(__name__)
+
+def new_unit_choice(choosers, alternatives, probabilities, isEMP):
+    alts_copy = alternatives
+    # probabilities need to sum to 1 for np.random.choice
+    probs = probabilities / probabilities.sum()
+
+    if probabilities.sum() == 0:
+    # return all nan if there are no available units
+        return pd.Series(index=choosers.index)
+
+    out_list =[]
+    if(isEMP):
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
+        frm = choosers.groupby('county_id')
+        choices = map(mapfunc, frm)
+        choice_frame = pd.concat(out_list)
+    else:
+        mapfunc = partial(choose_hh, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
+        frm = choosers.groupby('county_id')
+        choices = map(mapfunc, frm)
+        choice_frame = pd.concat(out_list)
+
+    return choice_frame
+
+def choose_hh(series, alts_copy, probabilities, out_list):
+    alts = alts_copy.loc[(alts_copy.vacant_residential_units > 0)&(alts_copy.county_id == int(series[0]))]
+    probs = probabilities.loc[alts.index].values
+
+    chooser_ids = series[1].index.values
+    out_series = pd.Series(index=chooser_ids)
+
+    # need to see if there are as many available alternatives as choosers
+    n_available = len(alts.index)
+    if(n_available > 0):
+
+        n_choosers = len(series[1])
+        n_to_choose = n_choosers if n_choosers < n_available else n_available
+
+        chosen = np.random.choice(alts.index, n_to_choose, replace=False, p=probs/probs.sum())
+
+        # if there are fewer available units than choosers we need to pick
+        # which choosers get a unit
+        if n_to_choose == n_available:
+            chooser_ids = np.random.choice(
+                series[1].index, size=n_to_choose, replace=False)
+
+        out_series[chooser_ids] = chosen
+        out_list.append(out_series)
+        alts_copy.vacant_residential_units.loc[chosen] -= 1
+
+    else:
+        print("no viable alternates for group %d" %series[0])
+        out_list.append(pd.Series())
+
+def choose(series, alts_copy, probabilities, out_list):
+    alts = alts_copy.loc[(alts_copy.county_id == int(series[0]))]
+    probs = probabilities.loc[alts.index].values
+
+    chooser_ids = series[1].index.values
+    out_series = pd.Series(index=chooser_ids)
+
+    # need to see if there are as many available alternatives as choosers
+    n_available = len(alts.index)
+    if(n_available > 0):
+
+        n_choosers = len(series[1])
+        n_to_choose = n_choosers if n_choosers < n_available else n_available
+
+        chosen = np.random.choice(alts.index, n_to_choose, replace=False, p=probs/probs.sum())
+
+        # if there are fewer available units than choosers we need to pick
+        # which choosers get a unit
+        if n_to_choose == n_available:
+            chooser_ids = np.random.choice(
+                series[1].index, size=n_to_choose, replace=False)
+
+        out_series[chooser_ids] = chosen
+        out_list.append(out_series)
+        alts_copy.vacant_job_spaces.loc[chosen] -= 1
+
+    else:
+        print("no viable alternates for group ('{0}')".format(series[0]))
+        out_list.append(pd.Series())
+
 
 
 def unit_choice(chooser_ids, alternative_ids, probabilities):
@@ -638,10 +723,11 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             self.sim_pdf = probabilities
 
         if self.choice_mode == 'aggregate':
-            choices = unit_choice(
-                choosers.index.values,
-                probabilities.index.get_level_values('alternative_id').values,
-                probabilities.values)
+            if(self.name > 10):
+                choices = new_unit_choice(choosers, alternatives, probabilities.loc[probabilities.index.values[0][0]], True)
+            else:
+                choices = new_unit_choice(choosers, alternatives, probabilities.loc[probabilities.index.values[0][0]], False)
+
         elif self.choice_mode == 'individual':
             def mkchoice(probs):
                 probs.reset_index(0, drop=True, inplace=True)
@@ -1815,19 +1901,19 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         logger.debug('start: predict from configuration {}'.format(cfgname))
         lcm = cls.from_yaml(str_or_buffer=cfgname)
 
-        if len(alternatives) > len(choosers) * alternative_ratio:
-            logger.info(
-                ("Alternative ratio exceeded: %d alternatives "
-                 "and only %d choosers") %
-                (len(alternatives), len(choosers)))
-            idxes = np.random.choice(
-                alternatives.index,
-                size=np.floor(len(choosers) * alternative_ratio),
-                replace=False)
-            alternatives = alternatives.loc[idxes]
-            logger.info(
-                "  after sampling %d alternatives are available\n"
-                % len(alternatives))
+        # if len(alternatives) > len(choosers) * alternative_ratio:
+        #     logger.info(
+        #         ("Alternative ratio exceeded: %d alternatives "
+        #          "and only %d choosers") %
+        #         (len(alternatives), len(choosers)))
+        #     idxes = np.random.choice(
+        #         alternatives.index,
+        #         size=np.floor(len(choosers) * alternative_ratio),
+        #         replace=False)
+        #     alternatives = alternatives.loc[idxes]
+        #     logger.info(
+        #         "  after sampling %d alternatives are available\n"
+        #         % len(alternatives))
 
         new_units = lcm.predict(choosers, alternatives, debug=debug)
         print("Assigned %d choosers to new units" % len(new_units.dropna()))
