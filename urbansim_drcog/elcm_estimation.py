@@ -48,27 +48,27 @@ model11 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+
 
 model21 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model22 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model23 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model31 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model32 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model33 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model42 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
@@ -84,11 +84,11 @@ model45 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+
 
 model48 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model49 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \
-                '+employees_x_ln_non_residential_sqft_zone+ln_emp_sector3_within_15min+rail_within_mile'
+                '+employees_x_ln_non_residential_sqft_zone+rail_within_mile'
 
 model51 = 'ln_jobs_within_30min+ln_avg_nonres_unit_price_zone+median_year_built+ln_residential_unit_density_zone' \
                 '+ln_pop_within_20min+nonres_far+office+retail_or_restaurant+industrial_building' \

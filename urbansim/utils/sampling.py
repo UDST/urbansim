@@ -3,11 +3,10 @@ import numpy as np
 import pandas as pd
 
 
-def sample_rows(total, data, replace=True, accounting_column=None, max_iterations=50, prob_dist=None):
+def sample_rows(total, data, replace=True, accounting_column=None, max_iterations=50):
     """
     Samples and returns rows from a data frame while matching a desired control total. The total may
     represent a simple row count or may attempt to match a sum/quantity from an accounting column.
-
     Parameters
     ----------
     total : int
@@ -22,27 +21,17 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     max_iterations: int, optional, default 50
         When using an accounting attribute, the maximum number of sampling iterations
         that will be applied.
-    prob_dist : None, optional
-        Optional np.array of probabilities
-        to use for sampling. The sum of each np.array must be
-        equal to 1.
-
     Returns
     -------
     sample_rows : pandas.DataFrame
         Table containing the sample.
     """
-    
-    #if a query string is included, filter data set
 
     # simplest case, just return n random rows
     if accounting_column is None:
         if replace is False and total > len(data.index.values):
             raise ValueError('Control total exceeds the available samples')
-        if prob_dist is not None:
-            return data.loc[np.random.choice(data.index.values, total, replace=replace, p=prob_dist)].copy()
-        else:
-            return data.loc[np.random.choice(data.index.values, total, replace=replace)].copy()
+        return data.loc[np.random.choice(data.index.values, total, replace=replace)].copy()
 
     # make sure this is even feasible
     if replace is False and total > data[accounting_column].sum():
@@ -55,19 +44,11 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     num_samples = int(math.ceil(total / per_sample))
     if replace:
         sample_idx = data.index.values
-        if prob_dist is not None:
-            sample_ids = np.random.choice(sample_idx, num_samples, p=prob_dist)
-        else:
-            sample_ids = np.random.choice(sample_idx, num_samples)
+        sample_ids = np.random.choice(sample_idx, num_samples)
     else:
-        sample_idx = data.index.values
-        if prob_dist is not None:
-            sample_ids = np.random.choice(sample_idx, num_samples, replace=False, p=prob_dist)
-        else:
-            sample_ids = np.random.choice(sample_idx, num_samples, replace=False)
-        # sample_idx = np.random.permutation(data.index.values)
-        # sample_ids = sample_idx[0:num_samples]
-        # sample_pos = num_samples
+        sample_idx = np.random.permutation(data.index.values)
+        sample_ids = sample_idx[0:num_samples]
+        sample_pos = num_samples
 
     sample_rows = data.loc[sample_ids].copy()
     curr_total = sample_rows[accounting_column].sum()
@@ -84,22 +65,10 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
         if remaining > 0:
             # we're short, keep sampling
             if replace:
-                if prob_dist is not None:
-                    curr_ids = np.random.choice(sample_idx, num_samples, p=prob_dist)
-                else:
-                    curr_ids = np.random.choice(sample_idx, num_samples)
+                curr_ids = np.random.choice(sample_idx, num_samples)
             else:
-                # curr_ids = sample_idx[sample_pos:sample_pos + num_samples]
-                # sample_pos += num_samples
-                curr_ids = sample_ids
-                new_sample_idx = data.drop(sample_ids, axis=0).index
-                if prob_dist is not None:
-                    new_ids = np.random.choice(new_sample_idx, num_samples, p=prob_dist)
-                else:
-                    new_ids = np.random.choice(new_sample_idx, num_samples)
-
-                curr_ids = np.append(curr_ids, new_ids)
-
+                curr_ids = sample_idx[sample_pos:sample_pos + num_samples]
+                sample_pos += num_samples
 
             curr_rows = data.loc[curr_ids].copy()
             sample_rows = pd.concat([sample_rows, curr_rows])

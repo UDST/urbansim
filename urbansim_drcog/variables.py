@@ -316,7 +316,7 @@ def percent_younghead_x_younghead(buildings, households):
     return series
 @orca.column('buildings', 'ln_emp_sector3_within_20min', cache=True, cache_scope='iteration')
 def ln_emp_sector3_within_20min(buildings, t_data_dist20, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector3.groupby(establishments.zone_id).sum()
     t_data=t_data_dist20.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -324,7 +324,7 @@ def ln_emp_sector3_within_20min(buildings, t_data_dist20, establishments):
 
 @orca.column('buildings', 'ln_emp_sector5_within_20min', cache=True, cache_scope='iteration')
 def ln_emp_sector5_within_20min(buildings, t_data_dist20, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector5.groupby(establishments.zone_id).sum()
     t_data=t_data_dist20.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -332,7 +332,7 @@ def ln_emp_sector5_within_20min(buildings, t_data_dist20, establishments):
 
 @orca.column('buildings', 'ln_emp_sector3_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector3_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
+    zonal_emp = establishments.emp_sector3.groupby(establishments.zone_id).sum()
     t_data=t_data_dist15.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -340,7 +340,7 @@ def ln_emp_sector3_within_15min(buildings, t_data_dist15, establishments):
 
 @orca.column('buildings', 'ln_emp_sector1_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector1_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 1].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector1.groupby(establishments.zone_id).sum()
     t_data=t_data_dist15.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -348,7 +348,7 @@ def ln_emp_sector1_within_15min(buildings, t_data_dist15, establishments):
 
 @orca.column('buildings', 'ln_emp_sector2_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector2_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 2].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector2.groupby(establishments.zone_id).sum()
     t_data=t_data_dist15.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -356,7 +356,7 @@ def ln_emp_sector2_within_15min(buildings, t_data_dist15, establishments):
 
 @orca.column('buildings', 'ln_emp_sector4_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector4_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 4].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector4.groupby(establishments.zone_id).sum()
     t_data=t_data_dist15.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -364,7 +364,7 @@ def ln_emp_sector4_within_15min(buildings, t_data_dist15, establishments):
 
 @orca.column('buildings', 'ln_emp_sector5_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector5_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector5.groupby(establishments.zone_id).sum()
     t_data=t_data_dist15.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -372,7 +372,7 @@ def ln_emp_sector5_within_15min(buildings, t_data_dist15, establishments):
 
 @orca.column('buildings', 'ln_emp_sector6_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector6_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.employees[establishments.sector_id_six == 6].groupby(establishments.zone_id).sum()
+    zonal_emp=establishments.emp_sector6.groupby(establishments.zone_id).sum()
     t_data=t_data_dist15.to_frame()
     t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
     zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
@@ -657,3 +657,27 @@ def nonres_sqft(buildings, establishments):
     series = pd.Series(index=establishments.employees.index)
     series.loc[:] = buildings.non_residential_sqft[establishments.building_id].values
     return series
+
+@orca.column('establishments', 'emp_sector1', cache=True, cache_scope='iteration')
+def emp_sector1(establishments):
+    return establishments.employees.loc[establishments.sector_id_six == 1]
+
+@orca.column('establishments', 'emp_sector2', cache=True, cache_scope='iteration')
+def emp_sector2(establishments):
+    return establishments.employees.loc[establishments.sector_id_six == 2]
+
+@orca.column('establishments', 'emp_sector3', cache=True, cache_scope='iteration')
+def emp_sector3(establishments):
+    return establishments.employees.loc[establishments.sector_id_six == 3]
+
+@orca.column('establishments', 'emp_sector4', cache=True, cache_scope='iteration')
+def emp_sector4(establishments):
+    return establishments.employees.loc[establishments.sector_id_six == 4]
+
+@orca.column('establishments', 'emp_sector5', cache=True, cache_scope='iteration')
+def emp_sector5(establishments):
+    return establishments.employees.loc[establishments.sector_id_six == 5]
+
+@orca.column('establishments', 'emp_sector6', cache=True, cache_scope='iteration')
+def emp_sector6(establishments):
+    return establishments.employees.loc[establishments.sector_id_six == 6]

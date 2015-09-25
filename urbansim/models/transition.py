@@ -300,10 +300,13 @@ class TabularGrowthRateTransition(object):
         # since we're looping over discrete segments we need to track
         # out here where their new indexes will begin
         starting_index = data.index.values.max() + 1
+        test_sum1 = 0
+        test_sum2 = 0
         i = 0
         for _, row in year_config.iterrows():
             subset = util.filter_table(data, row, ignore={self._config_column})
-
+            test_sum1 += row.total_number_of_jobs
+            test_sum2 += subset.employees.sum()
             # Do not run on segment if it is empty
             if len(subset) == 0:
                 logger.debug('empty segment encountered')
@@ -338,6 +341,7 @@ class TabularGrowthRateTransition(object):
         removed_indexes = util.concat_indexes(removed_indexes)
 
         logger.debug('finish: tabular transition')
+        print "control sum = {0}, subset_sum = {1}".format(test_sum1, test_sum2)
         return updated, added_indexes, copied_indexes, removed_indexes
 
     def __call__(self, data, year):
@@ -534,9 +538,9 @@ class DRCOGHouseholdTransitionModel(TabularTotalsTransition):
 
         #sample ages from migration table. Want to sample nrows worth of ages.
         #These ages will be how we sample households
-
-        random_ages = sample_rows(nrows, self._migration_data, replace=True, prob_dist=prob_dist)
-        grp = random_ages.groupby('age').size()  #group by age to know the number of ages randomly chosen from above
+        random_ages = pd.Series(np.random.choice(self._migration_data.age, nrows, replace=True, p=prob_dist))
+        #random_ages = sample_rows(nrows, self._migration_data, replace=True, prob_dist=prob_dist)
+        grp = random_ages.value_counts() #group by age to know the number of ages randomly chosen from above
 
         agg_list = []
         for i in grp.iteritems():

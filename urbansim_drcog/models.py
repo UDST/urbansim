@@ -81,10 +81,10 @@ def residential_developer(feasibility, households, buildings, parcels, year):
 
 @orca.step('non_residential_developer')
 def non_residential_developer(feasibility, establishments, buildings, parcels, year):
-    # employees = establishments.employees
-    # agents = employees.ix[np.repeat(employees.index.values, employees.values)]
+    employees = establishments.employees
+    agents = employees.ix[np.repeat(employees.index.values, employees.values)]
     utils_drcog.run_developer(["office", "retail", "industrial"],
-                        establishments,
+                        agents,
                         buildings,
                         "non_residential_units",
                         parcels.parcel_size,

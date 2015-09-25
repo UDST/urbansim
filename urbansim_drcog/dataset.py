@@ -6,8 +6,8 @@ import numpy as np
 ######This module registers the necessary data tables into the orca pipeline#######
 
 #Register the data source (drcog.h5) with the orca pipeline
-orca.add_injectable("store",pd.HDFStore('c:/urbansim/data/Justin Data/test data/drcog.h5', mode='r'))
-
+#orca.add_injectable("store",pd.HDFStore('c:/urbansim/data/Justin Data/test data/drcog.h5', mode='r'))
+orca.add_injectable("store",pd.HDFStore('c:/urbansim/data/drcog.h5', mode='r'))
 #register tables
 @orca.table('buildings', cache=True)
 def buildings(store):
@@ -117,7 +117,7 @@ def alts_elcm(buildings):
         'rail_within_mile',
         'ln_emp_sector1_within_15min',
         'ln_emp_sector2_within_15min',
-        'ln_emp_sector3_within_15min',
+
         'ln_emp_sector4_within_15min',
         'ln_emp_sector5_within_15min',
         'ln_emp_sector6_within_15min',
