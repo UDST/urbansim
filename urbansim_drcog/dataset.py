@@ -260,6 +260,9 @@ def dist30( travel_data):
     t_data=travel_data.to_frame(columns=['am_single_vehicle_to_work_travel_time']).reset_index(level=1)
     return t_data[['to_zone_id']][t_data.am_single_vehicle_to_work_travel_time<45]
 
+@orca.table('multipliers', cache=True)
+def emp_multipliers():
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/multipliers.csv', index_col=0)
 
 #automagic merging
 orca.broadcast('zones', 'parcels', cast_index=True, onto_on='zone_id')

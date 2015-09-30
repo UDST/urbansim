@@ -1,9 +1,9 @@
 __author__ = 'JMartinez'
 import random
 import orca
-import dataset
+import new_dataset
 import utils_drcog
-import variables
+import new_variables
 import assumptions
 import numpy as np
 import pandas as pd
@@ -42,21 +42,21 @@ def hh_transition(households, household_control_totals, year):
         return
 
 @orca.step('emp_transition')
-def emp_transition(establishments, employment_control_totals, year):
+def emp_transition(employment_control_totals, year):
     if(year <= 2040):
-        return utils_drcog.emp_transition(establishments, employment_control_totals, 'building_id', year)
+        return utils_drcog.emp_transition(employment_control_totals, 'building_id', year)
     else:
         return
 
 @orca.step('rsh_simulate')
 def rsh_simulate(buildings, parcels, zones):
     return utils_drcog.hedonic_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/repm_yaml.yaml',
-                                        buildings, 'unit_price_residential')
+                                        buildings, parcels, zones, 'unit_price_residential')
 
 @orca.step('nrh_simulate')
 def nrh_simulate(buildings, parcels, zones):
     return utils_drcog.hedonic_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/nrepm_yaml.yaml',
-                                        buildings, 'unit_price_non_residential')
+                                        buildings, parcels, zones, 'unit_price_non_residential')
 
 @orca.step('feasibility')
 def feasibility(parcels):
@@ -99,8 +99,8 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
                         bldg_sqft_per_job=400.0)
 
 @orca.step('indicator_export')
-def indicator_export(parcels, zones,buildings, households, establishments, year, store, zone_to_county):
-    utils_drcog.export_indicators(parcels, zones, buildings, households, establishments, year, store, zone_to_county)
+def indicator_export(zones, year):
+    utils_drcog.export_indicators(zones, year)
 
 @orca.step('res_supply_demand')
 def res_supply_demand(households, alts_hlcm, buildings):

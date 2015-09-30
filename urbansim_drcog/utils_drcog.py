@@ -123,11 +123,11 @@ def hedonic_estimate(cfg, tbl, nodes):
     return yaml_to_class(cfg).fit_from_cfg(df, cfg)
 
 
-def hedonic_simulate(cfg, tbl, out_fname):
+def hedonic_simulate(cfg, buildings, parcels, zones, out_fname):
     cfg = misc.config(cfg)
-    df = to_frame([tbl], cfg)
+    df = to_frame([buildings, parcels, zones], cfg)
     price_or_rent, _ = yaml_to_class(cfg).predict_from_cfg(df, cfg)
-    tbl.update_col_from_series(out_fname, price_or_rent)
+    buildings.update_col_from_series(out_fname, price_or_rent)
 
 
 def lcm_estimate(cfg, choosers, chosen_fname, buildings, nodes):
@@ -175,7 +175,7 @@ def elcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
     #choosers_df = to_frame([choosers, buildings, parcels, zones], cfg, additional_columns=chooser_cols)
     #TODO add join parameters to orca.merge_tables
     choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
-    locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
+    locations_df = to_frame([buildings, parcels, zones], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
     #update choosers_df county_id to match that of transition model
     choosers_df.loc[:, 'county_id'] = orca.get_table('updated_emp').county_id
 
@@ -255,7 +255,7 @@ def lcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
 
     chooser_cols = [out_fname, 'zone_id', 'county_id']
     choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
-    locations_df = to_frame([buildings], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
+    locations_df = to_frame([buildings, parcels, zones], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
     #update choosers_df county_id to match that of transition model
     choosers_df.loc[:, 'county_id'] = orca.get_table('updated_hh').county_id
 
@@ -357,8 +357,10 @@ def hh_transition(households, tbl, location_fname, year):
     tran = DRCOGHouseholdTransitionModel(tbl.to_frame(), 'total_number_of_households',
                                          prob_dist = [pdf], migration_data=migration)
 
-
-    df = households.to_frame()
+    cols = orca.get_table('households').local_columns
+    add_cols = ['zone_id','county_id']
+    cols = cols + add_cols
+    df = orca.merge_tables('households', tables=['households','buildings','parcels'],columns=cols)
 
     print "%d households before transition" % len(df.index)
     df, added, copied, removed = tran.transition(df, year, [pdf])
@@ -368,12 +370,15 @@ def hh_transition(households, tbl, location_fname, year):
     orca.add_table('households', df.loc[:, orca.get_table('households').local_columns])
     orca.add_table('updated_hh', df, cache=True, cache_scope='iteration')
 
-def emp_transition(establishments, tbl, location_fname, year):
+def emp_transition(tbl, location_fname, year):
     #tran = TabularFilteredTotalsTransition(tbl.to_frame(), 'total_number_of_jobs', ['sector_id_six','home_based_status'],
     #                                       accounting_column='employees')
     tran = TabularTotalsTransition(tbl.to_frame(), 'total_number_of_jobs', accounting_column='employees')
+    cols = orca.get_table('establishments').local_columns
+    add_cols = ['zone_id','county_id','sector_id_six']
+    cols = cols + add_cols
+    df = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'],columns=cols)
 
-    df = establishments.to_frame()
     print "%d establishments with %d employees before transition" % (len(df.index), df.employees.sum())
     df, added, copied, removed = tran.transition(df, year)
     print "%d establishments with %d employees after transition" % (len(df.index), df.employees.sum())
@@ -600,10 +605,20 @@ def supply_demand(cfg, choosers, alternatives, buildings, alt_seg, price_col, re
     new_price, zone_ratios = supplydemand.supply_and_demand(lcm, choosers_frame, alts_frame, alt_seg, price_col, reg_col=reg_col)
     buildings.update_col_from_series(price_col, new_price)
 
-def export_indicators(parcels, zones, buildings, households, establishments, year, store, zone_to_county):
+def export_indicators(zones, year):
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
     #TODO add county table to h5 file
     counties = pd.read_csv('c:/urbansim/data/counties.csv', index_col=0)
+
+    buildings = orca.merge_tables('buildings', tables=['buildings','parcels'],
+                             columns=['unit_price_residential','unit_price_non_residential','residential_units',
+                                      'non_residential_units','building_type_id', 'zone_id','county_id'])
+
+    establishments = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'],
+                                       columns=['employees', 'sector_id_six','zone_id', 'county_id'])
+
+    households = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=
+                                   ['persons','age_of_head','income', 'zone_id', 'county_id'])
 
     ##zone_summary
     zone_summary = pd.DataFrame(index=zones.index)

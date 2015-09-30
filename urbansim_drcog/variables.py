@@ -1,9 +1,10 @@
+__author__ = 'JMartinez'
 import orca
 import pandas as pd
 import numpy as np
 import dataset
-from urbansim.utils import misc
 from urbansim.utils.misc import reindex
+
 
 #register calculated variables with data table objects
 
@@ -58,7 +59,7 @@ def land_cost(parcels):
     return parcels.land_value
 
 @orca.column('parcels','parcel_size', cache=True)
-def parcel_size(parcels):
+def land_cost(parcels):
     return parcels.parcel_sqft
 
 @orca.column('parcels', 'ave_res_unit_size')
@@ -101,9 +102,10 @@ def vacant_residential_units(buildings, establishments):
 
 @orca.column('buildings', 'zone_id', cache=True, cache_scope='iteration')
 def zone_id(buildings, parcels):
-    series = pd.Series(index=buildings.building_type_id.index)
-    series.loc[:] = parcels.zone_id[buildings.parcel_id].values
-    return series
+    # series = pd.Series(index=buildings.index)
+    # series.loc[:] = parcels.zone_id[buildings.parcel_id].values
+    # return series
+    return reindex(parcels.zone_id, buildings.parcel_id)
 
 @orca.column('buildings', 'county_id', cache=True, cache_scope='iteration')
 def county_id(buildings, zone_to_county):
@@ -235,47 +237,47 @@ def percent_renter_hh_in_zone(buildings, households):
     series.loc[:] = zonal_pct_renter[buildings.zone_id].values
     return series
 
-@orca.column('buildings', 'jobs_within_45min',  cache=True, cache_scope='iteration')
-def jobs_within_45min(buildings, t_data_dist45, establishments):
-    zonal_emp=establishments.employees.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist45.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist45.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id)
+@orca.column('buildings', 'jobs_within_45min', cache=True, cache_scope='iteration')
+def jobs_within_45min(establishments, buildings, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees.groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 45.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
-
-@orca.column('buildings', 'jobs_within_30min',  cache=True, cache_scope='iteration')
-def jobs_within_30min(buildings, t_data_dist30, establishments):
-    zonal_emp=establishments.employees.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist30.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist30.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id)
-
-@orca.column('buildings', 'ln_jobs_within_30min', cache=True, cache_scope='iteration')
-def ln_jobs_within_30min(buildings):
-    return np.log1p(buildings.jobs_within_30min)
-
+@orca.column('buildings', 'jobs_within_30min', cache=True, cache_scope='iteration')
+def jobs_within_30min(establishments, buildings, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees.groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 30.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'jobs_within_20min', cache=True, cache_scope='iteration')
-def jobs_within_20min(buildings, t_data_dist20, establishments):
-    zonal_emp=establishments.employees.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist20.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id)
+def jobs_within_20min(establishments, buildings, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees.groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
-@orca.column('buildings', 'ln_jobs_within_20min', cache=True, cache_scope='iteration')
-def ln_jobs_within_20min(buildings):
-    return np.log1p(buildings.jobs_within_20min)
-
-@orca.column('buildings', 'income5xlt_x_avg_unit_price_zone')
+@orca.column('buildings', 'income5xlt_x_avg_unit_price_zone', cache=True, cache_scope='iteration')
 def income5xlt_x_avg_unit_price_zone(households, buildings):
+    series = pd.Series(index=buildings.building_type_id.index)
     zonal_avg_price = buildings.unit_price_residential[(buildings.residential_units>0)&(buildings.improvement_value>0)].groupby(buildings.zone_id).mean()
     income5xlt = households.income5xlt.groupby(households.zone_id).mean()
-    income5xlt_x_avg_unit_price_zone = (zonal_avg_price * income5xlt).apply(np.log1p)
-    return reindex(income5xlt_x_avg_unit_price_zone,buildings.zone_id)
-
+    income5xlt_x_avg_unit_price_zone = zonal_avg_price * income5xlt
+    series.loc[:] = income5xlt_x_avg_unit_price_zone[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'median_yearbuilt_pre_1950', cache=True)
 def median_yearbuilt_pre_1950(buildings):
@@ -283,10 +285,12 @@ def median_yearbuilt_pre_1950(buildings):
 
 @orca.column('buildings', 'ln_income_x_average_resunit_size', cache=True, cache_scope='iteration')
 def ln_income_x_average_resunit_size(households, buildings):
+    series = pd.Series(index=buildings.building_type_id.index)
     ln_income = households.ln_income.groupby(households.zone_id).mean()
     avg_resunit_size = buildings.sqft_per_unit.groupby(buildings.zone_id).mean()
     ln_income_x_average_resunit_size = ln_income * avg_resunit_size
-    return reindex(ln_income_x_average_resunit_size,buildings.zone_id)
+    series.loc[:] = ln_income_x_average_resunit_size[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'wkrs_hhs_x_ln_jobs_within_30min', cache=True, cache_scope='iteration')
 def wkrs_hhs_x_ln_jobs_within_30min(buildings, households):
@@ -307,6 +311,13 @@ def cherry_creek_school_district(buildings, parcels):
     series.loc[:] = parcels.cherry_creek_school_district[buildings.parcel_id].values
     return series
 
+@orca.column('buildings', 'ln_jobs_within_30min', cache=True, cache_scope='iteration')
+def ln_jobs_within_30min(buildings):
+    return buildings.jobs_within_30min.apply(np.log1p)
+
+@orca.column('buildings', 'ln_jobs_within_20min', cache=True, cache_scope='iteration')
+def ln_jobs_within_20min(buildings):
+    return buildings.jobs_within_20min.apply(np.log1p)
 
 @orca.column('buildings', 'percent_younghead_x_younghead', cache=True, cache_scope='iteration')
 def percent_younghead_x_younghead(buildings, households):
@@ -314,69 +325,150 @@ def percent_younghead_x_younghead(buildings, households):
     percent_younghead_x_younghead = (households.age_of_head[households.age_of_head < 30].groupby(households.zone_id).size() * 100.0 / households.age_of_head.groupby(households.zone_id).size()) * households.age_of_head[households.age_of_head < 30].groupby(households.zone_id).size()
     series.loc[:] = percent_younghead_x_younghead[buildings.zone_id].values
     return series
+
+@orca.column('buildings', 'ln_emp_sector1_within_20min', cache=True, cache_scope='iteration')
+def ln_emp_sector1_within_20min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 1].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
+
+@orca.column('buildings', 'ln_emp_sector2_within_20min', cache=True, cache_scope='iteration')
+def ln_emp_sector2_within_20min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 2].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
+
 @orca.column('buildings', 'ln_emp_sector3_within_20min', cache=True, cache_scope='iteration')
-def ln_emp_sector3_within_20min(buildings, t_data_dist20, establishments):
-    zonal_emp=establishments.emp_sector3.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist20.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector3_within_20min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
+
+@orca.column('buildings', 'ln_emp_sector4_within_20min', cache=True, cache_scope='iteration')
+def ln_emp_sector4_within_20min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 4].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector5_within_20min', cache=True, cache_scope='iteration')
-def ln_emp_sector5_within_20min(buildings, t_data_dist20, establishments):
-    zonal_emp=establishments.emp_sector5.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist20.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist20.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector5_within_20min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
+
+@orca.column('buildings', 'ln_emp_sector6_within_20min', cache=True, cache_scope='iteration')
+def ln_emp_sector6_within_20min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 6].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector3_within_15min', cache=True, cache_scope='iteration')
-def ln_emp_sector3_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp = establishments.emp_sector3.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist15.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector3_within_15min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 15.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector1_within_15min', cache=True, cache_scope='iteration')
-def ln_emp_sector1_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.emp_sector1.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist15.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector1_within_15min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 1].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 15.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector2_within_15min', cache=True, cache_scope='iteration')
-def ln_emp_sector2_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.emp_sector2.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist15.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector2_within_15min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 2].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 15.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector4_within_15min', cache=True, cache_scope='iteration')
-def ln_emp_sector4_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.emp_sector4.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist15.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector4_within_15min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 4].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 15.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector5_within_15min', cache=True, cache_scope='iteration')
-def ln_emp_sector5_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.emp_sector5.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist15.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector5_within_15min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 15.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'ln_emp_sector6_within_15min', cache=True, cache_scope='iteration')
-def ln_emp_sector6_within_15min(buildings, t_data_dist15, establishments):
-    zonal_emp=establishments.emp_sector6.groupby(establishments.zone_id).sum()
-    t_data=t_data_dist15.to_frame()
-    t_data.loc[:,'attr']=zonal_emp[t_data_dist15.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
+def ln_emp_sector6_within_15min(buildings, establishments, travel_data):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_emp = establishments.employees[establishments.sector_id_six == 6].groupby(establishments.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 15.0]
+    t_data.loc[:, 'attr'] = zonal_emp[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings' ,'allpurpose_agglosum_floor', cache=True, cache_scope='iteration')
 def allpurpose_agglosum_floor(buildings, zones):
@@ -384,34 +476,6 @@ def allpurpose_agglosum_floor(buildings, zones):
     allpurpose_agglosum_floor = (zones.allpurpose_agglosum>=0)*(zones.allpurpose_agglosum)
     series.loc[:] = allpurpose_agglosum_floor[buildings.zone_id].values
     return series
-
-@orca.column('buildings', 'parks_3mi')
-def parks_3mi(buildings, zones):
-    return reindex(zones.parks_3mi, buildings.zone_id)
-
-@orca.column('buildings', 'golf_courses_3mi')
-def golf_courses_3mi(buildings, zones):
-    return reindex(zones.golf_courses_3mi, buildings.zone_id)
-
-@orca.column('buildings', 'schools_3mi')
-def schools_3mi(buildings, zones):
-    return reindex(zones.schools_3mi, buildings.zone_id)
-
-@orca.column('buildings', 'fast_food_3mi')
-def fast_food_3mi(buildings, zones):
-    return reindex(zones.fast_food_3mi, buildings.zone_id)
-
-@orca.column('buildings', 'restauraunt_3mi')
-def restauraunt_3mi(buildings, zones):
-    return reindex(zones.restauraunt_3mi, buildings.zone_id)
-
-@orca.column('buildings', 'supermarket_3mi')
-def supermarket_3mi(buildings, zones):
-    return reindex(zones.supermarket_3mi, buildings.zone_id)
-
-@orca.column('buildings', 'cafes_3mi')
-def cafes_3mi(buildings, zones):
-    return reindex(zones.cafes_3mi, buildings.zone_id)
 
 #####variables for ELCM
 @orca.column('buildings', 'ln_avg_nonres_unit_price_zone', cache=True, cache_scope='iteration')
@@ -436,13 +500,16 @@ def ln_residential_unit_density_zone(buildings, zones):
     return series
 
 @orca.column('buildings', 'ln_pop_within_20min', cache=True, cache_scope='iteration')
-def ln_pop_within_20min(buildings, t_data_dist20,households):
-    zonal_pop=households.persons.groupby(households.zone_id).sum()
-    t_data=t_data_dist20.to_frame()
-    t_data.loc[:,'attr']=zonal_pop[t_data_dist20.to_zone_id].values
-    zone_time_range=t_data.groupby(level=0).attr.apply(np.sum)
-    return reindex(zone_time_range,buildings.zone_id).apply(np.log1p)
-
+def ln_pop_within_20min(households, travel_data, buildings):
+    series = pd.Series(index=buildings.building_type_id.index)
+    zonal_pop = households.persons.groupby(households.zone_id).sum()
+    t_data = travel_data.to_frame().reset_index(level=1)
+    t_data = t_data[t_data.am_single_vehicle_to_work_travel_time < 20.0]
+    t_data.loc[:, 'attr'] = zonal_pop[t_data.to_zone_id].values
+    zonal_travel_time = t_data.groupby(level=0).attr.apply(np.sum)
+    zonal_travel_time = zonal_travel_time.apply(np.log1p)
+    series.loc[:] = zonal_travel_time[buildings.zone_id].values
+    return series
 
 @orca.column('buildings', 'nonres_far', cache=True, cache_scope='iteration')
 def nonres_far(buildings, parcels):
@@ -472,6 +539,35 @@ def rail_within_mile(buildings, parcels):
     series = pd.Series(index=buildings.building_type_id.index)
     series.loc[:] = parcels.rail_within_mile[buildings.parcel_id].values
     return series
+
+
+@orca.column('buildings', 'parks_3mi')
+def parks_3mi(buildings, zones):
+    return reindex(zones.parks_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'golf_courses_3mi')
+def golf_courses_3mi(buildings, zones):
+    return reindex(zones.golf_courses_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'schools_3mi')
+def schools_3mi(buildings, zones):
+    return reindex(zones.schools_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'fast_food_3mi')
+def fast_food_3mi(buildings, zones):
+    return reindex(zones.fast_food_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'restauraunt_3mi')
+def restauraunt_3mi(buildings, zones):
+    return reindex(zones.restauraunt_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'supermarket_3mi')
+def supermarket_3mi(buildings, zones):
+    return reindex(zones.supermarket_3mi, buildings.zone_id)
+
+@orca.column('buildings', 'cafes_3mi')
+def cafes_3mi(buildings, zones):
+    return reindex(zones.cafes_3mi, buildings.zone_id)
 
 
 #####variables for REPM
@@ -631,10 +727,12 @@ def wkrs_hhs(households):
 # ESTABLISHMENT VARIABLES
 #####################
 @orca.column('establishments', 'zone_id', cache=True, cache_scope='iteration')
-def zone_id(establishments, buildings):
-    series = pd.Series(index=establishments.employees.index)
-    series.loc[:] = buildings.zone_id[establishments.building_id].values
-    return series
+def zone_id(establishments, buildings, parcels):
+    # series = pd.Series(index=establishments.index)
+    # series.loc[:] = buildings.zone_id[establishments.building_id].values
+    # return series
+    test = reindex(parcels.zone_id, buildings.parcel_id)
+    return reindex(test, establishments.building_id)
 
 @orca.column('establishments', 'county_id', cache=True, cache_scope='iteration')
 def county_id(buildings, establishments):
@@ -658,26 +756,7 @@ def nonres_sqft(buildings, establishments):
     series.loc[:] = buildings.non_residential_sqft[establishments.building_id].values
     return series
 
-@orca.column('establishments', 'emp_sector1', cache=True, cache_scope='iteration')
-def emp_sector1(establishments):
-    return establishments.employees.loc[establishments.sector_id_six == 1]
 
-@orca.column('establishments', 'emp_sector2', cache=True, cache_scope='iteration')
-def emp_sector2(establishments):
-    return establishments.employees.loc[establishments.sector_id_six == 2]
-
-@orca.column('establishments', 'emp_sector3', cache=True, cache_scope='iteration')
-def emp_sector3(establishments):
-    return establishments.employees.loc[establishments.sector_id_six == 3]
-
-@orca.column('establishments', 'emp_sector4', cache=True, cache_scope='iteration')
-def emp_sector4(establishments):
-    return establishments.employees.loc[establishments.sector_id_six == 4]
-
-@orca.column('establishments', 'emp_sector5', cache=True, cache_scope='iteration')
-def emp_sector5(establishments):
-    return establishments.employees.loc[establishments.sector_id_six == 5]
-
-@orca.column('establishments', 'emp_sector6', cache=True, cache_scope='iteration')
-def emp_sector6(establishments):
-    return establishments.employees.loc[establishments.sector_id_six == 6]
+#####################
+# RELOCATION RATE TABLE VARIABLES
+#####################

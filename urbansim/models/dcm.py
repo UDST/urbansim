@@ -7,7 +7,7 @@ from __future__ import print_function, division
 
 import abc
 import logging
-
+import orca
 import numpy as np
 import pandas as pd
 from patsy import dmatrix
@@ -25,8 +25,27 @@ logger = logging.getLogger(__name__)
 
 def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     alts_copy = alternatives
-    # probabilities need to sum to 1 for np.random.choice
-    probs = probabilities / probabilities.sum()
+    # change probabilities with multipliers
+    # probs = pd.DataFrame(index=probabilities.index)
+    # probs["probabilities"] = probabilities.values
+    # probs["zone_id"] = orca.get_table('buildings').zone_id.loc[probabilities.index.values]
+    # multipliers = orca.get_table('multipliers').to_frame(columns=['emp_multiplier','hh_multiplier'])
+    # merged_probs = pd.merge(probs, multipliers, left_on='zone_id', right_index=True, how='left')
+    # merged_probs.emp_multiplier.fillna(1, inplace=True)
+    # merged_probs.hh_multiplier.fillna(1, inplace=True)
+
+    # probs_zone = probs.groupby('zone_id').probabilities.sum()
+    # zone_prob_table = pd.DataFrame(index=probs_zone.index)
+    # zone_prob_table["probs"] = probs_zone.values
+    # hh_N = 6
+    # hh_zone_base = 314
+    # emp_N = 43
+    # emp_zone_base = 2361
+    # raw_zone_totals = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/raw_2040_zones.csv', index_col=0)
+    # zone_prob_table["multiplier_hh"] = np.log(raw_zone_totals.hh_sim/hh_N) + zone_prob_table.probs - zone_prob_table.loc[hh_zone_base].probs
+    # zone_prob_table["multiplier_emp"] = np.log(raw_zone_totals.emp_sim/emp_N) + zone_prob_table.probs - zone_prob_table.loc[emp_zone_base].probs
+
+    #probs = probabilities / probabilities.sum()
 
     if probabilities.sum() == 0:
     # return all nan if there are no available units

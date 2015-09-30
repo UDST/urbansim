@@ -22,7 +22,9 @@ orca.add_injectable('form_to_btype',
 
 def parcel_avg_price(use):
     #if use is residential translate unit price to price per sqft
-    buildings = orca.get_table('buildings')
+    buildings = orca.merge_tables('buildings', tables=['buildings','parcels'],
+                                  columns=['unit_price_residential','building_type_id','residential_sqft',
+                                           'zone_id', 'unit_price_non_residential'])
     use_btype = orca.get_injectable('use_btype')
     if use == 'residential':
         price = (buildings.unit_price_residential.loc[np.in1d(buildings.building_type_id, use_btype[use])] /
