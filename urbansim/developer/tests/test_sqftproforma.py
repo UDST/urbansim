@@ -39,7 +39,7 @@ def simple_dev_inputs_high_cost():
 @pytest.fixture
 def simple_dev_inputs_low_cost():
     sdi = simple_dev_inputs()
-    sdi.land_cost /= 5
+    sdi.land_cost /= 20
     return sdi
 
 
@@ -57,7 +57,7 @@ def test_sqftproforma_defaults(simple_dev_inputs):
         if form == "residential":
             assert len(out) == 3
         if form == "office":
-            assert len(out) == 2
+            assert len(out) == 0
 
 
 def test_sqftproforma_max_dua(simple_dev_inputs_low_cost, max_dua_dev_inputs):
@@ -99,10 +99,10 @@ def test_reasonable_feasibility_results():
 
     out = pf.lookup("residential", df)
     first = out.iloc[0]
-    # far limit is 2
-    assert first.max_profit_far == 2
-    # at an far of 2, this is the building_sqft
-    assert first.building_sqft == 2000
+    # far limit is 1.8
+    assert first.max_profit_far == 1.8
+    # at an far of 1.8, this is the building_sqft
+    assert first.building_sqft == 1800
     # confirm cost per sqft is between 100 and 400 per sqft
     assert 100 < first.building_cost/first.building_sqft < 400
     # total cost equals building cost plus land cost
@@ -111,20 +111,13 @@ def test_reasonable_feasibility_results():
     assert 200 < first.building_revenue/first.building_sqft < 800
     assert first.residential_sqft == first.building_sqft * pf.config.building_efficiency
     # because of parcel inefficiency, stories should be greater than far, but not too much more
-    assert first.max_profit_far < first.stories < first.max_profit_far * 2.0
+    assert first.max_profit_far < first.stories < first.max_profit_far * 3.0
     assert first.non_residential_sqft == 0
     assert first.max_profit > 0
 
-    assert len(out) == 2
+    assert len(out) == 1
 
-    second = out.iloc[1]
-    # this is an interesting one - at $20/year/sqft for rent, we don't build to max far
-    # this means the max_far pushes us into into another cost category and is mainly
-    # due to the parking requirements that push the building to the corner of a parcel
-    # and require that it be taller while still maintaining surface parking
-    assert second.max_profit_far == 1.8
-
-    # we can test this be reducing the parking requirements
+    # we should be able to reduce parking requirements and build to max far
     c = sqpf.SqFtProFormaConfig()
     c.parking_rates["residential"] = 0
     pf = sqpf.SqFtProForma(c)
@@ -158,22 +151,24 @@ def test_appropriate_range():
     # time goes on, but for now this is a reasonable range for sqft costs
     pf = sqpf.SqFtProForma()
     for form in pf.config.forms:
-        s = pf.get_ave_cost_sqft(form)
-        assert len(s[s > 400.0]) == 0
-        assert len(s[s < 50.0]) == 0
+        for park_config in pf.config.parking_configs:
+            s = pf.get_ave_cost_sqft(form, park_config)
+            assert len(s[s > 400.0]) == 0
+            assert len(s[s < 50.0]) == 0
 
 
 def test_roughly_monotonic():
     pf = sqpf.SqFtProForma()
     for form in pf.config.forms:
-        s = pf.get_ave_cost_sqft(form).values
-        for i in range(0, s.size-1):
-            left, right = s[i], s[i+1]
-            if np.isnan(left) or np.isnan(right):
-                continue
-            # actually this doesn't have to perfectly monotonic since
-            # construction costs make the function somewhat discontinuous
-            assert left < right*1.1
+        for park_config in pf.config.parking_configs:
+            s = pf.get_ave_cost_sqft(form, park_config).values
+            for i in range(0, s.size-1):
+                left, right = s[i], s[i+1]
+                if np.isnan(left) or np.isnan(right):
+                    continue
+                # actually this doesn't have to perfectly monotonic since
+                # construction costs make the function somewhat discontinuous
+                assert left < right*1.1
 
 
 def test_config_params():
