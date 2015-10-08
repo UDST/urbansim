@@ -596,13 +596,15 @@ class SqFtProForma(object):
 
         fars = np.repeat(cost_sqft_index_col, len(df.index), axis=1)
 
-        # zero out fars not allowed by zoning
+        # turn fars into nans which are not allowed by zoning
+        # (so we can fillna with one of the other zoning constraints)
         fars[fars > df.min_max_fars.values + .01] = np.nan
 
         # same thing for heights
         heights = np.repeat(heights, len(df.index), axis=1)
 
-        # zero out heights not allowed by zoning
+        # turn heights into nans which are not allowed by zoning
+        # (so we can fillna with one of the other zoning constraints)
         fars[heights > df.max_height.values + .01] = np.nan
 
         # parcel sizes * possible fars
