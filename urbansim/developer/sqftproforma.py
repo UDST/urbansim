@@ -424,6 +424,25 @@ class SqFtProForma(object):
         """
         return self.dev_d[(form, parking_config)]
 
+    def get_ave_cost_sqft(self, form, parking_config):
+        """
+        Get the average cost per sqft for the pro forma for a given form
+        Parameters
+        ----------
+        form : string
+            Get a series representing the average cost per sqft for each form in
+            the config
+        parking_config : string
+            The parking configuration to get debug info for
+        Returns
+        -------
+        cost : series
+            A series where the index is the far and the values are the average
+            cost per sqft at which the building is "break even" given the
+            configuration parameters that were passed at run time.
+        """
+        return self.dev_d[(form, parking_config)].ave_cost_sqft
+
     def lookup(self, form, df, only_built=True, pass_through=None):
         """
         This function does the developer model lookups for all the actual input data.
@@ -652,7 +671,7 @@ class SqFtProForma(object):
             logger.debug(df_d[key])
         for form in self.config.forms:
             logger.debug("\n" + str(key) + "\n")
-            logger.debug(self.get_ave_cost_sqft(form))
+            logger.debug(self.get_ave_cost_sqft(form, "surface"))
 
         keys = c.forms.keys()
         keys.sort()
