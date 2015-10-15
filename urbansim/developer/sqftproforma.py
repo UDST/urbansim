@@ -651,6 +651,8 @@ class SqFtProForma(object):
 
         if only_built:
             outdf = outdf.query('max_profit > 0').copy()
+        else:
+            outdf = outdf[outdf.max_profit != -np.inf].copy()
 
         return outdf
 
