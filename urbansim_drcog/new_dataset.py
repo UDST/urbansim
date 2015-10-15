@@ -95,6 +95,9 @@ def zoning_baseline(store):
 def fars(store):
     return store.fars
 
+@orca.table('multipliers')
+def multipliers():
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/new_multipliers.csv', index_col=0)
 
 
 

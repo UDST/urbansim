@@ -645,7 +645,7 @@ def export_indicators(zones, year):
     ##county_summary
     county_summary = pd.DataFrame(index=counties.index)
     county_summary['county_name'] = counties.values
-    county_summary['sim_year'] = year - 1
+    county_summary['sim_year'] = year
     county_summary['pop_sim'] = households.persons.groupby(households.county_id).sum()
     county_summary['hh_sim'] = households.age_of_head.groupby(households.county_id).size()
     county_summary['emp_sim'] = establishments.employees.groupby(establishments.county_id).sum()
@@ -662,9 +662,10 @@ def export_indicators(zones, year):
     county_summary['emp5_sim'] = establishments.employees.loc[establishments.sector_id_six == 5].groupby(establishments.county_id).sum()
     county_summary['emp6_sim'] = establishments.employees.loc[establishments.sector_id_six == 6].groupby(establishments.county_id).sum()
 
+    orca.add_table('zone_summary', zone_summary, cache=False)
+    orca.add_table('county_summary', county_summary, cache=False)
 
-
-    zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
-    county_summary.to_sql('county_summary_new', engine, if_exists='append')
+    #one_summary.to_sql('zone_summary_new', engine, if_exists='append')
+    #county_summary.to_sql('county_summary_new', engine, if_exists='append')
     
 

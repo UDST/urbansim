@@ -25,14 +25,14 @@ logger = logging.getLogger(__name__)
 
 def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     alts_copy = alternatives
-    # change probabilities with multipliers
-    # probs = pd.DataFrame(index=probabilities.index)
-    # probs["probabilities"] = probabilities.values
-    # probs["zone_id"] = orca.get_table('buildings').zone_id.loc[probabilities.index.values]
-    # multipliers = orca.get_table('multipliers').to_frame(columns=['emp_multiplier','hh_multiplier'])
-    # merged_probs = pd.merge(probs, multipliers, left_on='zone_id', right_index=True, how='left')
-    # merged_probs.emp_multiplier.fillna(1, inplace=True)
-    # merged_probs.hh_multiplier.fillna(1, inplace=True)
+    #change probabilities with multipliers
+    probs = pd.DataFrame(index=probabilities.index)
+    probs["probabilities"] = probabilities.values
+    probs["zone_id"] = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id']).zone_id.loc[probabilities.index.values]
+    multipliers = orca.get_table('multipliers').to_frame(columns=['emp_multiplier','hh_multiplier'])
+    merged_probs = pd.merge(probs, multipliers, left_on='zone_id', right_index=True, how='left')
+    merged_probs.emp_multiplier.fillna(1, inplace=True)
+    merged_probs.hh_multiplier.fillna(1, inplace=True)
 
     # probs_zone = probs.groupby('zone_id').probabilities.sum()
     # zone_prob_table = pd.DataFrame(index=probs_zone.index)
@@ -53,12 +53,12 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
 
     out_list =[]
     if(isEMP):
-        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities * merged_probs.emp_multiplier, out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)
     else:
-        mapfunc = partial(choose_hh, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
+        mapfunc = partial(choose_hh, alts_copy=alts_copy, probabilities=probabilities * merged_probs.hh_multiplier, out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)
