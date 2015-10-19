@@ -34,24 +34,12 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     merged_probs.emp_multiplier.fillna(1, inplace=True)
     merged_probs.hh_multiplier.fillna(1, inplace=True)
 
-    # probs_zone = probs.groupby('zone_id').probabilities.sum()
-    # zone_prob_table = pd.DataFrame(index=probs_zone.index)
-    # zone_prob_table["probs"] = probs_zone.values
-    # hh_N = 6
-    # hh_zone_base = 314
-    # emp_N = 43
-    # emp_zone_base = 2361
-    # raw_zone_totals = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/raw_2040_zones.csv', index_col=0)
-    # zone_prob_table["multiplier_hh"] = np.log(raw_zone_totals.hh_sim/hh_N) + zone_prob_table.probs - zone_prob_table.loc[hh_zone_base].probs
-    # zone_prob_table["multiplier_emp"] = np.log(raw_zone_totals.emp_sim/emp_N) + zone_prob_table.probs - zone_prob_table.loc[emp_zone_base].probs
-
-    #probs = probabilities / probabilities.sum()
-
     if probabilities.sum() == 0:
     # return all nan if there are no available units
         return pd.Series(index=choosers.index)
 
     out_list =[]
+    print(multipliers.loc[1851])
     if(isEMP):
         mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities * merged_probs.emp_multiplier, out_list=out_list)
         frm = choosers.groupby('county_id')

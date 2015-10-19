@@ -210,6 +210,10 @@ def elcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
     #new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
     #                          index=new_units.index)
 
+    new_bldg_frame = pd.DataFrame(index= new_units.groupby(level=0).first().index)
+    new_bldg_frame.loc[:, 'building_id'] = new_units.groupby(level=0).first().values
+    orca.add_table('new_buildings_emp', new_bldg_frame)
+
     print locations_df.county_id.loc[new_units].value_counts()
     choosers.update_col_from_series(out_fname, new_units.groupby(level=0).first())
     _print_number_unplaced(choosers, out_fname)
@@ -290,6 +294,10 @@ def lcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
     # go from units back to buildings
     new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
                               index=new_units.index)
+
+    new_bldg_frame = pd.DataFrame(index= new_buildings.index)
+    new_bldg_frame.loc[:, 'building_id'] = new_buildings.values
+    orca.add_table('new_buildings_hh', new_bldg_frame)
 
     print locations_df.county_id.loc[new_buildings].value_counts()
     choosers.update_col_from_series(out_fname, new_buildings)
@@ -632,12 +640,12 @@ def export_indicators(zones, year):
     zone_summary['nr_sim'] = buildings.non_residential_units.groupby(buildings.zone_id).sum()
     zone_summary['buildings'] = buildings.building_type_id.groupby(buildings.zone_id).size()
     zone_summary['median_income_sim'] = households.income.groupby(households.zone_id).median()
-    zone_summary['emp1_sim'] = establishments.employees.loc[establishments.sector_id_six == 1].groupby(establishments.zone_id).sum()
-    zone_summary['emp2_sim'] = establishments.employees.loc[establishments.sector_id_six == 2].groupby(establishments.zone_id).sum()
-    zone_summary['emp3_sim'] = establishments.employees.loc[establishments.sector_id_six == 3].groupby(establishments.zone_id).sum()
-    zone_summary['emp4_sim'] = establishments.employees.loc[establishments.sector_id_six == 4].groupby(establishments.zone_id).sum()
-    zone_summary['emp5_sim'] = establishments.employees.loc[establishments.sector_id_six == 5].groupby(establishments.zone_id).sum()
-    zone_summary['emp6_sim'] = establishments.employees.loc[establishments.sector_id_six == 6].groupby(establishments.zone_id).sum()
+    zone_summary['emp1_sim'] = establishments.loc[establishments.sector_id_six == 1].groupby('zone_id').employees.sum()
+    zone_summary['emp2_sim'] = establishments.loc[establishments.sector_id_six == 2].groupby('zone_id').employees.sum()
+    zone_summary['emp3_sim'] = establishments.loc[establishments.sector_id_six == 3].groupby('zone_id').employees.sum()
+    zone_summary['emp4_sim'] = establishments.loc[establishments.sector_id_six == 4].groupby('zone_id').employees.sum()
+    zone_summary['emp5_sim'] = establishments.loc[establishments.sector_id_six == 5].groupby('zone_id').employees.sum()
+    zone_summary['emp6_sim'] = establishments.loc[establishments.sector_id_six == 6].groupby('zone_id').employees.sum()
 
 
 
@@ -655,12 +663,12 @@ def export_indicators(zones, year):
     county_summary['nr_sim'] = buildings.non_residential_units.groupby(buildings.county_id).sum()
     county_summary['buildings'] = buildings.building_type_id.groupby(buildings.county_id).size()
     county_summary['median_income_sim'] = households.income.groupby(households.county_id).median()
-    county_summary['emp1_sim'] = establishments.employees.loc[establishments.sector_id_six == 1].groupby(establishments.county_id).sum()
-    county_summary['emp2_sim'] = establishments.employees.loc[establishments.sector_id_six == 2].groupby(establishments.county_id).sum()
-    county_summary['emp3_sim'] = establishments.employees.loc[establishments.sector_id_six == 3].groupby(establishments.county_id).sum()
-    county_summary['emp4_sim'] = establishments.employees.loc[establishments.sector_id_six == 4].groupby(establishments.county_id).sum()
-    county_summary['emp5_sim'] = establishments.employees.loc[establishments.sector_id_six == 5].groupby(establishments.county_id).sum()
-    county_summary['emp6_sim'] = establishments.employees.loc[establishments.sector_id_six == 6].groupby(establishments.county_id).sum()
+    county_summary['emp1_sim'] = establishments.loc[establishments.sector_id_six == 1].groupby('county_id').employees.sum()
+    county_summary['emp2_sim'] = establishments.loc[establishments.sector_id_six == 2].groupby('county_id').employees.sum()
+    county_summary['emp3_sim'] = establishments.loc[establishments.sector_id_six == 3].groupby('county_id').employees.sum()
+    county_summary['emp4_sim'] = establishments.loc[establishments.sector_id_six == 4].groupby('county_id').employees.sum()
+    county_summary['emp5_sim'] = establishments.loc[establishments.sector_id_six == 5].groupby('county_id').employees.sum()
+    county_summary['emp6_sim'] = establishments.loc[establishments.sector_id_six == 6].groupby('county_id').employees.sum()
 
     orca.add_table('zone_summary', zone_summary, cache=False)
     orca.add_table('county_summary', county_summary, cache=False)
