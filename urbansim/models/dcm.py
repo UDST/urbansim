@@ -39,14 +39,14 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
         return pd.Series(index=choosers.index)
 
     out_list =[]
-    print(multipliers.loc[1851])
+    print(multipliers.loc[2453])
     if(isEMP):
-        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities * merged_probs.emp_multiplier, out_list=out_list)
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)
     else:
-        mapfunc = partial(choose_hh, alts_copy=alts_copy, probabilities=probabilities * merged_probs.hh_multiplier, out_list=out_list)
+        mapfunc = partial(choose_hh, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)

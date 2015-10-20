@@ -55,7 +55,7 @@ def alter_multiplier(mult_val):
     engine = engine.create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
     #test with zone 1851 DIA
     mult = orca.get_table('multipliers').to_frame()
-    mult.loc[1851, 'emp_multiplier'] = mult_val
+    mult.loc[2453, 'emp_multiplier'] = mult_val
 
     mult.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/new_multipliers.csv')
     #orca.get_table('multipliers').update_col_from_series('emp_multiplier', mult.emp_multiplier)

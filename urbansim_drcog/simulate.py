@@ -5,7 +5,7 @@ import orca
 import calibration
 import numpy as np
 from urbansim.utils import sampling
-
+np.random.seed(1)
 # orca.run([
 #           'rsh_simulate',
 #           'nrh_simulate',
@@ -20,10 +20,10 @@ from urbansim.utils import sampling
 #           'non_residential_developer',
 #           'indicator_export'
 #           ], iter_vars=[2015])
-np.random.seed(1)
-orca.run(['calibrate', 'alter_multiplier'], iter_vars=np.linspace(50,130, num=81).tolist())
 
-#orca.run(['emp_transition','emp_relocation', 'elcm_simulate'], iter_vars=[2011])
+# orca.run(['calibrate', 'alter_multiplier'], iter_vars=np.linspace(0,1, num=11).tolist())
+
+orca.run(['emp_transition','emp_relocation', 'elcm_simulate'], iter_vars=[2015])
 
 
 # orca.run([
