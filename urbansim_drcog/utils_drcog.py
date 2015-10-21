@@ -198,7 +198,9 @@ def elcm_simulate(cfg, choosers, zones, counties,out_fname):
     # orca.add_table('new_buildings_emp', new_bldg_frame)
 
     print locations_df.county_id.loc[new_units].value_counts()
-    choosers.update_col_from_series(out_fname, new_units.groupby(level=0).first())
+    update_tbl = choosers.to_frame(columns=['zone_id'])
+    update_tbl.loc[new_units.index, 'zone_id'] = new_units
+    choosers.update_col_from_series(out_fname, update_tbl['zone_id'])
     _print_number_unplaced(choosers, out_fname)
 
     # vacant_units = buildings[vacant_fname]
@@ -336,8 +338,7 @@ def hh_transition(households, tbl, location_fname, year):
     cols = orca.get_table('households').local_columns
     add_cols = ['zone_id','county_id']
     cols = cols + add_cols
-    df = orca.merge_tables('households', tables=['households','buildings','parcels'],columns=cols)
-
+    df = orca.merge_tables('households', tables=['households','counties'])
     print "%d households before transition" % len(df.index)
     df, added, copied, removed = tran.transition(df, year, [pdf])
     print "%d households after transition" % len(df.index)
@@ -353,7 +354,7 @@ def emp_transition(tbl, location_fname, year):
     cols = orca.get_table('establishments').local_columns
     add_cols = ['zone_id','county_id','sector_id_six']
     cols = cols + add_cols
-    df = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'],columns=cols)
+    df = orca.merge_tables('establishments', tables=['establishments', 'counties'])
 
     print "%d establishments with %d employees before transition" % (len(df.index), df.employees.sum())
     df, added, copied, removed = tran.transition(df, year)
@@ -590,10 +591,10 @@ def export_indicators(zones, year):
                              columns=['unit_price_residential','unit_price_non_residential','residential_units',
                                       'non_residential_units','building_type_id', 'zone_id','county_id'])
 
-    establishments = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'],
+    establishments = orca.merge_tables('establishments', tables=['establishments','counties'],
                                        columns=['employees', 'sector_id_six','zone_id', 'county_id'])
 
-    households = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=
+    households = orca.merge_tables('households', tables=['households','counties'], columns=
                                    ['persons','age_of_head','income', 'zone_id', 'county_id'])
 
     ##zone_summary
@@ -638,10 +639,10 @@ def export_indicators(zones, year):
     county_summary['emp5_sim'] = establishments.loc[establishments.sector_id_six == 5].groupby('county_id').employees.sum()
     county_summary['emp6_sim'] = establishments.loc[establishments.sector_id_six == 6].groupby('county_id').employees.sum()
 
-    orca.add_table('zone_summary', zone_summary, cache=False)
-    orca.add_table('county_summary', county_summary, cache=False)
+    #orca.add_table('zone_summary', zone_summary, cache=False)
+    #orca.add_table('county_summary', county_summary, cache=False)
 
-    #one_summary.to_sql('zone_summary_new', engine, if_exists='append')
-    #county_summary.to_sql('county_summary_new', engine, if_exists='append')
+    zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
+    county_summary.to_sql('county_summary_new', engine, if_exists='append')
     
 

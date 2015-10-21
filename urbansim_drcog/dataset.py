@@ -19,7 +19,7 @@ def parcels(store):
     df = store['parcels']
     return df
 
-@orca.table('households', cache=True)
+@orca.table('households', cache=False)
 def households(store):
     df = store['households']
     return df
@@ -36,7 +36,7 @@ def travel_data(store):
     df = store['travel_data']
     return df
 
-@orca.table('establishments', cache=True)
+@orca.table('establishments', cache=False)
 def establishments(store):
     df = store['establishments']
     return df
