@@ -39,7 +39,6 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
         return pd.Series(index=choosers.index)
 
     out_list =[]
-    print(multipliers.loc[2453])
     if(isEMP):
         mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
         frm = choosers.groupby('county_id')

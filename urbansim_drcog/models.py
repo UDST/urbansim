@@ -27,7 +27,7 @@ def elcm_simulate(establishments, zones, counties):
 
 @orca.step('hh_relocation')
 def hh_relocation(households, household_relocation_rates):
-    return utils_drcog.relocation_model(households, household_relocation_rates, 'building_id')
+    return utils_drcog.relocation_model(households, household_relocation_rates, 'zone_id')
 
 @orca.step('emp_relocation')
 def emp_relocation(establishments, job_relocation_rates):
@@ -36,7 +36,7 @@ def emp_relocation(establishments, job_relocation_rates):
 @orca.step('hh_transition')
 def hh_transition(households, household_control_totals, year):
     if(year <= 2040):
-        return utils_drcog.hh_transition(households,household_control_totals, 'building_id', year)
+        return utils_drcog.hh_transition(households,household_control_totals, 'zone_id', year)
     else:
         return
 

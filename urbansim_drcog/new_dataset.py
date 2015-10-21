@@ -20,7 +20,7 @@ def parcels(store):
 @orca.table('households', cache=True)
 def households(store):
     df = store['households']
-    df.drop('zone_id', axis=1, inplace=True)
+    #df.drop('zone_id', axis=1, inplace=True)
     return df
 
 @orca.table('zones', cache=True)
