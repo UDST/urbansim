@@ -1,0 +1,68 @@
+name: Zonal ELCM Model
+
+model_type: discretechoice
+
+choosers_fit_filters: null
+
+choosers_predict_filters: null
+
+alts_fit_filters: null
+
+alts_predict_filters: null
+
+interaction_predict_filters: null
+
+choice_column: zone_id
+
+sample_size: 100
+
+estimation_sample_size: null
+
+prediction_sample_size: null
+
+model_expression: ln_avg_unit_price_zone +nb_pop + nb_emp + ln_residential_unit_density_zone
+    + ln_non_residential_sqft_zone +mean_income + percent_hh_with_child + percent_renter_hh_in_zone
+    + percent_younghead
+
+fitted: true
+
+choice_mode: aggregate
+
+fit_parameters:
+    Coefficient:
+        ln_avg_unit_price_zone: 0.30482267834702054
+        ln_non_residential_sqft_zone: 0.0350578316215959
+        ln_residential_unit_density_zone: 0.8192810745927619
+        mean_income: 3.16959122135621e-06
+        nb_emp: 1.5314082867334725e-05
+        nb_pop: 5.328061756133116e-05
+        percent_hh_with_child: 0.002897961072124504
+        percent_renter_hh_in_zone: -0.005599004083442321
+        percent_younghead: 0.0027762042947852314
+    Std. Error:
+        ln_avg_unit_price_zone: 0.022793862260246947
+        ln_non_residential_sqft_zone: 0.008991548302511922
+        ln_residential_unit_density_zone: 0.056296310832290496
+        mean_income: 1.2427117093231903e-06
+        nb_emp: 9.952140360980858e-06
+        nb_pop: 5.578702581860468e-06
+        percent_hh_with_child: 0.002078374492086762
+        percent_renter_hh_in_zone: 0.002416275052183678
+        percent_younghead: 0.005658963677725909
+    T-Score:
+        ln_avg_unit_price_zone: 13.3730157209311
+        ln_non_residential_sqft_zone: 3.898976065312575
+        ln_residential_unit_density_zone: 14.553015330497248
+        mean_income: 2.550544263465935
+        nb_emp: 1.5387727977969763
+        nb_pop: 9.550718429510246
+        percent_hh_with_child: 1.3943401841959906
+        percent_renter_hh_in_zone: -2.3172047728516225
+        percent_younghead: 0.49058528255139233
+
+probability_mode: single_chooser
+
+log_likelihoods:
+    convergence: -5989.375721087085
+    'null': -6640.655408194777
+    ratio: 0.09807460966939985

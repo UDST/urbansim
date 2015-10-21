@@ -209,8 +209,7 @@ def elcm_simulate(cfg, choosers, zones, counties,out_fname):
 
 
 
-def lcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
-                 supply_fname, vacant_fname):
+def lcm_simulate(cfg, choosers, zones, counties, out_fname):
     """
     Simulate the location choices for the specified choosers
     Parameters
@@ -238,59 +237,45 @@ def lcm_simulate(cfg, choosers, buildings, parcels, zones, out_fname,
         units there will be for choosers.
     """
     cfg = misc.config(cfg)
-    yaml_dict = yamlio.yaml_to_dict(str_or_buffer=cfg)
 
-    chooser_cols = [out_fname, 'zone_id', 'county_id']
-    choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname])
-    locations_df = to_frame([buildings, parcels, zones], cfg, additional_columns=[supply_fname, vacant_fname, 'county_id', 'zone_id'])
+
+    #choosers_df = to_frame([choosers, buildings, parcels, zones], cfg, additional_columns=chooser_cols)
+    #TODO add join parameters to orca.merge_tables
+    choosers_df = to_frame([choosers], cfg, additional_columns=[out_fname, 'employees'])
+    locations_df = to_frame([zones, counties], cfg, additional_columns=['county_id'])
     #update choosers_df county_id to match that of transition model
     choosers_df.loc[:, 'county_id'] = orca.get_table('updated_hh').county_id
 
-    available_units = buildings[supply_fname]
-    vacant_units = buildings[vacant_fname]
-
-    print "There are %d total available units" % available_units.sum()
-    print "    and %d total choosers" % len(choosers)
-    print "    but there are %d overfull buildings" % \
-          len(vacant_units[vacant_units < 0])
-
-    vacant_units = vacant_units[vacant_units > 0]
-    units = locations_df.loc[np.repeat(vacant_units.index.values,
-                             vacant_units.values.astype('int'))].reset_index()
-
-    print "    for a total of %d temporarily empty units" % vacant_units.sum()
-    print "    in %d buildings total in the region" % len(vacant_units)
+    print "There are {0} households".format(
+        len(choosers_df)
+    )
 
     movers = choosers_df[choosers_df[out_fname] == -1]
 
-    if len(movers) > vacant_units.sum():
-        print "WARNING: Not enough locations for movers"
-        print "    reducing locations to size of movers for performance gain"
-        movers = movers.head(vacant_units.sum())
-
-    new_units, _ = yaml_to_class(cfg).predict_from_cfg(movers, units, cfg)
+    new_units, _ = yaml_to_class(cfg).predict_from_cfg(movers, locations_df, cfg)
 
     # new_units returns nans when there aren't enough units,
     # get rid of them and they'll stay as -1s
     new_units = new_units.dropna()
 
     # go from units back to buildings
-    new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
-                              index=new_units.index)
+    #new_buildings = pd.Series(units.loc[new_units.values][out_fname].values,
+    #                          index=new_units.index)
 
-    new_bldg_frame = pd.DataFrame(index= new_buildings.index)
-    new_bldg_frame.loc[:, 'building_id'] = new_buildings.values
-    orca.add_table('new_buildings_hh', new_bldg_frame)
+    # new_bldg_frame = pd.DataFrame(index= new_units.groupby(level=0).first().index)
+    # new_bldg_frame.loc[:, 'building_id'] = new_units.groupby(level=0).first().values
+    # orca.add_table('new_buildings_emp', new_bldg_frame)
 
-    print locations_df.county_id.loc[new_buildings].value_counts()
-    choosers.update_col_from_series(out_fname, new_buildings)
+    print locations_df.county_id.loc[new_units].value_counts()
+    choosers.update_col_from_series(out_fname, new_units.groupby(level=0).first())
     _print_number_unplaced(choosers, out_fname)
 
-    vacant_units = buildings[vacant_fname]
-    vacant_units = vacant_units[vacant_units > 0]
-    print "    and there are now %d empty units" % vacant_units.sum()
-    vacant_units = buildings[vacant_fname]
-    print "    and %d overfull buildings" % len(vacant_units[vacant_units < 0])
+    # vacant_units = buildings[vacant_fname]
+    # vacant_units = vacant_units[vacant_units > 0]
+    # print "    and there are now %d empty units" % vacant_units.sum()
+    # vacant_units = buildings[vacant_fname]
+    # print "    and %d overfull buildings" % len(vacant_units[vacant_units < 0])
+
 
 
 def simple_relocation(choosers, relocation_rate, fieldname):

@@ -15,10 +15,9 @@ def year(iter_var):
 
 
 @orca.step('hlcm_simulate')
-def hlcm_simulate(households, buildings, parcels, zones):
-    return utils_drcog.lcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/hlcm_yaml.yaml',
-                                    households, buildings, parcels, zones, 'building_id', 'residential_units',
-                                    'vacant_residential_units')
+def hlcm_simulate(households, zones, counties):
+    return utils_drcog.lcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_hlcm_yaml.yaml',
+                                    households, zones, counties, 'zone_id')
 
 @orca.step('elcm_simulate')
 def elcm_simulate(establishments, zones, counties):

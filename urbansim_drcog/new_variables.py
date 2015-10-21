@@ -291,11 +291,11 @@ def income10xlt(households_for_estimation):
 def wkrs_hhs(households_for_estimation):
     return households_for_estimation.workers*1.0/households_for_estimation.persons
 
-@orca.column('households_for_estimation', 'btype')
-def btype(households_for_estimation, buildings):
-    df = orca.merge_tables('households_for_estimation', tables=['households_for_estimation','buildings'], columns=['building_type_id'])
-    return 1*(df.building_type_id==2) + 2*(df.building_type_id==3) + 3*(df.building_type_id==20) + 4*np.invert(np.in1d(df.building_type_id,[2,3,20]))
-
+# @orca.column('households_for_estimation', 'btype')
+# def btype(households_for_estimation, buildings):
+#     df = orca.merge_tables('households_for_estimation', tables=['households_for_estimation','buildings'], columns=['building_type_id'])
+#     return 1*(df.building_type_id==2) + 2*(df.building_type_id==3) + 3*(df.building_type_id==20) + 4*np.invert(np.in1d(df.building_type_id,[2,3,20]))
+#
 
 
 #####################
@@ -576,7 +576,7 @@ def ln_jobs_within_15min(zones):
 @orca.column('zones', 'ln_emp_sector1_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector1_within_15min(t_data_dist15):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 1]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist15.to_frame()
@@ -587,7 +587,7 @@ def ln_emp_sector1_within_15min(t_data_dist15):
 @orca.column('zones', 'ln_emp_sector2_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector2_within_15min(t_data_dist15):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 2]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist15.to_frame()
@@ -598,7 +598,7 @@ def ln_emp_sector2_within_15min(t_data_dist15):
 @orca.column('zones', 'ln_emp_sector3_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector4_within_15min(t_data_dist15):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 3]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist15.to_frame()
@@ -609,7 +609,7 @@ def ln_emp_sector4_within_15min(t_data_dist15):
 @orca.column('zones', 'ln_emp_sector4_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector4_within_15min(t_data_dist15):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 4]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist15.to_frame()
@@ -620,7 +620,7 @@ def ln_emp_sector4_within_15min(t_data_dist15):
 @orca.column('zones', 'ln_emp_sector5_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector5_within_15min(t_data_dist15):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 5]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist15.to_frame()
@@ -631,7 +631,7 @@ def ln_emp_sector5_within_15min(t_data_dist15):
 @orca.column('zones', 'ln_emp_sector6_within_15min', cache=True, cache_scope='iteration')
 def ln_emp_sector6_within_15min(t_data_dist15):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 6]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist15.to_frame()
@@ -642,7 +642,7 @@ def ln_emp_sector6_within_15min(t_data_dist15):
 @orca.column('zones', 'ln_emp_sector3_within_20min', cache=True, cache_scope='iteration')
 def ln_emp_sector3_within_20min(t_data_dist20):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 3]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist20.to_frame()
@@ -653,7 +653,7 @@ def ln_emp_sector3_within_20min(t_data_dist20):
 @orca.column('zones', 'ln_emp_sector5_within_20min', cache=True, cache_scope='iteration')
 def ln_emp_sector5_within_20min(t_data_dist20):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id'])
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','zone_id','employees'])
+    e =orca.get_table('establishments').to_frame(columns=['sector_id_six','zone_id','employees'])
     e = e.loc[e.sector_id_six == 5]
     zonal_emp = e.groupby('zone_id').employees.sum()
     t_data=t_data_dist20.to_frame()

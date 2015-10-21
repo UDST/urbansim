@@ -23,7 +23,7 @@ np.random.seed(1)
 
 # orca.run(['calibrate', 'alter_multiplier'], iter_vars=np.linspace(0,1, num=11).tolist())
 
-orca.run(['hh_transition','hh_relocation'], iter_vars=[2015])
+orca.run(['hh_transition','hh_relocation', 'hlcm_simulate'], iter_vars=[2015])
 
 
 # orca.run([
