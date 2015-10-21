@@ -27,12 +27,10 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     alts_copy = alternatives
     #change probabilities with multipliers
     probs = pd.DataFrame(index=probabilities.index)
-    probs["probabilities"] = probabilities.values
-    probs["zone_id"] = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id']).zone_id.loc[probabilities.index.values]
-    multipliers = orca.get_table('multipliers').to_frame(columns=['emp_multiplier','hh_multiplier'])
-    merged_probs = pd.merge(probs, multipliers, left_on='zone_id', right_index=True, how='left')
-    merged_probs.emp_multiplier.fillna(1, inplace=True)
-    merged_probs.hh_multiplier.fillna(1, inplace=True)
+    probs.loc[:,"probabilities"] = probabilities.values
+
+    refiner_targets = orca.get_table('refiner_targets').to_frame()
+
 
     if probabilities.sum() == 0:
     # return all nan if there are no available units
@@ -40,47 +38,23 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
 
     out_list =[]
     if(isEMP):
-        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
+        probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_emp_shift'] * 5) / choosers.employees.sum()
+        probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs.max(axis=1), out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)
     else:
-        mapfunc = partial(choose_hh, alts_copy=alts_copy, probabilities=probabilities, out_list=out_list)
+        probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_hh_shift'] * 5) / len(choosers)
+        probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs.max(axis=1), out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)
 
     return choice_frame
 
-def choose_hh(series, alts_copy, probabilities, out_list):
-    alts = alts_copy.loc[(alts_copy.vacant_residential_units > 0)&(alts_copy.county_id == int(series[0]))]
-    probs = probabilities.loc[alts.index].values
 
-    chooser_ids = series[1].index.values
-    out_series = pd.Series(index=chooser_ids)
-
-    # need to see if there are as many available alternatives as choosers
-    n_available = len(alts.index)
-    if(n_available > 0):
-
-        n_choosers = len(series[1])
-        n_to_choose = n_choosers if n_choosers < n_available else n_available
-
-        chosen = np.random.choice(alts.index, n_to_choose, replace=False, p=probs/probs.sum())
-
-        # if there are fewer available units than choosers we need to pick
-        # which choosers get a unit
-        if n_to_choose == n_available:
-            chooser_ids = np.random.choice(
-                series[1].index, size=n_to_choose, replace=False)
-
-        out_series[chooser_ids] = chosen
-        out_list.append(out_series)
-        alts_copy.vacant_residential_units.loc[chosen] -= 1
-
-    else:
-        print("no viable alternates for group %d" %series[0])
-        out_list.append(pd.Series())
 
 def choose(series, alts_copy, probabilities, out_list):
     alts = alts_copy.loc[(alts_copy.county_id == int(series[0]))]
@@ -726,7 +700,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             self.sim_pdf = probabilities
 
         if self.choice_mode == 'aggregate':
-            if(self.name > 10):
+            if(self.name == 'Zonal ELCM Model'):
                 choices = new_unit_choice(choosers, alternatives, probabilities.loc[probabilities.index.values[0][0]], True)
             else:
                 choices = new_unit_choice(choosers, alternatives, probabilities.loc[probabilities.index.values[0][0]], False)
