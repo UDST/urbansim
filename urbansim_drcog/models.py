@@ -22,9 +22,8 @@ def hlcm_simulate(households, buildings, parcels, zones):
 
 @orca.step('elcm_simulate')
 def elcm_simulate(establishments, buildings, parcels, zones):
-    return utils_drcog.elcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml',
-                                    establishments, buildings, parcels, zones, 'building_id', 'non_residential_units',
-                                    'vacant_job_spaces')
+    return utils_drcog.elcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_elcm_yaml.yaml',
+                                    establishments, zones, 'zone_id')
 
 @orca.step('hh_relocation')
 def hh_relocation(households, household_relocation_rates):
@@ -32,7 +31,7 @@ def hh_relocation(households, household_relocation_rates):
 
 @orca.step('emp_relocation')
 def emp_relocation(establishments, job_relocation_rates):
-    return utils_drcog.emp_relocation_model(establishments, job_relocation_rates, 'building_id')
+    return utils_drcog.emp_relocation_model(establishments, job_relocation_rates, 'zone_id')
 
 @orca.step('hh_transition')
 def hh_transition(households, household_control_totals, year):
@@ -44,7 +43,7 @@ def hh_transition(households, household_control_totals, year):
 @orca.step('emp_transition')
 def emp_transition(employment_control_totals, year):
     if(year <= 2040):
-        return utils_drcog.emp_transition(employment_control_totals, 'building_id', year)
+        return utils_drcog.emp_transition(employment_control_totals, 'zone_id', year)
     else:
         return
 

@@ -25,34 +25,34 @@ model_expression: ln_avg_nonres_unit_price_zone +nb_pop + nb_emp + ln_residentia
 
 fitted: true
 
-choice_mode: individual
+choice_mode: aggregate
 
 fit_parameters:
     Coefficient:
-        ln_avg_nonres_unit_price_zone: -0.021485405779408218
-        ln_non_residential_sqft_zone: 0.12988894617475633
-        ln_residential_unit_density_zone: 0.22816033323570037
-        nb_emp: 5.692664633271416e-05
-        nb_pop: 2.8247740772075044e-05
-        percent_sf: 0.0031149526549549686
+        ln_avg_nonres_unit_price_zone: -0.021264740330130243
+        ln_non_residential_sqft_zone: 0.1297074752431142
+        ln_residential_unit_density_zone: 0.22819959637090884
+        nb_emp: 5.700194871214045e-05
+        nb_pop: 2.824042583036923e-05
+        percent_sf: 0.0030917307042542955
     Std. Error:
-        ln_avg_nonres_unit_price_zone: 0.0019020076039747622
-        ln_non_residential_sqft_zone: 0.0008189444694933799
-        ln_residential_unit_density_zone: 0.0028932473217135775
-        nb_emp: 6.582305293389502e-07
-        nb_pop: 4.443775983338022e-07
-        percent_sf: 5.9381627198450036e-05
+        ln_avg_nonres_unit_price_zone: 0.0019020462169712373
+        ln_non_residential_sqft_zone: 0.0008189598811068646
+        ln_residential_unit_density_zone: 0.002893263967048941
+        nb_emp: 6.582625869532649e-07
+        nb_pop: 4.4436801038354587e-07
+        percent_sf: 5.9381511672383926e-05
     T-Score:
-        ln_avg_nonres_unit_price_zone: -11.29617238885303
-        ln_non_residential_sqft_zone: 158.60531576104174
-        ln_residential_unit_density_zone: 78.8596023310473
-        nb_emp: 86.48436041075857
-        nb_pop: 63.56697744888626
-        percent_sf: 52.45650552055391
+        ln_avg_nonres_unit_price_zone: -11.17992830058125
+        ln_non_residential_sqft_zone: 158.38074396001934
+        ln_residential_unit_density_zone: 78.87271917455458
+        nb_emp: 86.59454424710826
+        nb_pop: 63.55188755822942
+        percent_sf: 52.06554392403825
 
-probability_mode: full_product
+probability_mode: single_chooser
 
 log_likelihoods:
-    convergence: -888673.3782202307
+    convergence: -888665.0995937773
     'null': -922604.4002335244
-    ratio: 0.03677743353999319
+    ratio: 0.03678640664531463

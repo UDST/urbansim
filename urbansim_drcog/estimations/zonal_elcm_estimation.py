@@ -23,11 +23,11 @@ rhs = "ln_avg_nonres_unit_price_zone +nb_pop + nb_emp + ln_residential_unit_dens
 
 sample_size = 100
 
-probability_mode = "full_product"
+probability_mode = "single_chooser"
 
-choice_mode = "individual"
+choice_mode = "aggregate"
 
-elcm = MNLDiscreteChoiceModel(rhs, sample_size=sample_size, probability_mode='full_product', choice_mode='individual',
+elcm = MNLDiscreteChoiceModel(rhs, sample_size=sample_size, probability_mode=probability_mode, choice_mode=choice_mode,
                               choice_column='zone_id', name='Zonal ELCM Model')
 
 results = elcm.fit(choosers, alts, current_choice='zone_id')
