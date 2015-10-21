@@ -21,9 +21,9 @@ def hlcm_simulate(households, buildings, parcels, zones):
                                     'vacant_residential_units')
 
 @orca.step('elcm_simulate')
-def elcm_simulate(establishments, buildings, parcels, zones):
+def elcm_simulate(establishments, zones, counties):
     return utils_drcog.elcm_simulate('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_elcm_yaml.yaml',
-                                    establishments, zones, 'zone_id')
+                                    establishments, zones, counties, 'zone_id')
 
 @orca.step('hh_relocation')
 def hh_relocation(households, household_relocation_rates):

@@ -45,8 +45,8 @@ def sqft_per_job():
 def households_for_estimation(store):
     return store['households_for_estimation']
 
-@orca.table('zone_to_county', cache=True)
-def zone_to_county():
+@orca.table('counties', cache=True)
+def counties():
     return pd.read_csv('C:/urbansim/data/TAZ_County_Table.csv').set_index('zone_id')
 
 @orca.table('household_relocation_rates')
@@ -132,4 +132,4 @@ orca.broadcast('buildings','households', cast_index=True, onto_on='building_id')
 orca.broadcast('buildings', 'establishments', cast_index=True, onto_on ='building_id')
 orca.broadcast('zoning', 'parcels', cast_index=True, onto_on='zoning_id')
 orca.broadcast('fars', 'parcels', cast_index=True, onto_on='far_id')
-orca.broadcast('zones','counties', cast_index=True, onto_on='zone_id')
+orca.broadcast('counties','zones', cast_index=True, onto_index=True)

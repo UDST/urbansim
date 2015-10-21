@@ -95,19 +95,16 @@ def choose(series, alts_copy, probabilities, out_list):
     if(n_available > 0):
 
         n_choosers = len(series[1])
-        n_to_choose = n_choosers if n_choosers < n_available else n_available
 
-        chosen = np.random.choice(alts.index, n_to_choose, replace=False, p=probs/probs.sum())
+
+        chosen = np.random.choice(alts.index, n_choosers, p=probs/probs.sum())
 
         # if there are fewer available units than choosers we need to pick
         # which choosers get a unit
-        if n_to_choose == n_available:
-            chooser_ids = np.random.choice(
-                series[1].index, size=n_to_choose, replace=False)
 
         out_series[chooser_ids] = chosen
         out_list.append(out_series)
-        alts_copy.vacant_job_spaces.loc[chosen] -= 1
+        #alts_copy.vacant_job_spaces.loc[chosen] -= 1
 
     else:
         print("no viable alternates for group ('{0}')".format(series[0]))
