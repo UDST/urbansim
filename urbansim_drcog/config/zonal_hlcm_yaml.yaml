@@ -1,33 +1,47 @@
-name: Zonal ELCM Model
-
+name: Zonal HLCM Model
+
+
 model_type: discretechoice
-
+
+
 choosers_fit_filters: null
-
+
+
 choosers_predict_filters: null
-
+
+
 alts_fit_filters: null
-
+
+
 alts_predict_filters: null
-
+
+
 interaction_predict_filters: null
-
+
+
 choice_column: zone_id
-
+
+
 sample_size: 100
-
+
+
 estimation_sample_size: null
-
+
+
 prediction_sample_size: null
-
+
+
 model_expression: ln_avg_unit_price_zone +nb_pop + nb_emp + ln_residential_unit_density_zone
     + ln_non_residential_sqft_zone +mean_income + percent_hh_with_child + percent_renter_hh_in_zone
     + percent_younghead
-
+
+
 fitted: true
-
+
+
 choice_mode: aggregate
-
+
+
 fit_parameters:
     Coefficient:
         ln_avg_unit_price_zone: 0.30482267834702054
@@ -59,9 +73,11 @@ fit_parameters:
         percent_hh_with_child: 1.3943401841959906
         percent_renter_hh_in_zone: -2.3172047728516225
         percent_younghead: 0.49058528255139233
-
+
+
 probability_mode: single_chooser
-
+
+
 log_likelihoods:
     convergence: -5989.375721087085
     'null': -6640.655408194777

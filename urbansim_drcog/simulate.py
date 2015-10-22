@@ -21,9 +21,8 @@ orca.run([
           'indicator_export'
           ], iter_vars=[2015])
 
-# orca.run(['calibrate', 'alter_multiplier'], iter_vars=np.linspace(0,1, num=11).tolist())
 
-# orca.run(['emp_transition','emp_relocation','elcm_simulate', 'indicator_export'], iter_vars=[2015])
+#orca.run(['emp_transition','emp_relocation','elcm_simulate', 'indicator_export'], iter_vars=[2015])
 
 
 # orca.run([
