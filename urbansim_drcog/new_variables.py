@@ -393,6 +393,11 @@ def ln_residential_unit_density_zone(zones):
     df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units'])
     return (df.groupby('zone_id').residential_units.sum()/zones.acreage).apply(np.log1p)
 
+@orca.column('zones', 'residential_unit_density_zone', cache=True, cache_scope='iteration')
+def residential_unit_density_zone(zones):
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units'])
+    return (df.groupby('zone_id').residential_units.sum()/zones.acreage)
+
 
 @orca.column('zones', 'non_residential_sqft_zone', cache=True, cache_scope='iteration')
 def non_residential_sqft_zone():

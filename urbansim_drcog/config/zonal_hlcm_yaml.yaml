@@ -31,9 +31,9 @@ estimation_sample_size: null
 prediction_sample_size: null
 
 
-model_expression: ln_avg_unit_price_zone +nb_pop + nb_emp + ln_residential_unit_density_zone
-    + ln_non_residential_sqft_zone +mean_income + percent_hh_with_child + percent_renter_hh_in_zone
-    + percent_younghead
+model_expression: ln_avg_unit_price_zone +nb_pop + residential_unit_density_zone +
+    ln_non_residential_sqft_zone +mean_income + percent_hh_with_child + parks_3mi
+    + golf_courses_3mi +schools_3mi + fast_food_3mi + cafes_3mi
 
 
 fitted: true
@@ -44,41 +44,47 @@ choice_mode: aggregate
 
 fit_parameters:
     Coefficient:
-        ln_avg_unit_price_zone: 0.30482267834702054
-        ln_non_residential_sqft_zone: 0.0350578316215959
-        ln_residential_unit_density_zone: 0.8192810745927619
-        mean_income: 3.16959122135621e-06
-        nb_emp: 1.5314082867334725e-05
-        nb_pop: 5.328061756133116e-05
-        percent_hh_with_child: 0.002897961072124504
-        percent_renter_hh_in_zone: -0.005599004083442321
-        percent_younghead: 0.0027762042947852314
+        cafes_3mi: 0.00450617657029123
+        fast_food_3mi: 0.013296631865993284
+        golf_courses_3mi: 0.021948338425080396
+        ln_avg_unit_price_zone: 0.32530110956591496
+        ln_non_residential_sqft_zone: 0.03094321702969055
+        mean_income: 1.1466523730941074e-06
+        nb_pop: 7.004864012092289e-05
+        parks_3mi: -0.0009243042683239007
+        percent_hh_with_child: -0.0023949814677332306
+        residential_unit_density_zone: 0.013779648300142411
+        schools_3mi: -0.005031249607898527
     Std. Error:
-        ln_avg_unit_price_zone: 0.022793862260246947
-        ln_non_residential_sqft_zone: 0.008991548302511922
-        ln_residential_unit_density_zone: 0.056296310832290496
-        mean_income: 1.2427117093231903e-06
-        nb_emp: 9.952140360980858e-06
-        nb_pop: 5.578702581860468e-06
-        percent_hh_with_child: 0.002078374492086762
-        percent_renter_hh_in_zone: 0.002416275052183678
-        percent_younghead: 0.005658963677725909
+        cafes_3mi: 0.0029180057542335103
+        fast_food_3mi: 0.0034896809140570187
+        golf_courses_3mi: 0.009790650373263512
+        ln_avg_unit_price_zone: 0.017299689330360617
+        ln_non_residential_sqft_zone: 0.008830115602610045
+        mean_income: 1.0878360288500342e-06
+        nb_pop: 5.703934487461011e-06
+        parks_3mi: 0.0011466715690777274
+        percent_hh_with_child: 0.0021601811786936213
+        residential_unit_density_zone: 0.0037782696548661486
+        schools_3mi: 0.0031814728656888998
     T-Score:
-        ln_avg_unit_price_zone: 13.3730157209311
-        ln_non_residential_sqft_zone: 3.898976065312575
-        ln_residential_unit_density_zone: 14.553015330497248
-        mean_income: 2.550544263465935
-        nb_emp: 1.5387727977969763
-        nb_pop: 9.550718429510246
-        percent_hh_with_child: 1.3943401841959906
-        percent_renter_hh_in_zone: -2.3172047728516225
-        percent_younghead: 0.49058528255139233
+        cafes_3mi: 1.5442658273560854
+        fast_food_3mi: 3.810271538704936
+        golf_courses_3mi: 2.2417651114391055
+        ln_avg_unit_price_zone: 18.803870020660884
+        ln_non_residential_sqft_zone: 3.5042822112707355
+        mean_income: 1.0540672883451458
+        nb_pop: 12.280758181025954
+        parks_3mi: -0.8060758575075881
+        percent_hh_with_child: -1.1086947203111943
+        residential_unit_density_zone: 3.6470791020421696
+        schools_3mi: -1.5814215051647427
 
 
 probability_mode: single_chooser
 
 
 log_likelihoods:
-    convergence: -5989.375721087085
+    convergence: -6128.23600903166
     'null': -6640.655408194777
-    ratio: 0.09807460966939985
+    ratio: 0.0771639797076017

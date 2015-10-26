@@ -28,7 +28,10 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     #change probabilities with multipliers
     probs = pd.DataFrame(index=probabilities.index)
     probs.loc[:,"probabilities"] = probabilities.values
-
+    emp_multiplier = orca.get_table("emp_multipliers").to_frame()
+    hh_multiplier = orca.get_table("hh_multipliers").to_frame()
+    probs.loc[:, "multiplier"] = hh_multiplier["multiplier"]
+    probs.loc[:, "multiplier"] = emp_multiplier["multiplier"]
     refiner_targets = orca.get_table('refiner_targets').to_frame()
 
 
@@ -38,16 +41,30 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
 
     out_list =[]
     if(isEMP):
-        probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_emp_shift'] * 5) / choosers.employees.sum()
-        probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
-        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs.max(axis=1), out_list=out_list)
+        #the probs code is used to generate multipliers based on the zone_reinfer_demand.csv file.
+        #These are saved to a csv file where qualitative manual adjustments can be made.
+        # probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_emp_shift'] * 5) / choosers.employees.sum()
+        # probs.loc[:, "max_probs"] = probs.max(axis=1)
+        # probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
+        # probs.loc[:, "diff"] = probs.max_probs - probs.probabilities
+        # probs.loc[:, "multiplier"] = (probs["diff"] / probs["probabilities"]) + 1
+        probs.loc[:, "multiplier"] = emp_multiplier["multiplier"]
+        # probs.to_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/emp_multipliers.csv')
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs["multiplier"] * probs["probabilities"], out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)
     else:
-        probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_hh_shift'] * 5) / len(choosers)
-        probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
-        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs.max(axis=1), out_list=out_list)
+        #the probs code is used to generate multipliers based on the zone_reinfer_demand.csv file.
+        #These are saved to a csv file where qualitative manual adjustments can be made.
+        # probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_hh_shift'] *5) / len(choosers)
+        # probs.loc[:, "max_probs"] = probs.max(axis=1)
+        # probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
+        # probs.loc[:, "diff"] = probs.max_probs - probs.probabilities
+        #probs.loc[:, "multiplier"] = (probs["diff"] / probs["probabilities"]) + 1
+        probs.loc[:, "multiplier"] = hh_multiplier["multiplier"]
+        #probs.to_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/hh_multipliers.csv')
+        mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs["multiplier"] * probs["probabilities"], out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
         choice_frame = pd.concat(out_list)

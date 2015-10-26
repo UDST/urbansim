@@ -100,7 +100,13 @@ def refiner_targets():
     return pd.read_csv('c:/urbansim/data/zone_demand_refine.csv', index_col=0)
 
 
+@orca.table("emp_multipliers")
+def multipliers():
+    return pd.read_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/emp_multipliers.csv', index_col=0)
 
+@orca.table("hh_multipliers")
+def multipliers():
+    return pd.read_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/hh_multipliers.csv', index_col=0)
 #Travel data Table (to be computed before all simulations)
 
 @orca.table('t_data_dist20', cache=True)

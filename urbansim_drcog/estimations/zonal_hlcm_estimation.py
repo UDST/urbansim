@@ -10,13 +10,17 @@ print "Loading alts"
 alts = orca.get_table('zones').to_frame(columns=[
     'ln_avg_unit_price_zone',
     'nb_pop',
-    'nb_emp',
-    'ln_residential_unit_density_zone',
+    'residential_unit_density_zone',
     'ln_non_residential_sqft_zone',
     'mean_income',
     'percent_hh_with_child',
     'percent_renter_hh_in_zone',
-    'percent_younghead'
+    'percent_younghead',
+    'parks_3mi',
+    'golf_courses_3mi',
+    'schools_3mi',
+    'fast_food_3mi',
+    'cafes_3mi'
 ])
 alts = alts.fillna(0)
 
@@ -24,8 +28,9 @@ alts = alts.fillna(0)
 print "Loading choosers"
 choosers = orca.get_table('households_for_estimation').to_frame()
 
-rhs = "ln_avg_unit_price_zone +nb_pop + nb_emp + ln_residential_unit_density_zone + ln_non_residential_sqft_zone +" \
-      "mean_income + percent_hh_with_child + percent_renter_hh_in_zone + percent_younghead"
+rhs = "ln_avg_unit_price_zone +nb_pop + residential_unit_density_zone + ln_non_residential_sqft_zone +" \
+      "mean_income + percent_hh_with_child + parks_3mi + golf_courses_3mi +" \
+      "schools_3mi + fast_food_3mi + cafes_3mi"
 
 sample_size = 100
 

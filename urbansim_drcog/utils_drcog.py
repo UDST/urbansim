@@ -642,7 +642,8 @@ def export_indicators(zones, year):
     #orca.add_table('zone_summary', zone_summary, cache=False)
     #orca.add_table('county_summary', county_summary, cache=False)
 
-    zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
-    county_summary.to_sql('county_summary_new', engine, if_exists='append')
-    
+    #zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
+    #county_summary.to_sql('county_summary_new', engine, if_exists='append')
+
+    zone_summary.to_csv('c:/users/jmartinez/documents/test_2015.csv')
 
