@@ -302,6 +302,7 @@ def relocation_model(choosers, control_table, field_name):
 
     print "%d agents relocating" % len(movers)
     choosers.update_col_from_series(field_name, pd.Series(-1, index=movers))
+    choosers.update_col_from_series('building_id', pd.Series(-1, index=movers))
 
 
 
@@ -316,6 +317,7 @@ def emp_relocation_model(choosers, control_table, field_name):
 
     print "%d agents relocating" % len(movers)
     choosers.update_col_from_series(field_name, pd.Series(-1, index=movers))
+    choosers.update_col_from_series('building_id', pd.Series(-1, index=movers))
 
 def simple_transition(tbl, rate, location_fname):
     transition = GrowthRateTransition(rate)
@@ -344,6 +346,7 @@ def hh_transition(households, tbl, location_fname, year):
     print "%d households after transition" % len(df.index)
 
     df.loc[added, location_fname] = -1
+    df.loc[added, 'building_id'] = -1
     orca.add_table('households', df.loc[:, orca.get_table('households').local_columns])
     orca.add_table('updated_hh', df, cache=True, cache_scope='iteration')
 
@@ -361,6 +364,7 @@ def emp_transition(tbl, location_fname, year):
     print "%d establishments with %d employees after transition" % (len(df.index), df.employees.sum())
 
     df.loc[added, location_fname] = -1
+    df.loc[added, "building_id"] = -1
     orca.add_table('establishments', df.loc[:, orca.get_table('establishments').local_columns])
     orca.add_table('updated_emp', df, cache=True, cache_scope='iteration')
 
