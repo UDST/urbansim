@@ -5,7 +5,7 @@ import numpy as np
 
 
 orca.add_injectable("store",pd.HDFStore('C:/Users/jmartinez/Documents/Projects/UrbanSim/data/drcog.h5', mode='r'))
-
+#orca.add_injectable("store",pd.HDFStore('C:/urbansim/data/drcog.h5', mode='r'))
 #register tables
 @orca.table('buildings', cache=True)
 def buildings(store):

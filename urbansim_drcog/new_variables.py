@@ -360,64 +360,64 @@ def sector_id_retail_agg(establishments):
 
 @orca.column('zones', 'zonal_hh', cache=True, cache_scope='iteration')
 def zonal_hh():
-    df = orca.merge_tables('households', tables=['households','buildings', 'parcels'], columns=['building_type_id'])
+    df = orca.get_table('households').to_frame(columns=['building_type_id','zone_id'])
     return df.groupby('zone_id').size()
 
 @orca.column('zones', 'zonal_emp', cache=True, cache_scope='iteration')
 def zonal_emp():
-    df = orca.merge_tables('establishments', tables=['establishments','buildings', 'parcels'], columns=['employees'])
+    df = orca.get_table('establishments').to_frame(columns=['employees','zone_id'])
     return df.groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'residential_sqft_zone', cache=True, cache_scope='iteration')
 def residential_sqft_zone():
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_sqft'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_sqft','zone_id'])
     return df.groupby('zone_id').residential_sqft.sum()
 
 @orca.column('zones', 'zonal_pop', cache=True, cache_scope='iteration')
 def zonal_pop():
-    df = orca.merge_tables('households', tables=['households','buildings', 'parcels'], columns=['persons'])
+    df = orca.get_table('households').to_frame(columns=['persons','zone_id'])
     return df.groupby('zone_id').persons.sum()
 
 @orca.column('zones', 'residential_units_zone', cache=True, cache_scope='iteration')
 def residential_units_zone():
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','zone_id'])
     return df.groupby('zone_id').residential_units.sum()
 
 @orca.column('zones', 'ln_residential_units_zone', cache=True, cache_scope='iteration')
 def residential_units_zone():
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','zone_id'])
     return df.groupby('zone_id').residential_units.sum().apply(np.log1p)
 
 @orca.column('zones', 'ln_residential_unit_density_zone', cache=True, cache_scope='iteration')
 def ln_residential_unit_density_zone(zones):
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','zone_id'])
     return (df.groupby('zone_id').residential_units.sum()/zones.acreage).apply(np.log1p)
 
 @orca.column('zones', 'residential_unit_density_zone', cache=True, cache_scope='iteration')
 def residential_unit_density_zone(zones):
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','zone_id'])
     return (df.groupby('zone_id').residential_units.sum()/zones.acreage)
 
 
 @orca.column('zones', 'non_residential_sqft_zone', cache=True, cache_scope='iteration')
 def non_residential_sqft_zone():
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft','zone_id'])
     return df.groupby('zone_id').non_residential_sqft.sum()
 
 @orca.column('zones', 'ln_non_residential_sqft_zone', cache=True, cache_scope='iteration')
 def ln_non_residential_sqft_zone():
-    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft'])
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft','zone_id'])
     return df.groupby('zone_id').non_residential_sqft.sum().apply(np.log1p)
 
 @orca.column('zones', 'percent_sf', cache=True, cache_scope='iteration')
 def ln_non_residential_sqft_zone():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['btype_hlcm','residential_units'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['btype_hlcm','residential_units','zone_id'])
     return b[b.btype_hlcm==3].groupby('zone_id').residential_units.sum()*100.0/(b.groupby('zone_id').residential_units.sum())
 
 
 @orca.column('zones', 'avg_unit_price_zone', cache=True, cache_scope='iteration')
 def avg_unit_price_zone():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','improvement_value','unit_price_residential'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','improvement_value','unit_price_residential','zone_id'])
     return  b[(b.residential_units>0)*(b.improvement_value>0)].groupby('zone_id').unit_price_residential.mean()
 
 
@@ -428,7 +428,7 @@ def avg_unit_price_zone(zones):
 
 @orca.column('zones', 'avg_nonres_unit_price_zone', cache=True, cache_scope='iteration')
 def avg_unit_price_zone():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft','improvement_value','unit_price_non_residential'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft','improvement_value','unit_price_non_residential','zone_id'])
 
     return  b[(b.non_residential_sqft>0)*(b.improvement_value>0)].groupby('zone_id').unit_price_non_residential.mean()
 
@@ -439,17 +439,17 @@ def avg_unit_price_zone(zones):
 
 @orca.column('zones', 'median_age_of_head', cache=True, cache_scope='iteration')
 def median_age_of_head():
-    hh = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=['age_of_head'])
+    hh = orca.get_table('households').to_frame(columns=['age_of_head','zone_id'])
     return hh.groupby('zone_id').age_of_head.median()
 
 @orca.column('zones', 'mean_income', cache=True, cache_scope='iteration')
 def mean_income():
-    hh = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=['income'])
+    hh = orca.get_table('households').to_frame(columns=['income','zone_id'])
     return hh.groupby('zone_id').income.mean()
 
 @orca.column('zones', 'median_year_built', cache=True, cache_scope='iteration')
 def median_year_built():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['year_built'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['year_built','zone_id'])
     return b.groupby('zone_id').year_built.median().astype('int32')
 
 @orca.column('zones', 'ln_avg_land_value_per_sqft_zone', cache=True, cache_scope='iteration')
@@ -460,74 +460,74 @@ def ln_avg_land_value_per_sqft_zone(parcels):
 
 @orca.column('zones', 'median_yearbuilt_post_1990', cache=True, cache_scope='iteration')
 def median_yearbuilt_post_1990():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['year_built'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['year_built','zone_id'])
     return (b.groupby('zone_id').year_built.median()>1990).astype('int32')
 
 @orca.column('zones', 'median_yearbuilt_pre_1950', cache=True, cache_scope='iteration')
 def median_yearbuilt_pre_1950():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['year_built'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['year_built','zone_id'])
     return (b.groupby('zone_id').year_built.median()<1950).astype('int32')
 
 @orca.column('zones', 'percent_hh_with_child', cache=True, cache_scope='iteration')
 def percent_hh_with_child(zones):
-    hh = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=['children'])
+    hh = orca.get_table('households').to_frame(columns=['children','zone_id'])
     return hh[hh.children>0].groupby('zone_id').size()*100.0/zones.zonal_hh
 
 @orca.column('zones', 'percent_renter_hh_in_zone', cache=True, cache_scope='iteration')
 def percent_renter_hh_in_zone(zones):
-    hh = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=['tenure'])
+    hh = orca.get_table('households').to_frame(columns=['tenure','zone_id'])
     return hh[hh.tenure==2].groupby('zone_id').size()*100.0/zones.zonal_hh
 
 @orca.column('zones', 'percent_younghead', cache=True, cache_scope='iteration')
 def percent_younghead(zones):
-    hh = orca.merge_tables('households', tables=['households','buildings','parcels'], columns=['age_of_head'])
+    hh = orca.get_table('households').to_frame(['age_of_head','zone_id'])
     return hh[hh.age_of_head<30].groupby('zone_id').size()*100.0/zones.zonal_hh
 
 @orca.column('zones', 'average_resunit_size', cache=True, cache_scope='iteration')
 def average_resunit_size():
-    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['sqft_per_unit'])
+    b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['sqft_per_unit','zone_id'])
     return  b.groupby('zone_id').sqft_per_unit.mean()
 
 
 
 @orca.column('zones', 'emp_sector_agg', cache=True, cache_scope='iteration')
 def emp_sector_agg():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id','employees'])
+    e = orca.get_tables('establishments').to_frame(columns=['sector_id','employees','zone_id'])
     return  e[e.sector_id==1].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector1', cache=True, cache_scope='iteration')
 def emp_sector1():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==1].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector2', cache=True, cache_scope='iteration')
 def emp_sector2():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==2].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector3', cache=True, cache_scope='iteration')
 def emp_sector3():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==3].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector4', cache=True, cache_scope='iteration')
 def emp_sector4():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==4].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector5', cache=True, cache_scope='iteration')
 def emp_sector5():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==5].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector6', cache=True, cache_scope='iteration')
 def emp_sector6():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==6].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector6', cache=True, cache_scope='iteration')
 def emp_sector6():
-    e = orca.merge_tables('establishments', tables=['establishments','buildings','parcels'], columns=['sector_id_six','employees'])
+    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==6].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'jobs_within_45min', cache=True, cache_scope='iteration')

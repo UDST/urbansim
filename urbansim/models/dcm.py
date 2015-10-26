@@ -43,13 +43,13 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     if(isEMP):
         #the probs code is used to generate multipliers based on the zone_reinfer_demand.csv file.
         #These are saved to a csv file where qualitative manual adjustments can be made.
-        # probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_emp_shift'] * 5) / choosers.employees.sum()
-        # probs.loc[:, "max_probs"] = probs.max(axis=1)
-        # probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
-        # probs.loc[:, "diff"] = probs.max_probs - probs.probabilities
-        # probs.loc[:, "multiplier"] = (probs["diff"] / probs["probabilities"]) + 1
+        #probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_emp_shift'] * 30) / choosers.employees.sum()
+        #probs.loc[:, "max_probs"] = probs.max(axis=1)
+        #probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
+        #probs.loc[:, "diff"] = probs.max_probs - probs.probabilities
+        #probs.loc[:, "multiplier"] = (probs["diff"] / probs["probabilities"]) + 1
         probs.loc[:, "multiplier"] = emp_multiplier["multiplier"]
-        # probs.to_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/emp_multipliers.csv')
+        #probs.to_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/emp_multipliers.csv')
         mapfunc = partial(choose, alts_copy=alts_copy, probabilities=probs["multiplier"] * probs["probabilities"], out_list=out_list)
         frm = choosers.groupby('county_id')
         choices = map(mapfunc, frm)
@@ -57,10 +57,10 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     else:
         #the probs code is used to generate multipliers based on the zone_reinfer_demand.csv file.
         #These are saved to a csv file where qualitative manual adjustments can be made.
-        # probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_hh_shift'] *5) / len(choosers)
-        # probs.loc[:, "max_probs"] = probs.max(axis=1)
-        # probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
-        # probs.loc[:, "diff"] = probs.max_probs - probs.probabilities
+        #probs.loc[:, "weighted_probs"] = (refiner_targets.loc[:, 'annual_hh_shift'] * 30) / len(choosers)
+        #probs.loc[:, "max_probs"] = probs.max(axis=1)
+        #probs.loc[probs["weighted_probs"] < 0, "weighted_probs"] = 0
+        #probs.loc[:, "diff"] = probs.max_probs - probs.probabilities
         #probs.loc[:, "multiplier"] = (probs["diff"] / probs["probabilities"]) + 1
         probs.loc[:, "multiplier"] = hh_multiplier["multiplier"]
         #probs.to_csv('c:/users/jmartinez/documents/projects/urbansim/calibration/hh_multipliers.csv')
