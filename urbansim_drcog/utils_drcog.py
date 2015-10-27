@@ -593,14 +593,16 @@ def export_indicators(zones, year):
 
     buildings = orca.merge_tables('buildings', tables=['buildings','parcels'],
                              columns=['unit_price_residential','unit_price_non_residential','residential_units',
-                                      'non_residential_units','building_type_id', 'zone_id','county_id'])
+                                      'non_residential_units','building_type_id', 'zone_id','county_id',
+                                      'vacant_job_spaces','vacant_residential_units'])
 
     establishments = orca.merge_tables('establishments', tables=['establishments','counties'],
                                        columns=['employees', 'sector_id_six','zone_id', 'county_id'])
 
     households = orca.merge_tables('households', tables=['households','counties'], columns=
-                                   ['persons','age_of_head','income', 'zone_id', 'county_id'])
+                                   ['persons','age_of_head','income', 'zone_id', 'county_id','building_id'])
 
+    households.loc[households.building_id==-1,['building_id','zone_id']].groupby('zone_id').size()
     ##zone_summary
     zone_summary = pd.DataFrame(index=zones.index)
     zone_summary['sim_year'] = year - 1
@@ -610,6 +612,9 @@ def export_indicators(zones, year):
     zone_summary['unit_price_residential'] = buildings.unit_price_residential.groupby(buildings.zone_id).mean()
     zone_summary['unit_price_non_residential'] = buildings.unit_price_non_residential.groupby(buildings.zone_id).mean()
     zone_summary['ru_sim'] = buildings.residential_units.groupby(buildings.zone_id).sum()
+    zone_summary['vacant_residential_units'] = buildings.groupby('zone_id').vacant_residential_units.sum()
+    zone_summary['movers'] = households.loc[households.building_id==-1,['building_id','zone_id']].groupby('zone_id').size()
+    zone_summary['vacant_job_spaces'] = buildings.groupby('zone_id').vacant_job_spaces.sum()
     zone_summary['nr_sim'] = buildings.non_residential_units.groupby(buildings.zone_id).sum()
     zone_summary['buildings'] = buildings.building_type_id.groupby(buildings.zone_id).size()
     zone_summary['median_income_sim'] = households.income.groupby(households.zone_id).median()
@@ -619,6 +624,7 @@ def export_indicators(zones, year):
     zone_summary['emp4_sim'] = establishments.loc[establishments.sector_id_six == 4].groupby('zone_id').employees.sum()
     zone_summary['emp5_sim'] = establishments.loc[establishments.sector_id_six == 5].groupby('zone_id').employees.sum()
     zone_summary['emp6_sim'] = establishments.loc[establishments.sector_id_six == 6].groupby('zone_id').employees.sum()
+
 
 
 

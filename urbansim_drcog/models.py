@@ -72,7 +72,7 @@ def residential_developer(feasibility, households, buildings, parcels, year):
                         parcels.total_units,
                         feasibility,
                         year=year,
-                        target_vacancy=.05,
+                        target_vacancy=0.20,
                         form_to_btype_callback=random_type,
                         add_more_columns_callback=add_extra_columns,
                         bldg_sqft_per_job=400.0)
@@ -90,7 +90,7 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
                         parcels.total_job_spaces,
                         feasibility,
                         year=year,
-                        target_vacancy=.05,
+                        target_vacancy=0.50,
                         form_to_btype_callback=random_type,
                         add_more_columns_callback=add_extra_columns_non_res,
                         residential=False,
