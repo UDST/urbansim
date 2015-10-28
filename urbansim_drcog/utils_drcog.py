@@ -203,6 +203,15 @@ def elcm_simulate(cfg, choosers, zones, counties,out_fname):
     choosers.update_col_from_series(out_fname, update_tbl['zone_id'])
     _print_number_unplaced(choosers, out_fname)
 
+    demand = pd.DataFrame(index = new_units.index)
+    demand.loc[:, 'zone_id'] = new_units
+    demand.loc[:, 'employees'] = choosers_df.loc[new_units.index].employees
+
+    out = demand.groupby('zone_id').employees.sum()
+    out_table = pd.DataFrame(index=out.index)
+    out_table.loc[:, "emp_demand"] = out
+    out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/emp_demand.csv')
+
     # vacant_units = buildings[vacant_fname]
     # vacant_units = vacant_units[vacant_units > 0]
     # print "    and there are now %d empty units" % vacant_units.sum()
@@ -271,6 +280,12 @@ def lcm_simulate(cfg, choosers, zones, counties, out_fname):
     print locations_df.county_id.loc[new_units].value_counts()
     choosers.update_col_from_series(out_fname, new_units.groupby(level=0).first())
     _print_number_unplaced(choosers, out_fname)
+
+
+    out = new_units.value_counts()
+    out_table = pd.DataFrame(index=out.index)
+    out_table.loc[:, "hh_demand"] = out
+    out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh_demand.csv')
 
     # vacant_units = buildings[vacant_fname]
     # vacant_units = vacant_units[vacant_units > 0]
@@ -527,10 +542,10 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
 
     dev = developer.Developer(feasibility.to_frame())
 
-    target_units = dev.\
-        compute_units_to_build(len(agents),
-                               buildings[supply_fname].sum(),
-                               target_vacancy)
+    if(residential):
+        target_units = orca.get_table('hh_demand').to_frame()
+    else:
+        target_units = orca.get_table('emp_demand').to_frame()
 
     print "{:,} feasible buildings before running developer".format(
           len(dev.feasibility))
@@ -579,12 +594,13 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
 
     orca.add_table("buildings", all_buildings)
 
-def supply_demand(cfg, choosers, alternatives, buildings, alt_seg, price_col, reg_col=None):
+def supply_demand(cfg, hh_demand, alternatives, price_col, reg_col=None, units_col=None):
     lcm = yaml_to_class(cfg).from_yaml(str_or_buffer=cfg)
-    choosers_frame = choosers.to_frame()
-    alts_frame = alternatives.to_frame()
-    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, choosers_frame, alts_frame, alt_seg, price_col, reg_col=reg_col)
-    buildings.update_col_from_series(price_col, new_price)
+    demand_frame = hh_demand.to_frame()
+    alts_frame = alternatives.to_frame(columns=[units_col, price_col])
+    alts_seg = alts_frame.index.values
+    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, demand_frame, alts_frame, alts_seg, price_col, reg_col=reg_col)
+    alternatives.update_col_from_series(price_col, new_price)
 
 def export_indicators(zones, year):
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)

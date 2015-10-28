@@ -492,42 +492,42 @@ def average_resunit_size():
 
 @orca.column('zones', 'emp_sector_agg', cache=True, cache_scope='iteration')
 def emp_sector_agg():
-    e = orca.get_tables('establishments').to_frame(columns=['sector_id','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id','employees','zone_id'])
     return  e[e.sector_id==1].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector1', cache=True, cache_scope='iteration')
 def emp_sector1():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==1].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector2', cache=True, cache_scope='iteration')
 def emp_sector2():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==2].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector3', cache=True, cache_scope='iteration')
 def emp_sector3():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==3].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector4', cache=True, cache_scope='iteration')
 def emp_sector4():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==4].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector5', cache=True, cache_scope='iteration')
 def emp_sector5():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==5].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector6', cache=True, cache_scope='iteration')
 def emp_sector6():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==6].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'emp_sector6', cache=True, cache_scope='iteration')
 def emp_sector6():
-    e = orca.merge_tables('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
+    e = orca.get_table('establishments').to_frame(columns=['sector_id_six','employees','zone_id'])
     return  e[e.sector_id_six==6].groupby('zone_id').employees.sum()
 
 @orca.column('zones', 'jobs_within_45min', cache=True, cache_scope='iteration')

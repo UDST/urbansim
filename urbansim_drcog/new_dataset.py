@@ -30,10 +30,20 @@ def zones(store):
     df = pd.merge(df, amenities, left_index=True, right_index=True)
     return df
 
+
 @orca.table('establishments', cache=True)
 def establishments(store):
     df = store['establishments']
     return df
+
+
+@orca.table('hh_demand')
+def hh_demand():
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh_demand.csv', index_col=0)
+
+@orca.table('emp_demand')
+def emp_demand():
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/emp_demand.csv', index_col=0)
 
 #this would go in the assumptions.py file
 @orca.table('sqft_per_job', cache=True)
