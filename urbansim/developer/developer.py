@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import orca
+
 
 
 class Developer(object):
@@ -184,9 +186,13 @@ class Developer(object):
             return
 
         # print "Describe of net units\n", df.net_units.describe()
+        parcel_zones = orca.get_table('parcels').to_frame(columns=['zone_id'])
+        df.loc[:, 'zone_id'] = parcel_zones.loc[df.index].zone_id
+        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,))
+
         print "Sum of net units that are profitable: {:,}".\
             format(int(df.net_units.sum()))
-        if df.net_units.sum() < target_units:
+        if df.net_units.sum() < target_units.sum()[0]:
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
                   "MATCH DEMAND"
 
@@ -207,6 +213,14 @@ class Developer(object):
         new_df = df.loc[build_idx]
         new_df.index.name = "parcel_id"
         return new_df.reset_index()
+
+    def zonal_price_adjust(self, series, df):
+        format(int(df.net_units.sum()))
+        if df.loc[df.zone_id == series["index"]].net_units.sum() < series.hh_demand:
+            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
+                  "MATCH DEMAND IN ZONE {0}".format(series["index"])
+        return series
+
 
     @staticmethod
     def merge(old_df, new_df):

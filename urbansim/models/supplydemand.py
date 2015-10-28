@@ -56,27 +56,28 @@ def _calculate_adjustment(
     """
     logger.debug('start: calculate supply and demand price adjustment ratio')
     # probabilities of agents choosing * number of agents = demand
-    demand = lcm.summed_probabilities(choosers, alternatives)
-    # group by submarket
-    demand = demand.groupby(alt_segmenter.loc[demand.index].values).sum()
+    # demand = lcm.summed_probabilities(choosers, alternatives)
+    # # group by submarket
+    # demand = demand.groupby(alt_segmenter.loc[demand.index].values).sum()
+    demand = choosers.iloc[:, 0]
 
     # number of alternatives
-    supply = alt_segmenter.value_counts()
+    supply = alternatives.iloc[:,0]
 
     if multiplier_func is not None:
         multiplier, finished = multiplier_func(demand, supply)
     else:
-        multiplier, finished = (demand / supply), False
-    multiplier = multiplier.clip(clip_change_low, clip_change_high)
+        multiplier, finished = demand.divide(supply.replace([np.inf], np.nan)), False
+    multiplier = multiplier.clip(clip_change_low, clip_change_high) #change clip to reasonable levels
 
     # broadcast multiplier back to alternatives index
-    alts_muliplier = multiplier.loc[alt_segmenter]
-    alts_muliplier.index = alt_segmenter.index
+    #alts_muliplier = multiplier.loc[alt_segmenter] #not needed
+    #alts_muliplier.index = alt_segmenter.index #not needed
 
     logger.debug(
         ('finish: calculate supply and demand price adjustment multiplier '
          'with mean multiplier {}').format(multiplier.mean()))
-    return alts_muliplier, multiplier, finished
+    return multiplier, finished #return only multiplier (zonal)
 
 
 def supply_and_demand(
@@ -137,7 +138,7 @@ def supply_and_demand(
     # if alt_segmenter is a string, get the actual column for segmenting demand
     if isinstance(alt_segmenter, str):
         alt_segmenter = alternatives[alt_segmenter]
-    elif isinstance(alt_segmenter, np.array):
+    elif isinstance(alt_segmenter, np.ndarray):
         alt_segmenter = pd.Series(alt_segmenter, index=alternatives.index)
 
     choosers, alternatives = lcm.apply_predict_filters(choosers, alternatives)
@@ -151,12 +152,12 @@ def supply_and_demand(
         base_multiplier = base_multiplier.copy()
 
     for _ in range(iterations):
-        alts_muliplier, submarkets_multiplier, finished = _calculate_adjustment(
+        submarkets_multiplier, finished = _calculate_adjustment(
             lcm, choosers, alternatives, alt_segmenter,
             clip_change_low, clip_change_high, multiplier_func=multiplier_func)
-        alternatives[price_col] = alternatives[price_col] * alts_muliplier
+        alternatives[price_col] = alternatives[price_col] * submarkets_multiplier #change this to multiply zonal price
 
-        if reg_col:
+        if reg_col: #this will no longer be used
             zonal_avg_price_ln = alternatives[price_col].groupby(alternatives.zone_id).mean().apply(np.log1p)
             alternatives[reg_col] = zonal_avg_price_ln[alternatives.zone_id].values
             alternatives.dropna(inplace=True)
