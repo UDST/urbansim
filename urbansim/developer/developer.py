@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import orca
+import itertools
 
 
 
@@ -151,7 +152,7 @@ class Developer(object):
             DataFrame of buildings to add.  These buildings are rows from the
             DataFrame that is returned from feasibility.
         """
-
+        #parcels = self.feasibility.stack(level=0).groupby(level=0).mean()
         if len(self.feasibility) == 0:
             # no feasible buldings, might as well bail
             return None
@@ -167,18 +168,27 @@ class Developer(object):
         df = df[df.max_profit_far > 0]
         ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
         df["ave_unit_size"] = ave_unit_size
+        #parcels["ave_unit_size"] = ave_unit_size
         df["parcel_size"] = parcel_size
+        #parcels["parcel_size"] = parcel_size
         df['current_units'] = current_units
+        #parcels['current_units'] = current_units
         df = df[df.parcel_size < max_parcel_size]
 
         df['residential_units'] = np.round(df.residential_sqft /
                                            df.ave_unit_size)
+        #parcels['residential_units'] = np.round(parcels.residential_sqft /
+        #                           parcels.ave_unit_size)
+
+
         df['job_spaces'] = np.round(df.non_residential_sqft / bldg_sqft_per_job)
 
         if residential:
             df['net_units'] = df.residential_units - df.current_units
+            #parcels['net_units'] = parcels.residential_units - df.current_units
         else:
             df['net_units'] = df.job_spaces - df.current_units
+            #parcels['net_units'] = parcels.job_spaces - parcels.current_units
         df = df[df.net_units > 0]
 
         if len(df) == 0:
@@ -188,24 +198,11 @@ class Developer(object):
         # print "Describe of net units\n", df.net_units.describe()
         parcel_zones = orca.get_table('parcels').to_frame(columns=['zone_id'])
         df.loc[:, 'zone_id'] = parcel_zones.loc[df.index].zone_id
-        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,))
+        build_idx = []
+        #parcels.loc[:, 'zone_id'] = parcel_zones.loc[parcels.index].zone_id
+        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,build_idx))
+        build_idx = list(itertools.chain.from_iterable(build_idx))
 
-        print "Sum of net units that are profitable: {:,}".\
-            format(int(df.net_units.sum()))
-        if df.net_units.sum() < target_units.sum()[0]:
-            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
-                  "MATCH DEMAND"
-
-        choices = np.random.choice(df.index.values, size=len(df.index),
-                                   replace=False,
-                                   p=(df.max_profit.values / df.max_profit.sum()))
-        net_units = df.net_units.loc[choices]
-        tot_units = net_units.values.cumsum()
-        ind = int(np.searchsorted(tot_units, target_units, side="left"))
-        if target_units != 0:
-            ind += 1
-        ind = min(ind, len(choices))
-        build_idx = choices[:ind]
 
         if drop_after_build:
             self.feasibility = self.feasibility.drop(build_idx)
@@ -214,12 +211,26 @@ class Developer(object):
         new_df.index.name = "parcel_id"
         return new_df.reset_index()
 
-    def zonal_price_adjust(self, series, df):
+    def zonal_price_adjust(self, series, df, bindex):
         format(int(df.net_units.sum()))
-        if df.loc[df.zone_id == series["index"]].net_units.sum() < series.hh_demand:
-            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
-                  "MATCH DEMAND IN ZONE {0}".format(series["index"])
-        return series
+        choice_set = df.loc[df.zone_id == series["zone_id"]]
+
+        demand = series.iloc[1]
+        if len(choice_set > 0):
+
+            choices = np.random.choice(choice_set.index.values, size=demand, replace=True,
+                                           p=(choice_set.max_profit.values / choice_set.max_profit.sum()))
+
+            net_units = df.net_units.loc[choices]
+            tot_units = net_units.values.cumsum()
+            ind = int(np.searchsorted(tot_units, demand, side="left"))
+            if demand != 0:
+                ind += 1
+            ind = min(ind, len(choices))
+            build_idx = choices[:ind]
+            bindex.append(build_idx)
+
+
 
 
     @staticmethod

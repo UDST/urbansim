@@ -62,7 +62,7 @@ def _calculate_adjustment(
     demand = choosers.iloc[:, 0]
 
     # number of alternatives
-    supply = alternatives.iloc[:,0]
+    supply = alternatives.iloc[:,1]
 
     if multiplier_func is not None:
         multiplier, finished = multiplier_func(demand, supply)
@@ -83,7 +83,7 @@ def _calculate_adjustment(
 def supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
         base_multiplier=None, clip_change_low=0.75, clip_change_high=1.25,
-        iterations=5, multiplier_func=None, reg_col=None):
+        iterations=2, multiplier_func=None, reg_col=None):
     """
     Adjust real estate prices to compensate for supply and demand effects.
 

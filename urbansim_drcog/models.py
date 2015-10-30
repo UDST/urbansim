@@ -101,14 +101,14 @@ def indicator_export(zones, year):
     utils_drcog.export_indicators(zones, year)
 
 @orca.step('res_supply_demand')
-def res_supply_demand(households, zones, buildings, hh_demand):
+def res_supply_demand(zones, hh_demand):
     utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_hlcm_yaml.yaml',
                               hh_demand, zones, 'avg_unit_price_zone', units_col='residential_units_zone')
 
 @orca.step('non_res_supply_demand')
-def non_res_supply_demand(establishments, alts_elcm, buildings):
-    utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/elcm_yaml.yaml',
-                              establishments, alts_elcm, buildings, 'zone_id', 'unit_price_non_residential', reg_col='ln_avg_nonres_unit_price_zone')
+def non_res_supply_demand(zones, emp_demand):
+    utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_elcm_yaml.yaml',
+                              emp_demand, zones, 'avg_nonres_unit_price_zone', units_col='non_residential_sqft_zone')
 
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")

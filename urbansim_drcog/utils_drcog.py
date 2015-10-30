@@ -284,6 +284,7 @@ def lcm_simulate(cfg, choosers, zones, counties, out_fname):
 
     out = new_units.value_counts()
     out_table = pd.DataFrame(index=out.index)
+    out_table.index.name = "zone_id"
     out_table.loc[:, "hh_demand"] = out
     out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh_demand.csv')
 
@@ -556,7 +557,7 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
                              ave_unit_size,
                              total_units,
                              max_parcel_size=max_parcel_size,
-                             drop_after_build=True,
+                             drop_after_build=False,
                              residential=residential,
                              bldg_sqft_per_job=bldg_sqft_per_job)
 
@@ -581,6 +582,22 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
     if add_more_columns_callback is not None:
         new_buildings = add_more_columns_callback(new_buildings)
 
+    '''Here we want to update the existing parcel attributes for
+    some of the new buildings we are constructing on those parcels.
+    This implies that these parcels are re-developing the exisiting buildings, and they will retain their same building_id, but
+    their residential_units/non_residential_units and other attributes to will change to match some of the forecasted new buildings.
+    Only some of the forecasted new buildings will be used because we are now allowing the parcel to be picked for development more
+    than once (in order to meet demand). The remainder of forecasted buildings will be added to the existing parcel. We can look at
+     this remainder as a signal to how many new parcels the zone will need to create in order to fulfill development. Maybe we can
+     use UrbanCanvas to create these parcels and add them to zone.
+     '''
+
+    # bldgs = buildings.to_frame(columns=buildings.local_columns)
+    # b_to_update = new_buildings.groupby('parcel_id').first()
+    # b = bldgs.set_index([bldgs.index, 'parcel_id']).sortlevel().loc[(slice(None), b_to_update.index), :]
+    # sampled_indexes = np.random.choice(b_to_update.index.values, size=len(b))
+    # bldgs.loc[bldgs.parcel_id.isin(b_to_update.index), :] = b_to_update.loc[sampled_indexes, buildings.local_columns].drop('parcel_id', 1).reset_index()
+
     print "Adding {:,} buildings with {:,} {}".\
         format(len(new_buildings),
                int(new_buildings[supply_fname].sum()),
@@ -599,8 +616,25 @@ def supply_demand(cfg, hh_demand, alternatives, price_col, reg_col=None, units_c
     demand_frame = hh_demand.to_frame()
     alts_frame = alternatives.to_frame(columns=[units_col, price_col])
     alts_seg = alts_frame.index.values
-    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, demand_frame, alts_frame, alts_seg, price_col, reg_col=reg_col)
+    new_price, zone_ratios = supplydemand.supply_and_demand(lcm, demand_frame, alts_frame, alts_seg,
+                                                            price_col, reg_col=reg_col, clip_change_low=1,
+                                                            clip_change_high=1000)
     alternatives.update_col_from_series(price_col, new_price)
+    #update building prices from zones
+    buildings = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['unit_price_residential',
+                                                                                        'unit_price_non_residential',
+                                                                                        'zone_id'])
+    new_price_name = {'avg_unit_price_zone' : 'unit_price_residential',
+                      'avg_nonres_unit_price_zone': 'unit_price_non_residential'}
+
+    new_price = new_price.fillna(0)
+
+    new_price_df = pd.DataFrame(new_price)
+
+    merged = pd.merge(buildings, new_price_df, left_on='zone_id', right_index=True)
+    orca.get_table('buildings').update_col_from_series(new_price_name[price_col], merged[price_col])
+
+
 
 def export_indicators(zones, year):
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
