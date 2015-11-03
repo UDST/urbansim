@@ -72,6 +72,7 @@ def ave_unit_size(parcels, buildings):
     series = pd.Series(index=parcels.index)
     zonal_sqft_per_unit = buildings.sqft_per_unit.groupby(building_zone).mean()
     series.loc[:] = zonal_sqft_per_unit[parcels.zone_id].values
+    series = series.fillna(1500)
     return series
 
 @orca.column('parcels', 'ave_non_res_unit_size')
@@ -80,6 +81,7 @@ def ave_unit_size(parcels, sqft_per_job):
     sqft = sqft_per_job.to_frame().reset_index()
     zonal_sqft = sqft.groupby('zone_id').building_sqft_per_job.mean()
     series.loc[:] = zonal_sqft[parcels.zone_id].values
+    series = series.fillna(400)
     return series
 
 
@@ -393,7 +395,7 @@ def ln_residential_unit_density_zone(zones):
     df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','zone_id'])
     return (df.groupby('zone_id').residential_units.sum()/zones.acreage).apply(np.log1p)
 
-@orca.column('zones', 'residential_unit_density_zone', cache=True, cache_scope='iteration')
+@orca.column('zones', 'residential_unit_density_zone', cache=False)
 def residential_unit_density_zone(zones):
     df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','zone_id'])
     return (df.groupby('zone_id').residential_units.sum()/zones.acreage)

@@ -103,7 +103,7 @@ def indicator_export(zones, year):
 @orca.step('res_supply_demand')
 def res_supply_demand(zones, hh_demand):
     utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_hlcm_yaml.yaml',
-                              hh_demand, zones, 'avg_unit_price_zone', units_col='residential_units_zone')
+                              hh_demand, zones, 'avg_unit_price_zone', units_col='residential_units_zone', iterations=1)
 
 @orca.step('non_res_supply_demand')
 def non_res_supply_demand(zones, emp_demand):

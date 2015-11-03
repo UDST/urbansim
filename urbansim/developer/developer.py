@@ -200,7 +200,8 @@ class Developer(object):
         df.loc[:, 'zone_id'] = parcel_zones.loc[df.index].zone_id
         build_idx = []
         #parcels.loc[:, 'zone_id'] = parcel_zones.loc[parcels.index].zone_id
-        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,build_idx))
+        test = []
+        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,build_idx, test))
         build_idx = list(itertools.chain.from_iterable(build_idx))
 
 
@@ -211,7 +212,9 @@ class Developer(object):
         new_df.index.name = "parcel_id"
         return new_df.reset_index()
 
-    def zonal_price_adjust(self, series, df, bindex):
+    def zonal_price_adjust(self, series, df, bindex,test):
+        if(series.zone_id == 970):
+            print "stop"
         format(int(df.net_units.sum()))
         choice_set = df.loc[df.zone_id == series["zone_id"]]
 
@@ -221,6 +224,10 @@ class Developer(object):
             choices = np.random.choice(choice_set.index.values, size=demand, replace=True,
                                            p=(choice_set.max_profit.values / choice_set.max_profit.sum()))
 
+            #use demand as size even though we demand represents number of units, not buildings.
+            #Here we are allowing the same parcels to be sampled more than once, and the the number
+            #parcel choices will be equal to the number of units in the expected demand.
+
             net_units = df.net_units.loc[choices]
             tot_units = net_units.values.cumsum()
             ind = int(np.searchsorted(tot_units, demand, side="left"))
@@ -229,6 +236,9 @@ class Developer(object):
             ind = min(ind, len(choices))
             build_idx = choices[:ind]
             bindex.append(build_idx)
+
+        else:
+            test.append(series["zone_id"])
 
 
 

@@ -611,13 +611,13 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
 
     orca.add_table("buildings", all_buildings)
 
-def supply_demand(cfg, hh_demand, alternatives, price_col, reg_col=None, units_col=None):
+def supply_demand(cfg, hh_demand, alternatives, price_col, reg_col=None, units_col=None, iterations=1):
     lcm = yaml_to_class(cfg).from_yaml(str_or_buffer=cfg)
     demand_frame = hh_demand.to_frame()
     alts_frame = alternatives.to_frame(columns=[units_col, price_col])
     alts_seg = alts_frame.index.values
     new_price, zone_ratios = supplydemand.supply_and_demand(lcm, demand_frame, alts_frame, alts_seg,
-                                                            price_col, reg_col=reg_col, clip_change_low=1,
+                                                            price_col, iterations=iterations, reg_col=reg_col, clip_change_low=1,
                                                             clip_change_high=1000)
     alternatives.update_col_from_series(price_col, new_price)
     #update building prices from zones
@@ -652,7 +652,11 @@ def export_indicators(zones, year):
     households = orca.merge_tables('households', tables=['households','counties'], columns=
                                    ['persons','age_of_head','income', 'zone_id', 'county_id','building_id'])
 
-    households.loc[households.building_id==-1,['building_id','zone_id']].groupby('zone_id').size()
+    dev_test = pd.DataFrame(index=zones.index)
+    dev_test.loc[:, 'res_movers'] = households.loc[households.building_id==-1,['building_id','zone_id']].groupby('zone_id').size()
+    dev_test.loc[:, 'vacant_res_units'] = buildings.groupby('zone_id').vacant_residential_units.sum()
+    dev_test.to_csv('c:/users/jmartinez/documents/developer_test.csv')
+
     ##zone_summary
     zone_summary = pd.DataFrame(index=zones.index)
     zone_summary['sim_year'] = year - 1

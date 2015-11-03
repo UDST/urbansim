@@ -83,7 +83,7 @@ def _calculate_adjustment(
 def supply_and_demand(
         lcm, choosers, alternatives, alt_segmenter, price_col,
         base_multiplier=None, clip_change_low=0.75, clip_change_high=1.25,
-        iterations=2, multiplier_func=None, reg_col=None):
+        iterations=1, multiplier_func=None, reg_col=None):
     """
     Adjust real estate prices to compensate for supply and demand effects.
 
