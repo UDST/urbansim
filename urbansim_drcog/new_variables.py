@@ -360,6 +360,12 @@ def sector_id_retail_agg(establishments):
 # ZONE VARIABLES
 #####################
 
+@orca.column('zones', 'res_units_per_bldg', cache=False)
+def res_units_per_bldg():
+    df = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['zone_id','residential_units'])
+    df = df.groupby('zone_id').residential_units.mean()
+    return df
+
 @orca.column('zones', 'zonal_hh', cache=True, cache_scope='iteration')
 def zonal_hh():
     df = orca.get_table('households').to_frame(columns=['building_type_id','zone_id'])

@@ -1,90 +1,74 @@
-name: Zonal HLCM Model
-
-
+name: Zonal ELCM Model
+
 model_type: discretechoice
-
-
+
 choosers_fit_filters: null
-
-
+
 choosers_predict_filters: null
-
-
+
 alts_fit_filters: null
-
-
+
 alts_predict_filters: null
-
-
+
 interaction_predict_filters: null
-
-
+
 choice_column: zone_id
-
-
+
 sample_size: 100
-
-
+
 estimation_sample_size: null
-
-
+
 prediction_sample_size: null
-
-
-model_expression: ln_avg_unit_price_zone +nb_pop + residential_unit_density_zone +
-    ln_non_residential_sqft_zone +mean_income + percent_hh_with_child + parks_3mi
-    + golf_courses_3mi +schools_3mi + fast_food_3mi + cafes_3mi
-
-
+
+model_expression: ln_avg_unit_price_zone +nb_pop + res_units_per_bldg + ln_non_residential_sqft_zone
+    +mean_income + percent_hh_with_child + parks_3mi + golf_courses_3mi +schools_3mi
+    + fast_food_3mi + cafes_3mi
+
 fitted: true
-
-
+
 choice_mode: aggregate
-
-
+
 fit_parameters:
     Coefficient:
-        cafes_3mi: 0.00450617657029123
-        fast_food_3mi: 0.013296631865993284
-        golf_courses_3mi: 0.021948338425080396
-        ln_avg_unit_price_zone: 0.32530110956591496
-        ln_non_residential_sqft_zone: 0.03094321702969055
-        mean_income: 1.1466523730941074e-06
-        nb_pop: 7.004864012092289e-05
-        parks_3mi: -0.0009243042683239007
-        percent_hh_with_child: -0.0023949814677332306
-        residential_unit_density_zone: 0.013779648300142411
-        schools_3mi: -0.005031249607898527
+        cafes_3mi: 0.004345500683575503
+        fast_food_3mi: 0.013099536636356959
+        golf_courses_3mi: 0.014147093575491909
+        ln_avg_unit_price_zone: 0.3185680279622283
+        ln_non_residential_sqft_zone: 0.03303468694511873
+        mean_income: 1.6479371080483426e-06
+        nb_pop: 7.343779992396983e-05
+        parks_3mi: -0.00037726602084540983
+        percent_hh_with_child: -0.0006573866835590384
+        res_units_per_bldg: 0.24649277996633626
+        schools_3mi: -0.005396434266466219
     Std. Error:
-        cafes_3mi: 0.0029180057542335103
-        fast_food_3mi: 0.0034896809140570187
-        golf_courses_3mi: 0.009790650373263512
-        ln_avg_unit_price_zone: 0.017299689330360617
-        ln_non_residential_sqft_zone: 0.008830115602610045
-        mean_income: 1.0878360288500342e-06
-        nb_pop: 5.703934487461011e-06
-        parks_3mi: 0.0011466715690777274
-        percent_hh_with_child: 0.0021601811786936213
-        residential_unit_density_zone: 0.0037782696548661486
-        schools_3mi: 0.0031814728656888998
+        cafes_3mi: 0.0029218046091525527
+        fast_food_3mi: 0.0034982059603773596
+        golf_courses_3mi: 0.009857171379500273
+        ln_avg_unit_price_zone: 0.0205948345222261
+        ln_non_residential_sqft_zone: 0.008830311301200454
+        mean_income: 1.1121966009991413e-06
+        nb_pop: 5.756803280275588e-06
+        parks_3mi: 0.001138315507731168
+        percent_hh_with_child: 0.0023219257179297272
+        res_units_per_bldg: 0.05085441396775101
+        schools_3mi: 0.003193561248094056
     T-Score:
-        cafes_3mi: 1.5442658273560854
-        fast_food_3mi: 3.810271538704936
-        golf_courses_3mi: 2.2417651114391055
-        ln_avg_unit_price_zone: 18.803870020660884
-        ln_non_residential_sqft_zone: 3.5042822112707355
-        mean_income: 1.0540672883451458
-        nb_pop: 12.280758181025954
-        parks_3mi: -0.8060758575075881
-        percent_hh_with_child: -1.1086947203111943
-        residential_unit_density_zone: 3.6470791020421696
-        schools_3mi: -1.5814215051647427
-
-
+        cafes_3mi: 1.4872660101785118
+        fast_food_3mi: 3.7446441932606738
+        golf_courses_3mi: 1.4352082388374912
+        ln_avg_unit_price_zone: 15.468346085443283
+        ln_non_residential_sqft_zone: 3.7410557587735056
+        mean_income: 1.4816958679498922
+        nb_pop: 12.756697831865855
+        parks_3mi: -0.33142482754834557
+        percent_hh_with_child: -0.2831213240297699
+        res_units_per_bldg: 4.847028226943054
+        schools_3mi: -1.6897857430123993
+
 probability_mode: single_chooser
-
-
+
 log_likelihoods:
-    convergence: -6128.23600903166
+    convergence: -6116.83702471493
     'null': -6640.655408194777
-    ratio: 0.0771639797076017
+    ratio: 0.07888052477974372
