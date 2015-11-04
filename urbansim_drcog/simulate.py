@@ -6,36 +6,31 @@ import calibration
 import numpy as np
 from urbansim.utils import sampling
 np.random.seed(1)
-# orca.run([
-#           'rsh_simulate',
-#           'nrh_simulate',
-#           'feasibility',
-#           'residential_developer',
-#           'non_residential_developer',
-#           'emp_transition',
-#           'emp_relocation',
-#           'elcm_simulate',
-#           'hh_transition'
-#           'hh_relocation',
-#           'hlcm_simulate',
-#
-#           'indicator_export
-#           ], iter_vars=[2040])
+orca.run([
 
-
-orca.run(['emp_transition',
+          'scenario_zoning_change',
+          'feasibility',
+          'residential_developer',
+          'non_residential_developer',
+          'emp_transition',
           'emp_relocation',
           'elcm_simulate',
           'hh_transition',
           'hh_relocation',
           'hlcm_simulate',
-          'res_supply_demand',
-          'non_res_supply_demand',
-          'feasibility',
-          'residential_developer',
-          'non_residential_developer',
-          'indicator_export',
+          'indicator_export'
           ], iter_vars=[2040])
+
+
+# orca.run(['emp_transition',
+#           'emp_relocation',
+#           'elcm_simulate',
+#           'hh_transition',
+#           'hh_relocation',
+#           'hlcm_simulate',
+#
+#           'indicator_export',
+#           ], iter_vars=[2040])
 
 #orca.run(['hh_transition','hh_relocation','hlcm_simulate','res_supply_demand'], iter_vars=[2040])
 

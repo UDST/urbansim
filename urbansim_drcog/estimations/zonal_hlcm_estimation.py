@@ -26,8 +26,8 @@ alts = orca.get_table('zones').to_frame(columns=[
 ])
 alts = alts.fillna(0)
 
-alts.loc[:, 'res_units_per_bldg'] = alts.res_units_per_bldg.apply(np.log1p)
-alts.loc[:, 'residential_unit_density_zone'] = alts.residential_unit_density_zone.apply(np.log1p)
+# alts.loc[:, 'res_units_per_bldg'] = alts.res_units_per_bldg.apply(np.log1p)
+# alts.loc[:, 'residential_unit_density_zone'] = alts.residential_unit_density_zone.apply(np.log1p)
 
 #choosers = orca.merge_tables('households', tables=['households','buildings','parcels'])
 print "Loading choosers"

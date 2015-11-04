@@ -210,7 +210,7 @@ def elcm_simulate(cfg, choosers, zones, counties,out_fname):
     out = demand.groupby('zone_id').employees.sum()
     out_table = pd.DataFrame(index=out.index)
     out_table.loc[:, "emp_demand"] = out
-    out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/emp_demand.csv')
+    #out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/emp_demand.csv')
 
     # vacant_units = buildings[vacant_fname]
     # vacant_units = vacant_units[vacant_units > 0]
@@ -286,7 +286,7 @@ def lcm_simulate(cfg, choosers, zones, counties, out_fname):
     out_table = pd.DataFrame(index=out.index)
     out_table.index.name = "zone_id"
     out_table.loc[:, "hh_demand"] = out
-    out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh_demand.csv')
+    #out_table.to_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh_demand.csv')
 
     # vacant_units = buildings[vacant_fname]
     # vacant_units = vacant_units[vacant_units > 0]
@@ -709,5 +709,5 @@ def export_indicators(zones, year):
     #zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
     county_summary.to_sql('county_summary_new', engine, if_exists='append')
 
-    zone_summary.to_csv('c:/users/jmartinez/documents/test_2015.csv')
+    zone_summary.loc[[635,636,1465,1466]].to_csv('c:/users/jmartinez/documents/test_2015.csv')
 

@@ -110,6 +110,19 @@ def non_res_supply_demand(zones, emp_demand):
     utils_drcog.supply_demand('c:/urbansim_new/urbansim/urbansim_drcog/config/zonal_elcm_yaml.yaml',
                               emp_demand, zones, 'avg_nonres_unit_price_zone', units_col='non_residential_sqft_zone')
 
+@orca.step('scenario_zoning_change')
+def scenario_zoning_change(parcels, fars):
+    far = fars.to_frame()
+    far.loc[123456789] = [14.0, 'Denver Test Zoning', 0]
+    orca.add_table('fars', far)
+    df = orca.get_table('parcels').to_frame(columns=['far_id'])
+    parcel_index = pd.read_csv('c:/users/jmartinez/documents/sloans_parcels.csv', index_col=0)
+    #largest lakewood far_id = 4300009 which is 0.75
+    df.loc[parcel_index.index, 'far_id'] = 123456789
+
+    parcels.update_col_from_series('far_id', df.far_id)
+
+
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")
     return random.choice(form_to_btype[form])
@@ -124,3 +137,5 @@ def add_extra_columns_non_res(df):
         df[col] = 0
     df.rename(columns={'job_spaces':'non_residential_units'}, inplace=True)
     return df
+
+

@@ -1,74 +1,90 @@
-name: Zonal ELCM Model
-
+name: Zonal HLCM Model
+
+
 model_type: discretechoice
-
+
+
 choosers_fit_filters: null
-
+
+
 choosers_predict_filters: null
-
+
+
 alts_fit_filters: null
-
+
+
 alts_predict_filters: null
-
+
+
 interaction_predict_filters: null
-
+
+
 choice_column: zone_id
-
+
+
 sample_size: 100
-
+
+
 estimation_sample_size: null
-
+
+
 prediction_sample_size: null
-
+
+
 model_expression: ln_avg_unit_price_zone +nb_pop + res_units_per_bldg + ln_non_residential_sqft_zone
     +mean_income + percent_hh_with_child + parks_3mi + golf_courses_3mi +schools_3mi
     + fast_food_3mi + cafes_3mi
-
+
+
 fitted: true
-
+
+
 choice_mode: aggregate
-
+
+
 fit_parameters:
     Coefficient:
-        cafes_3mi: 0.004345500683575503
-        fast_food_3mi: 0.013099536636356959
-        golf_courses_3mi: 0.014147093575491909
-        ln_avg_unit_price_zone: 0.3185680279622283
-        ln_non_residential_sqft_zone: 0.03303468694511873
-        mean_income: 1.6479371080483426e-06
-        nb_pop: 7.343779992396983e-05
-        parks_3mi: -0.00037726602084540983
-        percent_hh_with_child: -0.0006573866835590384
-        res_units_per_bldg: 0.24649277996633626
-        schools_3mi: -0.005396434266466219
+        cafes_3mi: 0.004023561919037417
+        fast_food_3mi: 0.01458955055122775
+        golf_courses_3mi: 0.01849983781802615
+        ln_avg_unit_price_zone: 0.3264549839302043
+        ln_non_residential_sqft_zone: 0.030571359756955813
+        mean_income: 1.095346277612051e-06
+        nb_pop: 6.957734871974492e-05
+        parks_3mi: 1.6972811392382854e-05
+        percent_hh_with_child: -0.0031990955402716402
+        res_units_per_bldg: 0.0281823716904183555
+        schools_3mi: -0.0056367993863723044
     Std. Error:
-        cafes_3mi: 0.0029218046091525527
-        fast_food_3mi: 0.0034982059603773596
-        golf_courses_3mi: 0.009857171379500273
-        ln_avg_unit_price_zone: 0.0205948345222261
-        ln_non_residential_sqft_zone: 0.008830311301200454
-        mean_income: 1.1121966009991413e-06
-        nb_pop: 5.756803280275588e-06
-        parks_3mi: 0.001138315507731168
-        percent_hh_with_child: 0.0023219257179297272
-        res_units_per_bldg: 0.05085441396775101
-        schools_3mi: 0.003193561248094056
+        cafes_3mi: 0.0029155792897416323
+        fast_food_3mi: 0.0034897754723725583
+        golf_courses_3mi: 0.009798817600127754
+        ln_avg_unit_price_zone: 0.01704680464677871
+        ln_non_residential_sqft_zone: 0.008860081572623465
+        mean_income: 1.079614115372951e-06
+        nb_pop: 5.746300965370304e-06
+        parks_3mi: 0.001137411554041321
+        percent_hh_with_child: 0.0021408727268344197
+        res_units_per_bldg: 0.0019419875656244688
+        schools_3mi: 0.0031768427304996443
     T-Score:
-        cafes_3mi: 1.4872660101785118
-        fast_food_3mi: 3.7446441932606738
-        golf_courses_3mi: 1.4352082388374912
-        ln_avg_unit_price_zone: 15.468346085443283
-        ln_non_residential_sqft_zone: 3.7410557587735056
-        mean_income: 1.4816958679498922
-        nb_pop: 12.756697831865855
-        parks_3mi: -0.33142482754834557
-        percent_hh_with_child: -0.2831213240297699
-        res_units_per_bldg: 4.847028226943054
-        schools_3mi: -1.6897857430123993
-
+        cafes_3mi: 1.3800214362868415
+        fast_food_3mi: 4.180655938105067
+        golf_courses_3mi: 1.8879663417538206
+        ln_avg_unit_price_zone: 19.150508889763902
+        ln_non_residential_sqft_zone: 3.450460304047026
+        mean_income: 1.0145720234805056
+        nb_pop: 12.108197802211915
+        parks_3mi: 0.014922313152242035
+        percent_hh_with_child: -1.494295060221516
+        res_units_per_bldg: 1.638718880980593
+        schools_3mi: -1.7743400805634988
+
+
 probability_mode: single_chooser
-
+
+
 log_likelihoods:
-    convergence: -6116.83702471493
+    convergence: -6139.410042806565
     'null': -6640.655408194777
-    ratio: 0.07888052477974372
+    ratio: 0.07548130938546516

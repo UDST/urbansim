@@ -30,8 +30,8 @@ def new_unit_choice(choosers, alternatives, probabilities, isEMP):
     probs.loc[:,"probabilities"] = probabilities.values
     emp_multiplier = orca.get_table("emp_multipliers").to_frame()
     hh_multiplier = orca.get_table("hh_multipliers").to_frame()
-    probs.loc[:, "multiplier"] = hh_multiplier["multiplier"]
-    probs.loc[:, "multiplier"] = emp_multiplier["multiplier"]
+    # probs.loc[:, "multiplier"] = hh_multiplier["multiplier"]
+    # probs.loc[:, "multiplier"] = emp_multiplier["multiplier"]
     refiner_targets = orca.get_table('refiner_targets').to_frame()
 
 
