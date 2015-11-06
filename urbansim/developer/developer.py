@@ -213,7 +213,7 @@ class Developer(object):
         return new_df.reset_index()
 
     def zonal_price_adjust(self, series, df, bindex,test):
-        if(series.zone_id == 970):
+        if(series["zone_id"]==1485):
             print "stop"
         format(int(df.net_units.sum()))
         choice_set = df.loc[df.zone_id == series["zone_id"]]

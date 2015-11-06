@@ -75,7 +75,7 @@ def residential_developer(feasibility, households, buildings, parcels, year):
                         target_vacancy=0.20,
                         form_to_btype_callback=random_type,
                         add_more_columns_callback=add_extra_columns,
-                        bldg_sqft_per_job=400.0)
+                        bldg_sqft_per_job=400.0, price_col='unit_price_residential')
 
 @orca.step('non_residential_developer')
 def non_residential_developer(feasibility, establishments, buildings, parcels, year):
@@ -94,7 +94,7 @@ def non_residential_developer(feasibility, establishments, buildings, parcels, y
                         form_to_btype_callback=random_type,
                         add_more_columns_callback=add_extra_columns_non_res,
                         residential=False,
-                        bldg_sqft_per_job=400.0)
+                        bldg_sqft_per_job=400.0, price_col='unit_price_non_residential')
 
 @orca.step('indicator_export')
 def indicator_export(zones, year):
@@ -116,11 +116,17 @@ def scenario_zoning_change(parcels, fars):
     far.loc[123456789] = [14.0, 'Denver Test Zoning', 0]
     orca.add_table('fars', far)
     df = orca.get_table('parcels').to_frame(columns=['far_id'])
-    parcel_index = pd.read_csv('c:/users/jmartinez/documents/sloans_parcels.csv', index_col=0)
-    #largest lakewood far_id = 4300009 which is 0.75
+    parcel_index = pd.read_csv('c:/users/jmartinez/documents/alameda_broadway_station.csv', index_col=0)
+
     df.loc[parcel_index.index, 'far_id'] = 123456789
 
     parcels.update_col_from_series('far_id', df.far_id)
+
+    #change zoning to add allowable types
+    zoning = orca.get_table('zoning_baseline').to_frame()
+    #change multifamily types to allowed
+    zoning.loc[parcel_index.index, ['type2','type3','type24']] = 1
+    orca.add_table('zoning_baseline', zoning)
 
 
 def random_type(form):

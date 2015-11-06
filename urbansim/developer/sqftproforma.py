@@ -120,7 +120,7 @@ class SqFtProFormaConfig(object):
         self.parcel_sizes = [10000.0]
         self.fars = [.1, .25, .5, .75, 1.0, 1.5, 1.8, 2.0, 2.25, 2.5, 2.75,
                      3.0, 3.25, 3.5, 3.75, 4.0, 4.5,
-                     5.0, 5.5, 6.0, 6.5, 7.0, 9.0, 11.0]
+                     5.0, 5.5, 6.0, 6.5, 7.0, 9.0, 14.0]
         self.uses = ['retail', 'industrial', 'office', 'residential']
         self.residential_uses = [False, False, False, True]
         self.forms = {
@@ -576,10 +576,14 @@ class SqFtProForma(object):
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
                                      'max_far_from_dua']].min(axis=1)
         else:
-            df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
+            #df['min_max_fars'] = df[['max_far_from_heights', 'max_far']].min(axis=1)
+            #only use fars since we don't have heights
+            df.loc[:,'min_max_fars'] = df.max_far
+            df.loc[:,'min_max_fars'].dropna(inplace=True)
 
         if only_built:
             df = df.query('min_max_fars > 0 and parcel_size > 0')
+
 
         # all possible fars on all parcels
         fars = np.repeat(cost_sqft_index_col, len(df.index), axis=1)

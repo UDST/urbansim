@@ -493,7 +493,7 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
                   ave_unit_size, total_units, feasibility, year=None,
                   target_vacancy=.1, form_to_btype_callback=None,
                   add_more_columns_callback=None, max_parcel_size=200000,
-                  residential=True, bldg_sqft_per_job=400.0):
+                  residential=True, bldg_sqft_per_job=400.0, price_col=None):
     """
     Run the developer model to pick and build buildings
     Parameters
@@ -540,6 +540,7 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
     -------
     Writes the result back to the buildings table (returns nothing)
     """
+    import scipy.stats as stats
 
     dev = developer.Developer(feasibility.to_frame())
 
@@ -598,6 +599,10 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
     # sampled_indexes = np.random.choice(b_to_update.index.values, size=len(b))
     # bldgs.loc[bldgs.parcel_id.isin(b_to_update.index), :] = b_to_update.loc[sampled_indexes, buildings.local_columns].drop('parcel_id', 1).reset_index()
 
+    #simple regression to determine marginal cost of producing units
+    slope, intercept, r_value, p_value, stderr = stats.linregress(new_buildings.residential_units, y=new_buildings.total_cost)
+
+    new_buildings.loc[:, price_col] = slope * 2
     print "Adding {:,} buildings with {:,} {}".\
         format(len(new_buildings),
                int(new_buildings[supply_fname].sum()),
@@ -618,7 +623,7 @@ def supply_demand(cfg, hh_demand, alternatives, price_col, reg_col=None, units_c
     alts_seg = alts_frame.index.values
     new_price, zone_ratios = supplydemand.supply_and_demand(lcm, demand_frame, alts_frame, alts_seg,
                                                             price_col, iterations=iterations, reg_col=reg_col, clip_change_low=1,
-                                                            clip_change_high=1000)
+                                                            clip_change_high=100)
     alternatives.update_col_from_series(price_col, new_price)
     #update building prices from zones
     buildings = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['unit_price_residential',
@@ -709,5 +714,5 @@ def export_indicators(zones, year):
     #zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
     county_summary.to_sql('county_summary_new', engine, if_exists='append')
 
-    zone_summary.loc[[635,636,1465,1466]].to_csv('c:/users/jmartinez/documents/test_2015.csv')
+    zone_summary.loc[[1485,1486,1487,1612]].to_csv('c:/users/jmartinez/documents/test_2015.csv')
 

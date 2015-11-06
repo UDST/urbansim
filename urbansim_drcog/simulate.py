@@ -8,7 +8,8 @@ from urbansim.utils import sampling
 np.random.seed(1)
 orca.run([
 
-          'scenario_zoning_change',
+
+
           'feasibility',
           'residential_developer',
           'non_residential_developer',

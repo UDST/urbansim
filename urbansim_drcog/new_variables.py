@@ -423,18 +423,21 @@ def ln_non_residential_sqft_zone():
     return b[b.btype_hlcm==3].groupby('zone_id').residential_units.sum()*100.0/(b.groupby('zone_id').residential_units.sum())
 
 
-@orca.column('zones', 'avg_unit_price_zone', cache=True, cache_scope='iteration')
-def avg_unit_price_zone():
+@orca.column('zones', 'avg_unit_price_zone', cache=False)
+def avg_unit_price_zone(zones):
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['residential_units','improvement_value','unit_price_residential','zone_id'])
-    return  b[(b.residential_units>0)*(b.improvement_value>0)].groupby('zone_id').unit_price_residential.mean()
-
+    b =  b[(b.residential_units>0)*(b.improvement_value>0)].groupby('zone_id').unit_price_residential.mean()
+    out = pd.Series(index=zones.index, name='avg_unit_price_zone')
+    out.loc[b.index] = b
+    out.loc[out.isnull()] = b.mean()
+    return out
 
 @orca.column('zones', 'ln_avg_unit_price_zone', cache=True, cache_scope='iteration')
 def avg_unit_price_zone(zones):
     return zones.avg_unit_price_zone.apply(np.log1p)
 
 
-@orca.column('zones', 'avg_nonres_unit_price_zone', cache=True, cache_scope='iteration')
+@orca.column('zones', 'avg_nonres_unit_price_zone', cache=False)
 def avg_unit_price_zone():
     b = orca.merge_tables('buildings', tables=['buildings','parcels'], columns=['non_residential_sqft','improvement_value','unit_price_non_residential','zone_id'])
 
