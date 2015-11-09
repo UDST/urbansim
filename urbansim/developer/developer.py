@@ -221,7 +221,7 @@ class Developer(object):
         demand = series.iloc[1]
         if len(choice_set > 0):
 
-            choices = np.random.choice(choice_set.index.values, size=demand, replace=True,
+            choices = np.random.choice(choice_set.index.values, size=len(choice_set), replace=False,
                                            p=(choice_set.max_profit.values / choice_set.max_profit.sum()))
 
             #use demand as size even though we demand represents number of units, not buildings.

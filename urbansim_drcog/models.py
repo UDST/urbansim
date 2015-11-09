@@ -63,7 +63,7 @@ def feasibility(parcels):
 
 @orca.step('residential_developer')
 def residential_developer(feasibility, households, buildings, parcels, year):
-    utils_drcog.run_developer("residential",
+    utils_drcog.run_developer(["residential","mixedresidential"],
                         households,
                         buildings,
                         "residential_units",
@@ -113,19 +113,40 @@ def non_res_supply_demand(zones, emp_demand):
 @orca.step('scenario_zoning_change')
 def scenario_zoning_change(parcels, fars):
     far = fars.to_frame()
-    far.loc[123456789] = [14.0, 'Denver Test Zoning', 0]
+    #Add scenario zoning codes into database
+    far.loc[1] = [1.83, 'C-MX-3', 0]
+    far.loc[2] = [2.95, 'C-MX-5', 0]
+    far.loc[3] = [6.12, 'C-RX-12',0]
     orca.add_table('fars', far)
     df = orca.get_table('parcels').to_frame(columns=['far_id'])
-    parcel_index = pd.read_csv('c:/users/jmartinez/documents/alameda_broadway_station.csv', index_col=0)
+    uc_mixed_use3 = pd.read_csv('c:/users/jmartinez/documents/data/UrbanSim/Scenarios/Alameda_Broadway_Station/c-mx-3.csv', index_col=0)
+    uc_mixed_use5 = pd.read_csv('c:/users/jmartinez/documents/data/UrbanSim/Scenarios/Alameda_Broadway_Station/c-mx-5.csv', index_col=0)
+    uc_mixed_use12 = pd.read_csv('c:/users/jmartinez/documents/data/UrbanSim/Scenarios/Alameda_Broadway_Station/c-rx-12.csv', index_col=0)
 
-    df.loc[parcel_index.index, 'far_id'] = 123456789
+
+    df.loc[uc_mixed_use3.index, 'far_id'] = 1
+    df.loc[uc_mixed_use5.index, 'far_id'] = 2
+    df.loc[uc_mixed_use12.index, 'far_id'] = 3
 
     parcels.update_col_from_series('far_id', df.far_id)
 
     #change zoning to add allowable types
     zoning = orca.get_table('zoning_baseline').to_frame()
     #change multifamily types to allowed
-    zoning.loc[parcel_index.index, ['type2','type3','type24']] = 1
+    zoning.loc[uc_mixed_use3.index, ['type2','type3','type24', 'type6']] = 1
+    zoning.loc[uc_mixed_use3.index, ['type1', 'type4', 'type5', 'type7', 'type8','type9','type10','type11','type12',
+                                     'type14','type15','type16','type17','type18','type19','type20','type21',
+                                     'type22','type23','type25']] = 0
+
+    zoning.loc[uc_mixed_use5.index, ['type2','type3','type24', 'type6']] = 1
+    zoning.loc[uc_mixed_use5.index, ['type1', 'type4', 'type5', 'type7', 'type8','type9','type10','type11','type12',
+                                     'type14','type15','type16','type17','type18','type19','type20','type21',
+                                     'type22','type23','type25']] = 0
+
+    zoning.loc[uc_mixed_use12.index, ['type2','type3','type24', 'type6']] = 1
+    zoning.loc[uc_mixed_use12.index, ['type1', 'type4', 'type5', 'type7', 'type8','type9','type10','type11','type12',
+                                     'type14','type15','type16','type17','type18','type19','type20','type21',
+                                     'type22','type23','type25']] = 0
     orca.add_table('zoning_baseline', zoning)
 
 
