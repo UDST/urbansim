@@ -1,0 +1,309 @@
+name: SegmentedRegressionModel
+
+model_type: segmented_regression
+
+segmentation_col: building_type_id
+
+fit_filters:
+- improvement_value>20000
+
+predict_filters:
+- improvement_value>20000
+
+min_segment_size: 150
+
+default_config:
+    model_expression: np.log1p(unit_price_residential) ~ ln_pop_within_20min+ln_units_per_acre+mean_income+year_built+ln_dist_bus+ln_dist_rail+ln_avg_land_value_per_sqft_zone+ln_residential_unit_density_zone+ln_non_residential_sqft_zone+allpurpose_agglosum_floor+county8001+county8005+county8013+county8014+county8019+county8035+county8039+county8047+county8059+county8123
+    ytransform: np.exp
+
+models:
+    !!python/long '2':
+        fit_parameters:
+            Coefficient:
+                Intercept: 10.163365201022707
+                allpurpose_agglosum_floor: 0.027457502747016416
+                county8001: 0.5913350321979562
+                county8005: 0.21258630804356704
+                county8013: -0.11818216122269642
+                county8014: -9.3880760559777e-17
+                county8019: 0.14664475826454293
+                county8035: 0.1259051234652575
+                county8039: 0.0
+                county8047: 0.0
+                county8059: -0.15744641066913545
+                county8123: 0.0
+                ln_avg_land_value_per_sqft_zone: 0.06186870287885976
+                ln_dist_bus: 0.06828131541931545
+                ln_dist_rail: 1.2060030396099972e-06
+                ln_non_residential_sqft_zone: -0.017165543090432493
+                ln_pop_within_20min: 0.053955998787381665
+                ln_residential_unit_density_zone: 0.04420880819387435
+                ln_units_per_acre: -0.2562358235774732
+                mean_income: 1.2469082642667665e-06
+                year_built: -2.135128466783636e-05
+            Std. Error:
+                Intercept: 1.2479654223145566
+                allpurpose_agglosum_floor: 0.04574510527525277
+                county8001: 0.3022935346052797
+                county8005: 0.1444952134818069
+                county8013: 0.11120324682629293
+                county8014: 4.0141435238443854e-16
+                county8019: 0.3597489269124637
+                county8035: 0.20735358273421156
+                county8039: 0.0
+                county8047: 0.0
+                county8059: 0.13088566705791727
+                county8123: 0.0
+                ln_avg_land_value_per_sqft_zone: 0.05984521256123282
+                ln_dist_bus: 0.037177935187766624
+                ln_dist_rail: 1.6390118043984834e-06
+                ln_non_residential_sqft_zone: 0.009462099494663508
+                ln_pop_within_20min: 0.09843885948192066
+                ln_residential_unit_density_zone: 0.06847995403391445
+                ln_units_per_acre: 0.05554804539604097
+                mean_income: 1.7701810570400691e-06
+                year_built: 0.0002500197090974947
+            T-Score:
+                Intercept: 8.143947756319305
+                allpurpose_agglosum_floor: 0.6002282119978068
+                county8001: 1.9561616922111582
+                county8005: 1.4712342569765007
+                county8013: -1.062758189131879
+                county8014: -0.23387494742556306
+                county8019: 0.4076308427744815
+                county8035: 0.6072001351751143
+                county8039: .nan
+                county8047: .nan
+                county8059: -1.2029308801204717
+                county8123: .nan
+                ln_avg_land_value_per_sqft_zone: 1.033812066680464
+                ln_dist_bus: 1.8366085979348141
+                ln_dist_rail: 0.7358110761457266
+                ln_non_residential_sqft_zone: -1.8141368202811248
+                ln_pop_within_20min: 0.5481168622975692
+                ln_residential_unit_density_zone: 0.6455729828904396
+                ln_units_per_acre: -4.612868405190288
+                mean_income: 0.7043958917692462
+                year_built: -0.08539840616929312
+        fit_rsquared: 0.1529981068492905
+        fit_rsquared_adj: 0.10389654782606095
+        fitted: true
+        name: !!python/long '2'
+    !!python/long '3':
+        fit_parameters:
+            Coefficient:
+                Intercept: -10.744898214028074
+                allpurpose_agglosum_floor: -0.037200162452303356
+                county8001: 8.6815392866049515e-16
+                county8005: -0.003633090093224073
+                county8013: 0.0
+                county8014: 0.0
+                county8019: -0.381639631747084
+                county8035: 0.0
+                county8039: 0.0
+                county8047: 0.0
+                county8059: -0.24704956420213947
+                county8123: 0.0
+                ln_avg_land_value_per_sqft_zone: 0.6416771085795534
+                ln_dist_bus: 0.06544348463390047
+                ln_dist_rail: -1.002333430133155e-06
+                ln_non_residential_sqft_zone: -0.0007972716616634051
+                ln_pop_within_20min: 0.4561435864683774
+                ln_residential_unit_density_zone: -0.08457614481704703
+                ln_units_per_acre: -0.47964031245718086
+                mean_income: -3.7620162907846754e-06
+                year_built: 0.008622989379628528
+            Std. Error:
+                Intercept: 4.495280388133878
+                allpurpose_agglosum_floor: 0.0542773851334263
+                county8001: 8.365927944230822e-16
+                county8005: 0.16169617344417533
+                county8013: 0.0
+                county8014: 0.0
+                county8019: 0.29406593846693735
+                county8035: 0.0
+                county8039: 0.0
+                county8047: 0.0
+                county8059: 0.16325139103331385
+                county8123: 0.0
+                ln_avg_land_value_per_sqft_zone: 0.07854546727207845
+                ln_dist_bus: 0.04443539338730224
+                ln_dist_rail: 1.8660324736653653e-06
+                ln_non_residential_sqft_zone: 0.009618116445178479
+                ln_pop_within_20min: 0.15884674473741792
+                ln_residential_unit_density_zone: 0.07925922840070644
+                ln_units_per_acre: 0.07353711340538754
+                mean_income: 1.877088412566455e-06
+                year_built: 0.0021869086774756316
+            T-Score:
+                Intercept: -2.390262071836768
+                allpurpose_agglosum_floor: -0.6853713081582099
+                county8001: 1.0377258021438944
+                county8005: -0.0224686213398759
+                county8013: .nan
+                county8014: .nan
+                county8019: -1.2978029136482014
+                county8035: .nan
+                county8039: .nan
+                county8047: .nan
+                county8059: -1.5133075598218049
+                county8123: .nan
+                ln_avg_land_value_per_sqft_zone: 8.169498901277255
+                ln_dist_bus: 1.47277833378204
+                ln_dist_rail: -0.5371468311933048
+                ln_non_residential_sqft_zone: -0.08289270214263979
+                ln_pop_within_20min: 2.8715954313222274
+                ln_residential_unit_density_zone: -1.067082616417361
+                ln_units_per_acre: -6.5224250755271145
+                mean_income: -2.0041763965934063
+                year_built: 3.9430038704597954
+        fit_rsquared: 0.600049628955595
+        fit_rsquared_adj: 0.5683462458850019
+        fitted: true
+        name: !!python/long '3'
+    !!python/long '20':
+        fit_parameters:
+            Coefficient:
+                Intercept: 6.076409655384631
+                allpurpose_agglosum_floor: -0.049428931566387474
+                county8001: -0.18297025766556002
+                county8005: -0.13399948860307231
+                county8013: -0.6275000881716439
+                county8014: 0.3233756472572618
+                county8019: 1.8360729865334164e-15
+                county8035: 0.17627726911781877
+                county8039: -0.052258064800325466
+                county8047: -0.19655190810577394
+                county8059: -0.016174651684989882
+                county8123: -0.265611104073945
+                ln_avg_land_value_per_sqft_zone: 0.4681943152223311
+                ln_dist_bus: 0.04381952181607919
+                ln_dist_rail: -3.00907776689292e-06
+                ln_non_residential_sqft_zone: 0.0057223786344984245
+                ln_pop_within_20min: 0.01690836092295067
+                ln_residential_unit_density_zone: -0.07234553211808104
+                ln_units_per_acre: -0.36745098266379317
+                mean_income: 9.85849161592036e-07
+                year_built: 0.0029462659101791764
+            Std. Error:
+                Intercept: 0.2629675439284709
+                allpurpose_agglosum_floor: 0.00676337924986941
+                county8001: 0.019743700901906153
+                county8005: 0.0209266442693993
+                county8013: 0.024776732996210495
+                county8014: 0.07058985614011935
+                county8019: 4.117171399066128e-16
+                county8035: 0.02238777615617704
+                county8039: 0.054071430644076914
+                county8047: 0.08214162980491997
+                county8059: 0.019669376090485954
+                county8123: 0.02784118918978606
+                ln_avg_land_value_per_sqft_zone: 0.010838540746542277
+                ln_dist_bus: 0.0052530781945924155
+                ln_dist_rail: 2.0388897401833773e-07
+                ln_non_residential_sqft_zone: 0.0011512124231979502
+                ln_pop_within_20min: 0.00864414405461231
+                ln_residential_unit_density_zone: 0.01093492451695945
+                ln_units_per_acre: 0.011549047037908131
+                mean_income: 2.0523746860297716e-07
+                year_built: 0.00011628078668931546
+            T-Score:
+                Intercept: 23.107070798963157
+                allpurpose_agglosum_floor: -7.308318776792218
+                county8001: -9.267272563265744
+                county8005: -6.4032955727649865
+                county8013: -25.32618357180576
+                county8014: 4.581049812814012
+                county8019: 4.459549551300879
+                county8035: 7.873817742687313
+                county8039: -0.9664635127617048
+                county8047: -2.392841590464781
+                county8059: -0.8223266264563184
+                county8123: -9.540221226304093
+                ln_avg_land_value_per_sqft_zone: 43.19717258725027
+                ln_dist_bus: 8.341684664276949
+                ln_dist_rail: -14.75841340308223
+                ln_non_residential_sqft_zone: 4.970740863447462
+                ln_pop_within_20min: 1.9560480269794638
+                ln_residential_unit_density_zone: -6.616006539951621
+                ln_units_per_acre: -31.816562999326848
+                mean_income: 4.803456056550365
+                year_built: 25.337512705784746
+        fit_rsquared: 0.3885908710962199
+        fit_rsquared_adj: 0.3872862020206166
+        fitted: true
+        name: !!python/long '20'
+    !!python/long '24':
+        fit_parameters:
+            Coefficient:
+                Intercept: 1.2358115689533165
+                allpurpose_agglosum_floor: 0.03599975051107812
+                county8001: 0.2272470839783508
+                county8005: 0.2645743854769169
+                county8013: -0.21985962355065536
+                county8014: -1.6463765452642285e-15
+                county8019: -0.39900974118943866
+                county8035: -1.9468096745030971e-16
+                county8039: 0.2526877679003938
+                county8047: 0.0
+                county8059: -0.21540197391432547
+                county8123: -0.27555786554865813
+                ln_avg_land_value_per_sqft_zone: 0.30217110542149717
+                ln_dist_bus: 0.08688517244405955
+                ln_dist_rail: -3.7930827757715166e-06
+                ln_non_residential_sqft_zone: 0.007956438708552685
+                ln_pop_within_20min: -0.033149320887143396
+                ln_residential_unit_density_zone: -0.1406976765906799
+                ln_units_per_acre: -0.11124138980201875
+                mean_income: -1.7627763090512233e-06
+                year_built: 0.005063767271642143
+            Std. Error:
+                Intercept: 1.8333839315032554
+                allpurpose_agglosum_floor: 0.028607575721273367
+                county8001: 0.08119286731612055
+                county8005: 0.08950496918449984
+                county8013: 0.08995495235263147
+                county8014: 1.868546771103926e-15
+                county8019: 0.24513831888667045
+                county8035: 2.0292292563302246e-16
+                county8039: 0.26881924318060324
+                county8047: 0.0
+                county8059: 0.06033418009859956
+                county8123: 0.11888741677154571
+                ln_avg_land_value_per_sqft_zone: 0.03511425317444603
+                ln_dist_bus: 0.021428111996875956
+                ln_dist_rail: 8.143054985649818e-07
+                ln_non_residential_sqft_zone: 0.0044262084032220565
+                ln_pop_within_20min: 0.06205014710595982
+                ln_residential_unit_density_zone: 0.04707105937218539
+                ln_units_per_acre: 0.04201244371450813
+                mean_income: 9.560282820299601e-07
+                year_built: 0.0007963772056024302
+            T-Score:
+                Intercept: 0.6740604342157791
+                allpurpose_agglosum_floor: 1.2583992038272482
+                county8001: 2.798855262662115
+                county8005: 2.9559742647532805
+                county8013: -2.4441080540934084
+                county8014: -0.8810999921032532
+                county8019: -1.6276922473875015
+                county8035: -0.9593837997505615
+                county8039: 0.939991367101009
+                county8047: .nan
+                county8059: -3.570148356409425
+                county8123: -2.3178051389422536
+                ln_avg_land_value_per_sqft_zone: 8.605368991341626
+                ln_dist_bus: 4.05472831468898
+                ln_dist_rail: -4.6580586554504615
+                ln_non_residential_sqft_zone: 1.7975743534264674
+                ln_pop_within_20min: -0.5342343641915308
+                ln_residential_unit_density_zone: -2.9890484401083843
+                ln_units_per_acre: -2.647820025846386
+                mean_income: -1.8438537250260774
+                year_built: 6.358503528251526
+        fit_rsquared: 0.5197410589903653
+        fit_rsquared_adj: 0.49943160128597763
+        fitted: true
+        name: !!python/long '24'
+
+fitted: true

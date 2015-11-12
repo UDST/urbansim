@@ -7,7 +7,6 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     """
     Samples and returns rows from a data frame while matching a desired control total. The total may
     represent a simple row count or may attempt to match a sum/quantity from an accounting column.
-
     Parameters
     ----------
     total : int
@@ -22,7 +21,6 @@ def sample_rows(total, data, replace=True, accounting_column=None, max_iteration
     max_iterations: int, optional, default 50
         When using an accounting attribute, the maximum number of sampling iterations
         that will be applied.
-
     Returns
     -------
     sample_rows : pandas.DataFrame
