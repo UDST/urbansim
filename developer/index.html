@@ -147,26 +147,26 @@ but are implemented in vectorized Python implementations so that many (think
 millions) of pro formas can be performed at a time.</p>
 <p>The functionality is split into two modules - the square foot pro forma and
 the developer model - as there are many use cases that call for the pro formas
-without the developer model.  The <tt class="docutils literal"><span class="pre">sqftproforma</span></tt> module computes real
+without the developer model.  The <code class="docutils literal"><span class="pre">sqftproforma</span></code> module computes real
 estate feasibility for a set of parcels dependent on allowed uses, prices,
 and building costs, but does not actually <em>build</em> anything (both figuratively
-and literally).  The <tt class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></tt> decides how much to build,
+and literally).  The <code class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></code> decides how much to build,
 then picks among the set of feasible buildings attempting to meet demand,
 and adds the new buildings to the set of current buildings.  Thus
-<tt class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></tt> is primarily useful in the context of an urban forecast.</p>
+<code class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></code> is primarily useful in the context of an urban forecast.</p>
 <p>An example of the sample code required to generate the set of feasible
-buildings is shown below.  This code comes from the <tt class="docutils literal"><span class="pre">utils</span></tt> module of the
+buildings is shown below.  This code comes from the <code class="docutils literal"><span class="pre">utils</span></code> module of the
 current <a class="reference external" href="https://github.com/udst/sanfran_urbansim">sanfran_urbansim</a> demo.  Notice that the SqFtProForma is
 first initialized and a DataFrame of parcels is tested for feasibliity (each
 individual parcel is tested for feasibility).  Each <em>use</em> (e.g. retail, office,
 residential, etc) is assigned a price per parcel, typically from empirical data
 of currents rents and prices in the city but can be the result of forecast
-rents and prices as well.  The <tt class="docutils literal"><span class="pre">lookup</span></tt> function is then called with a
-specific building <tt class="docutils literal"><span class="pre">form</span></tt> and the pro forma returns whether that form is
+rents and prices as well.  The <code class="docutils literal"><span class="pre">lookup</span></code> function is then called with a
+specific building <code class="docutils literal"><span class="pre">form</span></code> and the pro forma returns whether that form is
 profitable for each parcel.</p>
 <p>A large number of assumptions enter in to the computation of profitability
 and these are set in the <a class="reference external" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig">SqFtProFormaConfig</a> module, and include such things
-as the set of <tt class="docutils literal"><span class="pre">uses</span></tt> to model, the mix of <tt class="docutils literal"><span class="pre">uses</span></tt> into <tt class="docutils literal"><span class="pre">forms</span></tt>,
+as the set of <code class="docutils literal"><span class="pre">uses</span></code> to model, the mix of <code class="docutils literal"><span class="pre">uses</span></code> into <code class="docutils literal"><span class="pre">forms</span></code>,
 the impact of parking requirements, parking costs,
 building costs at different heights (taller buildings typically requiring
 more expensive construction methods), the profit ratio required,
@@ -180,7 +180,7 @@ translation to unit sizes and mixes in a given market (also larger and
 smaller units of a given unit type will typically lower and raise their
 prices as stands to reason).  Since getting data on unit mixes in the current
 building stock is extremely difficult, most feasibility computations here
-happen on a square foot basis and the <tt class="docutils literal"><span class="pre">developer</span></tt> model below handles the
+happen on a square foot basis and the <code class="docutils literal"><span class="pre">developer</span></code> model below handles the
 translation to units.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pf</span> <span class="o">=</span> <span class="n">sqftproforma</span><span class="o">.</span><span class="n">SqFtProForma</span><span class="p">()</span>
 
@@ -204,7 +204,7 @@ translation to units.</p>
 <span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s">&quot;feasibility&quot;</span><span class="p">,</span> <span class="n">far_predictions</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></tt> is responsible for picking among feasible buildings
+<p>The <code class="docutils literal"><span class="pre">developer</span> <span class="pre">model</span></code> is responsible for picking among feasible buildings
 in order to meet demand.  An example usage of the model is shown below - which
 is also lifted form the <a class="reference external" href="https://github.com/udst/sanfran_urbansim">sanfran_urbansim</a> demo.</p>
 <p>This module provides a simple utility to compute the number of units (or
@@ -217,8 +217,8 @@ which buildings to &#8220;build,&#8221; usually as a random choice weighted by p
 This means more profitable buildings are more likely to be built although
 the results are a bit stochastic.</p>
 <p>The only remaining steps are then &#8220;bookkeeping&#8221; in the sense that some
-additional fields might need to be added (<tt class="docutils literal"><span class="pre">year_built</span></tt> or a conversion from
-developer <tt class="docutils literal"><span class="pre">forms</span></tt> to <tt class="docutils literal"><span class="pre">building_type_ids</span></tt>).  Finally the new buildings
+additional fields might need to be added (<code class="docutils literal"><span class="pre">year_built</span></code> or a conversion from
+developer <code class="docutils literal"><span class="pre">forms</span></code> to <code class="docutils literal"><span class="pre">building_type_ids</span></code>).  Finally the new buildings
 and old buildings need to be merged in such a way that the old ids are
 preserved and not duplicated (new ids are assigned at the max of the old
 ids+1 and then incremented from there).</p>
@@ -260,7 +260,7 @@ ids+1 and then incremented from there).</p>
 <span id="square-foot-pro-forma-api"></span><h2>Square Foot Pro Forma API<a class="headerlink" href="#module-urbansim.developer.sqftproforma" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma">
-<em class="property">class </em><tt class="descclassname">urbansim.developer.sqftproforma.</tt><tt class="descname">SqFtProForma</tt><big>(</big><em>config=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.developer.sqftproforma.</code><code class="descname">SqFtProForma</code><span class="sig-paren">(</span><em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the square foot based pro forma.</p>
 <p>This pro forma has no representation of units - it does not
 differentiate between the rent attained by 1BR, 2BR, or 3BR and change
@@ -286,34 +286,29 @@ pro forma are documented on the configuration object.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
-<tt class="descname">get_ave_cost_sqft</tt><big>(</big><em>form</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the average cost per sqft for the pro forma for a given form</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
+<code class="descname">get_ave_cost_sqft</code><span class="sig-paren">(</span><em>form</em>, <em>parking_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the average cost per sqft for the pro forma for a given form
+Parameters
+&#8212;&#8212;&#8212;-
+form : string</p>
 <blockquote>
-<div><p>Get a series representing the average cost per sqft for each form in
-the config</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> : series</p>
-<blockquote class="last">
-<div><p>A series where the index is the far and the values are the average
+<div>Get a series representing the average cost per sqft for each form in
+the config</div></blockquote>
+<dl class="docutils">
+<dt>parking_config <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd>The parking configuration to get debug info for</dd>
+</dl>
+<dl class="docutils">
+<dt>cost <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
+<dd>A series where the index is the far and the values are the average
 cost per sqft at which the building is &#8220;break even&#8221; given the
-configuration parameters that were passed at run time.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+configuration parameters that were passed at run time.</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">
-<tt class="descname">get_debug_info</tt><big>(</big><em>form</em>, <em>parking_config</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_debug_info</code><span class="sig-paren">(</span><em>form</em>, <em>parking_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the debug info after running the pro forma for a given form and parking
 configuration</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -345,7 +340,7 @@ many of the columns should be fairly self-expanatory.</p>
 
 <dl class="method">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma.lookup">
-<tt class="descname">lookup</tt><big>(</big><em>form</em>, <em>df</em>, <em>only_built=True</em>, <em>pass_through=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Permalink to this definition">¶</a></dt>
+<code class="descname">lookup</code><span class="sig-paren">(</span><em>form</em>, <em>df</em>, <em>only_built=True</em>, <em>pass_through=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function does the developer model lookups for all the actual input data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -464,7 +459,7 @@ and max_height from the input dataframe).</p>
 
 <dl class="class">
 <dt id="urbansim.developer.sqftproforma.SqFtProFormaConfig">
-<em class="property">class </em><tt class="descclassname">urbansim.developer.sqftproforma.</tt><tt class="descname">SqFtProFormaConfig</tt><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.developer.sqftproforma.</code><code class="descname">SqFtProFormaConfig</code><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class encapsulates the configuration options for the square
 foot based pro forma.</p>
 <dl class="docutils">
@@ -575,13 +570,13 @@ internet.</dd>
 <span id="developer-model-api"></span><h2>Developer Model API<a class="headerlink" href="#module-urbansim.developer.developer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="urbansim.developer.developer.Developer">
-<em class="property">class </em><tt class="descclassname">urbansim.developer.developer.</tt><tt class="descname">Developer</tt><big>(</big><em>feasibility</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.developer.developer.</code><code class="descname">Developer</code><span class="sig-paren">(</span><em>feasibility</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pass the dataframe that is returned by feasibility here</p>
 <p>Can also be a dictionary where keys are building forms and values are
 the individual data frames returned by the proforma lookup routine.</p>
 <dl class="staticmethod">
 <dt id="urbansim.developer.developer.Developer.compute_units_to_build">
-<em class="property">static </em><tt class="descname">compute_units_to_build</tt><big>(</big><em>num_agents</em>, <em>num_units</em>, <em>target_vacancy</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.compute_units_to_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.compute_units_to_build" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">compute_units_to_build</code><span class="sig-paren">(</span><em>num_agents</em>, <em>num_units</em>, <em>target_vacancy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.compute_units_to_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.compute_units_to_build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute number of units to build to match target vacancy.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -613,7 +608,7 @@ the individual data frames returned by the proforma lookup routine.</p>
 
 <dl class="method">
 <dt id="urbansim.developer.developer.Developer.keep_form_with_max_profit">
-<tt class="descname">keep_form_with_max_profit</tt><big>(</big><em>forms=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.keep_form_with_max_profit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">keep_form_with_max_profit</code><span class="sig-paren">(</span><em>forms=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.keep_form_with_max_profit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit" title="Permalink to this definition">¶</a></dt>
 <dd><p>This converts the dataframe, which shows all profitable forms,
 to the form with the greatest profit, so that more profitable
 forms outcompete less profitable forms.</p>
@@ -637,7 +632,7 @@ forms outcompete less profitable forms.</p>
 
 <dl class="staticmethod">
 <dt id="urbansim.developer.developer.Developer.merge">
-<em class="property">static </em><tt class="descname">merge</tt><big>(</big><em>old_df</em>, <em>new_df</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">merge</code><span class="sig-paren">(</span><em>old_df</em>, <em>new_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge two dataframes of buildings.  The old dataframe is
 usually the buildings dataset and the new dataframe is a modified
 (by the user) version of what is returned by the pick method.</p>
@@ -667,7 +662,7 @@ usually the buildings dataset and the new dataframe is a modified
 
 <dl class="method">
 <dt id="urbansim.developer.developer.Developer.pick">
-<tt class="descname">pick</tt><big>(</big><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em>, <em>bldg_sqft_per_job=400.0</em><big>)</big><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pick</code><span class="sig-paren">(</span><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em>, <em>bldg_sqft_per_job=400.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose the buildings from the list that are feasible to build in
 order to match the specified demand.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -797,7 +792,7 @@ DataFrame that is returned from feasibility.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

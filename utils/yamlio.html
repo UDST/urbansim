@@ -146,7 +146,7 @@
 <p>Utilities for doing IO to YAML files.</p>
 <dl class="function">
 <dt id="urbansim.utils.yamlio.convert_to_yaml">
-<tt class="descclassname">urbansim.utils.yamlio.</tt><tt class="descname">convert_to_yaml</tt><big>(</big><em>cfg</em>, <em>str_or_buffer</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#convert_to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.convert_to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">convert_to_yaml</code><span class="sig-paren">(</span><em>cfg</em>, <em>str_or_buffer</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#convert_to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.convert_to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a dictionary to YAML and return the string or write it out
 depending on the type of <cite>str_or_buffer</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -161,7 +161,7 @@ depending on the type of <cite>str_or_buffer</cite>.</p>
 <blockquote>
 <div><p>If None: the YAML string will be returned.
 If string: YAML will be saved to a file.
-If buffer: YAML will be written to buffer using the <tt class="docutils literal"><span class="pre">.write</span></tt> method.</p>
+If buffer: YAML will be written to buffer using the <code class="docutils literal"><span class="pre">.write</span></code> method.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -178,7 +178,7 @@ is written out to a separate destination.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.frame_to_yaml_safe">
-<tt class="descclassname">urbansim.utils.yamlio.</tt><tt class="descname">frame_to_yaml_safe</tt><big>(</big><em>frame</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#frame_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.frame_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">frame_to_yaml_safe</code><span class="sig-paren">(</span><em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#frame_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.frame_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pandas DataFrame to a dictionary that will survive
 YAML serialization and re-conversion back to a DataFrame.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -195,7 +195,7 @@ YAML serialization and re-conversion back to a DataFrame.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.ordered_yaml">
-<tt class="descclassname">urbansim.utils.yamlio.</tt><tt class="descname">ordered_yaml</tt><big>(</big><em>cfg</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#ordered_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.ordered_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">ordered_yaml</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#ordered_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.ordered_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a dictionary to a YAML string with preferential ordering
 for some keys. Converted string is meant to be fairly human readable.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -220,7 +220,7 @@ for some keys. Converted string is meant to be fairly human readable.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.series_to_yaml_safe">
-<tt class="descclassname">urbansim.utils.yamlio.</tt><tt class="descname">series_to_yaml_safe</tt><big>(</big><em>series</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#series_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.series_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">series_to_yaml_safe</code><span class="sig-paren">(</span><em>series</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#series_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.series_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pandas Series to a dict that will survive YAML serialization
 and re-conversion back to a Series.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -237,13 +237,13 @@ and re-conversion back to a Series.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.to_scalar_safe">
-<tt class="descclassname">urbansim.utils.yamlio.</tt><tt class="descname">to_scalar_safe</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#to_scalar_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.to_scalar_safe" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">to_scalar_safe</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#to_scalar_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.to_scalar_safe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a numpy data type to a standard python scalar.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.yaml_to_dict">
-<tt class="descclassname">urbansim.utils.yamlio.</tt><tt class="descname">yaml_to_dict</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#yaml_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.yaml_to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">yaml_to_dict</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#yaml_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.yaml_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load YAML from a string, file, or buffer (an object with a .read method).
 Parameters are mutually exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -321,7 +321,7 @@ Parameters are mutually exclusive.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

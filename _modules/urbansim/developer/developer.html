@@ -328,9 +328,12 @@
             <span class="k">print</span> <span class="s">&quot;WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO &quot;</span> \
                   <span class="s">&quot;MATCH DEMAND&quot;</span>
 
+        <span class="n">df</span><span class="p">[</span><span class="s">&#39;max_profit_per_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_profit</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span>
+
         <span class="n">choices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
                                    <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                                   <span class="n">p</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">max_profit</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">max_profit</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+                                   <span class="n">p</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span>
+                                      <span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
         <span class="n">net_units</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">choices</span><span class="p">]</span>
         <span class="n">tot_units</span> <span class="o">=</span> <span class="n">net_units</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">tot_units</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">))</span>
@@ -411,7 +414,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

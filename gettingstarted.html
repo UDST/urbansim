@@ -191,7 +191,7 @@ to your conda configuration:</p>
 <div class="highlight-python"><div class="highlight"><pre>conda install urbansim
 </pre></div>
 </div>
-<p>To update to a new UrbanSim version use the <tt class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></tt> command:</p>
+<p>To update to a new UrbanSim version use the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></code> command:</p>
 <div class="highlight-python"><div class="highlight"><pre>conda update urbansim
 </pre></div>
 </div>
@@ -209,8 +209,8 @@ installed, otherwise pip will try to download and install things like
 NumPy, SciPy, and matplotlib.
 If you&#8217;re using Anaconda you will already have all of the hard-to-install
 libraries.</p>
-<p>To update to a new release of UrbanSim use the <tt class="docutils literal"><span class="pre">-U</span></tt> option with
-<tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></tt>:</p>
+<p>To update to a new release of UrbanSim use the <code class="docutils literal"><span class="pre">-U</span></code> option with
+<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
 <div class="highlight-python"><div class="highlight"><pre>pip install -U urbansim
 </pre></div>
 </div>
@@ -234,7 +234,7 @@ included in Anaconda.</p>
 <h4>Developer Install<a class="headerlink" href="#developer-install" title="Permalink to this headline">¶</a></h4>
 <p>If you are going to be developing on UrbanSim you will want to fork our
 <a class="reference external" href="https://github.com/udst/urbansim">GitHub repository</a> and clone
-your fork to your computer. Then run <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></tt> to install
+your fork to your computer. Then run <code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> to install
 UrbanSim in developer mode. In this mode you won&#8217;t have to reinstall
 UrbanSim every time you make changes.</p>
 </div>
@@ -259,7 +259,7 @@ UrbanSim every time you make changes.</p>
 <p>A surprising amount of the time when you have bugs in your code, the Pandas series is not indexed correctly when performing the subsequent operations and it is not doing what you intend.  You&#8217;ve been warned.</p>
 <p>To be clear, the canonical example of using Pandas might be having a parcel table indexed on parcel id and a building table indexed on building_id, but with an attribute in the buildings table called parcel_id (the <a class="reference external" href="http://en.wikipedia.org/wiki/Foreign_key">foreign key</a>).</p>
 <p>The tables can be merged using</p>
-<p><tt class="docutils literal"><span class="pre">pd.merge(buildings,</span> <span class="pre">parcels,</span> <span class="pre">left_on=&quot;parcel_id&quot;,</span> <span class="pre">right_index=True,</span> <span class="pre">how=&quot;left&quot;)</span></tt></p>
+<p><code class="docutils literal"><span class="pre">pd.merge(buildings,</span> <span class="pre">parcels,</span> <span class="pre">left_on=&quot;parcel_id&quot;,</span> <span class="pre">right_index=True,</span> <span class="pre">how=&quot;left&quot;)</span></code></p>
 <p>You will do this a lot.  If you want a comparison of SQL and pandas, check out this <a class="reference external" href="http://www.gregreda.com/2013/01/23/translating-sql-to-pandas-part1/">series of blog posts</a>.</p>
 </div>
 <div class="section" id="ipython">
@@ -342,7 +342,7 @@ on demographic shifts of households and of sector shifts of employment.
 These files control the transition models and which new households and jobs
 are added to the simulation.</li>
 <li><em>Zoning Changes</em> in the form of scenario-specific density limits such as
-<tt class="docutils literal"><span class="pre">max_far</span></tt> and <tt class="docutils literal"><span class="pre">max_dua</span></tt> are <a class="reference external" href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">passed to the pro formas</a>
+<code class="docutils literal"><span class="pre">max_far</span></code> and <code class="docutils literal"><span class="pre">max_dua</span></code> are <a class="reference external" href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">passed to the pro formas</a>
 when testing for feasibility.  Simple <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29">utility functions</a> are also common to
 <em>upzone</em> certain parcels only if certain policies affect them.</li>
 <li><em>Fees and Subsidies</em> may also come in to play by adjusting the feasibility
@@ -364,7 +364,7 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 <li>Calculated columns can be specified so that when underlying data is changed, calculated columns are kept in sync automatically.</li>
 <li>Data processing <em>models</em> can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.</li>
 </ul>
-<p>To this end UrbanSim now implements this functionality as <a class="reference external" href="sim/index.html#tables">tables</a>, <a class="reference external" href="sim/index.html#urbansim.sim.simulation.broadcast">broadcasts</a>, <a class="reference external" href="sim/index.html#columns">columns</a>, and <a class="reference external" href="sim/index.html#models">models</a> respectively.  We decided to implement these concepts with Python functions and <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>. This is what is happening when you see the <tt class="docutils literal"><span class="pre">&#64;sim.DECORATOR_NAME</span></tt> syntax everywhere, e.g.:</p>
+<p>To this end UrbanSim now implements this functionality as <a class="reference external" href="sim/index.html#tables">tables</a>, <a class="reference external" href="sim/index.html#urbansim.sim.simulation.broadcast">broadcasts</a>, <a class="reference external" href="sim/index.html#columns">columns</a>, and <a class="reference external" href="sim/index.html#models">models</a> respectively.  We decided to implement these concepts with Python functions and <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>. This is what is happening when you see the <code class="docutils literal"><span class="pre">&#64;sim.DECORATOR_NAME</span></code> syntax everywhere, e.g.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;buildings&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;buildings&#39;</span><span class="p">]</span>
@@ -375,7 +375,7 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 </pre></div>
 </div>
 <p>With the use of decorators you can <em>register</em> these concepts with the simulation engine and deal with one small piece of the simulation at a time - for instance, how to access data for a certain table, or how to compute a certain variable, or how to run a certain model.</p>
-<p>The objects can then be passed to each other using <em>injection</em>, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called <tt class="docutils literal"><span class="pre">total_units</span></tt> on the <tt class="docutils literal"><span class="pre">parcels</span></tt> table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.:</p>
+<p>The objects can then be passed to each other using <em>injection</em>, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called <code class="docutils literal"><span class="pre">total_units</span></code> on the <code class="docutils literal"><span class="pre">parcels</span></code> table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.column</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">,</span> <span class="s">&#39;total_units&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">residential_unit_density</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">parcels</span><span class="o">.</span><span class="n">acres</span>
@@ -435,7 +435,7 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

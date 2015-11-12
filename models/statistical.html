@@ -186,7 +186,7 @@ can be written as lists or dictionaries:</p>
 </div>
 <p>Expressing the formula as a string is always an option.
 The ability to use lists or dictionaries are especially useful to make
-attractively formatted formulae in <a class="reference internal" href="#yaml-config"><em>YAML config files</em></a>.</p>
+attractively formatted formulae in <a class="reference internal" href="#yaml-config"><span>YAML config files</span></a>.</p>
 </div>
 <div class="section" id="yaml-persistence">
 <span id="yaml-config"></span><h2>YAML Persistence<a class="headerlink" href="#yaml-persistence" title="Permalink to this headline">¶</a></h2>
@@ -196,7 +196,7 @@ at another time.
 This feature is especially useful for estimating models in one location,
 saving the fit parameters to disk, and then using the fitted model for
 prediction somewhere else.</p>
-<p>Use the <tt class="docutils literal"><span class="pre">.to_yaml</span></tt> and <tt class="docutils literal"><span class="pre">.from_yaml</span></tt> methods to save files to disk
+<p>Use the <code class="docutils literal"><span class="pre">.to_yaml</span></code> and <code class="docutils literal"><span class="pre">.from_yaml</span></code> methods to save files to disk
 and load them back as configured models.
 Here&#8217;s an example of loading a regression model, performing fitting, and
 saving the model back to YAML:</p>
@@ -220,13 +220,13 @@ YAML and load them into Python only for fitting and prediction.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModel" title="urbansim.models.regression.RegressionModel"><tt class="xref py py-obj docutils literal"><span class="pre">RegressionModel</span></tt></a>(fit_filters,&nbsp;...[,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModel" title="urbansim.models.regression.RegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModel</span></code></a>(fit_filters,&nbsp;...[,&nbsp;...])</td>
 <td>A hedonic (regression) model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.regression.SegmentedRegressionModel" title="urbansim.models.regression.SegmentedRegressionModel"><tt class="xref py py-obj docutils literal"><span class="pre">SegmentedRegressionModel</span></tt></a>(segmentation_col[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.regression.SegmentedRegressionModel" title="urbansim.models.regression.SegmentedRegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedRegressionModel</span></code></a>(segmentation_col[,&nbsp;...])</td>
 <td>A regression model group that allows segments to have different model expressions and ytransforms but all have the same filters.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModelGroup" title="urbansim.models.regression.RegressionModelGroup"><tt class="xref py py-obj docutils literal"><span class="pre">RegressionModelGroup</span></tt></a>(segmentation_col[,&nbsp;name])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModelGroup" title="urbansim.models.regression.RegressionModelGroup"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModelGroup</span></code></a>(segmentation_col[,&nbsp;name])</td>
 <td>Manages a group of regression models that refer to different segments within a single table.</td>
 </tr>
 </tbody>
@@ -240,13 +240,13 @@ YAML and load them into Python only for fitting and prediction.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><tt class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></tt></a>(model_expression,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></code></a>(model_expression,&nbsp;...)</td>
 <td>A discrete choice model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><tt class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></tt></a>(...[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></code></a>(...[,&nbsp;...])</td>
 <td>An MNL LCM group that allows segments to have different model expressions but otherwise share configurations.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="urbansim.models.dcm.MNLDiscreteChoiceModelGroup"><tt class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModelGroup</span></tt></a>(segmentation_col)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="urbansim.models.dcm.MNLDiscreteChoiceModelGroup"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModelGroup</span></code></a>(segmentation_col)</td>
 <td>Manages a group of discrete choice models that refer to different segments of choosers.</td>
 </tr>
 </tbody>
@@ -254,11 +254,11 @@ YAML and load them into Python only for fitting and prediction.</p>
 </div>
 <div class="section" id="module-urbansim.models.regression">
 <span id="regression-api-docs"></span><h3>Regression API Docs<a class="headerlink" href="#module-urbansim.models.regression" title="Permalink to this headline">¶</a></h3>
-<p>Use the <tt class="docutils literal"><span class="pre">RegressionModel</span></tt> class to fit a model using statsmodels&#8217;
+<p>Use the <code class="docutils literal"><span class="pre">RegressionModel</span></code> class to fit a model using statsmodels&#8217;
 OLS capability and then do subsequent prediction.</p>
 <dl class="class">
 <dt id="urbansim.models.regression.RegressionModel">
-<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">RegressionModel</tt><big>(</big><em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.regression.</code><code class="descname">RegressionModel</code><span class="sig-paren">(</span><em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A hedonic (regression) model with the ability to store an
 estimated model and predict new data based on the model.</p>
 <p>statsmodels&#8217; OLS implementation is used.</p>
@@ -283,7 +283,7 @@ Should contain both the left- and right-hand sides.</p>
 <blockquote>
 <div><p>A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
 <p>By default no transformation is applied.</p>
 </div></blockquote>
@@ -298,20 +298,20 @@ in output.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.assert_fitted">
-<tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">assert_fitted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raises a RuntimeError if the model is not ready for prediction.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.columns_used">
-<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all the columns used in this model for filtering
 and in the model expression.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.fit">
-<tt class="descname">fit</tt><big>(</big><em>data</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model to data and store/return the results.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -343,7 +343,7 @@ class instance for use during prediction.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.regression.RegressionModel.fit_from_cfg">
-<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">fit_from_cfg</code><span class="sig-paren">(</span><em>df</em>, <em>cfgname</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -371,13 +371,13 @@ class instance for use during prediction.</p>
 
 <dl class="attribute">
 <dt id="urbansim.models.regression.RegressionModel.fitted">
-<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fitted</code><a class="headerlink" href="#urbansim.models.regression.RegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if the model is ready for prediction.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="urbansim.models.regression.RegressionModel.from_yaml">
-<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a RegressionModel instance from a saved YAML configuration.
 Arguments are mutually exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -403,7 +403,7 @@ Arguments are mutually exclusive.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.predict">
-<tt class="descname">predict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict a new data set based on an estimated model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -429,7 +429,7 @@ after applying filters.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.regression.RegressionModel.predict_from_cfg">
-<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>df</em>, <em>cfgname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -459,25 +459,25 @@ models.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.report_fit">
-<tt class="descname">report_fit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.report_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">report_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.report_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print a report of the fit results.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="urbansim.models.regression.RegressionModel.str_model_expression">
-<tt class="descname">str_model_expression</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<code class="descname">str_model_expression</code><a class="headerlink" href="#urbansim.models.regression.RegressionModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model expression as a string suitable for use with patsy/statsmodels.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.to_dict">
-<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary representation of a RegressionModel instance.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModel.to_yaml">
-<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a model respresentation to YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -487,7 +487,7 @@ models.</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
 </div></blockquote>
 </td>
@@ -506,7 +506,7 @@ YAML will be written to that object.</p>
 
 <dl class="class">
 <dt id="urbansim.models.regression.RegressionModelGroup">
-<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">RegressionModelGroup</tt><big>(</big><em>segmentation_col</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.regression.</code><code class="descname">RegressionModelGroup</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages a group of regression models that refer to different segments
 within a single table.</p>
 <p>Model names must match the segment names after doing a Pandas groupby.</p>
@@ -528,7 +528,7 @@ within a single table.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModelGroup.add_model">
-<tt class="descname">add_model</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_model</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a <cite>RegressionModel</cite> instance.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -536,7 +536,7 @@ within a single table.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : <cite>RegressionModel</cite></p>
 <blockquote class="last">
-<div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of
+<div><p>Should have a <code class="docutils literal"><span class="pre">.name</span></code> attribute matching one of
 the groupby segments.</p>
 </div></blockquote>
 </td>
@@ -547,7 +547,7 @@ the groupby segments.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModelGroup.add_model_from_params">
-<tt class="descname">add_model_from_params</tt><big>(</big><em>name</em>, <em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_model_from_params</code><span class="sig-paren">(</span><em>name</em>, <em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a model by passing arguments through to <cite>RegressionModel</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -574,7 +574,7 @@ Should contain both the left- and right-hand sides.</p>
 <blockquote class="last">
 <div><p>A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
 <p>By default no transformation is applied.</p>
 </div></blockquote>
@@ -586,14 +586,14 @@ the results reflect actual price.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModelGroup.columns_used">
-<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all the columns used across all models in the group
 for filtering and in the model expression.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModelGroup.fit">
-<tt class="descname">fit</tt><big>(</big><em>data</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit each of the models in the group.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -622,13 +622,13 @@ to model estimation.</p>
 
 <dl class="attribute">
 <dt id="urbansim.models.regression.RegressionModelGroup.fitted">
-<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fitted</code><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether all models in the group have been fitted.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.RegressionModelGroup.predict">
-<tt class="descname">predict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModelGroup.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict new data for each group in the segmentation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -657,7 +657,7 @@ models.</p>
 
 <dl class="class">
 <dt id="urbansim.models.regression.SegmentedRegressionModel">
-<em class="property">class </em><tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">SegmentedRegressionModel</tt><big>(</big><em>segmentation_col</em>, <em>fit_filters=None</em>, <em>predict_filters=None</em>, <em>default_model_expr=None</em>, <em>default_ytransform=None</em>, <em>min_segment_size=0</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.regression.</code><code class="descname">SegmentedRegressionModel</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>fit_filters=None</em>, <em>predict_filters=None</em>, <em>default_model_expr=None</em>, <em>default_ytransform=None</em>, <em>min_segment_size=0</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A regression model group that allows segments to have different
 model expressions and ytransforms but all have the same filters.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -692,7 +692,7 @@ Should contain both the left- and right-hand sides.</p>
 <blockquote>
 <div><p>A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
 <p>By default no transformation is applied.</p>
 </div></blockquote>
@@ -710,7 +710,7 @@ the results reflect actual price.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.add_segment">
-<tt class="descname">add_segment</tt><big>(</big><em>name</em>, <em>model_expression=None</em>, <em>ytransform='default'</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_segment</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression=None</em>, <em>ytransform='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new segment with its own model expression and ytransform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -731,7 +731,7 @@ None.</p>
 <blockquote class="last">
 <div><p>A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
 <p>If not given the default ytransform will be used.</p>
 </div></blockquote>
@@ -743,14 +743,14 @@ the results reflect actual price.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.columns_used">
-<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all the columns used across all models in the group
 for filtering and in the model expression.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.fit">
-<tt class="descname">fit</tt><big>(</big><em>data</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit each segment. Segments that have not already been explicitly
 added will be automatically added with default model and ytransform.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -779,7 +779,7 @@ added will be automatically added with default model and ytransform.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg">
-<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em>, <em>debug=False</em>, <em>min_segment_size=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">fit_from_cfg</code><span class="sig-paren">(</span><em>df</em>, <em>cfgname</em>, <em>debug=False</em>, <em>min_segment_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -811,13 +811,13 @@ added will be automatically added with default model and ytransform.</p>
 
 <dl class="attribute">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.fitted">
-<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fitted</code><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether models for all segments have been fit.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.from_yaml">
-<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a SegmentedRegressionModel instance from a saved YAML
 configuration. Arguments are mutally exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -843,7 +843,7 @@ configuration. Arguments are mutally exclusive.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.predict">
-<tt class="descname">predict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict new data for each group in the segmentation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -869,7 +869,7 @@ after applying filters.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">
-<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>df</em>, <em>cfgname</em>, <em>min_segment_size=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>df</em>, <em>cfgname</em>, <em>min_segment_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -903,14 +903,14 @@ models.</p>
 
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.to_dict">
-<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict representation of this instance suitable for
 conversion to YAML.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.to_yaml">
-<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a model respresentation to YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -920,7 +920,7 @@ conversion to YAML.</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
 </div></blockquote>
 </td>
@@ -939,7 +939,7 @@ YAML will be written to that object.</p>
 
 <dl class="function">
 <dt id="urbansim.models.regression.fit_model">
-<tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">fit_model</tt><big>(</big><em>df</em>, <em>filters</em>, <em>model_expression</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#fit_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.fit_model" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.regression.</code><code class="descname">fit_model</code><span class="sig-paren">(</span><em>df</em>, <em>filters</em>, <em>model_expression</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#fit_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.fit_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use statsmodels OLS to construct a model relation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -970,7 +970,7 @@ Should contain both the left- and right-hand sides.</p>
 
 <dl class="function">
 <dt id="urbansim.models.regression.predict">
-<tt class="descclassname">urbansim.models.regression.</tt><tt class="descname">predict</tt><big>(</big><em>df</em>, <em>filters</em>, <em>model_fit</em>, <em>ytransform=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/regression.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.regression.</code><code class="descname">predict</code><span class="sig-paren">(</span><em>df</em>, <em>filters</em>, <em>model_fit</em>, <em>ytransform=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply model to new data to predict new dependent values.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -989,7 +989,7 @@ Should contain both the left- and right-hand sides.</p>
 <blockquote>
 <div><p>A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <tt class="docutils literal"><span class="pre">ytransform=np.exp</span></tt> so that
+of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
 <p>By default no transformation is applied.</p>
 </div></blockquote>
@@ -1009,17 +1009,17 @@ after applying filters.</p>
 </div>
 <div class="section" id="module-urbansim.models.dcm">
 <span id="discrete-choice-api-docs"></span><h3>Discrete Choice API Docs<a class="headerlink" href="#module-urbansim.models.dcm" title="Permalink to this headline">¶</a></h3>
-<p>Use the <tt class="docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></tt> class to train a choice module using
+<p>Use the <code class="docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></code> class to train a choice module using
 multinomial logit and make subsequent choice predictions.</p>
 <dl class="class">
 <dt id="urbansim.models.dcm.DiscreteChoiceModel">
-<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">DiscreteChoiceModel</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#DiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.DiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">DiscreteChoiceModel</code><a class="reference internal" href="../_modules/urbansim/models/dcm.html#DiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.DiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract base class for discrete choice models.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel">
-<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">MNLDiscreteChoiceModel</tt><big>(</big><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">MNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A discrete choice model with the ability to store an estimated
 model and predict new data based on the model.
 Based on multinomial logit.</p>
@@ -1111,13 +1111,13 @@ in output.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.alts_columns_used">
-<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">alts_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the alternatives table that are used for filtering.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.apply_fit_filters">
-<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_fit_filters</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1143,7 +1143,7 @@ e.g. buildings.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.apply_predict_filters">
-<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_predict_filters</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1169,26 +1169,26 @@ e.g. buildings.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.assert_fitted">
-<tt class="descname">assert_fitted</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">assert_fitted</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.assert_fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.assert_fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raises <cite>RuntimeError</cite> if the model is not ready for prediction.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.choosers_columns_used">
-<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">choosers_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the choosers table that are used for filtering.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.columns_used">
-<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from any table used in the model. May come from either
 the choosers or alternatives tables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.fit">
-<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit and save model parameters based on given data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1225,7 +1225,7 @@ model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg">
-<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">fit_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1262,13 +1262,13 @@ choice model.</p>
 
 <dl class="attribute">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.fitted">
-<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fitted</code><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if model is ready for prediction.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.from_yaml">
-<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a DiscreteChoiceModel instance from a saved YAML configuration.
 Arguments are mutally exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1294,7 +1294,7 @@ Arguments are mutally exclusive.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.interaction_columns_used">
-<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">interaction_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the interaction dataset used for filtering and in
 the model. These may come originally from either the choosers or
 alternatives tables.</p>
@@ -1302,7 +1302,7 @@ alternatives tables.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.predict">
-<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose from among alternatives for a group of agents.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1338,7 +1338,7 @@ for all the choosers.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg">
-<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate choices for the specified choosers</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1385,7 +1385,7 @@ for all the choosers.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.probabilities">
-<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>filter_tables=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">probabilities</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>filter_tables=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the probabilities for a set of choosers to choose
 from among a set of alternatives.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1421,19 +1421,19 @@ IDs in the inner index and chooser IDs in the out index.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.report_fit">
-<tt class="descname">report_fit</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.report_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">report_fit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.report_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.report_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print a report of the fit results.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.str_model_expression">
-<tt class="descname">str_model_expression</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<code class="descname">str_model_expression</code><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.str_model_expression" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model expression as a string suitable for use with patsy/statsmodels.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.summed_probabilities">
-<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">summed_probabilities</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate total probability associated with each alternative.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1461,14 +1461,14 @@ IDs in the inner index and chooser IDs in the out index.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.to_dict">
-<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict respresentation of an MNLDiscreteChoiceModel
 instance.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.to_yaml">
-<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a model respresentation to YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1478,7 +1478,7 @@ instance.</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
 </div></blockquote>
 </td>
@@ -1497,7 +1497,7 @@ YAML will be written to that object.</p>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup">
-<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">MNLDiscreteChoiceModelGroup</tt><big>(</big><em>segmentation_col</em>, <em>remove_alts=False</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">MNLDiscreteChoiceModelGroup</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>remove_alts=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages a group of discrete choice models that refer to different
 segments of choosers.</p>
 <p>Model names must match the segment names after doing a pandas groupby.</p>
@@ -1528,7 +1528,7 @@ round of prediction.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model">
-<tt class="descname">add_model</tt><big>(</big><em>model</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_model</code><span class="sig-paren">(</span><em>model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an MNLDiscreteChoiceModel instance.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1536,7 +1536,7 @@ round of prediction.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : MNLDiscreteChoiceModel</p>
 <blockquote class="last">
-<div><p>Should have a <tt class="docutils literal"><span class="pre">.name</span></tt> attribute matching one of the segments
+<div><p>Should have a <code class="docutils literal"><span class="pre">.name</span></code> attribute matching one of the segments
 in the choosers table.</p>
 </div></blockquote>
 </td>
@@ -1547,7 +1547,7 @@ in the choosers table.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params">
-<tt class="descname">add_model_from_params</tt><big>(</big><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_model_from_params</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a model by passing parameters through to MNLDiscreteChoiceModel.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1633,13 +1633,13 @@ the alternatives index is used.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.alts_columns_used">
-<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">alts_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.alts_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the alternatives table that are used for filtering.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_fit_filters">
-<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_fit_filters</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.
 This is done by filtering each submodel and concatenating
 the results.</p>
@@ -1667,7 +1667,7 @@ e.g. buildings.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_predict_filters">
-<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_predict_filters</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.
 This is done by filtering each submodel and concatenating
 the results.</p>
@@ -1695,20 +1695,20 @@ e.g. buildings.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.choosers_columns_used">
-<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">choosers_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the choosers table that are used for filtering.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.columns_used">
-<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from any table used in the model. May come from either
 the choosers or alternatives tables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fit">
-<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit and save models based on given data after segmenting
 the <cite>choosers</cite> table.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1746,13 +1746,13 @@ log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
 
 <dl class="attribute">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fitted">
-<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fitted</code><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether all models in the group have been fitted.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.interaction_columns_used">
-<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">interaction_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the interaction dataset used for filtering and in
 the model. These may come originally from either the choosers or
 alternatives tables.</p>
@@ -1760,7 +1760,7 @@ alternatives tables.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.predict">
-<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose from among alternatives for a group of agents after
 segmenting the <cite>choosers</cite> table.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1798,7 +1798,7 @@ for all the choosers.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.probabilities">
-<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">probabilities</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns alternative probabilties for each chooser segment as
 a dictionary keyed by segment name.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1825,7 +1825,7 @@ Must have a column matching the .segmentation_col attribute.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.summed_probabilities">
-<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">summed_probabilities</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.summed_probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the sum of probabilities for alternatives across all
 chooser segments.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1857,7 +1857,7 @@ Must have a column matching the .segmentation_col attribute.</p>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel">
-<em class="property">class </em><tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">SegmentedMNLDiscreteChoiceModel</tt><big>(</big><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">SegmentedMNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>An MNL LCM group that allows segments to have different model expressions
 but otherwise share configurations.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1959,7 +1959,7 @@ round of prediction.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.add_segment">
-<tt class="descname">add_segment</tt><big>(</big><em>name</em>, <em>model_expression=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_segment</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.add_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new segment with its own model expression.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1984,13 +1984,13 @@ None.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.alts_columns_used">
-<tt class="descname">alts_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">alts_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.alts_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.alts_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the alternatives table that are used for filtering.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_fit_filters">
-<tt class="descname">apply_fit_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_fit_filters</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.apply_fit_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_fit_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for fitting.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2016,7 +2016,7 @@ e.g. buildings.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_predict_filters">
-<tt class="descname">apply_predict_filters</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply_predict_filters</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.apply_predict_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.apply_predict_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter <cite>choosers</cite> and <cite>alternatives</cite> for prediction.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2042,20 +2042,20 @@ e.g. buildings.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.choosers_columns_used">
-<tt class="descname">choosers_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">choosers_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.choosers_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.choosers_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the choosers table that are used for filtering.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.columns_used">
-<tt class="descname">columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from any table used in the model. May come from either
 the choosers or alternatives tables.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit">
-<tt class="descname">fit</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>current_choice</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit and save models based on given data after segmenting
 the <cite>choosers</cite> table. Segments that have not already been explicitly
 added will be automatically added with default model.</p>
@@ -2094,7 +2094,7 @@ log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg">
-<em class="property">classmethod </em><tt class="descname">fit_from_cfg</tt><big>(</big><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">fit_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>chosen_fname</em>, <em>alternatives</em>, <em>cfgname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fit_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -2131,13 +2131,13 @@ choice model.</p>
 
 <dl class="attribute">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fitted">
-<tt class="descname">fitted</tt><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.fitted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fitted</code><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fitted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether models for all segments have been fit.</p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.from_yaml">
-<em class="property">classmethod </em><tt class="descname">from_yaml</tt><big>(</big><em>yaml_str=None</em>, <em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_yaml</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.from_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a SegmentedMNLDiscreteChoiceModel instance from a saved YAML
 configuration. Arguments are mutally exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2163,7 +2163,7 @@ configuration. Arguments are mutally exclusive.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.interaction_columns_used">
-<tt class="descname">interaction_columns_used</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
+<code class="descname">interaction_columns_used</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.interaction_columns_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.interaction_columns_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Columns from the interaction dataset used for filtering and in
 the model. These may come originally from either the choosers or
 alternatives tables.</p>
@@ -2171,7 +2171,7 @@ alternatives tables.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict">
-<tt class="descname">predict</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose from among alternatives for a group of agents after
 segmenting the <cite>choosers</cite> table.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2209,7 +2209,7 @@ for all the choosers.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg">
-<em class="property">classmethod </em><tt class="descname">predict_from_cfg</tt><big>(</big><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the discrete choices for the specified choosers</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2252,7 +2252,7 @@ for all the choosers.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.probabilities">
-<tt class="descname">probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">probabilities</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns alternative probabilties for each chooser segment as
 a dictionary keyed by segment name.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2279,7 +2279,7 @@ Must have a column matching the .segmentation_col attribute.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.summed_probabilities">
-<tt class="descname">summed_probabilities</tt><big>(</big><em>choosers</em>, <em>alternatives</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">summed_probabilities</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.summed_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.summed_probabilities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the sum of probabilities for alternatives across all
 chooser segments.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2309,14 +2309,14 @@ Must have a column matching the .segmentation_col attribute.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_dict">
-<tt class="descname">to_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict representation of this instance suitable for
 conversion to YAML.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_yaml">
-<tt class="descname">to_yaml</tt><big>(</big><em>str_or_buffer=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_yaml</code><span class="sig-paren">(</span><em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.to_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save a model respresentation to YAML.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2326,7 +2326,7 @@ conversion to YAML.</p>
 <blockquote>
 <div><p>By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <tt class="docutils literal"><span class="pre">.write</span></tt> method is given the
+If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
 </div></blockquote>
 </td>
@@ -2345,7 +2345,7 @@ YAML will be written to that object.</p>
 
 <dl class="function">
 <dt id="urbansim.models.dcm.unit_choice">
-<tt class="descclassname">urbansim.models.dcm.</tt><tt class="descname">unit_choice</tt><big>(</big><em>chooser_ids</em>, <em>alternative_ids</em>, <em>probabilities</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/dcm.html#unit_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.unit_choice" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.dcm.</code><code class="descname">unit_choice</code><span class="sig-paren">(</span><em>chooser_ids</em>, <em>alternative_ids</em>, <em>probabilities</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#unit_choice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.unit_choice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Have a set of choosers choose from among alternatives according
 to a probability distribution. Choice is binary: each
 alternative can only be chosen once.</p>
@@ -2433,7 +2433,7 @@ for all the choosers.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

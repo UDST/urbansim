@@ -155,33 +155,33 @@ behavior to UrbanSim.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.apply_filter_query" title="urbansim.models.util.apply_filter_query"><tt class="xref py py-obj docutils literal"><span class="pre">apply_filter_query</span></tt></a>(df[,&nbsp;filters])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.apply_filter_query" title="urbansim.models.util.apply_filter_query"><code class="xref py py-obj docutils literal"><span class="pre">apply_filter_query</span></code></a>(df[,&nbsp;filters])</td>
 <td>Use the DataFrame.query method to filter a table down to the desired rows.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.util.filter_table" title="urbansim.models.util.filter_table"><tt class="xref py py-obj docutils literal"><span class="pre">filter_table</span></tt></a>(table,&nbsp;filter_series[,&nbsp;ignore])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.util.filter_table" title="urbansim.models.util.filter_table"><code class="xref py py-obj docutils literal"><span class="pre">filter_table</span></code></a>(table,&nbsp;filter_series[,&nbsp;ignore])</td>
 <td>Filter a table based on a set of restrictions given in Series of column name / filter parameter pairs.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.concat_indexes" title="urbansim.models.util.concat_indexes"><tt class="xref py py-obj docutils literal"><span class="pre">concat_indexes</span></tt></a>(indexes)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.concat_indexes" title="urbansim.models.util.concat_indexes"><code class="xref py py-obj docutils literal"><span class="pre">concat_indexes</span></code></a>(indexes)</td>
 <td>Concatenate a sequence of pandas Indexes.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.util.str_model_expression" title="urbansim.models.util.str_model_expression"><tt class="xref py py-obj docutils literal"><span class="pre">str_model_expression</span></tt></a>(expr[,&nbsp;add_constant])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.util.str_model_expression" title="urbansim.models.util.str_model_expression"><code class="xref py py-obj docutils literal"><span class="pre">str_model_expression</span></code></a>(expr[,&nbsp;add_constant])</td>
 <td>We support specifying model expressions as strings, lists, or dicts; but for use with patsy and statsmodels we need a string.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.has_constant_expr" title="urbansim.models.util.has_constant_expr"><tt class="xref py py-obj docutils literal"><span class="pre">has_constant_expr</span></tt></a>(expr)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.has_constant_expr" title="urbansim.models.util.has_constant_expr"><code class="xref py py-obj docutils literal"><span class="pre">has_constant_expr</span></code></a>(expr)</td>
 <td>Report whether a model expression has constant specific term.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.util.columns_in_filters" title="urbansim.models.util.columns_in_filters"><tt class="xref py py-obj docutils literal"><span class="pre">columns_in_filters</span></tt></a>(filters)</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.util.columns_in_filters" title="urbansim.models.util.columns_in_filters"><code class="xref py py-obj docutils literal"><span class="pre">columns_in_filters</span></code></a>(filters)</td>
 <td>Returns a list of the columns used in a set of query filters.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.columns_in_formula" title="urbansim.models.util.columns_in_formula"><tt class="xref py py-obj docutils literal"><span class="pre">columns_in_formula</span></tt></a>(formula)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.util.columns_in_formula" title="urbansim.models.util.columns_in_formula"><code class="xref py py-obj docutils literal"><span class="pre">columns_in_formula</span></code></a>(formula)</td>
 <td>Returns the names of all the columns used in a patsy formula.</td>
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-urbansim.models.util"></span><p>Utilities used within the <tt class="docutils literal"><span class="pre">urbansim.models</span></tt> package.</p>
+<span class="target" id="module-urbansim.models.util"></span><p>Utilities used within the <code class="docutils literal"><span class="pre">urbansim.models</span></code> package.</p>
 <dl class="function">
 <dt id="urbansim.models.util.apply_filter_query">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">apply_filter_query</tt><big>(</big><em>df</em>, <em>filters=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#apply_filter_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.apply_filter_query" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">apply_filter_query</code><span class="sig-paren">(</span><em>df</em>, <em>filters=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#apply_filter_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.apply_filter_query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use the DataFrame.query method to filter a table down to the
 desired rows.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -207,7 +207,7 @@ If not supplied no filtering will be done.</p>
 
 <dl class="function">
 <dt id="urbansim.models.util.columns_in_filters">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">columns_in_filters</tt><big>(</big><em>filters</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_filters" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">columns_in_filters</code><span class="sig-paren">(</span><em>filters</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of the columns used in a set of query filters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -215,7 +215,7 @@ If not supplied no filtering will be done.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filters</strong> : list of str or str</p>
 <blockquote>
-<div><p>List of the filters as passed passed to <tt class="docutils literal"><span class="pre">apply_filter_query</span></tt>.</p>
+<div><p>List of the filters as passed passed to <code class="docutils literal"><span class="pre">apply_filter_query</span></code>.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -231,7 +231,7 @@ If not supplied no filtering will be done.</p>
 
 <dl class="function">
 <dt id="urbansim.models.util.columns_in_formula">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">columns_in_formula</tt><big>(</big><em>formula</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_formula" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">columns_in_formula</code><span class="sig-paren">(</span><em>formula</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_formula" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the names of all the columns used in a patsy formula.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -239,7 +239,7 @@ If not supplied no filtering will be done.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>formula</strong> : str, iterable, or dict</p>
 <blockquote>
-<div><p>Any formula construction supported by <tt class="docutils literal"><span class="pre">str_model_expression</span></tt>.</p>
+<div><p>Any formula construction supported by <code class="docutils literal"><span class="pre">str_model_expression</span></code>.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -252,7 +252,7 @@ If not supplied no filtering will be done.</p>
 
 <dl class="function">
 <dt id="urbansim.models.util.concat_indexes">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">concat_indexes</tt><big>(</big><em>indexes</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#concat_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.concat_indexes" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">concat_indexes</code><span class="sig-paren">(</span><em>indexes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#concat_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.concat_indexes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Concatenate a sequence of pandas Indexes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -268,7 +268,7 @@ If not supplied no filtering will be done.</p>
 
 <dl class="function">
 <dt id="urbansim.models.util.filter_table">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">filter_table</tt><big>(</big><em>table</em>, <em>filter_series</em>, <em>ignore=None</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#filter_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.filter_table" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">filter_table</code><span class="sig-paren">(</span><em>table</em>, <em>filter_series</em>, <em>ignore=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#filter_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.filter_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter a table based on a set of restrictions given in
 Series of column name / filter parameter pairs. The column
 names can have suffixes <cite>_min</cite> and <cite>_max</cite> to indicate
@@ -304,7 +304,7 @@ A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</
 
 <dl class="function">
 <dt id="urbansim.models.util.has_constant_expr">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">has_constant_expr</tt><big>(</big><em>expr</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#has_constant_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.has_constant_expr" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">has_constant_expr</code><span class="sig-paren">(</span><em>expr</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#has_constant_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.has_constant_expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Report whether a model expression has constant specific term.
 That is, a term explicitly specying whether the model should or
 should not include a constant. (e.g. &#8216;+ 1&#8217; or &#8216;- 1&#8217;.)</p>
@@ -327,7 +327,7 @@ should not include a constant. (e.g. &#8216;+ 1&#8217; or &#8216;- 1&#8217;.)</p
 
 <dl class="function">
 <dt id="urbansim.models.util.sorted_groupby">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">sorted_groupby</tt><big>(</big><em>df</em>, <em>groupby</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#sorted_groupby"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.sorted_groupby" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">sorted_groupby</code><span class="sig-paren">(</span><em>df</em>, <em>groupby</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#sorted_groupby"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.sorted_groupby" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a groupby on a DataFrame using a specific column
 and assuming that that column is sorted.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -353,7 +353,7 @@ and assuming that that column is sorted.</p>
 
 <dl class="function">
 <dt id="urbansim.models.util.str_model_expression">
-<tt class="descclassname">urbansim.models.util.</tt><tt class="descname">str_model_expression</tt><big>(</big><em>expr</em>, <em>add_constant=True</em><big>)</big><a class="reference internal" href="../_modules/urbansim/models/util.html#str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.models.util.</code><code class="descname">str_model_expression</code><span class="sig-paren">(</span><em>expr</em>, <em>add_constant=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.str_model_expression" title="Permalink to this definition">¶</a></dt>
 <dd><p>We support specifying model expressions as strings, lists, or dicts;
 but for use with patsy and statsmodels we need a string.
 This function will take any of those as input and return a string.</p>
@@ -366,10 +366,10 @@ This function will take any of those as input and return a string.</p>
 <div><p>A string will be returned unmodified except to add or remove
 a constant.
 An iterable sequence will be joined together with &#8216; + &#8216;.
-A dictionary should have <tt class="docutils literal"><span class="pre">right_side</span></tt> and, optionally,
-<tt class="docutils literal"><span class="pre">left_side</span></tt> keys. The <tt class="docutils literal"><span class="pre">right_side</span></tt> can be a list or a string
-and will be handled as above. If <tt class="docutils literal"><span class="pre">left_side</span></tt> is present it will
-be joined with <tt class="docutils literal"><span class="pre">right_side</span></tt> with &#8216; ~ &#8216;.</p>
+A dictionary should have <code class="docutils literal"><span class="pre">right_side</span></code> and, optionally,
+<code class="docutils literal"><span class="pre">left_side</span></code> keys. The <code class="docutils literal"><span class="pre">right_side</span></code> can be a list or a string
+and will be handled as above. If <code class="docutils literal"><span class="pre">left_side</span></code> is present it will
+be joined with <code class="docutils literal"><span class="pre">right_side</span></code> with &#8216; ~ &#8216;.</p>
 </div></blockquote>
 <p><strong>add_constant</strong> : bool, optional</p>
 <blockquote>
@@ -440,7 +440,7 @@ ignored.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

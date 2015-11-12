@@ -458,14 +458,14 @@
         <span class="k">return</span> <span class="n">model</span>
 </div>
     <span class="nd">@property</span>
-<div class="viewcode-block" id="MNLDiscreteChoiceModel.str_model_expression"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.str_model_expression">[docs]</a>    <span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Model expression as a string suitable for use with patsy/statsmodels.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">str_model_expression</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-</div>
+
 <div class="viewcode-block" id="MNLDiscreteChoiceModel.apply_fit_filters"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.apply_fit_filters">[docs]</a>    <span class="k">def</span> <span class="nf">apply_fit_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filter `choosers` and `alternatives` for fitting.</span>
@@ -565,13 +565,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_likelihoods</span>
 </div>
     <span class="nd">@property</span>
-<div class="viewcode-block" id="MNLDiscreteChoiceModel.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        True if model is ready for prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
-</div>
+
 <div class="viewcode-block" id="MNLDiscreteChoiceModel.assert_fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.assert_fitted">[docs]</a>    <span class="k">def</span> <span class="nf">assert_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Raises `RuntimeError` if the model is not ready for prediction.</span>
@@ -1202,14 +1202,14 @@
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_groups</span><span class="p">(</span><span class="n">choosers</span><span class="p">)}</span>
 </div>
     <span class="nd">@property</span>
-<div class="viewcode-block" id="MNLDiscreteChoiceModelGroup.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether all models in the group have been fitted.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">fitted</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="k">else</span> <span class="bp">False</span><span class="p">)</span>
-</div>
+
 <div class="viewcode-block" id="MNLDiscreteChoiceModelGroup.probabilities"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.probabilities">[docs]</a>    <span class="k">def</span> <span class="nf">probabilities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns alternative probabilties for each chooser segment as</span>
@@ -1647,13 +1647,13 @@
         <span class="k">return</span> <span class="n">results</span>
 </div>
     <span class="nd">@property</span>
-<div class="viewcode-block" id="SegmentedMNLDiscreteChoiceModel.fitted"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fitted">[docs]</a>    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Whether models for all segments have been fit.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">fitted</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_filter_choosers_alts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply filters to the choosers and alts tables.</span>
@@ -2011,7 +2011,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

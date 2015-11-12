@@ -319,7 +319,7 @@
             <span class="s">&#39;underground&#39;</span><span class="p">:</span> <span class="mi">110</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">height_per_story</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height_per_story</span> <span class="o">=</span> <span class="mf">12.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retail_height</span> <span class="o">=</span> <span class="mf">2.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_industrial_height</span> <span class="o">=</span> <span class="mf">2.0</span>
 
@@ -513,46 +513,31 @@
                     <span class="n">stories</span> <span class="o">=</span> <span class="n">building_bulk</span> <span class="o">/</span> \
                         <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">tiled_parcel_sizes</span> <span class="o">-</span> <span class="n">parkingstalls</span> <span class="o">*</span>
                          <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">])</span>
-                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parkingstalls</span> <span class="o">*</span> \
-                        <span class="n">c</span><span class="o">.</span><span class="n">parking_sqft_d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="c"># not all fars support surface parking</span>
                     <span class="n">stories</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stories</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
-                <span class="n">df</span><span class="p">[</span><span class="s">&#39;total_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">park_sqft</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;total_built_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">park_sqft</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;parking_sqft_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">park_sqft</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">total_built_sqft</span>
                 <span class="n">stories</span> <span class="o">/=</span> <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
                 <span class="n">df</span><span class="p">[</span><span class="s">&#39;stories&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">stories</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;height&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stories</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">height_per_story</span>
                 <span class="n">df</span><span class="p">[</span><span class="s">&#39;build_cost_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_building_cost</span><span class="p">(</span><span class="n">uses_distrib</span><span class="p">,</span> <span class="n">stories</span><span class="p">)</span>
 
                 <span class="n">df</span><span class="p">[</span><span class="s">&#39;build_cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">build_cost_sqft</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">building_sqft</span>
                 <span class="n">df</span><span class="p">[</span><span class="s">&#39;park_cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parking_cost</span>
                 <span class="n">df</span><span class="p">[</span><span class="s">&#39;cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">build_cost</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">park_cost</span>
 
-                <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">cost</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">total_sqft</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">profit_factor</span>
+                <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">cost</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">total_built_sqft</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">profit_factor</span>
 
                 <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;retail&#39;</span><span class="p">:</span>
                     <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">][</span><span class="n">c</span><span class="o">.</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">max_retail_height</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;industrial&#39;</span><span class="p">:</span>
                     <span class="n">df</span><span class="p">[</span><span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">][</span><span class="n">c</span><span class="o">.</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="n">c</span><span class="o">.</span><span class="n">max_industrial_height</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
                 <span class="n">df_d</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df</span>
 
-        <span class="c"># from here on out we need the min rent for a form and a far</span>
-        <span class="n">min_ave_cost_sqft_d</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">bignum</span> <span class="o">=</span> <span class="mi">999999</span>
-
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="n">min_ave_cost_sqft</span> <span class="o">=</span> <span class="bp">None</span>
-            <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
-                <span class="n">ave_cost_sqft</span> <span class="o">=</span> <span class="n">df_d</span><span class="p">[(</span><span class="n">name</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)][</span>
-                    <span class="s">&#39;ave_cost_sqft&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">bignum</span><span class="p">)</span>
-                <span class="n">min_ave_cost_sqft</span> <span class="o">=</span> <span class="n">ave_cost_sqft</span> <span class="k">if</span> <span class="n">min_ave_cost_sqft</span> <span class="ow">is</span> <span class="bp">None</span> \
-                    <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">min_ave_cost_sqft</span><span class="p">,</span> <span class="n">ave_cost_sqft</span><span class="p">)</span>
-
-            <span class="n">min_ave_cost_sqft</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">bignum</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-            <span class="c"># this is the minimum cost per sqft for this form and far</span>
-            <span class="n">min_ave_cost_sqft_d</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span> <span class="o">=</span> <span class="n">df_d</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_ave_cost_d</span> <span class="o">=</span> <span class="n">min_ave_cost_sqft_d</span>
 
 <div class="viewcode-block" id="SqFtProForma.get_debug_info"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_debug_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -577,25 +562,24 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span><span class="p">[(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span>
 </div>
-<div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    <span class="k">def</span> <span class="nf">get_ave_cost_sqft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">):</span>
+<div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    <span class="k">def</span> <span class="nf">get_ave_cost_sqft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the average cost per sqft for the pro forma for a given form</span>
-
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        form : string</span>
 <span class="sd">            Get a series representing the average cost per sqft for each form in</span>
 <span class="sd">            the config</span>
-
+<span class="sd">        parking_config : string</span>
+<span class="sd">            The parking configuration to get debug info for</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        cost : series</span>
 <span class="sd">            A series where the index is the far and the values are the average</span>
 <span class="sd">            cost per sqft at which the building is &quot;break even&quot; given the</span>
 <span class="sd">            configuration parameters that were passed at run time.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_ave_cost_d</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span><span class="p">[(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span><span class="o">.</span><span class="n">ave_cost_sqft</span>
 </div>
 <div class="viewcode-block" id="SqFtProForma.lookup"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">[docs]</a>    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">pass_through</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -674,14 +658,53 @@
 <span class="sd">            and max_height from the input dataframe).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">profit_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
+            <span class="c"># this function gives the max profit development for the given</span>
+            <span class="c"># parking config need to iterate over parking configs to pick the</span>
+            <span class="c"># max profit config</span>
+            <span class="n">outdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_parking_cfg</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="p">,</span>
+                                             <span class="n">pass_through</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span>
+            <span class="n">profit_df</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;max_profit&quot;</span><span class="p">]</span>
+
+        <span class="c"># get the max_profit idx</span>
+        <span class="n">max_profit_ind</span> <span class="o">=</span> <span class="n">profit_df</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_profit_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c"># make a new df of all the attributes from the max profit df</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">max_profit_ind</span><span class="p">[</span><span class="n">max_profit_ind</span> <span class="o">==</span> <span class="n">parking_config</span><span class="p">]</span>
+            <span class="c"># these are the rows that are most profitable with this</span>
+            <span class="c"># parking config</span>
+            <span class="n">tmpdf</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">tmpdf</span><span class="p">[</span><span class="s">&quot;parking_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parking_config</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmpdf</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span>
+</div>
+    <span class="k">def</span> <span class="nf">_lookup_parking_cfg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                            <span class="n">pass_through</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="n">dev_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span><span class="p">[(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span>
+
+        <span class="n">cost_sqft_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dev_info</span><span class="o">.</span><span class="n">ave_cost_sqft</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">cost_sqft_index_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dev_info</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">parking_sqft_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dev_info</span><span class="o">.</span><span class="n">parking_sqft_ratio</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">dev_info</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
         <span class="c"># don&#39;t really mean to edit the df that&#39;s passed in</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-
-        <span class="n">cost_sqft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ave_cost_sqft</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
-        <span class="n">cost_sqft_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cost_sqft</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">cost_sqft_index_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cost_sqft</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
         <span class="c"># weighted rent for this form</span>
         <span class="n">df</span><span class="p">[</span><span class="s">&#39;weighted_rent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">uses</span><span class="p">],</span> <span class="n">c</span><span class="o">.</span><span class="n">forms</span><span class="p">[</span><span class="n">form</span><span class="p">])</span>
@@ -719,11 +742,18 @@
         <span class="k">if</span> <span class="n">only_built</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;min_max_fars &gt; 0 and parcel_size &gt; 0&#39;</span><span class="p">)</span>
 
-        <span class="c"># all possible fars on all parcels</span>
         <span class="n">fars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">cost_sqft_index_col</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c"># zero out fars not allowed by zoning</span>
+        <span class="c"># turn fars into nans which are not allowed by zoning</span>
+        <span class="c"># (so we can fillna with one of the other zoning constraints)</span>
         <span class="n">fars</span><span class="p">[</span><span class="n">fars</span> <span class="o">&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">min_max_fars</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="o">.</span><span class="mo">01</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c"># same thing for heights</span>
+        <span class="n">heights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">heights</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># turn heights into nans which are not allowed by zoning</span>
+        <span class="c"># (so we can fillna with one of the other zoning constraints)</span>
+        <span class="n">fars</span><span class="p">[</span><span class="n">heights</span> <span class="o">&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">max_height</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="o">.</span><span class="mo">01</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
         <span class="c"># parcel sizes * possible fars</span>
         <span class="n">building_bulks</span> <span class="o">=</span> <span class="n">fars</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span><span class="o">.</span><span class="n">values</span>
@@ -735,8 +765,8 @@
         <span class="n">total_costs</span> <span class="o">=</span> <span class="n">building_costs</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">land_cost</span><span class="o">.</span><span class="n">values</span>
 
         <span class="c"># rent to make for the new building</span>
-        <span class="n">building_revenue</span> <span class="o">=</span> <span class="n">building_bulks</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span>\
-            <span class="n">df</span><span class="o">.</span><span class="n">weighted_rent</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">cap_rate</span>
+        <span class="n">building_revenue</span> <span class="o">=</span> <span class="n">building_bulks</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">parking_sqft_ratio</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">weighted_rent</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">cap_rate</span>
 
         <span class="c"># profit for each form</span>
         <span class="n">profit</span> <span class="o">=</span> <span class="n">building_revenue</span> <span class="o">-</span> <span class="n">total_costs</span>
@@ -751,6 +781,8 @@
         <span class="n">outdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
             <span class="s">&#39;building_sqft&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_bulks</span><span class="p">),</span>
             <span class="s">&#39;building_cost&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_costs</span><span class="p">),</span>
+            <span class="s">&#39;parking_ratio&#39;</span><span class="p">:</span> <span class="n">parking_sqft_ratio</span><span class="p">[</span><span class="n">maxprofitind</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+            <span class="s">&#39;stories&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">heights</span><span class="p">)</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">height_per_story</span><span class="p">,</span>
             <span class="s">&#39;total_cost&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">total_costs</span><span class="p">),</span>
             <span class="s">&#39;building_revenue&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_revenue</span><span class="p">),</span>
             <span class="s">&#39;max_profit_far&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">fars</span><span class="p">),</span>
@@ -760,17 +792,18 @@
         <span class="k">if</span> <span class="n">pass_through</span><span class="p">:</span>
             <span class="n">outdf</span><span class="p">[</span><span class="n">pass_through</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">pass_through</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">only_built</span><span class="p">:</span>
-            <span class="n">outdf</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;max_profit &gt; 0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
         <span class="n">resratio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">res_ratios</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
         <span class="n">nonresratio</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">resratio</span>
         <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span> <span class="n">resratio</span>
-        <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;non_residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">nonresratio</span>
-        <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;stories&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;max_profit_far&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
+        <span class="n">outdf</span><span class="p">[</span><span class="s">&quot;non_residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span> <span class="n">nonresratio</span>
+
+        <span class="k">if</span> <span class="n">only_built</span><span class="p">:</span>
+            <span class="n">outdf</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;max_profit &gt; 0&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">outdf</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">outdf</span><span class="o">.</span><span class="n">max_profit</span> <span class="o">!=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">outdf</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_debug_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        this code creates the debugging plots to understand</span>
@@ -790,7 +823,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">df_d</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ave_cost_sqft</span><span class="p">(</span><span class="n">form</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ave_cost_sqft</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="s">&quot;surface&quot;</span><span class="p">))</span>
 
         <span class="n">keys</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">keys</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
@@ -862,7 +895,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
