@@ -534,6 +534,10 @@ class SqFtProForma(object):
 
         # get the max_profit idx
         max_profit_ind = profit_df.idxmax(axis=1)
+
+        if len(max_profit_ind) == 0:
+            return pd.DataFrame()
+
         # make a new df of all the attributes from the max profit df
         l = []
         for parking_config in c.parking_configs:
