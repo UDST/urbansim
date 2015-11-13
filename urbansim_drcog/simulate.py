@@ -9,6 +9,7 @@ np.random.seed(1)
 orca.run([
 
 
+
           'scenario_zoning_change',
           'feasibility',
           'residential_developer',
@@ -19,6 +20,7 @@ orca.run([
           'hh_transition',
           'hh_relocation',
           'hlcm_simulate',
+          'households_to_buildings',
           'indicator_export'
           ], iter_vars=[2040])
 

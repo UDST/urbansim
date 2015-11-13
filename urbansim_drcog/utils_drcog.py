@@ -600,9 +600,12 @@ def run_developer(forms, agents, buildings, supply_fname, parcel_size,
     # bldgs.loc[bldgs.parcel_id.isin(b_to_update.index), :] = b_to_update.loc[sampled_indexes, buildings.local_columns].drop('parcel_id', 1).reset_index()
 
     #simple regression to determine marginal cost of producing units
-    slope, intercept, r_value, p_value, stderr = stats.linregress(new_buildings.residential_units, y=new_buildings.total_cost)
+    slope, intercept, r_value, p_value, stderr = stats.linregress(new_buildings.residential_sqft, y=new_buildings.total_cost)
+    non_res_slope = stats.linregress(new_buildings.non_residential_sqft, y=new_buildings.total_cost)[0]
+    new_buildings.loc[:, 'unit_price_non_residential'] = non_res_slope
+    new_buildings.loc[:, 'sqft_per_unit'] = new_buildings.residential_sqft/new_buildings.residential_units
+    new_buildings.loc[:, price_col] = slope * new_buildings.sqft_per_unit
 
-    new_buildings.loc[:, price_col] = slope * 2
     print "Adding {:,} buildings with {:,} {}".\
         format(len(new_buildings),
                int(new_buildings[supply_fname].sum()),
@@ -714,5 +717,6 @@ def export_indicators(zones, year):
     #zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
     county_summary.to_sql('county_summary_new', engine, if_exists='append')
 
-    zone_summary.loc[[1485,1486,1487,1612]].to_csv('c:/users/jmartinez/documents/test_2015.csv')
+    print zone_summary.loc[970]
+    zone_summary.fillna(0).sort_index().to_csv('c:/users/jmartinez/documents/test_2015.csv')
 
