@@ -378,6 +378,9 @@ class SqFtProForma(object):
                     df['park_sqft'] = 0
                     # not all fars support surface parking
                     stories[np.where(stories < 0.0)] = np.nan
+                    # I think we can assume that stories over 3
+                    # do not work with surface parking
+                    stories[np.where(stories > 3.0)] = np.nan
 
                 df['total_built_sqft'] = df.building_sqft + df.park_sqft
                 df['parking_sqft_ratio'] = df.park_sqft / df.total_built_sqft
