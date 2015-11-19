@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import orca
 import itertools
+from sqlalchemy import *
 
 
 
@@ -201,7 +202,8 @@ class Developer(object):
         build_idx = []
         #parcels.loc[:, 'zone_id'] = parcel_zones.loc[parcels.index].zone_id
         test = []
-        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,build_idx, test))
+        engine = create_engine('postgresql://model_team:m0d3lte@m@postgresql:5432/sandbox', echo=False)
+        target_units.reset_index().apply(self.zonal_price_adjust, axis=1, args=(df,build_idx, test, engine))
         build_idx = list(itertools.chain.from_iterable(build_idx))
 
 
@@ -212,7 +214,8 @@ class Developer(object):
         new_df.index.name = "parcel_id"
         return new_df.reset_index()
 
-    def zonal_price_adjust(self, series, df, bindex,test):
+    def zonal_price_adjust(self, series, df, bindex,test, engine):
+
         if(series["zone_id"]==1485):
             print "stop"
         format(int(df.net_units.sum()))
@@ -220,6 +223,12 @@ class Developer(object):
 
         demand = series.iloc[1]
         if len(choice_set > 0):
+            # print series['zone_id']
+            # cs = choice_set[['form', 'building_sqft', 'max_profit_far',
+            #             'residential_sqft','non_residential_sqft','parcel_size']]
+            # cs.loc[:, 'zone_id'] = series['zone_id']
+            # cs.loc[:, 'probs'] = choice_set.max_profit / choice_set.max_profit.sum()
+            # cs.to_sql('res_development_probs',engine, if_exists='append')
 
             choices = np.random.choice(choice_set.index.values, size=len(choice_set), replace=False,
                                            p=(choice_set.max_profit.values / choice_set.max_profit.sum()))

@@ -2,10 +2,11 @@ __author__ = 'JMartinez'
 import orca
 import pandas as pd
 import numpy as np
+from sqlalchemy import engine
 
-
+#add your data path here
 orca.add_injectable("store",pd.HDFStore('C:/Users/jmartinez/Documents/Projects/UrbanSim/data/drcog.h5', mode='r'))
-#orca.add_injectable("store",pd.HDFStore('C:/urbansim/data/drcog.h5', mode='r'))
+
 #register tables
 @orca.table('buildings', cache=True)
 def buildings(store):
@@ -26,7 +27,7 @@ def households(store):
 @orca.table('zones', cache=True)
 def zones(store):
     df = store['zones']
-    amenities = pd.read_csv('c:/users/jmartinez/documents/data/urbansim/regression/processed/amenities.csv',index_col=0)
+    amenities = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/amenities.csv',index_col=0)
     df = pd.merge(df, amenities, left_index=True, right_index=True)
     return df
 
@@ -72,12 +73,12 @@ def job_relocation_rates(store):
 
 @orca.table('household_control_totals')
 def household_control_totals():
-    df = pd.read_csv('C:/Users/jmartinez/Documents/Projects/UrbanSim/Results/emp_sector/hh.csv', index_col=0)
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh.csv', index_col=0)
     return df
 
 @orca.table('employment_control_totals')
 def employment_control_totals():
-    df = pd.read_csv('C:/Users/jmartinez/Documents/Projects/UrbanSim/Results/emp_sector/employment_control_totals.csv', index_col=0)
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh.csv', index_col=0)
     return df
 
 @orca.table('travel_data', cache=True)
@@ -87,7 +88,7 @@ def travel_data(store):
 
 @orca.table('migration_data')
 def migration_data():
-    df = pd.read_csv('c:/urbansim/data/NetMigrationByAge.csv')
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/NetMigrationByAge.csv')
     df.columns = ['county', 'age','net_migration']
     df = df[15:90]
     return df
@@ -103,7 +104,9 @@ def zoning_baseline(store):
 
 @orca.table('fars')
 def fars(store):
-    return store.fars
+    eng = engine.create_engine('postgresql://model_team:m0d3lte@m@postgresql:5432/urbansim', echo=False)
+    df = pd.read_sql('fars_scenario', eng, index_col='far_id')
+    return df
 
 @orca.table('refiner_targets')
 def refiner_targets():

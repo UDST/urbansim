@@ -645,14 +645,18 @@ def supply_demand(cfg, hh_demand, alternatives, price_col, reg_col=None, units_c
 
 
 def export_indicators(zones, year):
-    engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres', echo=False)
+    engine = create_engine('postgresql://model_team:m0d3lte@m@postgresql:5432/sandbox', echo=False)
+    engine2 = create_engine('postgresql://model_team:m0d3lte@m@postgresql:5432/urbansim', echo=False)
     #TODO add county table to h5 file
     counties = pd.read_csv('c:/urbansim/data/counties.csv', index_col=0)
 
     buildings = orca.merge_tables('buildings', tables=['buildings','parcels'],
                              columns=['unit_price_residential','unit_price_non_residential','residential_units',
                                       'non_residential_units','building_type_id', 'zone_id','county_id',
-                                      'vacant_job_spaces','vacant_residential_units'])
+                                      'vacant_job_spaces','vacant_residential_units', 'bldg_sq_ft'])
+
+    building_types = pd.read_sql('building_types', engine2, index_col='building_type_id')
+    buildings = pd.merge(buildings, building_types, left_on='building_type_id', right_index=True)
 
     establishments = orca.merge_tables('establishments', tables=['establishments','counties'],
                                        columns=['employees', 'sector_id_six','zone_id', 'county_id'])
@@ -660,10 +664,6 @@ def export_indicators(zones, year):
     households = orca.merge_tables('households', tables=['households','counties'], columns=
                                    ['persons','age_of_head','income', 'zone_id', 'county_id','building_id'])
 
-    dev_test = pd.DataFrame(index=zones.index)
-    dev_test.loc[:, 'res_movers'] = households.loc[households.building_id==-1,['building_id','zone_id']].groupby('zone_id').size()
-    dev_test.loc[:, 'vacant_res_units'] = buildings.groupby('zone_id').vacant_residential_units.sum()
-    dev_test.to_csv('c:/users/jmartinez/documents/developer_test.csv')
 
     ##zone_summary
     zone_summary = pd.DataFrame(index=zones.index)
@@ -715,8 +715,17 @@ def export_indicators(zones, year):
     #orca.add_table('county_summary', county_summary, cache=False)
 
     #zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
-    county_summary.to_sql('county_summary_new', engine, if_exists='append')
+    county_summary.to_sql('county_summary_new', engine, if_exists='replace')
 
-    print zone_summary.loc[970]
-    zone_summary.fillna(0).sort_index().to_csv('c:/users/jmartinez/documents/test_2015.csv')
+
+    pivot = pd.pivot_table(buildings, values='bldg_sq_ft',
+                           index=['zone_id'], fill_value=0, columns='building_type_name', aggfunc=np.size)
+    zone_summary = pd.merge(zone_summary, pivot, left_index=True, right_index=True, how='left').sort_index()
+    scenario_index = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/scenario_index.csv', index_col=0)
+    zone_summary.loc[scenario_index.index,'in_scenario'] = 1
+    zone_summary.fillna(0, inplace=True)
+    zone_summary.to_sql('zone_summary_new', engine, if_exists='replace')
+
+    #print zone_summary.loc[970]
+    #zone_summary.fillna(0).sort_index().to_csv('c:/users/jmartinez/documents/test_2015.csv')
 
