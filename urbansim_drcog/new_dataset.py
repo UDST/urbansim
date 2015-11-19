@@ -58,7 +58,7 @@ def households_for_estimation(store):
 
 @orca.table('counties', cache=True)
 def counties():
-    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config//TAZ_County_Table.csv').set_index('zone_id')
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/TAZ_County_Table.csv').set_index('zone_id')
 
 @orca.table('household_relocation_rates')
 def household_relocation_rates(store):
@@ -78,7 +78,7 @@ def household_control_totals():
 
 @orca.table('employment_control_totals')
 def employment_control_totals():
-    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh.csv', index_col=0)
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/employment_control_totals.csv', index_col=0)
     return df
 
 @orca.table('travel_data', cache=True)
@@ -110,7 +110,7 @@ def fars(store):
 
 @orca.table('refiner_targets')
 def refiner_targets():
-    return pd.read_csv('c:/urbansim/data/zone_demand_refine.csv', index_col=0)
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/zone_demand_refine.csv', index_col=0)
 
 
 @orca.table("emp_multipliers")

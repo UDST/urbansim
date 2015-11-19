@@ -20,7 +20,6 @@ orca.run([
           'hh_transition',
           'hh_relocation',
           'hlcm_simulate',
-          'households_to_buildings',
           'indicator_export'
           ], iter_vars=[2040])
 
