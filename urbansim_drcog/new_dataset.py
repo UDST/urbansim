@@ -49,7 +49,7 @@ def emp_demand():
 #this would go in the assumptions.py file
 @orca.table('sqft_per_job', cache=True)
 def sqft_per_job():
-    df = pd.read_csv('c:/urbansim/data/building_sqft_per_job.csv', index_col=[0,1])
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/building_sqft_per_job.csv', index_col=[0,1])
     return df
 
 @orca.table('households_for_estimation', cache=True)
@@ -58,7 +58,7 @@ def households_for_estimation(store):
 
 @orca.table('counties', cache=True)
 def counties():
-    return pd.read_csv('C:/urbansim/data/TAZ_County_Table.csv').set_index('zone_id')
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config//TAZ_County_Table.csv').set_index('zone_id')
 
 @orca.table('household_relocation_rates')
 def household_relocation_rates(store):

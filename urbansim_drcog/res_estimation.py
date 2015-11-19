@@ -1,7 +1,5 @@
 __author__ = 'JMartinez'
 import orca
-import dataset
-import variables
 from urbansim.models import SegmentedRegressionModel
 import numpy as np
 
