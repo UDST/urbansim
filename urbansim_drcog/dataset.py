@@ -7,7 +7,12 @@ import numpy as np
 
 #Register the data source (drcog.h5) with the orca pipeline
 #orca.add_injectable("store",pd.HDFStore('c:/urbansim/data/Justin Data/test data/drcog.h5', mode='r'))
-orca.add_injectable("store",pd.HDFStore('c:/urbansim/data/drcog.h5', mode='r'))
+orca.add_injectable("store",pd.HDFStore('C:\urbansim_new\urbansim\urbansim_drcog/config/drcog.h5', mode='r'))
+
+@orca.injectable('conn_string', cache=True)
+def conn_string():
+    return "host='urbancanvas.cp2xwchuariu.us-west-2.rds.amazonaws.com' dbname='denver_testing' user='drcog' password='M0untains#' port=5432"
+
 #register tables
 @orca.table('buildings', cache=True)
 def buildings(store):
@@ -27,7 +32,7 @@ def households(store):
 @orca.table('zones', cache=True)
 def zones(store):
     df = store['zones']
-    amenities = pd.read_csv('c:/users/jmartinez/documents/data/urbansim/regression/processed/amenities.csv',index_col=0)
+    amenities = pd.read_csv('C:\urbansim_new\urbansim\urbansim_drcog/config//amenities.csv',index_col=0)
     df = pd.merge(df, amenities, left_index=True, right_index=True)
     return df
 
@@ -44,7 +49,7 @@ def establishments(store):
 #this would go in the assumptions.py file
 @orca.table('sqft_per_job', cache=True)
 def sqft_per_job():
-    df = pd.read_csv('c:/urbansim/data/building_sqft_per_job.csv', index_col=[0,1])
+    df = pd.read_csv('C:\urbansim_new\urbansim\urbansim_drcog\config\\building_sqft_per_job.csv', index_col=[0,1])
     return df
 
 @orca.table('buildings_merged', cache=False)
@@ -57,7 +62,7 @@ def households_for_estimation(store):
 
 @orca.table('zone_to_county', cache=True)
 def zone_to_county():
-    return pd.read_csv('C:/urbansim/data/TAZ_County_Table.csv').set_index('zone_id')
+    return pd.read_csv('C:\urbansim_new\urbansim\urbansim_drcog\config\\TAZ_County_Table.csv').set_index('zone_id')
 
 
 
@@ -199,6 +204,22 @@ def alts_repm(buildings):
     alts.fillna(0, inplace=True)
     return alts
 
+
+@orca.table('scheduled_development_events', cache=True)
+def scheduled_development_events(store):
+    #if settings['urbancanvas']:
+        from urbansim.urbancanvas import urbancanvas2
+        print 'Loading development projects from Urban Canvas for scheduled_development_events'
+        df = urbancanvas2.get_development_projects()
+        ##Add any additional needed columns here
+        df['note'] = 'Scheduled development event'
+        for col in ['improvement_value', 'res_price_per_sqft', 'nonres_rent_per_sqft']:
+            df[col] = 0
+    #else:
+        #print 'Loading scheduled_development_events from h5'
+        #df = store['scheduled_development_events']
+        return df
+
 @orca.table('household_relocation_rates')
 def household_relocation_rates(store):
     df = store['annual_household_relocation_rates']
@@ -212,17 +233,17 @@ def job_relocation_rates(store):
 
 @orca.table('household_control_totals')
 def household_control_totals():
-    df = pd.read_csv('C:/Users/jmartinez/Documents/Projects/UrbanSim/Results/emp_sector/hh.csv', index_col=0)
+    df = pd.read_csv('C:\urbansim_new\urbansim\urbansim_drcog\config\\hh.csv', index_col=0)
     return df
 
 @orca.table('employment_control_totals')
 def employment_control_totals():
-    df = pd.read_csv('C:/Users/jmartinez/Documents/Projects/UrbanSim/Results/emp_sector/employment_control_totals.csv', index_col=0)
+    df = pd.read_csv('C:\\urbansim_new\\urbansim\\urbansim_drcog\\config\\employment_control_totals.csv', index_col=0)
     return df
 
 @orca.table('migration_data')
 def migration_data():
-    df = pd.read_csv('c:/urbansim/data/NetMigrationByAge.csv')
+    df = pd.read_csv('C:\urbansim_new\urbansim\urbansim_drcog\config\\NetMigrationByAge.csv')
     df.columns = ['county', 'age','net_migration']
     df = df[15:90]
     return df

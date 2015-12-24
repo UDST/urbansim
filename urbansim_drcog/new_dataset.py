@@ -5,7 +5,7 @@ import numpy as np
 from sqlalchemy import engine
 
 #add your data path here
-orca.add_injectable("store",pd.HDFStore('C:/Users/jmartinez/Documents/Projects/UrbanSim/data/drcog.h5', mode='r'))
+orca.add_injectable("store",pd.HDFStore('C:/urbansim_new/urbansim/urbansim_drcog/config/drcog.h5', mode='r'))
 
 #register tables
 @orca.table('buildings', cache=True)
@@ -49,7 +49,7 @@ def emp_demand():
 #this would go in the assumptions.py file
 @orca.table('sqft_per_job', cache=True)
 def sqft_per_job():
-    df = pd.read_csv('c:/urbansim/data/building_sqft_per_job.csv', index_col=[0,1])
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/building_sqft_per_job.csv', index_col=[0,1])
     return df
 
 @orca.table('households_for_estimation', cache=True)
@@ -58,7 +58,7 @@ def households_for_estimation(store):
 
 @orca.table('counties', cache=True)
 def counties():
-    return pd.read_csv('C:/urbansim/data/TAZ_County_Table.csv').set_index('zone_id')
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/TAZ_County_Table.csv').set_index('zone_id')
 
 @orca.table('household_relocation_rates')
 def household_relocation_rates(store):
@@ -78,7 +78,7 @@ def household_control_totals():
 
 @orca.table('employment_control_totals')
 def employment_control_totals():
-    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/hh.csv', index_col=0)
+    df = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/employment_control_totals.csv', index_col=0)
     return df
 
 @orca.table('travel_data', cache=True)
@@ -110,7 +110,7 @@ def fars(store):
 
 @orca.table('refiner_targets')
 def refiner_targets():
-    return pd.read_csv('c:/urbansim/data/zone_demand_refine.csv', index_col=0)
+    return pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/zone_demand_refine.csv', index_col=0)
 
 
 @orca.table("emp_multipliers")

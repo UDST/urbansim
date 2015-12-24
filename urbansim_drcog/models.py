@@ -1,4 +1,3 @@
-__author__ = 'JMartinez'
 import random
 import orca
 import new_dataset
@@ -137,11 +136,8 @@ def household_to_buildings(households, buildings):
     vacant_units = b.loc[b.vacant_residential_units > 0, 'vacant_residential_units']
     units = b.loc[np.repeat(vacant_units.index.values, vacant_units.values.astype('int'))].reset_index()
 
-
     print len(units)
     print len(unplaced_hh)
-
-
 
 def random_type(form):
     form_to_btype = orca.get_injectable("form_to_btype")
@@ -158,4 +154,54 @@ def add_extra_columns_non_res(df):
     df.rename(columns={'job_spaces':'non_residential_units'}, inplace=True)
     return df
 
+@orca.step('buildings_to_uc')
+def buildings_to_uc(buildings, year):
+    #if settings['urbancanvas']:
+        # Export newly predicted buildings (from proforma or scheduled_development_events) to Urban Canvas
+        from urbansim.urbancanvas import urbancanvas2
+        b = buildings.to_frame(buildings.local_columns)
 
+        # Only buildings for this simulation year
+        new_buildings = b[b.year_built == year]
+
+        # Required columns
+        if 'development_type_id' in new_buildings.columns:
+            new_buildings = new_buildings.rename(columns ={'development_type_id':'building_type_id'})
+        new_buildings = new_buildings[[ 'building_type_id', 'improvement_value',
+                                       'non_residential_sqft', 'parcel_id', 'residential_units', 'sqft_per_unit', 'stories', 'year_built', 'bldg_sq_ft', ]]  # These are the fields you need.  And index should be named 'building_id'.
+        for col in ['parcel_id', 'residential_units', 'non_residential_sqft', 'year_built',
+                    'stories', 'bldg_sq_ft', 'sqft_per_unit']:
+            new_buildings[col] = new_buildings[col].fillna(0).astype('int32')
+
+        # Export to database
+        urbancanvas2.buildings_to_uc(new_buildings, year)
+    #else:
+    #    print 'Urban Canvas setting not on.'
+
+
+@orca.step('scheduled_development_events')
+def scheduled_development_events(buildings, scheduled_development_events, year):
+
+    sched_dev = scheduled_development_events.to_frame()
+    print sched_dev
+    sched_dev = sched_dev[sched_dev.year_built==year]
+    sched_dev['residential_sqft'] = sched_dev.sqft_per_unit*sched_dev.residential_units
+    sched_dev['job_spaces'] = sched_dev.non_residential_sqft/400
+    sched_dev = sched_dev.rename(columns={'development_type_id': 'building_type_id',
+                                          'nonres_rent_per_sqft': 'unit_price_non_residential' })
+    sched_dev['tax_exempt'] = 0
+    sched_dev['land_area'] = 0
+    sched_dev['bldg_sq_ft'] = sched_dev['residential_sqft'] + sched_dev['non_residential_sqft']
+    sched_dev['unit_price_residential'] = sched_dev['res_price_per_sqft']*\
+                                          sched_dev['residential_sqft']/sched_dev.residential_units
+
+    if len(sched_dev) > 0:
+        max_bid = buildings.index.values.max()
+        idx = np.arange(max_bid + 1,max_bid+len(sched_dev)+1)
+        sched_dev['building_id'] = idx
+        sched_dev = sched_dev.set_index('building_id')
+        from urbansim.developer.developer import Developer
+        merge = Developer(pd.DataFrame({})).merge
+        b = buildings.to_frame(buildings.local_columns)
+        all_buildings = merge(b,sched_dev[b.columns])
+        orca.add_table("buildings", all_buildings)

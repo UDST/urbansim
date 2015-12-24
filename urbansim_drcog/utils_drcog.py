@@ -648,7 +648,7 @@ def export_indicators(zones, year):
     engine = create_engine('postgresql://model_team:m0d3lte@m@postgresql:5432/sandbox', echo=False)
     engine2 = create_engine('postgresql://model_team:m0d3lte@m@postgresql:5432/urbansim', echo=False)
     #TODO add county table to h5 file
-    counties = pd.read_csv('c:/urbansim/data/counties.csv', index_col=0)
+    counties = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/counties.csv', index_col=0)
 
     buildings = orca.merge_tables('buildings', tables=['buildings','parcels'],
                              columns=['unit_price_residential','unit_price_non_residential','residential_units',
@@ -715,8 +715,7 @@ def export_indicators(zones, year):
     #orca.add_table('county_summary', county_summary, cache=False)
 
     #zone_summary.to_sql('zone_summary_new', engine, if_exists='append')
-    county_summary.to_sql('county_summary_new', engine, if_exists='replace')
-
+    county_summary.to_sql('county_summary', engine, if_exists='replace')
 
     pivot = pd.pivot_table(buildings, values='bldg_sq_ft',
                            index=['zone_id'], fill_value=0, columns='building_type_name', aggfunc=np.size)
@@ -724,7 +723,7 @@ def export_indicators(zones, year):
     scenario_index = pd.read_csv('c:/urbansim_new/urbansim/urbansim_drcog/config/scenario_index.csv', index_col=0)
     zone_summary.loc[scenario_index.index,'in_scenario'] = 1
     zone_summary.fillna(0, inplace=True)
-    zone_summary.to_sql('zone_summary_new', engine, if_exists='replace')
+    zone_summary.to_sql('zone_summary', engine, if_exists='replace')
 
     #print zone_summary.loc[970]
     #zone_summary.fillna(0).sort_index().to_csv('c:/users/jmartinez/documents/test_2015.csv')
