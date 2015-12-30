@@ -337,8 +337,8 @@ class SqFtProForma(object):
                 # deck pkg
                 if parking_config == 'deck':
                     building_bulk /= (1.0 + np.sum(uses_distrib * c.parking_rates) *
-                                c.parking_sqft_d[parking_config] /
-                                c.sqft_per_rate)
+                                      c.parking_sqft_d[parking_config] /
+                                      c.sqft_per_rate)
 
                 df['building_sqft'] = building_bulk
 
