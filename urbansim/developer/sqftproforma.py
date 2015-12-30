@@ -336,20 +336,9 @@ class SqFtProForma(object):
                 # need to converge in on exactly how much far is available for
                 # deck pkg
                 if parking_config == 'deck':
-                    orig_bulk = building_bulk
-                    while 1:
-                        parkingstalls = building_bulk * \
-                            np.sum(uses_distrib * c.parking_rates) / \
-                            c.sqft_per_rate
-                        if np.where(
-                                np.absolute(
-                                    orig_bulk - building_bulk -
-                                    parkingstalls *
-                                    c.parking_sqft_d[parking_config]) > 10.0
-                                )[0].size == 0:
-                            break
-                        building_bulk = orig_bulk - parkingstalls * \
-                            c.parking_sqft_d[parking_config]
+                    building_bulk /= (1.0 + np.sum(uses_distrib * c.parking_rates) *
+                                      c.parking_sqft_d[parking_config] /
+                                      c.sqft_per_rate)
 
                 df['building_sqft'] = building_bulk
 
