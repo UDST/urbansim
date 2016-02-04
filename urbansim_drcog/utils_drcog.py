@@ -416,6 +416,9 @@ def run_feasibility(parcels, parcel_price_callback,
 
     df = orca.merge_tables('parcels', tables=['parcels', 'fars'])
 
+    merged = orca.get_table('new_parcels').to_frame()
+    df.loc[~merged.far.isnull(), 'far'] = merged.loc[~merged.far.isnull()].far
+
     # add prices for each use
     for use in pf.config.uses:
         df[use] = parcel_price_callback(use)
@@ -674,9 +677,7 @@ def export_indicators(zones, year):
     zone_summary['unit_price_residential'] = buildings.unit_price_residential.groupby(buildings.zone_id).mean()
     zone_summary['unit_price_non_residential'] = buildings.unit_price_non_residential.groupby(buildings.zone_id).mean()
     zone_summary['ru_sim'] = buildings.residential_units.groupby(buildings.zone_id).sum()
-    zone_summary['vacant_residential_units'] = buildings.groupby('zone_id').vacant_residential_units.sum()
     zone_summary['movers'] = households.loc[households.building_id==-1,['building_id','zone_id']].groupby('zone_id').size()
-    zone_summary['vacant_job_spaces'] = buildings.groupby('zone_id').vacant_job_spaces.sum()
     zone_summary['nr_sim'] = buildings.non_residential_units.groupby(buildings.zone_id).sum()
     zone_summary['buildings'] = buildings.building_type_id.groupby(buildings.zone_id).size()
     zone_summary['median_income_sim'] = households.income.groupby(households.zone_id).median()
