@@ -37,6 +37,10 @@ def establishments(store):
     df = store['establishments']
     return df
 
+@orca.table('new_parcels', cache=True)
+def new_parcels(store):
+    df = store['new_zoning']
+    return df
 
 @orca.table('hh_demand')
 def hh_demand():
@@ -100,7 +104,8 @@ def zoning(store):
 
 @orca.table('zoning_baseline')
 def zoning_baseline(store):
-    return pd.merge(store.parcels, store.zoning, left_on='zoning_id', right_index=True)
+    return pd.merge(store.new_zoning, store.zoning_new, left_on='zoning_id', right_index=True)
+    #return pd.merge(store.parcels, store.zoning, left_on='zoning_id', right_index=True)
 
 @orca.table('fars')
 def fars(store):
