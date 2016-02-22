@@ -162,7 +162,7 @@ class Developer(object):
             df = self.feasibility[form]
 
         # feasible buildings only for this building type
-        df = df[df.max_profit_far > 0]
+        df = df[df.max_profit > 0]
         ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
         df["ave_unit_size"] = ave_unit_size
         df["parcel_size"] = parcel_size
@@ -190,12 +190,12 @@ class Developer(object):
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
                   "MATCH DEMAND"
 
-        df['max_profit_per_size'] = df.max_profit / df.parcel_size
+        df['return_on_cost'] = df.max_profit / df.total_cost
 
         choices = np.random.choice(df.index.values, size=len(df.index),
                                    replace=False,
-                                   p=(df.max_profit_per_size.values /
-                                      df.max_profit_per_size.sum()))
+                                   p=(df.return_on_cost.values /
+                                      df.return_on_cost.sum()))
         net_units = df.net_units.loc[choices]
         tot_units = net_units.values.cumsum()
         ind = int(np.searchsorted(tot_units, target_units, side="left"))
