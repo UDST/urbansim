@@ -37,7 +37,7 @@ the Open Platform for Urban Simulation (OPUS) software implementation at
 that time. Now, almost a decade later, it is time again to revisit the
 implementation to take advantage of an amazing amount of innovation in
 the scientific computing community. The new implementation is hosted on
-this GitHub site, and maintained by Autodesk and hopefully a growing
+this GitHub site, and maintained by UrbanSim Inc. and a growing
 community of contributors.
 
 New UrbanSim Implementation
@@ -72,11 +72,8 @@ set of hedonic price models, location choice models, relocation and
 transition models, as well as a new real estate development model using
 proforma analysis.
 
-We do strongly recommend that you contact udst@autodesk.com about your
-project to make sure you can get professional support when you need it,
+We do strongly recommend that you contact the team at www.urbansim.com about your
+project to make sure you can get support when you need it,
 and know what you are getting into. For major applied projects,
 professional support is highly recommended.
 
-**On the other hand, if you just want to begin experimenting and
-creating regression and choice models and map their inputs and outputs,
-you've also come to the right place.**
