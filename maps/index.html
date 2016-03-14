@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>DataFrame Explorer &mdash; urbansim 0.2dev documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -34,7 +34,7 @@
         <link rel="prev" title="Testing Helpers" href="../utils/testing.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="../_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,11 +44,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
-          <a href="../index.html" class="fa fa-home"> urbansim</a>
-        
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> urbansim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2dev
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -56,43 +72,20 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-      </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
           
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#tools-of-the-trade">Tools of the Trade</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../gettingstarted.html#taking-the-next-step">Taking the Next Step</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples.html#model-implementation-choices">Model Implementation Choices</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../models/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../models/index.html#contents">Contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../developer/index.html#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../developer/index.html#module-urbansim.developer.developer">Developer Model API</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#about">About</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../utils/index.html#contents">Contents</a></li>
-</ul>
-</li>
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer/index.html">Real Estate Development Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">DataFrame Explorer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#website-description">Website Description</a></li>
@@ -102,10 +95,10 @@
 </li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -120,20 +113,29 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
     <li>DataFrame Explorer</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/maps/index.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/maps/index.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="dataframe-explorer">
 <span id="dframe-explorer"></span><h1>DataFrame Explorer<a class="headerlink" href="#dataframe-explorer" title="Permalink to this headline">¶</a></h1>
@@ -166,17 +168,17 @@ undocumented as the user does not interact with that API.  Simply call the
 <div class="section" id="what-s-it-doing-exactly">
 <h2>What&#8217;s it Doing Exactly?<a class="headerlink" href="#what-s-it-doing-exactly" title="Permalink to this headline">¶</a></h2>
 <p>So what is this doing?  The web service is translating the drop downs to a simple interactive Pandas statement, for example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;zone_id&#39;</span><span class="p">)[</span><span class="s">&#39;residential_units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)[</span><span class="s1">&#39;residential_units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The web service will print out each statement it executes.  The website then transparently joins the output Pandas series to the shapes and create an interactive <em>slippy</em> web map using the <a class="reference external" href="http://leafletjs.com/">Leaflet</a> Javasript library.  The code for this map is really <a class="reference external" href="https://github.com/udst/urbansim/tree/master/urbansim/maps">quite simple</a> - feel free to browse the code and add functionality as required.</p>
 <p>To be clear, the website is performing a Pandas aggregation on the fly.  If you have a buildings DataFrame with millions of records, Pandas will <code class="docutils literal"><span class="pre">groupby</span></code> the <code class="docutils literal"><span class="pre">zone_id</span></code> and perform an aggregation of your choice.  This is designed to give you a quickly navigable map interface to understand the underlying disaggregate data, similar to that supplied by commercial projects such as <a class="reference external" href="http://kb.tableausoftware.com/articles/knowledgebase/mapping-basics">Tableau</a>.</p>
 <p>As a concrete example, note that the <code class="docutils literal"><span class="pre">households</span></code> table has a <code class="docutils literal"><span class="pre">zone_id</span></code> and is thus available for aggregation in <code class="docutils literal"><span class="pre">dframe_explorer</span></code>.  Since the web service is running aggregations on the <em>disaggregate</em> data, clicking to the <code class="docutils literal"><span class="pre">households</span></code> table and <code class="docutils literal"><span class="pre">persons</span></code> attribute and an aggregation of <code class="docutils literal"><span class="pre">sum</span></code> will run:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This computes the sum of persons in each household by zone, or more simply, the population of each zone.  If the aggregation is changed to mean, the service will run:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>What does this compute exactly?  It computes the average number of persons per household in each zone, or the average household size by zone.</p>
@@ -251,13 +253,14 @@ view) which joins to geom_name in the shapes</p>
 </div>
 
 
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="../utils/testing.html" class="btn btn-neutral" title="Testing Helpers"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../utils/testing.html" class="btn btn-neutral" title="Testing Helpers" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -266,13 +269,14 @@ view) which joins to geom_name in the shapes</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2015, Autodesk.
+        &copy; Copyright 2016, UrbanSim Inc..
+
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
 </footer>
+
         </div>
       </div>
 

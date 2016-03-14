@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Getting Started &mdash; urbansim 0.2dev documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -35,7 +35,7 @@
         <link rel="prev" title="UrbanSim" href="index.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -45,11 +45,27 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-nav-search">
-        
-          <a href="index.html" class="fa fa-home"> urbansim</a>
-        
-        
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> urbansim
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2dev
+              </div>
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -57,56 +73,55 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-      </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-        
           
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
-              <ul class="current">
+            
+            
+                <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tools-of-the-trade">Tools of the Trade</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#anaconda">Anaconda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#urbansim">UrbanSim</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#latest-release">Latest Release</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#development-version">Development Version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#developer-install">Developer Install</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tools-of-the-trade">Tools of the Trade</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pandas">Pandas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-note-on-pandas-indexing">A Note on Pandas Indexing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ipython">IPython</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#a-gentle-introduction-to-urbansim">A Gentle Introduction to UrbanSim</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#residential-real-estate-models">Residential Real Estate Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#non-residential-real-estate-models">Non-residential Real Estate Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#real-estate-development-models">Real Estate Development Models</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#specifying-scenario-inputs">Specifying Scenario Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#taking-the-next-step">Taking the Next Step</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#complete-example-san-francisco-urbansim-workflows">Complete Example - San Francisco UrbanSim Workflows</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html#model-implementation-choices">Model Implementation Choices</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="models/index.html">Core Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="models/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models/index.html#contents">Contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="developer/index.html">Real Estate Development Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developer/index.html#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer/index.html#module-urbansim.developer.developer">Developer Model API</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="utils/index.html#about">About</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils/index.html#contents">Contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="maps/index.html">DataFrame Explorer</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="maps/index.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="maps/index.html#website-description">Website Description</a></li>
-<li class="toctree-l2"><a class="reference internal" href="maps/index.html#what-s-it-doing-exactly">What&#8217;s it Doing Exactly?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="maps/index.html#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/index.html">Core Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer/index.html">Real Estate Development Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils/index.html">UrbanSim Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
+            
           
-        
+        </div>
       </div>
-      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -121,20 +136,29 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
     <li>Getting Started</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/gettingstarted.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/gettingstarted.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
@@ -184,15 +208,15 @@ easiest way to install UrbanSim because it has binary installers for
 all of UrbanSim&#8217;s hard-to-install dependencies.
 First, add the <a class="reference external" href="https://binstar.org/synthicity">synthicity channel</a>
 to your conda configuration:</p>
-<div class="highlight-python"><div class="highlight"><pre>conda config --add channels synthicity
+<div class="highlight-python"><div class="highlight"><pre><span></span>conda config --add channels synthicity
 </pre></div>
 </div>
 <p>Then use conda to install UrbanSim:</p>
-<div class="highlight-python"><div class="highlight"><pre>conda install urbansim
+<div class="highlight-python"><div class="highlight"><pre><span></span>conda install urbansim
 </pre></div>
 </div>
 <p>To update to a new UrbanSim version use the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></code> command:</p>
-<div class="highlight-python"><div class="highlight"><pre>conda update urbansim
+<div class="highlight-python"><div class="highlight"><pre><span></span>conda update urbansim
 </pre></div>
 </div>
 </div>
@@ -201,7 +225,7 @@ to your conda configuration:</p>
 <p>UrbanSim can also be installed from
 <a class="reference external" href="https://pypi.python.org/pypi/urbansim">PyPI</a>
 via <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>:</p>
-<div class="highlight-python"><div class="highlight"><pre>pip install urbansim
+<div class="highlight-python"><div class="highlight"><pre><span></span>pip install urbansim
 </pre></div>
 </div>
 <p>When using this method it&#8217;s best to already have most of the dependencies
@@ -211,7 +235,7 @@ If you&#8217;re using Anaconda you will already have all of the hard-to-install
 libraries.</p>
 <p>To update to a new release of UrbanSim use the <code class="docutils literal"><span class="pre">-U</span></code> option with
 <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre>pip install -U urbansim
+<div class="highlight-python"><div class="highlight"><pre><span></span>pip install -U urbansim
 </pre></div>
 </div>
 </div>
@@ -223,7 +247,7 @@ libraries.</p>
 using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
 pip is included with Anaconda so you should now be able to open a terminal
 and run the following command to install UrbanSim:</p>
-<div class="highlight-python"><div class="highlight"><pre>pip install -U https://github.com/udst/urbansim/archive/master.zip
+<div class="highlight-python"><div class="highlight"><pre><span></span>pip install -U https://github.com/udst/urbansim/archive/master.zip
 </pre></div>
 </div>
 <p>This will download urbansim and install the remaining dependencies not
@@ -275,7 +299,7 @@ UrbanSim every time you make changes.</p>
 <div class="section" id="background">
 <h3>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h3>
 <p>UrbanSim has been an active research project since the late 1990&#8217;s, and has undergone continual re-thinking, and re-engineering over the ensuing years, as documented in many of the <a class="reference external" href="http://urbansim.org/Research/ResearchPapers">accumulated research papers</a>.  Below is a brief, high-level summary of UrbanSim in only a few paragraphs from a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down to a series of models estimated and then simulated in sequence.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
     <span class="n">model</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUMYEARSINSIMULATION</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
@@ -365,18 +389,18 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 <li>Data processing <em>models</em> can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.</li>
 </ul>
 <p>To this end UrbanSim now implements this functionality as <a class="reference external" href="sim/index.html#tables">tables</a>, <a class="reference external" href="sim/index.html#urbansim.sim.simulation.broadcast">broadcasts</a>, <a class="reference external" href="sim/index.html#columns">columns</a>, and <a class="reference external" href="sim/index.html#models">models</a> respectively.  We decided to implement these concepts with Python functions and <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>. This is what is happening when you see the <code class="docutils literal"><span class="pre">&#64;sim.DECORATOR_NAME</span></code> syntax everywhere, e.g.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;buildings&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;buildings&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span>
 
-<span class="nd">@sim.table_source</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">)</span>
+<span class="nd">@sim.table_source</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">parcels</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s">&#39;parcels&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;parcels&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>With the use of decorators you can <em>register</em> these concepts with the simulation engine and deal with one small piece of the simulation at a time - for instance, how to access data for a certain table, or how to compute a certain variable, or how to run a certain model.</p>
 <p>The objects can then be passed to each other using <em>injection</em>, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called <code class="docutils literal"><span class="pre">total_units</span></code> on the <code class="docutils literal"><span class="pre">parcels</span></code> table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="nd">@sim.column</span><span class="p">(</span><span class="s">&#39;parcels&#39;</span><span class="p">,</span> <span class="s">&#39;total_units&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.column</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">,</span> <span class="s1">&#39;total_units&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">residential_unit_density</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">parcels</span><span class="o">.</span><span class="n">acres</span>
 </pre></div>
@@ -388,15 +412,16 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 </div>
 
 
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="examples.html" class="btn btn-neutral float-right" title="Examples">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="UrbanSim"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="UrbanSim" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -405,13 +430,14 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2015, Autodesk.
+        &copy; Copyright 2016, UrbanSim Inc..
+
     </p>
   </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
 </footer>
+
         </div>
       </div>
 
