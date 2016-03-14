@@ -80,7 +80,7 @@ def growth_rates_filters(rates_col, totals_col, grow_targets_filters):
 
 
 def assert_empty_index(index):
-    pdt.assert_index_equal(index, pd.Index([]))
+    pdt.assert_index_equal(index, pd.Index([]), exact=False)
 
 
 def assert_for_add(new, added):
