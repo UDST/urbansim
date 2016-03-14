@@ -100,7 +100,9 @@ def remove_rows(data, nrows, accounting_column=None):
     remove_index = remove_rows.index
 
     logger.debug('finish: removed {} rows in transition model'.format(nrows))
-    return data.loc[data.index.diff(remove_index)], remove_index
+    data = data.loc[data.index.diff(remove_index)]
+    data = pd.DataFrame(data, index=pd.Int64Index(data.index))
+    return data, remove_index
 
 
 def add_or_remove_rows(data, nrows, starting_index=None, accounting_column=None):
