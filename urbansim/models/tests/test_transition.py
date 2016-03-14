@@ -83,6 +83,10 @@ def assert_empty_index(index):
     pdt.assert_index_equal(index, pd.Index([]))
 
 
+def assert_empty_int64index(index):
+    pdt.assert_index_equal(index, pd.Int64Index([]))
+
+
 def assert_for_add(new, added):
     assert len(new) == 7
     pdt.assert_index_equal(added, pd.Index([105, 106]))
@@ -324,7 +328,7 @@ def test_tgrtransition_with_accounting(random_df):
     a_target = orig_total + a_change
     assert a_change * -1 == a_removed_rows['some_count'].sum()
     assert a_target == new[new['segment'] == 'a']['some_count'].sum()
-    assert_empty_index(a_added_rows.index)
+    assert_empty_int64index(a_added_rows.index)
 
     # test a growing segment
     b_added_rows = added_rows[added_rows['segment'] == 'b']
@@ -333,14 +337,14 @@ def test_tgrtransition_with_accounting(random_df):
     b_target = orig_total + b_change
     assert b_change == b_added_rows['some_count'].sum()
     assert b_target == new[new['segment'] == 'b']['some_count'].sum()
-    assert_empty_index(b_removed_rows.index)
+    assert_empty_int64index(b_removed_rows.index)
 
     # test a no change segment
     c_added_rows = added_rows[added_rows['segment'] == 'c']
     c_removed_rows = removed_rows[removed_rows['segment'] == 'c']
     assert orig_total == new[new['segment'] == 'c']['some_count'].sum()
-    assert_empty_index(c_added_rows.index)
-    assert_empty_index(c_removed_rows.index)
+    assert_empty_int64index(c_added_rows.index)
+    assert_empty_int64index(c_removed_rows.index)
 
 
 def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
