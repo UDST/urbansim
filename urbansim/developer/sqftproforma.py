@@ -519,8 +519,9 @@ class SqFtProForma(object):
         if len(df) == 0:
             return pd.DataFrame()
 
-        max_profit_ind = df.pivot(columns="parking_config", values="max_profit").idxmax(axis=1).to_frame(
-            "parking_config")
+        max_profit_ind = df.pivot(
+            columns="parking_config",
+            values="max_profit").idxmax(axis=1).to_frame("parking_config")
 
         df.set_index(["parking_config"], append=True, inplace=True)
         max_profit_ind.set_index(["parking_config"], append=True, inplace=True)
