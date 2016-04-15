@@ -646,37 +646,22 @@
 <span class="sd">            and max_height from the input dataframe).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">profit_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
-            <span class="c1"># this function gives the max profit development for the given</span>
-            <span class="c1"># parking config need to iterate over parking configs to pick the</span>
-            <span class="c1"># max profit config</span>
-            <span class="n">outdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup_parking_cfg</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="p">,</span>
-                                             <span class="n">pass_through</span><span class="p">)</span>
-            <span class="n">d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span>
-            <span class="n">profit_df</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="p">[</span><span class="s2">&quot;max_profit&quot;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lookup_parking_cfg</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="p">,</span>
+                                                <span class="n">pass_through</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">)</span>
 
-        <span class="c1"># get the max_profit idx</span>
-        <span class="n">max_profit_ind</span> <span class="o">=</span> <span class="n">profit_df</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">max_profit_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
-        <span class="c1"># make a new df of all the attributes from the max profit df</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">parking_config</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">parking_configs</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">max_profit_ind</span><span class="p">[</span><span class="n">max_profit_ind</span> <span class="o">==</span> <span class="n">parking_config</span><span class="p">]</span>
-            <span class="c1"># these are the rows that are most profitable with this</span>
-            <span class="c1"># parking config</span>
-            <span class="n">tmpdf</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">parking_config</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
-            <span class="n">tmpdf</span><span class="p">[</span><span class="s2">&quot;parking_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parking_config</span>
-            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmpdf</span><span class="p">)</span>
+        <span class="n">max_profit_ind</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;parking_config&quot;</span><span class="p">,</span>
+            <span class="n">values</span><span class="o">=</span><span class="s2">&quot;max_profit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="s2">&quot;parking_config&quot;</span><span class="p">)</span>
 
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;parking_config&quot;</span><span class="p">],</span> <span class="n">append</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">max_profit_ind</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;parking_config&quot;</span><span class="p">],</span> <span class="n">append</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">df</span></div>
+        <span class="c1"># get the max_profit idx</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">max_profit_ind</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_lookup_parking_cfg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">only_built</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                             <span class="n">pass_through</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -774,7 +759,8 @@
             <span class="s1">&#39;total_cost&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">total_costs</span><span class="p">),</span>
             <span class="s1">&#39;building_revenue&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">building_revenue</span><span class="p">),</span>
             <span class="s1">&#39;max_profit_far&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">fars</span><span class="p">),</span>
-            <span class="s1">&#39;max_profit&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">profit</span><span class="p">)</span>
+            <span class="s1">&#39;max_profit&#39;</span><span class="p">:</span> <span class="n">twod_get</span><span class="p">(</span><span class="n">maxprofitind</span><span class="p">,</span> <span class="n">profit</span><span class="p">),</span>
+            <span class="s1">&#39;parking_config&#39;</span><span class="p">:</span> <span class="n">parking_config</span>
         <span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">pass_through</span><span class="p">:</span>

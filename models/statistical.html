@@ -88,7 +88,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Core Models</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#introduction">Introduction</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="">Statistical Models</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Statistical Models</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#model-expressions">Model Expressions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#yaml-persistence">YAML Persistence</a></li>
@@ -128,7 +128,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -177,11 +177,11 @@ model expressions, but UrbanSim gives you some flexibility
 as to how you define them.</p>
 <p><a class="reference external" href="http://patsy.readthedocs.org/">patsy</a> works with string formula like this simplified regression example
 (names refer to columns in the <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a> used during fitting and prediction):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="s1">&#39;np.log1p(sqft_price) ~ I(year_built &lt; 1940) + dist_hwy + ave_income&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="s1">&#39;np.log1p(sqft_price) ~ I(year_built &lt; 1940) + dist_hwy + ave_income&#39;</span>
 </pre></div>
 </div>
 <p>In UrbanSim that same formula could be expressed in a dictionary:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;left_side&#39;</span><span class="p">:</span> <span class="s1">&#39;np.log1p(sqft_price)&#39;</span><span class="p">,</span>
     <span class="s1">&#39;right_side&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s1">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s1">&#39;ave_income&#39;</span><span class="p">]</span>
 <span class="p">}</span>
@@ -190,7 +190,7 @@ as to how you define them.</p>
 <p>Formulae used with location choice models have only a right hand side
 since the models do not predict new numeric values. Right-hand-side formulae
 can be written as lists or dictionaries:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;right_side&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s1">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s1">&#39;ave_income&#39;</span><span class="p">]</span>
 <span class="p">}</span>
 
@@ -199,7 +199,7 @@ can be written as lists or dictionaries:</p>
 </div>
 <p>Expressing the formula as a string is always an option.
 The ability to use lists or dictionaries are especially useful to make
-attractively formatted formulae in <a class="reference internal" href="#yaml-config"><span>YAML config files</span></a>.</p>
+attractively formatted formulae in <a class="reference internal" href="#yaml-config"><span class="std std-ref">YAML config files</span></a>.</p>
 </div>
 <div class="section" id="yaml-persistence">
 <span id="yaml-config"></span><h2>YAML Persistence<a class="headerlink" href="#yaml-persistence" title="Permalink to this headline">¶</a></h2>
@@ -213,7 +213,7 @@ prediction somewhere else.</p>
 and load them back as configured models.
 Here&#8217;s an example of loading a regression model, performing fitting, and
 saving the model back to YAML:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;my_model.yaml&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;my_model.yaml&#39;</span><span class="p">)</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 

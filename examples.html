@@ -83,7 +83,7 @@
             
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Examples</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#basic-example-residential-price-hedonic">Basic Example - Residential Price Hedonic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#complete-example-san-francisco-urbansim-modules">Complete Example - San Francisco UrbanSim Modules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#table-sources">Table Sources</a></li>
@@ -135,7 +135,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -186,7 +186,7 @@
 <h3>Table Sources<a class="headerlink" href="#table-sources" title="Permalink to this headline">¶</a></h3>
 <p>Table sources are a decorator that describes from where UrbanSim data comes.  All table sources return <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html">Pandas DataFrames</a> but the data can come from different locations, including HDF5 files, CSV files, databases, Excel files, and others.  Pandas has a large and ever-expanding set of <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/io.html">data connectivity modules</a> although this example keeps data in a single HDF5 data store which is <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/master/data">provided directly in the repo</a>.</p>
 <p>Specifying a source of data for a dataframe is done with the <a class="reference external" href="sim/index.html#urbansim.sim.simulation.table_source">table_source</a> decorator as in the code below, which is lifted <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26">directly from the example</a>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s1">&#39;households&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">table_source</span><span class="p">(</span><span class="s1">&#39;households&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">households</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;households&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">df</span>
@@ -199,7 +199,7 @@
 <div class="section" id="assumptions">
 <h3>Assumptions<a class="headerlink" href="#assumptions" title="Permalink to this headline">¶</a></h3>
 <p>By convention <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py">assumptions.py</a> contains all of the high-level assumptions for the simulation. A typical assumption would be the <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L28">one below</a>, which sets a Python dictionary that can be used to map building types to land use category names.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># this maps building type ids to general building types</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># this maps building type ids to general building types</span>
 <span class="c1"># basically just reduces dimensionality</span>
 <span class="n">sim</span><span class="o">.</span><span class="n">add_injectable</span><span class="p">(</span><span class="s2">&quot;building_type_map&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Residential&quot;</span><span class="p">,</span>
@@ -226,14 +226,14 @@
 <div class="section" id="variables">
 <h3>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py">variables.py</a> is similar to the <a class="reference external" href="http://www.urbansim.org/downloads/manual/dev-version/opus-userguide/node211.html">variable library</a> from the OPUS version of UrbanSim.  By convention all variables which are computed from underlying attributes are stored in this file.  Although the previous version of UrbanSim used a domain-specific <em>expression language</em>, the current version uses native Pandas, along with the <code class="docutils literal"><span class="pre">&#64;sim.column</span></code> decorator and dependency injection.  As before, the convention is to name the underlying data the <em>primary attributes</em> and the functions specified here as <em>computed columns</em>.  A typical example is shown below:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.column</span><span class="p">(</span><span class="s1">&#39;zones&#39;</span><span class="p">,</span> <span class="s1">&#39;sum_residential_units&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;zones&#39;</span><span class="p">,</span> <span class="s1">&#39;sum_residential_units&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">sum_residential_units</span><span class="p">(</span><span class="n">buildings</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">zone_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This creates a new column <code class="docutils literal"><span class="pre">sum_residential_units</span></code> for the <code class="docutils literal"><span class="pre">zones</span></code> table.  Notice that because of the magic of <code class="docutils literal"><span class="pre">groupby</span></code>, the grouping column is used as the index after the operation so although <code class="docutils literal"><span class="pre">buildings</span></code> has been passed in here, because <code class="docutils literal"><span class="pre">zone_id</span></code> is available on the <code class="docutils literal"><span class="pre">buildings</span></code> table, the Series that is returned is appropriate as a column on the <code class="docutils literal"><span class="pre">zones</span></code> table.  In other words <code class="docutils literal"><span class="pre">groupby</span></code> is used to <em>aggregate</em> from the buildings table to the zones table, which is a very common operation.</p>
 <p>To move an attribute from one table to another using a foreign key, the <code class="docutils literal"><span class="pre">misc</span></code> module has a <a class="reference external" href="utils/misc.html#urbansim.utils.misc.reindex">reindex method</a>.  Thus even though <code class="docutils literal"><span class="pre">zone_id</span></code> is <em>only</em> a primary attribute on the <code class="docutils literal"><span class="pre">parcels</span></code> table, it can be moved using <code class="docutils literal"><span class="pre">reindex</span></code> to the <code class="docutils literal"><span class="pre">buildings</span></code> table using the <code class="docutils literal"><span class="pre">parcel_id</span></code> (foreign key) of that table.  This is shown below and extracted <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L122">from the example</a>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.column</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">,</span> <span class="s1">&#39;zone_id&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">,</span> <span class="s1">&#39;zone_id&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">zone_id</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">parcels</span><span class="o">.</span><span class="n">zone_id</span><span class="p">,</span> <span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span>
 </pre></div>
@@ -244,23 +244,23 @@
 <p>The <code class="docutils literal"><span class="pre">buildings</span></code> object that gets passed in is a <a class="reference external" href="sim/index.html#table-wrappers">Table Wrapper</a> and the reader is referred to the API documentation to learn more about this concept.  In general, this means the user has access to the Series object by name on the wrapper but the <strong>full set of Pandas DataFrame methods is not necessarily available.</strong>  For instance <code class="docutils literal"><span class="pre">.loc</span></code> and <code class="docutils literal"><span class="pre">.groupby</span></code> will both yield exceptions on the <code class="docutils literal"><span class="pre">Table</span> <span class="pre">Wrapper</span></code>.</p>
 <p>To convert a <code class="docutils literal"><span class="pre">Table</span> <span class="pre">Wrapper</span></code> to a DataFrame, the user can simply call <a class="reference external" href="sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame">to_frame</a> but this returns <em>all</em> computed columns on the table and so has performance implications.  In general it&#8217;s better to use the Series objects directly where possible.</p>
 <p>As a concrete example, the following code is recommended:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">zone_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">zone_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This will <em>not</em> work:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This <em>will</em> work but is <em>slow</em>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>One workaround is to call <code class="docutils literal"><span class="pre">to_frame</span></code> with only the columns you need, although this is a verbose syntax, i.e. this <em>will</em> work but is <em>syntactically awkward</em>.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">([</span><span class="s1">&#39;zone_id&#39;</span><span class="p">,</span> <span class="s1">&#39;residential_units&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">([</span><span class="s1">&#39;zone_id&#39;</span><span class="p">,</span> <span class="s1">&#39;residential_units&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Finally, if all the attributes being used are primary, the user can call <code class="docutils literal"><span class="pre">local_columns</span></code> without serious performance degradation.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;zone_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -273,7 +273,7 @@
 <li><p class="first"><code class="docutils literal"><span class="pre">utils.py</span></code> is a set of helper functions that assist with merging data and running models from configuration files.  Note that the code in this file is generally shareable across UrbanSim implementations (in fact, this exact code is in use in multiple live simulations).  It defines a certain style of UrbanSim and handles a number of boundary cases in a transparent way.  In the long run, this kind of functionality might be unit tested and moved to UrbanSim, but for now we think it helps with transparency, flexibility, and debugging to keep this file with the specific client implementations.</p>
 </li>
 <li><p class="first">Many of the models use configuration files to define the actual model configuration.  In fact, most models in this file are very short <em>stub</em> functions which pass a Pandas DataFrame into the estimation and configure the model using a configuration file in the <a class="reference external" href="http://en.wikipedia.org/wiki/YAML">YAML file format</a>. For instance, the <code class="docutils literal"><span class="pre">rsh_estimate</span></code> function knows to read the configuration file, estimate the model defined in the configuration on the dataframe passed in, and write the estimated coefficients back to the same configuration file, and the complete method is pasted below:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.model</span><span class="p">(</span><span class="s1">&#39;rsh_estimate&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;rsh_estimate&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">rsh_estimate</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">zones</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">hedonic_estimate</span><span class="p">(</span><span class="s2">&quot;rsh.yaml&quot;</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">zones</span><span class="p">)</span>
 </pre></div>
@@ -282,7 +282,7 @@
 </ul>
 <blockquote>
 <div><p>For simulation, the stub is only slightly more complicated - in this case the model is simulating an output based on the model we estimated above, and the resulting Pandas <code class="docutils literal"><span class="pre">Series</span></code> needs to be stored on an UrbanSim table with a given attribute name (in this case to the <code class="docutils literal"><span class="pre">residential_sales_price</span></code> attribute of buildings table).:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.model</span><span class="p">(</span><span class="s1">&#39;rsh_simulate&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="s1">&#39;rsh_simulate&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">rsh_simulate</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">zones</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">hedonic_simulate</span><span class="p">(</span><span class="s2">&quot;rsh.yaml&quot;</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">zones</span><span class="p">,</span>
                               <span class="s2">&quot;residential_sales_price&quot;</span><span class="p">)</span>
@@ -300,25 +300,25 @@
 <h3>Model Configuration<a class="headerlink" href="#model-configuration" title="Permalink to this headline">¶</a></h3>
 <p>Bridging the divide between the modules above and the workflows below are the configuration files.  Note that models can be configured directly in Python code (as in the basic example) or in YAML configuration files (as in the complete example).  If using the <code class="docutils literal"><span class="pre">utils.py</span></code> methods above, the simulation is set up to read and write from the configuration files.</p>
 <p>The example has <a class="reference external" href="https://github.com/udst/sanfran_urbansim/tree/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs">four configuration files</a> which can be navigated on the GitHub site.  The <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs/rsh.yaml">rsh.yaml</a> file has a mixture of input and output parameters and the complete set of input parameters is displayed below.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>name: rsh
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">:</span> <span class="n">rsh</span>
 
-model_type: regression
+<span class="n">model_type</span><span class="p">:</span> <span class="n">regression</span>
 
-fit_filters:
-- unit_lot_size &gt; 0
-- year_built &gt; 1000
-- year_built &lt; 2020
-- unit_sqft &gt; 100
-- unit_sqft &lt; 20000
+<span class="n">fit_filters</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">unit_lot_size</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="o">-</span> <span class="n">year_built</span> <span class="o">&gt;</span> <span class="mi">1000</span>
+<span class="o">-</span> <span class="n">year_built</span> <span class="o">&lt;</span> <span class="mi">2020</span>
+<span class="o">-</span> <span class="n">unit_sqft</span> <span class="o">&gt;</span> <span class="mi">100</span>
+<span class="o">-</span> <span class="n">unit_sqft</span> <span class="o">&lt;</span> <span class="mi">20000</span>
 
-predict_filters:
-- general_type == &#39;Residential&#39;
+<span class="n">predict_filters</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">general_type</span> <span class="o">==</span> <span class="s1">&#39;Residential&#39;</span>
 
-model_expression: np.log1p(residential_sales_price) ~ I(year_built &lt; 1940) + I(year_built
-    &gt; 2005) + np.log1p(unit_sqft) + np.log1p(unit_lot_size) + sum_residential_units
-    + ave_lot_sqft + ave_unit_sqft + ave_income
+<span class="n">model_expression</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">residential_sales_price</span><span class="p">)</span> <span class="o">~</span> <span class="n">I</span><span class="p">(</span><span class="n">year_built</span> <span class="o">&lt;</span> <span class="mi">1940</span><span class="p">)</span> <span class="o">+</span> <span class="n">I</span><span class="p">(</span><span class="n">year_built</span>
+    <span class="o">&gt;</span> <span class="mi">2005</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">unit_sqft</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">unit_lot_size</span><span class="p">)</span> <span class="o">+</span> <span class="n">sum_residential_units</span>
+    <span class="o">+</span> <span class="n">ave_lot_sqft</span> <span class="o">+</span> <span class="n">ave_unit_sqft</span> <span class="o">+</span> <span class="n">ave_income</span>
 
-ytransform: np.exp
+<span class="n">ytransform</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span>
 </pre></div>
 </div>
 <p>Notice that the parameters <code class="docutils literal"><span class="pre">name</span></code>, <code class="docutils literal"><span class="pre">fit_filters</span></code>, <code class="docutils literal"><span class="pre">predict_filters</span></code>, <code class="docutils literal"><span class="pre">model_expression</span></code>, and <code class="docutils literal"><span class="pre">y_transform</span></code> are the exact same parameters provided to the <a class="reference external" href="models/statistical.html#urbansim.models.regression.RegressionModel">RegressionModel object</a> in the api. This is by design, so that the API documentation also documents the configuration files although an example configuration is a great place to get started while using the API pages as a reference.</p>
@@ -345,10 +345,10 @@ ytransform: np.exp
 <span id="id2"></span><h3>Exploration Workflow<a class="headerlink" href="#exploration-workflow" title="Permalink to this headline">¶</a></h3>
 <p>UrbanSim now also provides a method to interactively explore UrbanSim inputs and outputs using web mapping tools, and the <a class="reference external" href="http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb">exploration notebook</a> demonstrates how to set up and use this interactive display tool.</p>
 <p>This is another simple and powerful notebook which can be used to quickly map variables of both base year and simulated data without leaving the workflow to use GIS tools.  This example first creates the DataFrames for many of the UrbanSim tables that have been registered (<code class="docutils literal"><span class="pre">buildings</span></code>, <code class="docutils literal"><span class="pre">househlds</span></code>, <code class="docutils literal"><span class="pre">jobs</span></code>, and others).  Once the DataFrames have been created, they are passed to the <a class="reference external" href="maps/index.html#module-urbansim.maps.dframe_explorer">start</a> method.</p>
-<p>See <a class="reference internal" href="maps/index.html#dframe-explorer"><span>DataFrame Explorer</span></a> for detailed information on how to call the <code class="docutils literal"><span class="pre">start</span></code> method and what queries the website is performing.</p>
+<p>See <a class="reference internal" href="maps/index.html#dframe-explorer"><span class="std std-ref">DataFrame Explorer</span></a> for detailed information on how to call the <code class="docutils literal"><span class="pre">start</span></code> method and what queries the website is performing.</p>
 <p>Once the <code class="docutils literal"><span class="pre">start</span></code> method has been called, the IPython Notebook is running a web service which will respond to queries from a web browser.  Try it out - open your web browser and navigate to <a class="reference external" href="http://localhost:8765/">http://localhost:8765/</a> or follow the same link embedded in your notebook.  Note the link won&#8217;t work on the web example - you need to have the example running on your local machine - all queries are run interactively between your web browser and the IPython Notebook.  Your web browser should show a page like the following:</p>
 <img alt="_images/dframe_explorer_screenshot.png" src="_images/dframe_explorer_screenshot.png" />
-<p>See <a class="reference internal" href="maps/index.html#dframe-explorer-website"><span>Website Description</span></a> for a description of how to use the website that is rendered.</p>
+<p>See <a class="reference internal" href="maps/index.html#dframe-explorer-website"><span class="std std-ref">Website Description</span></a> for a description of how to use the website that is rendered.</p>
 <p>Because the web service is serving these queries directly from the IPython Notebook, you can execute some part of a data processing workflow, then run <code class="docutils literal"><span class="pre">dframe_explorer</span></code> and look at the results.  If something needs modification, simply hit the <code class="docutils literal"><span class="pre">interrupt</span> <span class="pre">kernel</span></code> menu item in the IPython Notebook.  You can now execute more Notebook cells and return to <code class="docutils literal"><span class="pre">dframe_explorer</span></code> at any time by running the appropriate cell again.  Now map exploration is simply another interactive step in your data processing workflow.</p>
 </div>
 </div>
@@ -413,7 +413,7 @@ questions.</p>
 missing data) within UrbanSim, but there is a good convention that can be
 used.  First an injectable can be set with an object in this form (make sure
 to set the name appropriately):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">add_injectable</span><span class="p">(</span><span class="s2">&quot;fillna_config&quot;</span><span class="p">,</span> <span class="p">{</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">add_injectable</span><span class="p">(</span><span class="s2">&quot;fillna_config&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="s2">&quot;buildings&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;residential_sales_price&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">),</span>
         <span class="s2">&quot;non_residential_rent&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;zero&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">),</span>

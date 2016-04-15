@@ -90,7 +90,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#contents">Contents</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="statistical.html">Statistical Models</a></li>
 <li class="toctree-l3"><a class="reference internal" href="supplydemand.html">Supply and Demand Accounting</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="">Transition and Relocation Models</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Transition and Relocation Models</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#control-table-formatting">Control Table Formatting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#transition-model-notes">Transition Model Notes</a></li>
@@ -128,7 +128,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -166,13 +166,13 @@ prescribed rates.</p>
 <p>The tables of rates and totals used in transition and relocation models have
 a particular format that allows them to specify different values for
 different segments of the table. Below is an example table:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>num_cars num_children_min num_children_max relocation_rate
-       0              nan                2            0.08
-       0                2                4            0.05
-       0                4              nan            0.03
-       1              nan                2            0.09
-       1                2                4            0.04
-       1                4              nan            0.05
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">num_cars</span> <span class="n">num_children_min</span> <span class="n">num_children_max</span> <span class="n">relocation_rate</span>
+       <span class="mi">0</span>              <span class="n">nan</span>                <span class="mi">2</span>            <span class="mf">0.08</span>
+       <span class="mi">0</span>                <span class="mi">2</span>                <span class="mi">4</span>            <span class="mf">0.05</span>
+       <span class="mi">0</span>                <span class="mi">4</span>              <span class="n">nan</span>            <span class="mf">0.03</span>
+       <span class="mi">1</span>              <span class="n">nan</span>                <span class="mi">2</span>            <span class="mf">0.09</span>
+       <span class="mi">1</span>                <span class="mi">2</span>                <span class="mi">4</span>            <span class="mf">0.04</span>
+       <span class="mi">1</span>                <span class="mi">4</span>              <span class="n">nan</span>            <span class="mf">0.05</span>
 </pre></div>
 </div>
 <p>Each column except the <code class="docutils literal"><span class="pre">relocation_rate</span></code> column describes a filter

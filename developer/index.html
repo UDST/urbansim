@@ -85,7 +85,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Real Estate Development Models</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Real Estate Development Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-urbansim.developer.developer">Developer Model API</a></li>
 </ul>
@@ -114,7 +114,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -182,7 +182,7 @@ prices as stands to reason).  Since getting data on unit mixes in the current
 building stock is extremely difficult, most feasibility computations here
 happen on a square foot basis and the <code class="docutils literal"><span class="pre">developer</span></code> model below handles the
 translation to units.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pf</span> <span class="o">=</span> <span class="n">sqftproforma</span><span class="o">.</span><span class="n">SqFtProForma</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pf</span> <span class="o">=</span> <span class="n">sqftproforma</span><span class="o">.</span><span class="n">SqFtProForma</span><span class="p">()</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">parcels</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
 
@@ -196,7 +196,7 @@ translation to units.</p>
 
 <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
-    <span class="k">print</span> <span class="s2">&quot;Computing feasibility for form </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">form</span>
+    <span class="nb">print</span> <span class="s2">&quot;Computing feasibility for form </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">form</span>
     <span class="n">d</span><span class="p">[</span><span class="n">form</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">parcel_use_allowed_callback</span><span class="p">(</span><span class="n">form</span><span class="p">)])</span>
 
 <span class="n">far_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">keys</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -222,7 +222,7 @@ developer <code class="docutils literal"><span class="pre">forms</span></code> t
 and old buildings need to be merged in such a way that the old ids are
 preserved and not duplicated (new ids are assigned at the max of the old
 ids+1 and then incremented from there).</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">dev</span> <span class="o">=</span> <span class="n">developer</span><span class="o">.</span><span class="n">Developer</span><span class="p">(</span><span class="n">feasibility</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dev</span> <span class="o">=</span> <span class="n">developer</span><span class="o">.</span><span class="n">Developer</span><span class="p">(</span><span class="n">feasibility</span><span class="o">.</span><span class="n">to_frame</span><span class="p">())</span>
 
 <span class="n">target_units</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span>\
     <span class="n">compute_units_to_build</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">agents</span><span class="p">),</span>
@@ -235,16 +235,16 @@ ids+1 and then incremented from there).</p>
                          <span class="n">ave_unit_size</span><span class="p">,</span>
                          <span class="n">total_units</span><span class="p">,</span>
                          <span class="n">max_parcel_size</span><span class="o">=</span><span class="n">max_parcel_size</span><span class="p">,</span>
-                         <span class="n">drop_after_build</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                         <span class="n">drop_after_build</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">residential</span><span class="o">=</span><span class="n">residential</span><span class="p">,</span>
                          <span class="n">bldg_sqft_per_job</span><span class="o">=</span><span class="n">bldg_sqft_per_job</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">new_buildings</span><span class="p">[</span><span class="s2">&quot;year_built&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
 
-<span class="k">if</span> <span class="n">form_to_btype_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">form_to_btype_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">new_buildings</span><span class="p">[</span><span class="s2">&quot;building_type_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_buildings</span><span class="p">[</span><span class="s2">&quot;form&quot;</span><span class="p">]</span><span class="o">.</span>\
-        <span class="nb">apply</span><span class="p">(</span><span class="n">form_to_btype_callback</span><span class="p">)</span>
+        <span class="n">apply</span><span class="p">(</span><span class="n">form_to_btype_callback</span><span class="p">)</span>
 
 <span class="n">all_buildings</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">),</span>
                           <span class="n">new_buildings</span><span class="p">[</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">])</span>
@@ -295,12 +295,12 @@ form : string</p>
 <div>Get a series representing the average cost per sqft for each form in
 the config</div></blockquote>
 <dl class="docutils">
-<dt>parking_config <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The parking configuration to get debug info for</dd>
+<dt>parking_config</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">string</span><dd>The parking configuration to get debug info for</dd>
 </dl>
 <dl class="docutils">
-<dt>cost <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd>A series where the index is the far and the values are the average
+<dt>cost</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">series</span><dd>A series where the index is the far and the values are the average
 cost per sqft at which the building is &#8220;break even&#8221; given the
 configuration parameters that were passed at run time.</dd>
 </dl>
@@ -463,26 +463,26 @@ and max_height from the input dataframe).</p>
 <dd><p>This class encapsulates the configuration options for the square
 foot based pro forma.</p>
 <dl class="docutils">
-<dt>parcel_sizes <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of parcel sizes to test.  Interestingly, right now
+<dt>parcel_sizes</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">list</span><dd>A list of parcel sizes to test.  Interestingly, right now
 the parcel sizes cancel in this style of pro forma computation so
 you can set this to something reasonable for debugging purposes -
 e.g. [10000].  All sizes can be feet or meters as long as they are
 consistently used.</dd>
-<dt>fars <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of floor area ratios to use.  FAR is a multiple of
+<dt>fars</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">list</span><dd>A list of floor area ratios to use.  FAR is a multiple of
 the parcel size that is the total building bulk that is allowed by
 zoning on the site.  In this case, all of these ratios will be
 tested regardless of zoning and the zoning test will be performed
 later.</dd>
-<dt>uses <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of space uses to use within a building.  These are
+<dt>uses</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">list</span><dd>A list of space uses to use within a building.  These are
 mixed into forms.  Generally speaking, you should only have uses
 for which you have an estimate (or observed) values for rents in
 the building.  By default, uses are retail, industrial, office,
 and residential.</dd>
-<dt>forms <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>A dictionary where keys are names for the form and values
+<dt>forms</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>A dictionary where keys are names for the form and values
 are also dictionaries where keys are uses and values are the
 proportion of that use used in this form.  The values of the
 dictionary should sum to 1.0.  For instance, a form called
@@ -491,8 +491,8 @@ dictionary should sum to 1.0.  For instance, a form called
 might have a dictionary of space allocations equal to
 {&#8220;retail&#8221;: .1, &#8220;residential&#8221; .9] which is 90% residential and
 10% retail.</dd>
-<dt>parking_rates <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>A dict of rates per thousand square feet where keys are the uses
+<dt>parking_rates</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>A dict of rates per thousand square feet where keys are the uses
 from the list specified in the attribute above.  The ratios
 are typically in the range 0.5 - 3.0 or similar.  So for
 instance, a key-value pair of &#8220;retail&#8221;: 2.0 would be two parking
@@ -500,38 +500,38 @@ spaces per 1,000 square feet of retail.  This is a per square
 foot pro forma, so the more typically parking ratio of spaces
 per residential unit must be converted to square feet for use in
 this pro forma.</dd>
-<dt>sqft_per_rate <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The number of square feet per unit for use in the
+<dt>sqft_per_rate</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The number of square feet per unit for use in the
 parking_rates above.  By default this is set to 1,000 but can be
 overridden.</dd>
-<dt>parking_configs <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>An expert parameter and is usually unchanged.  By default
+<dt>parking_configs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">list</span><dd>An expert parameter and is usually unchanged.  By default
 it is set to [&#8216;surface&#8217;, &#8216;deck&#8217;, &#8216;underground&#8217;] and very semantic
 differences in the computation are performed for each of these
 parking configurations.  Generally speaking it will break things
 to change this array, but an item can be removed if that parking
 configuration should not be tested.</dd>
-<dt>parking_sqft_d <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>A dictionary where keys are the three parking
+<dt>parking_sqft_d</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>A dictionary where keys are the three parking
 configurations listed above and values are square foot uses of
 parking spaces in that configuration.  This is to capture the
 fact that surface parking is usually more space intensive
 than deck or underground parking.</dd>
-<dt>parking_cost_d <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The parking cost for each parking configuration.  Keys are the
+<dt>parking_cost_d</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>The parking cost for each parking configuration.  Keys are the
 name of the three parking configurations listed above and values
 are dollars PER SQUARE FOOT for parking in that configuration.
 Used to capture the fact that underground and deck are far more
 expensive than surface parking.</dd>
-<dt>height_for_costs <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of &#8220;break points&#8221; as heights at which construction becomes
+<dt>height_for_costs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">list</span><dd>A list of &#8220;break points&#8221; as heights at which construction becomes
 more expensive.  Generally these are the heights at which
 construction materials change from wood, to concrete, to steel.
 Costs are also given as lists by use for each of these break
 points and are considered to be valid up to the break point.  A
 list would look something like [15, 55, 120, np.inf].</dd>
-<dt>costs <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The keys are uses from the attribute above and the values are a
+<dt>costs</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">dict</span><dd>The keys are uses from the attribute above and the values are a
 list of floating point numbers of same length as the
 height_for_costs attribute.  A key-value pair of
 &#8220;residential&#8221;: [160.0, 175.0, 200.0, 230.0] would say that the
@@ -539,26 +539,26 @@ residential use if $160/sqft up to 15ft in total height for the
 building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
 $230/sqft beyond.  A final value in the height_for_costs
 array of np.inf is typical.</dd>
-<dt>height_per_story <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The per-story height for the building used to turn an
+<dt>height_per_story</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The per-story height for the building used to turn an
 FAR into an actual height.</dd>
-<dt>max_retail_height <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The maximum height of retail buildings to consider.</dd>
-<dt>max_industrial_height <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The maximum height of industrial buildings to consider.</dd>
-<dt>profit_factor <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The ratio of profit a developer expects to make above the break
+<dt>max_retail_height</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The maximum height of retail buildings to consider.</dd>
+<dt>max_industrial_height</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The maximum height of industrial buildings to consider.</dd>
+<dt>profit_factor</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The ratio of profit a developer expects to make above the break
 even rent.  Should be greater than 1.0, e.g. a 10% profit would be
 a profit factor of 1.1.</dd>
-<dt>building_efficiency <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The efficiency of the building.  This turns total FAR into the
+<dt>building_efficiency</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The efficiency of the building.  This turns total FAR into the
 amount of space which gets a square foot rent.  The entire building
 gets the cost of course.</dd>
-<dt>parcel_coverage <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The ratio of the building footprint to the parcel size.  Also used
+<dt>parcel_coverage</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The ratio of the building footprint to the parcel size.  Also used
 to turn an FAR into a height to cost properly.</dd>
-<dt>cap_rate <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The rate an investor is willing to pay for a cash flow per year.
+<dt>cap_rate</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float</span><dd>The rate an investor is willing to pay for a cash flow per year.
 This means $1/year is equivalent to 1/cap_rate present dollars.
 This is a macroeconomic input that is widely available on the
 internet.</dd>

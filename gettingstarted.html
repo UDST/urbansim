@@ -82,7 +82,7 @@
             
             
                 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#anaconda">Anaconda</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#urbansim">UrbanSim</a><ul>
@@ -138,7 +138,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -208,15 +208,15 @@ easiest way to install UrbanSim because it has binary installers for
 all of UrbanSim&#8217;s hard-to-install dependencies.
 First, add the <a class="reference external" href="https://binstar.org/synthicity">synthicity channel</a>
 to your conda configuration:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>conda config --add channels synthicity
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">synthicity</span>
 </pre></div>
 </div>
 <p>Then use conda to install UrbanSim:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>conda install urbansim
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 <p>To update to a new UrbanSim version use the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></code> command:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>conda update urbansim
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 </div>
@@ -225,7 +225,7 @@ to your conda configuration:</p>
 <p>UrbanSim can also be installed from
 <a class="reference external" href="https://pypi.python.org/pypi/urbansim">PyPI</a>
 via <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>pip install urbansim
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 <p>When using this method it&#8217;s best to already have most of the dependencies
@@ -235,7 +235,7 @@ If you&#8217;re using Anaconda you will already have all of the hard-to-install
 libraries.</p>
 <p>To update to a new release of UrbanSim use the <code class="docutils literal"><span class="pre">-U</span></code> option with
 <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>pip install -U urbansim
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 </div>
@@ -247,7 +247,7 @@ libraries.</p>
 using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
 pip is included with Anaconda so you should now be able to open a terminal
 and run the following command to install UrbanSim:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>pip install -U https://github.com/udst/urbansim/archive/master.zip
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">udst</span><span class="o">/</span><span class="n">urbansim</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">master</span><span class="o">.</span><span class="n">zip</span>
 </pre></div>
 </div>
 <p>This will download urbansim and install the remaining dependencies not
@@ -299,7 +299,7 @@ UrbanSim every time you make changes.</p>
 <div class="section" id="background">
 <h3>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h3>
 <p>UrbanSim has been an active research project since the late 1990&#8217;s, and has undergone continual re-thinking, and re-engineering over the ensuing years, as documented in many of the <a class="reference external" href="http://urbansim.org/Research/ResearchPapers">accumulated research papers</a>.  Below is a brief, high-level summary of UrbanSim in only a few paragraphs from a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down to a series of models estimated and then simulated in sequence.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
     <span class="n">model</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUMYEARSINSIMULATION</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
@@ -389,18 +389,18 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 <li>Data processing <em>models</em> can be defined so that updates can be performed with user-specified breakpoints, capturing semantic steps that can be mixed and matched by the user.</li>
 </ul>
 <p>To this end UrbanSim now implements this functionality as <a class="reference external" href="sim/index.html#tables">tables</a>, <a class="reference external" href="sim/index.html#urbansim.sim.simulation.broadcast">broadcasts</a>, <a class="reference external" href="sim/index.html#columns">columns</a>, and <a class="reference external" href="sim/index.html#models">models</a> respectively.  We decided to implement these concepts with Python functions and <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>. This is what is happening when you see the <code class="docutils literal"><span class="pre">&#64;sim.DECORATOR_NAME</span></code> syntax everywhere, e.g.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.table_source</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">table_source</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span>
 
-<span class="nd">@sim.table_source</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">)</span>
+<span class="nd">@sim</span><span class="o">.</span><span class="n">table_source</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">parcels</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;parcels&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>With the use of decorators you can <em>register</em> these concepts with the simulation engine and deal with one small piece of the simulation at a time - for instance, how to access data for a certain table, or how to compute a certain variable, or how to run a certain model.</p>
 <p>The objects can then be passed to each other using <em>injection</em>, which passes objects by name automatically into a function.  For instance, assuming the parcels and buildings tables have previously been registered (as above), a new column called <code class="docutils literal"><span class="pre">total_units</span></code> on the <code class="docutils literal"><span class="pre">parcels</span></code> table can be defined with a function which takes the buildings and parcels objects as arguments.  The tables that were registered are now available within the function and can be used in many other functions as well.:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@sim.column</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">,</span> <span class="s1">&#39;total_units&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@sim</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">,</span> <span class="s1">&#39;total_units&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">residential_unit_density</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">parcels</span><span class="o">.</span><span class="n">acres</span>
 </pre></div>
