@@ -513,7 +513,7 @@ class SqFtProForma(object):
 
         """
         c = self.config
-        d = {}
+        parking_cfg = []
         profit_df = pd.DataFrame()
         for parking_config in c.parking_configs:
             # this function gives the max profit development for the given
@@ -521,28 +521,17 @@ class SqFtProForma(object):
             # max profit config
             outdf = self._lookup_parking_cfg(form, parking_config, df, only_built,
                                              pass_through)
-            d[parking_config] = outdf
+            outdf["parking_config"] = parking_config
+            parking_cfg.append(outdf.set_index(["parking_config"], append=True))
             profit_df[parking_config] = outdf["max_profit"]
+        df = pd.concat(parking_cfg)
 
-        # get the max_profit idx
-        max_profit_ind = profit_df.idxmax(axis=1)
-
-        if len(max_profit_ind) == 0:
+        if len(profit_df) == 0:
             return pd.DataFrame()
 
-        # make a new df of all the attributes from the max profit df
-        l = []
-        for parking_config in c.parking_configs:
-            s = max_profit_ind[max_profit_ind == parking_config]
-            # these are the rows that are most profitable with this
-            # parking config
-            tmpdf = d[parking_config].loc[s.index]
-            tmpdf["parking_config"] = parking_config
-            l.append(tmpdf)
-
-        df = pd.concat(l)
-
-        return df
+        # get the max_profit idx
+        max_profit_ind = profit_df.idxmax(axis=1).to_frame("parking_config").set_index(["parking_config"], append=True)
+        return df.loc[max_profit_ind.index].reset_index(1)
 
     def _lookup_parking_cfg(self, form, parking_config, df, only_built=True,
                             pass_through=None):
