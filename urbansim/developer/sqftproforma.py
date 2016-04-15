@@ -512,25 +512,20 @@ class SqFtProForma(object):
             and max_height from the input dataframe).
 
         """
-        c = self.config
-        parking_cfg = []
-        profit_df = pd.DataFrame()
-        for parking_config in c.parking_configs:
-            # this function gives the max profit development for the given
-            # parking config need to iterate over parking configs to pick the
-            # max profit config
-            outdf = self._lookup_parking_cfg(form, parking_config, df, only_built,
-                                             pass_through)
-            outdf["parking_config"] = parking_config
-            parking_cfg.append(outdf.set_index(["parking_config"], append=True))
-            profit_df[parking_config] = outdf["max_profit"]
-        df = pd.concat(parking_cfg)
+        df = pd.concat(self._lookup_parking_cfg(form, parking_config, df, only_built,
+                                                pass_through)
+                       for parking_config in self.config.parking_configs)
 
-        if len(profit_df) == 0:
+        if len(df) == 0:
             return pd.DataFrame()
 
+        max_profit_ind = df.pivot(columns="parking_config", values="max_profit").idxmax(axis=1).to_frame(
+            "parking_config")
+
+        df.set_index(["parking_config"], append=True, inplace=True)
+        max_profit_ind.set_index(["parking_config"], append=True, inplace=True)
+
         # get the max_profit idx
-        max_profit_ind = profit_df.idxmax(axis=1).to_frame("parking_config").set_index(["parking_config"], append=True)
         return df.loc[max_profit_ind.index].reset_index(1)
 
     def _lookup_parking_cfg(self, form, parking_config, df, only_built=True,
@@ -629,7 +624,8 @@ class SqFtProForma(object):
             'total_cost': twod_get(maxprofitind, total_costs),
             'building_revenue': twod_get(maxprofitind, building_revenue),
             'max_profit_far': twod_get(maxprofitind, fars),
-            'max_profit': twod_get(maxprofitind, profit)
+            'max_profit': twod_get(maxprofitind, profit),
+            'parking_config': parking_config
         }, index=df.index)
 
         if pass_through:
