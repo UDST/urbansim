@@ -162,7 +162,7 @@ class Developer(object):
             df = self.feasibility[form]
 
         # feasible buildings only for this building type
-        df = df[df.max_profit > 0]
+        df = df[df.max_profit_far > 0]
         ave_unit_size[ave_unit_size < min_unit_size] = min_unit_size
         df["ave_unit_size"] = ave_unit_size
         df["parcel_size"] = parcel_size
@@ -190,7 +190,10 @@ class Developer(object):
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
                   "MATCH DEMAND"
 
-        df['return_on_cost'] = df.max_profit / df.total_cost
+        # the clip is because we still might build negative profit buildings
+        # (when we're subsidizing them) and choice doesn't allow negative
+        # probability options
+        df['return_on_cost'] = df.max_profit.clip(1) / df.total_cost
 
         choices = np.random.choice(df.index.values, size=len(df.index),
                                    replace=False,
