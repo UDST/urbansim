@@ -686,27 +686,41 @@
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;max_far_from_heights&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_height</span> <span class="o">/</span> <span class="n">c</span><span class="o">.</span><span class="n">height_per_story</span> <span class="o">*</span> \
             <span class="n">c</span><span class="o">.</span><span class="n">parcel_coverage</span>
 
+        <span class="n">resratio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">res_ratios</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
+        <span class="n">nonresratio</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">resratio</span>
+
         <span class="c1"># now also minimize with max_dua from zoning - since this pro forma is</span>
         <span class="c1"># really geared toward per sqft metrics, this is a bit tricky.  dua</span>
         <span class="c1"># is converted to floorspace and everything just works (floor space</span>
         <span class="c1"># will get covered back to units in developer.pick() but we need to</span>
         <span class="c1"># test the profitability of the floorspace allowed by max_dua here.</span>
-        <span class="k">if</span> <span class="s1">&#39;max_dua&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;max_dua&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">resratio</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># if max_dua is in the data frame, ave_unit_size must also be there</span>
             <span class="k">assert</span> <span class="s1">&#39;ave_unit_size&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
-            <span class="c1"># so this is the max_dua times the parcel size in acres, which gives</span>
-            <span class="c1"># the number of units that are allowable on the parcel, times</span>
-            <span class="c1"># by the average unit size which gives the square footage of</span>
-            <span class="c1"># those units, divided by the building efficiency which is a</span>
-            <span class="c1"># factor that indicates that the actual units are not the whole</span>
-            <span class="c1"># FAR of the building and then divided by the parcel size again</span>
-            <span class="c1"># in order to get FAR - I recognize that parcel_size actually</span>
-            <span class="c1"># cancels here as it should, but the calc was hard to get right</span>
-            <span class="c1"># and it&#39;s just so much more transparent to have it in there twice</span>
-            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;max_far_from_dua&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_dua</span> <span class="o">*</span> \
-                <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span> <span class="o">/</span> <span class="mi">43560</span><span class="p">)</span> <span class="o">*</span> \
-                <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">/</span> \
-                <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span>
+
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;max_far_from_dua&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="c1"># this is the max_dua times the parcel size in acres, which gives</span>
+                <span class="c1"># the number of units that are allowable on the parcel</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">max_dua</span> <span class="o">*</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span> <span class="o">/</span> <span class="mi">43560</span><span class="p">)</span> <span class="o">*</span>
+
+                <span class="c1"># times by the average unit size which gives the square footage of</span>
+                <span class="c1"># those units</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">ave_unit_size</span> <span class="o">/</span>
+
+                <span class="c1"># divided by the building efficiency which is a</span>
+                <span class="c1"># factor that indicates that the actual units are not the whole</span>
+                <span class="c1"># FAR of the building</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">/</span>
+
+                <span class="c1"># divided by the resratio which is a  factor that indicates that</span>
+                <span class="c1"># the actual units are not the only use of the building</span>
+                <span class="n">resratio</span> <span class="o">/</span>
+
+                <span class="c1"># divided by the parcel size again in order to get FAR.</span>
+                <span class="c1"># I recognize that parcel_size actually</span>
+                <span class="c1"># cancels here as it should, but the calc was hard to get right</span>
+                <span class="c1"># and it&#39;s just so much more transparent to have it in there twice</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span><span class="p">)</span>
             <span class="n">df</span><span class="p">[</span><span class="s1">&#39;min_max_fars&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;max_far_from_heights&#39;</span><span class="p">,</span> <span class="s1">&#39;max_far&#39;</span><span class="p">,</span>
                                      <span class="s1">&#39;max_far_from_dua&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -766,8 +780,6 @@
         <span class="k">if</span> <span class="n">pass_through</span><span class="p">:</span>
             <span class="n">outdf</span><span class="p">[</span><span class="n">pass_through</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">pass_through</span><span class="p">]</span>
 
-        <span class="n">resratio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">res_ratios</span><span class="p">[</span><span class="n">form</span><span class="p">]</span>
-        <span class="n">nonresratio</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">resratio</span>
         <span class="n">outdf</span><span class="p">[</span><span class="s2">&quot;residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span> <span class="n">resratio</span>
         <span class="n">outdf</span><span class="p">[</span><span class="s2">&quot;non_residential_sqft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outdf</span><span class="o">.</span><span class="n">building_sqft</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">building_efficiency</span> <span class="o">*</span> <span class="n">nonresratio</span>
 
