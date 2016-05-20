@@ -560,7 +560,7 @@ class SqFtProForma(object):
         # is converted to floorspace and everything just works (floor space
         # will get covered back to units in developer.pick() but we need to
         # test the profitability of the floorspace allowed by max_dua here.
-        if 'max_dua' in df.columns:
+        if 'max_dua' in df.columns and resratio > 0:
             # if max_dua is in the data frame, ave_unit_size must also be there
             assert 'ave_unit_size' in df.columns
 
