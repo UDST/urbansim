@@ -512,37 +512,22 @@ class SqFtProForma(object):
             and max_height from the input dataframe).
 
         """
-        c = self.config
-        d = {}
-        profit_df = pd.DataFrame()
-        for parking_config in c.parking_configs:
-            # this function gives the max profit development for the given
-            # parking config need to iterate over parking configs to pick the
-            # max profit config
-            outdf = self._lookup_parking_cfg(form, parking_config, df, only_built,
-                                             pass_through)
-            d[parking_config] = outdf
-            profit_df[parking_config] = outdf["max_profit"]
+        df = pd.concat(self._lookup_parking_cfg(form, parking_config, df, only_built,
+                                                pass_through)
+                       for parking_config in self.config.parking_configs)
 
-        # get the max_profit idx
-        max_profit_ind = profit_df.idxmax(axis=1)
-
-        if len(max_profit_ind) == 0:
+        if len(df) == 0:
             return pd.DataFrame()
 
-        # make a new df of all the attributes from the max profit df
-        l = []
-        for parking_config in c.parking_configs:
-            s = max_profit_ind[max_profit_ind == parking_config]
-            # these are the rows that are most profitable with this
-            # parking config
-            tmpdf = d[parking_config].loc[s.index]
-            tmpdf["parking_config"] = parking_config
-            l.append(tmpdf)
+        max_profit_ind = df.pivot(
+            columns="parking_config",
+            values="max_profit").idxmax(axis=1).to_frame("parking_config")
 
-        df = pd.concat(l)
+        df.set_index(["parking_config"], append=True, inplace=True)
+        max_profit_ind.set_index(["parking_config"], append=True, inplace=True)
 
-        return df
+        # get the max_profit idx
+        return df.loc[max_profit_ind.index].reset_index(1)
 
     def _lookup_parking_cfg(self, form, parking_config, df, only_built=True,
                             pass_through=None):
@@ -567,27 +552,41 @@ class SqFtProForma(object):
         df['max_far_from_heights'] = df.max_height / c.height_per_story * \
             c.parcel_coverage
 
+        resratio = c.res_ratios[form]
+        nonresratio = 1.0 - resratio
+
         # now also minimize with max_dua from zoning - since this pro forma is
         # really geared toward per sqft metrics, this is a bit tricky.  dua
         # is converted to floorspace and everything just works (floor space
         # will get covered back to units in developer.pick() but we need to
         # test the profitability of the floorspace allowed by max_dua here.
-        if 'max_dua' in df.columns:
+        if 'max_dua' in df.columns and resratio > 0:
             # if max_dua is in the data frame, ave_unit_size must also be there
             assert 'ave_unit_size' in df.columns
-            # so this is the max_dua times the parcel size in acres, which gives
-            # the number of units that are allowable on the parcel, times
-            # by the average unit size which gives the square footage of
-            # those units, divided by the building efficiency which is a
-            # factor that indicates that the actual units are not the whole
-            # FAR of the building and then divided by the parcel size again
-            # in order to get FAR - I recognize that parcel_size actually
-            # cancels here as it should, but the calc was hard to get right
-            # and it's just so much more transparent to have it in there twice
-            df['max_far_from_dua'] = df.max_dua * \
-                (df.parcel_size / 43560) * \
-                df.ave_unit_size / self.config.building_efficiency / \
-                df.parcel_size
+
+            df['max_far_from_dua'] = (
+                # this is the max_dua times the parcel size in acres, which gives
+                # the number of units that are allowable on the parcel
+                df.max_dua * (df.parcel_size / 43560) *
+
+                # times by the average unit size which gives the square footage of
+                # those units
+                df.ave_unit_size /
+
+                # divided by the building efficiency which is a
+                # factor that indicates that the actual units are not the whole
+                # FAR of the building
+                self.config.building_efficiency /
+
+                # divided by the resratio which is a  factor that indicates that
+                # the actual units are not the only use of the building
+                resratio /
+
+                # divided by the parcel size again in order to get FAR.
+                # I recognize that parcel_size actually
+                # cancels here as it should, but the calc was hard to get right
+                # and it's just so much more transparent to have it in there twice
+                df.parcel_size)
             df['min_max_fars'] = df[['max_far_from_heights', 'max_far',
                                      'max_far_from_dua']].min(axis=1)
         else:
@@ -640,14 +639,13 @@ class SqFtProForma(object):
             'total_cost': twod_get(maxprofitind, total_costs),
             'building_revenue': twod_get(maxprofitind, building_revenue),
             'max_profit_far': twod_get(maxprofitind, fars),
-            'max_profit': twod_get(maxprofitind, profit)
+            'max_profit': twod_get(maxprofitind, profit),
+            'parking_config': parking_config
         }, index=df.index)
 
         if pass_through:
             outdf[pass_through] = df[pass_through]
 
-        resratio = c.res_ratios[form]
-        nonresratio = 1.0 - resratio
         outdf["residential_sqft"] = outdf.building_sqft * c.building_efficiency * resratio
         outdf["non_residential_sqft"] = outdf.building_sqft * c.building_efficiency * nonresratio
 

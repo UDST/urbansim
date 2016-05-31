@@ -80,7 +80,7 @@ def growth_rates_filters(rates_col, totals_col, grow_targets_filters):
 
 
 def assert_empty_index(index):
-    pdt.assert_index_equal(index, pd.Index([]))
+    pdt.assert_index_equal(index, pd.Index([]), exact=False)
 
 
 def assert_for_add(new, added):
@@ -145,7 +145,7 @@ def test_remove_rows_zero(basic_df):
 def test_remove_rows_all(basic_df):
     nrows = len(basic_df)
     new, removed = transition.remove_rows(basic_df, nrows)
-    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    pdt.assert_frame_equal(new, basic_df.loc[[]], check_index_type=False)
     ust.assert_index_equal(removed, basic_df.index)
 
 
@@ -252,7 +252,7 @@ def test_grtransition_remove_all(basic_df):
     year = 2112
     grt = transition.GrowthRateTransition(growth_rate)
     new, added, copied, removed = grt.transition(basic_df, year)
-    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    pdt.assert_frame_equal(new, basic_df.loc[[]], check_index_type=False)
     assert_empty_index(added)
     assert_empty_index(copied)
     ust.assert_index_equal(removed, basic_df.index)
@@ -347,7 +347,7 @@ def test_tgrtransition_remove_all(basic_df, growth_rates, year, rates_col):
     growth_rates[rates_col] = -1
     tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
     new, added, copied, removed = tgrt.transition(basic_df, year)
-    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    pdt.assert_frame_equal(new, basic_df.loc[[]], check_index_type=False)
     assert_empty_index(added)
     assert_empty_index(copied)
     ust.assert_index_equal(removed, basic_df.index)
@@ -398,7 +398,7 @@ def test_tabular_transition_remove_all(
     grow_targets[totals_col] = [0]
     tran = transition.TabularTotalsTransition(grow_targets, totals_col)
     new, added, copied, removed = tran.transition(basic_df, year)
-    pdt.assert_frame_equal(new, basic_df.loc[[]])
+    pdt.assert_frame_equal(new, basic_df.loc[[]], check_index_type=False)
     assert_empty_index(added)
     assert_empty_index(copied)
     ust.assert_index_equal(removed, basic_df.index)
