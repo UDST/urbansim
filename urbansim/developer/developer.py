@@ -196,6 +196,9 @@ class Developer(object):
         elif target_units <= 0:
             build_idx = []
         else:
+            # we don't know how many developments we will need, as they differ in net_units.
+            # If all developments have net_units of 1 than we need target_units of them.
+            # So we choose the smaller of available developments and target_units.
             choices = np.random.choice(df.index.values, size=min(len(df.index), target_units),
                                        replace=False,
                                        p=(df.max_profit_per_size.values /
