@@ -279,14 +279,15 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
+<span class="sd">        None if thar are no feasible buildings</span>
 <span class="sd">        new_buildings : dataframe</span>
 <span class="sd">            DataFrame of buildings to add.  These buildings are rows from the</span>
 <span class="sd">            DataFrame that is returned from feasibility.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feasibility</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># no feasible buldings, might as well bail</span>
-            <span class="k">return</span> <span class="bp">None</span>
+            <span class="c1"># no feasible buildings, might as well bail</span>
+            <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">form</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasibility</span>
@@ -319,23 +320,26 @@
         <span class="c1"># print &quot;Describe of net units\n&quot;, df.net_units.describe()</span>
         <span class="k">print</span> <span class="s2">&quot;Sum of net units that are profitable: {:,}&quot;</span><span class="o">.</span>\
             <span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
-        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">target_units</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s2">&quot;WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO &quot;</span> \
-                  <span class="s2">&quot;MATCH DEMAND&quot;</span>
 
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;max_profit_per_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_profit</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">parcel_size</span>
 
-        <span class="n">choices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
-                                   <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                                   <span class="n">p</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span>
-                                      <span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
-        <span class="n">net_units</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">choices</span><span class="p">]</span>
-        <span class="n">tot_units</span> <span class="o">=</span> <span class="n">net_units</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
-        <span class="n">ind</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">tot_units</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">target_units</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">ind</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">))</span>
-        <span class="n">build_idx</span> <span class="o">=</span> <span class="n">choices</span><span class="p">[:</span><span class="n">ind</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">target_units</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s2">&quot;WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO &quot;</span> \
+                  <span class="s2">&quot;MATCH DEMAND&quot;</span>
+            <span class="n">build_idx</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">elif</span> <span class="n">target_units</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">build_idx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># we don&#39;t know how many developments we will need, as they differ in net_units.</span>
+            <span class="c1"># If all developments have net_units of 1 than we need target_units of them.</span>
+            <span class="c1"># So we choose the smaller of available developments and target_units.</span>
+            <span class="n">choices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">target_units</span><span class="p">),</span>
+                                       <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                       <span class="n">p</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span>
+                                          <span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+            <span class="n">tot_units</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">choices</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">tot_units</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">build_idx</span> <span class="o">=</span> <span class="n">choices</span><span class="p">[:</span><span class="n">ind</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">drop_after_build</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">feasibility</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feasibility</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">build_idx</span><span class="p">)</span>
