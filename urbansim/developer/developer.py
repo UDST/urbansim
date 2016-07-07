@@ -145,14 +145,15 @@ class Developer(object):
 
         Returns
         -------
+        None if thar are no feasible buildings
         new_buildings : dataframe
             DataFrame of buildings to add.  These buildings are rows from the
             DataFrame that is returned from feasibility.
         """
 
         if len(self.feasibility) == 0:
-            # no feasible buldings, might as well bail
-            return None
+            # no feasible buildings, might as well bail
+            return
 
         if form is None:
             df = self.feasibility
@@ -185,23 +186,26 @@ class Developer(object):
         # print "Describe of net units\n", df.net_units.describe()
         print "Sum of net units that are profitable: {:,}".\
             format(int(df.net_units.sum()))
-        if df.net_units.sum() < target_units:
-            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
-                  "MATCH DEMAND"
 
         df['max_profit_per_size'] = df.max_profit / df.parcel_size
 
-        choices = np.random.choice(df.index.values, size=len(df.index),
-                                   replace=False,
-                                   p=(df.max_profit_per_size.values /
-                                      df.max_profit_per_size.sum()))
-        net_units = df.net_units.loc[choices]
-        tot_units = net_units.values.cumsum()
-        ind = int(np.searchsorted(tot_units, target_units, side="left"))
-        if target_units != 0:
-            ind += 1
-        ind = min(ind, len(choices))
-        build_idx = choices[:ind]
+        if df.net_units.sum() < target_units:
+            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
+                  "MATCH DEMAND"
+            build_idx = df.index.values
+        elif target_units <= 0:
+            build_idx = []
+        else:
+            # we don't know how many developments we will need, as they differ in net_units.
+            # If all developments have net_units of 1 than we need target_units of them.
+            # So we choose the smaller of available developments and target_units.
+            choices = np.random.choice(df.index.values, size=min(len(df.index), target_units),
+                                       replace=False,
+                                       p=(df.max_profit_per_size.values /
+                                          df.max_profit_per_size.sum()))
+            tot_units = df.net_units.loc[choices].values.cumsum()
+            ind = int(np.searchsorted(tot_units, target_units, side="left")) + 1
+            build_idx = choices[:ind]
 
         if drop_after_build:
             self.feasibility = self.feasibility.drop(build_idx)
