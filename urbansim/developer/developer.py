@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import orca
 
 
 class Developer(object):
@@ -192,12 +193,22 @@ class Developer(object):
         # the clip is because we still might build negative profit buildings
         # (when we're subsidizing them) and choice doesn't allow negative
         # probability options
-        df['return_on_cost'] = df.max_profit.clip(1) / df.total_cost
+        max_profit = df.max_profit.clip(1)
+
+        factor = float(orca.get_injectable("settings")[
+            "profit_vs_return_on_cost_combination_factor"])
+
+        df['return_on_cost'] = max_profit / df.total_cost
+
+        # now we're going to make two pdfs and weight them
+        ROC_p = df.return_on_cost.values / df.return_on_cost.sum()
+        profit_p = max_profit / max_profit.sum()
+        p = 1.0 * ROC_p + factor * profit_p
 
         choices = np.random.choice(df.index.values, size=len(df.index),
                                    replace=False,
-                                   p=(df.return_on_cost.values /
-                                      df.return_on_cost.sum()))
+                                   p=(p / p.sum()))
+
         net_units = df.net_units.loc[choices]
         tot_units = net_units.values.cumsum()
         ind = int(np.searchsorted(tot_units, target_units, side="left"))
