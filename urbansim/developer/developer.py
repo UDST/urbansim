@@ -215,7 +215,7 @@ class Developer(object):
         return new_df.reset_index()
 
     @staticmethod
-    def merge(old_df, new_df):
+    def merge(old_df, new_df, return_index=False):
         """
         Merge two dataframes of buildings.  The old dataframe is
         usually the buildings dataset and the new dataframe is a modified
@@ -227,15 +227,27 @@ class Developer(object):
             Current set of buildings
         new_df : dataframe
             New buildings to add, usually comes from this module
+        return_index : bool
+            If return_index is true, this method will return the new
+            index of new_df (which changes in order to create a unique
+            index after the merge)
 
         Returns
         -------
         df : dataframe
             Combined DataFrame of buildings, makes sure indexes don't overlap
+        index : pd.Index
+            If and only if return_index is True, return the new index for the
+            new_df dataframe (which changes in order to create a unique index
+            after the merge)
         """
         maxind = np.max(old_df.index.values)
         new_df = new_df.reset_index(drop=True)
         new_df.index = new_df.index + maxind + 1
         concat_df = pd.concat([old_df, new_df], verify_integrity=True)
         concat_df.index.name = 'building_id'
+
+        if return_index:
+            return concat_df, new_df.index
+
         return concat_df
