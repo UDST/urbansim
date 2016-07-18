@@ -98,7 +98,8 @@ class Developer(object):
 
     def pick(self, form, target_units, parcel_size, ave_unit_size,
              current_units, max_parcel_size=200000, min_unit_size=400,
-             drop_after_build=True, residential=True, bldg_sqft_per_job=400.0):
+             drop_after_build=True, residential=True, bldg_sqft_per_job=400.0,
+             profit_to_prob_func=None):
         """
         Choose the buildings from the list that are feasible to build in
         order to match the specified demand.
@@ -142,6 +143,12 @@ class Developer(object):
         residential: bool
             If creating non-residential buildings set this to false and
             developer will fill in job_spaces rather than residential_units
+        profit_to_prob_func: function
+            As there are so many ways to turn the development feasibility
+            into a probability to select it for building, the user may pass
+            a function which takes the feasibility dataframe and returns
+            a series of probabilities.  If no function is passed, the behavior
+            of this method will not change
 
         Returns
         -------
@@ -187,7 +194,11 @@ class Developer(object):
         print "Sum of net units that are profitable: {:,}".\
             format(int(df.net_units.sum()))
 
-        df['max_profit_per_size'] = df.max_profit / df.parcel_size
+        if profit_to_prob_func:
+            p = profit_to_prob_func(df)
+        else:
+            df['max_profit_per_size'] = df.max_profit / df.parcel_size
+            p = df.max_profit_per_size.values / df.max_profit_per_size.sum()
 
         if df.net_units.sum() < target_units:
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
@@ -200,9 +211,7 @@ class Developer(object):
             # If all developments have net_units of 1 than we need target_units of them.
             # So we choose the smaller of available developments and target_units.
             choices = np.random.choice(df.index.values, size=min(len(df.index), target_units),
-                                       replace=False,
-                                       p=(df.max_profit_per_size.values /
-                                          df.max_profit_per_size.sum()))
+                                       replace=False, p=p)
             tot_units = df.net_units.loc[choices].values.cumsum()
             ind = int(np.searchsorted(tot_units, target_units, side="left")) + 1
             build_idx = choices[:ind]
