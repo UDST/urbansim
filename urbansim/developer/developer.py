@@ -198,7 +198,7 @@ class Developer(object):
             p = profit_to_prob_func(df)
         else:
             df['max_profit_per_size'] = df.max_profit / df.parcel_size
-            p=df.max_profit_per_size.values / df.max_profit_per_size.sum()
+            p = df.max_profit_per_size.values / df.max_profit_per_size.sum()
 
         if df.net_units.sum() < target_units:
             print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
