@@ -674,7 +674,7 @@ after the merge)</p>
 
 <dl class="method">
 <dt id="urbansim.developer.developer.Developer.pick">
-<code class="descname">pick</code><span class="sig-paren">(</span><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em>, <em>bldg_sqft_per_job=400.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pick</code><span class="sig-paren">(</span><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em>, <em>bldg_sqft_per_job=400.0</em>, <em>profit_to_prob_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose the buildings from the list that are feasible to build in
 order to match the specified demand.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -737,6 +737,14 @@ to not develop the same parcel twice.</p>
 <blockquote>
 <div><p>If creating non-residential buildings set this to false and
 developer will fill in job_spaces rather than residential_units</p>
+</div></blockquote>
+<p><strong>profit_to_prob_func: function</strong></p>
+<blockquote>
+<div><p>As there are so many ways to turn the development feasibility
+into a probability to select it for building, the user may pass
+a function which takes the feasibility dataframe and returns
+a series of probabilities.  If no function is passed, the behavior
+of this method will not change</p>
 </div></blockquote>
 </td>
 </tr>
