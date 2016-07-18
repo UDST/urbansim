@@ -349,7 +349,7 @@
         <span class="k">return</span> <span class="n">new_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Developer.merge"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">old_df</span><span class="p">,</span> <span class="n">new_df</span><span class="p">):</span>
+<div class="viewcode-block" id="Developer.merge"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">old_df</span><span class="p">,</span> <span class="n">new_df</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merge two dataframes of buildings.  The old dataframe is</span>
 <span class="sd">        usually the buildings dataset and the new dataframe is a modified</span>
@@ -361,17 +361,29 @@
 <span class="sd">            Current set of buildings</span>
 <span class="sd">        new_df : dataframe</span>
 <span class="sd">            New buildings to add, usually comes from this module</span>
+<span class="sd">        return_index : bool</span>
+<span class="sd">            If return_index is true, this method will return the new</span>
+<span class="sd">            index of new_df (which changes in order to create a unique</span>
+<span class="sd">            index after the merge)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        df : dataframe</span>
 <span class="sd">            Combined DataFrame of buildings, makes sure indexes don&#39;t overlap</span>
+<span class="sd">        index : pd.Index</span>
+<span class="sd">            If and only if return_index is True, return the new index for the</span>
+<span class="sd">            new_df dataframe (which changes in order to create a unique index</span>
+<span class="sd">            after the merge)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">maxind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">old_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="n">new_df</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">new_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="n">maxind</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">concat_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">old_df</span><span class="p">,</span> <span class="n">new_df</span><span class="p">],</span> <span class="n">verify_integrity</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">concat_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;building_id&#39;</span>
+
+        <span class="k">if</span> <span class="n">return_index</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">concat_df</span><span class="p">,</span> <span class="n">new_df</span><span class="o">.</span><span class="n">index</span>
+
         <span class="k">return</span> <span class="n">concat_df</span></div></div>
 </pre></div>
 

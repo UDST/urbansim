@@ -632,7 +632,7 @@ forms outcompete less profitable forms.</p>
 
 <dl class="staticmethod">
 <dt id="urbansim.developer.developer.Developer.merge">
-<em class="property">static </em><code class="descname">merge</code><span class="sig-paren">(</span><em>old_df</em>, <em>new_df</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">merge</code><span class="sig-paren">(</span><em>old_df</em>, <em>new_df</em>, <em>return_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge two dataframes of buildings.  The old dataframe is
 usually the buildings dataset and the new dataframe is a modified
 (by the user) version of what is returned by the pick method.</p>
@@ -648,11 +648,23 @@ usually the buildings dataset and the new dataframe is a modified
 <blockquote>
 <div><p>New buildings to add, usually comes from this module</p>
 </div></blockquote>
+<p><strong>return_index</strong> : bool</p>
+<blockquote>
+<div><p>If return_index is true, this method will return the new
+index of new_df (which changes in order to create a unique
+index after the merge)</p>
+</div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>df</strong> : dataframe</p>
-<blockquote class="last">
+<blockquote>
 <div><p>Combined DataFrame of buildings, makes sure indexes don&#8217;t overlap</p>
+</div></blockquote>
+<p><strong>index</strong> : pd.Index</p>
+<blockquote class="last">
+<div><p>If and only if return_index is True, return the new index for the
+new_df dataframe (which changes in order to create a unique index
+after the merge)</p>
 </div></blockquote>
 </td>
 </tr>
