@@ -817,7 +817,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         logger.debug('start: predict from configuration {}'.format(cfgname))
         if cfgname:
             lcm = cls.from_yaml(str_or_buffer=cfgname)
-        elif cfg: 
+        elif cfg:
             lcm = cls.from_yaml(yaml_str=cfg)
         else:
             msg = 'predict_from_cfg requires a configuration via the cfgname or cfg arguments'
@@ -1828,7 +1828,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         logger.debug('start: predict from configuration {}'.format(cfgname))
         if cfgname:
             lcm = cls.from_yaml(str_or_buffer=cfgname)
-        elif cfg: 
+        elif cfg:
             lcm = cls.from_yaml(yaml_str=cfg)
         else:
             msg = 'predict_from_cfg requires a configuration via the cfgname or cfg arguments'
