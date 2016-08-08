@@ -815,13 +815,14 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         lcm : MNLDiscreteChoiceModel which was used to predict
         """
         logger.debug('start: predict from configuration {}'.format(cfgname))
-        try:
-            if cfgname:
-                lcm = cls.from_yaml(str_or_buffer=cfgname)
-            else:
-                lcm = cls.from_yaml(yaml_str=cfg)
-        except:
-            logger.debug('no lcm config loaded')
+        if cfgname:
+            lcm = cls.from_yaml(str_or_buffer=cfgname)
+        elif cfg: 
+            lcm = cls.from_yaml(yaml_str=cfg)
+        else:
+            msg = 'predict_from_cfg requires a configuration via the cfgname or cfg arguments'
+            logger.error(msg)
+            raise ValueError(msg)
 
         if len(alternatives) > len(choosers) * alternative_ratio:
             logger.info(
@@ -1825,14 +1826,14 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         lcm : SegmentedMNLDiscreteChoiceModel which was used to predict
         """
         logger.debug('start: predict from configuration {}'.format(cfgname))
-        try:
-            if cfgname:
-                lcm = cls.from_yaml(str_or_buffer=cfgname)
-                print("reading config from file")
-            else:
-                lcm = cls.from_yaml(yaml_str=cfg)
-        except:
-            logger.debug('no lcm config loaded')
+        if cfgname:
+            lcm = cls.from_yaml(str_or_buffer=cfgname)
+        elif cfg: 
+            lcm = cls.from_yaml(yaml_str=cfg)
+        else:
+            msg = 'predict_from_cfg requires a configuration via the cfgname or cfg arguments'
+            logger.error(msg)
+            raise ValueError(msg)
 
         if len(alternatives) > len(choosers) * alternative_ratio:
             logger.info(
