@@ -1351,7 +1351,7 @@ for all the choosers.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg">
-<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>cfgname=None</em>, <em>cfg=None</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate choices for the specified choosers</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1370,6 +1370,11 @@ which have a supply.</p>
 <blockquote>
 <div><p>The name of the yaml config file from which to read the discrete
 choice model.</p>
+</div></blockquote>
+<p><strong>cfg: string</strong></p>
+<blockquote>
+<div><p>an ordered yaml string of the model discrete choice model configuration.
+Used to read config from memory in lieu of loading cfgname from disk.</p>
 </div></blockquote>
 <p><strong>alternative_ratio</strong> : float, optional</p>
 <blockquote>
@@ -2222,7 +2227,7 @@ for all the choosers.</p>
 
 <dl class="classmethod">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg">
-<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>cfgname</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">predict_from_cfg</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>cfgname=None</em>, <em>cfg=None</em>, <em>alternative_ratio=2.0</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the discrete choices for the specified choosers</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2241,6 +2246,11 @@ which have a supply.</p>
 <blockquote>
 <div><p>The name of the yaml config file from which to read the discrete
 choice model.</p>
+</div></blockquote>
+<p><strong>cfg: string</strong></p>
+<blockquote>
+<div><p>an ordered yaml string of the model discrete choice model configuration.
+Used to read config from memory in lieu of loading cfgname from disk.</p>
 </div></blockquote>
 <p><strong>alternative_ratio</strong> : float</p>
 <blockquote>

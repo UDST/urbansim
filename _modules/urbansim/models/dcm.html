@@ -915,7 +915,7 @@
         <span class="k">return</span> <span class="n">lcm</span></div>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MNLDiscreteChoiceModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span>
+<div class="viewcode-block" id="MNLDiscreteChoiceModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                          <span class="n">alternative_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulate choices for the specified choosers</span>
@@ -930,6 +930,9 @@
 <span class="sd">        cfgname : string</span>
 <span class="sd">            The name of the yaml config file from which to read the discrete</span>
 <span class="sd">            choice model.</span>
+<span class="sd">        cfg: string</span>
+<span class="sd">            an ordered yaml string of the model discrete choice model configuration.</span>
+<span class="sd">            Used to read config from memory in lieu of loading cfgname from disk.</span>
 <span class="sd">        alternative_ratio : float, optional</span>
 <span class="sd">            Above the ratio of alternatives to choosers (default of 2.0),</span>
 <span class="sd">            the alternatives will be sampled to meet this ratio</span>
@@ -946,7 +949,14 @@
 <span class="sd">        lcm : MNLDiscreteChoiceModel which was used to predict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
-        <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cfgname</span><span class="p">:</span>
+            <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;predict_from_cfg requires a configuration via the cfgname or cfg arguments&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">)</span> <span class="o">*</span> <span class="n">alternative_ratio</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -1918,7 +1928,7 @@
         <span class="k">return</span> <span class="n">lcm</span></div>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span>
+<div class="viewcode-block" id="SegmentedMNLDiscreteChoiceModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cfg</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                          <span class="n">alternative_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulate the discrete choices for the specified choosers</span>
@@ -1933,6 +1943,9 @@
 <span class="sd">        cfgname : string</span>
 <span class="sd">            The name of the yaml config file from which to read the discrete</span>
 <span class="sd">            choice model.</span>
+<span class="sd">        cfg: string</span>
+<span class="sd">            an ordered yaml string of the model discrete choice model configuration.</span>
+<span class="sd">            Used to read config from memory in lieu of loading cfgname from disk.</span>
 <span class="sd">        alternative_ratio : float</span>
 <span class="sd">            Above the ratio of alternatives to choosers (default of 2.0),</span>
 <span class="sd">            the alternatives will be sampled to meet this ratio</span>
@@ -1947,7 +1960,14 @@
 <span class="sd">        lcm : SegmentedMNLDiscreteChoiceModel which was used to predict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;start: predict from configuration {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
-        <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cfgname</span><span class="p">:</span>
+            <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="n">cfg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;predict_from_cfg requires a configuration via the cfgname or cfg arguments&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">)</span> <span class="o">*</span> <span class="n">alternative_ratio</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
