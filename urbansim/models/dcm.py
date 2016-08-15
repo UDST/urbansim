@@ -781,7 +781,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         return lcm
 
     @classmethod
-    def predict_from_cfg(cls, choosers, alternatives, cfgname,
+    def predict_from_cfg(cls, choosers, alternatives, cfgname=None, cfg=None,
                          alternative_ratio=2.0, debug=False):
         """
         Simulate choices for the specified choosers
@@ -796,6 +796,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         cfgname : string
             The name of the yaml config file from which to read the discrete
             choice model.
+        cfg: string
+            an ordered yaml string of the model discrete choice model configuration.
+            Used to read config from memory in lieu of loading cfgname from disk.
         alternative_ratio : float, optional
             Above the ratio of alternatives to choosers (default of 2.0),
             the alternatives will be sampled to meet this ratio
@@ -812,7 +815,14 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         lcm : MNLDiscreteChoiceModel which was used to predict
         """
         logger.debug('start: predict from configuration {}'.format(cfgname))
-        lcm = cls.from_yaml(str_or_buffer=cfgname)
+        if cfgname:
+            lcm = cls.from_yaml(str_or_buffer=cfgname)
+        elif cfg:
+            lcm = cls.from_yaml(yaml_str=cfg)
+        else:
+            msg = 'predict_from_cfg requires a configuration via the cfgname or cfg arguments'
+            logger.error(msg)
+            raise ValueError(msg)
 
         if len(alternatives) > len(choosers) * alternative_ratio:
             logger.info(
@@ -1784,7 +1794,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         return lcm
 
     @classmethod
-    def predict_from_cfg(cls, choosers, alternatives, cfgname,
+    def predict_from_cfg(cls, choosers, alternatives, cfgname=None, cfg=None,
                          alternative_ratio=2.0, debug=False):
         """
         Simulate the discrete choices for the specified choosers
@@ -1799,6 +1809,9 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         cfgname : string
             The name of the yaml config file from which to read the discrete
             choice model.
+        cfg: string
+            an ordered yaml string of the model discrete choice model configuration.
+            Used to read config from memory in lieu of loading cfgname from disk.
         alternative_ratio : float
             Above the ratio of alternatives to choosers (default of 2.0),
             the alternatives will be sampled to meet this ratio
@@ -1813,7 +1826,14 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         lcm : SegmentedMNLDiscreteChoiceModel which was used to predict
         """
         logger.debug('start: predict from configuration {}'.format(cfgname))
-        lcm = cls.from_yaml(str_or_buffer=cfgname)
+        if cfgname:
+            lcm = cls.from_yaml(str_or_buffer=cfgname)
+        elif cfg:
+            lcm = cls.from_yaml(yaml_str=cfg)
+        else:
+            msg = 'predict_from_cfg requires a configuration via the cfgname or cfg arguments'
+            logger.error(msg)
+            raise ValueError(msg)
 
         if len(alternatives) > len(choosers) * alternative_ratio:
             logger.info(
