@@ -61,8 +61,11 @@ class Developer(object):
         if forms is not None:
             f = f[forms]
 
-        mu = self._max_form(f, "max_profit")
-        indexes = [tuple(x) for x in mu.reset_index().values]
+        if len(f) > 0:
+            mu = self._max_form(f, "max_profit")
+            indexes = [tuple(x) for x in mu.reset_index().values]
+        else:
+            indexes = []
         df = f.stack(level=0).loc[indexes]
         df.index.names = ["parcel_id", "form"]
         df = df.reset_index(level=1)
