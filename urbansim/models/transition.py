@@ -93,8 +93,10 @@ def remove_rows(data, nrows, accounting_column=None):
     nrows = abs(nrows)  # in case a negative number came in
     if nrows == 0:
         return data, _empty_index()
-    elif nrows > len(data):
+    elif (nrows > len(data)) and (accounting_column is None):
         raise ValueError('Number of rows to remove exceeds number of rows in table.')
+    elif (nrows > data[accounting_column].sum()):
+        raise ValueError('Cumulated amount to remove exceeds accounting total in table.')
 
     remove_rows = sample_rows(nrows, data, accounting_column=accounting_column, replace=False)
     remove_index = remove_rows.index
