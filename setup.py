@@ -35,7 +35,7 @@ setup(
         'matplotlib>=1.3.1',
         'numpy>=1.8.0',
         'orca>=1.1',
-        'pandas>=0.13.1',
+        'pandas>=0.15.0',
         'patsy>=0.2.1',
         'prettytable>=0.7.2',
         'pyyaml>=3.10',
