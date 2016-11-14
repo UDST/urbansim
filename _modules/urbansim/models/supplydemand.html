@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -138,15 +141,15 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_calculate_adjustment</span><span class="p">(</span>
         <span class="n">lcm</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">alt_segmenter</span><span class="p">,</span>
-        <span class="n">clip_change_low</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="p">,</span> <span class="n">multiplier_func</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">clip_change_low</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="p">,</span> <span class="n">multiplier_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate adjustments to prices to compensate for</span>
 <span class="sd">    supply and demand effects.</span>
@@ -197,10 +200,10 @@
     <span class="c1"># number of alternatives</span>
     <span class="n">supply</span> <span class="o">=</span> <span class="n">alt_segmenter</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">multiplier_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">multiplier_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">multiplier</span><span class="p">,</span> <span class="n">finished</span> <span class="o">=</span> <span class="n">multiplier_func</span><span class="p">(</span><span class="n">demand</span><span class="p">,</span> <span class="n">supply</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">multiplier</span><span class="p">,</span> <span class="n">finished</span> <span class="o">=</span> <span class="p">(</span><span class="n">demand</span> <span class="o">/</span> <span class="n">supply</span><span class="p">),</span> <span class="bp">False</span>
+        <span class="n">multiplier</span><span class="p">,</span> <span class="n">finished</span> <span class="o">=</span> <span class="p">(</span><span class="n">demand</span> <span class="o">/</span> <span class="n">supply</span><span class="p">),</span> <span class="kc">False</span>
     <span class="n">multiplier</span> <span class="o">=</span> <span class="n">multiplier</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">clip_change_low</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="p">)</span>
 
     <span class="c1"># broadcast multiplier back to alternatives index</span>
@@ -209,14 +212,14 @@
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
         <span class="p">(</span><span class="s1">&#39;finish: calculate supply and demand price adjustment multiplier &#39;</span>
-         <span class="s1">&#39;with mean multiplier {}&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">multiplier</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+         <span class="s1">&#39;with mean multiplier </span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">multiplier</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
     <span class="k">return</span> <span class="n">alts_muliplier</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">,</span> <span class="n">finished</span>
 
 
 <div class="viewcode-block" id="supply_and_demand"><a class="viewcode-back" href="../../../models/supplydemand.html#urbansim.models.supplydemand.supply_and_demand">[docs]</a><span class="k">def</span> <span class="nf">supply_and_demand</span><span class="p">(</span>
         <span class="n">lcm</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">alt_segmenter</span><span class="p">,</span> <span class="n">price_col</span><span class="p">,</span>
-        <span class="n">base_multiplier</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clip_change_low</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span>
-        <span class="n">iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">multiplier_func</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">base_multiplier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clip_change_low</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span>
+        <span class="n">iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">multiplier_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adjust real estate prices to compensate for supply and demand effects.</span>
 
@@ -278,7 +281,7 @@
     <span class="n">alt_segmenter</span> <span class="o">=</span> <span class="n">alt_segmenter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
 
     <span class="c1"># check base ratio and apply it to prices if given</span>
-    <span class="k">if</span> <span class="n">base_multiplier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">base_multiplier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">bm</span> <span class="o">=</span> <span class="n">base_multiplier</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">alt_segmenter</span><span class="p">]</span>
         <span class="n">bm</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">alt_segmenter</span><span class="o">.</span><span class="n">index</span>
         <span class="n">alternatives</span><span class="p">[</span><span class="n">price_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">alternatives</span><span class="p">[</span><span class="n">price_col</span><span class="p">]</span> <span class="o">*</span> <span class="n">bm</span>
@@ -291,7 +294,7 @@
         <span class="n">alternatives</span><span class="p">[</span><span class="n">price_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">alternatives</span><span class="p">[</span><span class="n">price_col</span><span class="p">]</span> <span class="o">*</span> <span class="n">alts_muliplier</span>
 
         <span class="c1"># might need to initialize this for holding cumulative multiplier</span>
-        <span class="k">if</span> <span class="n">base_multiplier</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">base_multiplier</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">base_multiplier</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">submarkets_multiplier</span><span class="p">)),</span>
                 <span class="n">index</span><span class="o">=</span><span class="n">submarkets_multiplier</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>

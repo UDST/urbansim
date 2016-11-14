@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -138,18 +141,18 @@
 <span class="sd">``urbansim.models.lcm``.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">scipy.optimize</span>
 
 <span class="kn">import</span> <span class="nn">pmat</span>
-<span class="kn">from</span> <span class="nn">pmat</span> <span class="kn">import</span> <span class="n">PMAT</span>
+<span class="kn">from</span> <span class="nn">pmat</span> <span class="k">import</span> <span class="n">PMAT</span>
 
-<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="k">import</span> <span class="n">log_start_finish</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
@@ -169,18 +172,18 @@
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Number of alternatives is zero&quot;</span><span class="p">)</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">numalts</span><span class="p">,</span> <span class="n">utilities</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">/</span> <span class="n">numalts</span><span class="p">)</span>
 
-    <span class="n">exponentiated_utility</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">exponentiated_utility</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">inftoval</span><span class="p">(</span><span class="mf">1e20</span><span class="p">)</span>
+        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">inftoval</span><span class="p">(</span><span class="mi">1</span><span class="n">e20</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
+        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span>
     <span class="n">sum_exponentiated_utility</span> <span class="o">=</span> <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">probs</span> <span class="o">=</span> <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">divide_by_row</span><span class="p">(</span>
-        <span class="n">sum_exponentiated_utility</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">sum_exponentiated_utility</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">nantoval</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
+        <span class="n">probs</span><span class="o">.</span><span class="n">nantoval</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
+        <span class="n">probs</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: calculate MNL probabilities&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">probs</span></div>
@@ -197,7 +200,7 @@
 <span class="c1"># beta is a row vector of dimensions 1 X NUMVARS</span>
 
 
-<div class="viewcode-block" id="mnl_loglik"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_loglik">[docs]</a><span class="k">def</span> <span class="nf">mnl_loglik</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="mnl_loglik"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_loglik">[docs]</a><span class="k">def</span> <span class="nf">mnl_loglik</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">stderr</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;start: calculate MNL log-likelihood&#39;</span><span class="p">)</span>
     <span class="n">numvars</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">size</span>
@@ -227,20 +230,20 @@
         <span class="k">return</span> <span class="n">get_standard_error</span><span class="p">(</span><span class="n">get_hessian</span><span class="p">(</span><span class="n">gradmat</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()))</span>
 
     <span class="n">chosen</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">numalts</span><span class="p">,</span> <span class="n">numobs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">probs</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span> <span class="o">==</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">():</span>
-            <span class="n">loglik</span> <span class="o">=</span> <span class="p">((</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+            <span class="n">loglik</span> <span class="o">=</span> <span class="p">((</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
                       <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">loglik</span> <span class="o">=</span> <span class="p">((</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">multiply_by_row</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+            <span class="n">loglik</span> <span class="o">=</span> <span class="p">((</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                       <span class="o">.</span><span class="n">multiply_by_row</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                       <span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
                       <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">loglik</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span>
-            <span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">loglik</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">element_multiply</span><span class="p">(</span>
+            <span class="n">chosen</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">loglik</span><span class="o">.</span><span class="n">typ</span> <span class="o">==</span> <span class="s1">&#39;numpy&#39;</span><span class="p">:</span>
         <span class="n">loglik</span><span class="p">,</span> <span class="n">gradarr</span> <span class="o">=</span> <span class="n">loglik</span><span class="o">.</span><span class="n">get_mat</span><span class="p">(),</span> <span class="n">gradarr</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
@@ -252,7 +255,7 @@
     <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">loglik</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">gradarr</span></div>
 
 
-<div class="viewcode-block" id="mnl_simulate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_simulate">[docs]</a><span class="k">def</span> <span class="nf">mnl_simulate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">returnprobs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="mnl_simulate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_simulate">[docs]</a><span class="k">def</span> <span class="nf">mnl_simulate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">returnprobs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the probabilities for each chooser choosing between `numalts`</span>
 <span class="sd">    alternatives.</span>
@@ -280,7 +283,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s1">&#39;start: MNL simulation with len(data)={} and numalts={}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="s1">&#39;start: MNL simulation with len(data)=</span><span class="si">{}</span><span class="s1"> and numalts=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">numalts</span><span class="p">))</span>
     <span class="n">atype</span> <span class="o">=</span> <span class="s1">&#39;numpy&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">GPU</span> <span class="k">else</span> <span class="s1">&#39;cuda&#39;</span>
 
@@ -300,14 +303,14 @@
 
     <span class="n">probs</span> <span class="o">=</span> <span class="n">probs</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">pmat</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">probs</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">/</span> <span class="n">numalts</span><span class="p">)</span>
-    <span class="n">choices</span> <span class="o">=</span> <span class="n">probs</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">firstpositive</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">choices</span> <span class="o">=</span> <span class="n">probs</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">firstpositive</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: MNL simulation&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">choices</span><span class="o">.</span><span class="n">get_mat</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="mnl_estimate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_estimate">[docs]</a><span class="k">def</span> <span class="nf">mnl_estimate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">coeffrange</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-                 <span class="n">weights</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="mnl_estimate"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.mnl.mnl_estimate">[docs]</a><span class="k">def</span> <span class="nf">mnl_estimate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">GPU</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coeffrange</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                 <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate coefficients of the MNL model.</span>
 
@@ -348,24 +351,24 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s1">&#39;start: MNL fit with len(data)={} and numalts={}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="s1">&#39;start: MNL fit with len(data)=</span><span class="si">{}</span><span class="s1"> and numalts=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">numalts</span><span class="p">))</span>
     <span class="n">atype</span> <span class="o">=</span> <span class="s1">&#39;numpy&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">GPU</span> <span class="k">else</span> <span class="s1">&#39;cuda&#39;</span>
 
     <span class="n">numvars</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">numobs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">numalts</span>
 
-    <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">chosen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">numobs</span><span class="p">,</span> <span class="n">numalts</span><span class="p">))</span>  <span class="c1"># used for latent classes</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span>
 
     <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">atype</span><span class="p">),</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">atype</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">PMAT</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">weights</span><span class="p">),</span> <span class="n">atype</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">beta</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">beta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numvars</span><span class="p">)</span>
     <span class="n">bounds</span> <span class="o">=</span> <span class="p">[</span><span class="n">coeffrange</span><span class="p">]</span> <span class="o">*</span> <span class="n">numvars</span>
 
@@ -374,9 +377,9 @@
         <span class="n">bfgs_result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">mnl_loglik</span><span class="p">,</span>
                                                    <span class="n">beta</span><span class="p">,</span>
                                                    <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-                                                   <span class="n">fprime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                                                   <span class="n">fprime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                                    <span class="n">factr</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                                                   <span class="n">approx_grad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                                   <span class="n">approx_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                    <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span>
                                                    <span class="p">)</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">bfgs_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

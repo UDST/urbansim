@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -139,20 +142,20 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numbers</span>
-<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
-<span class="kn">from</span> <span class="nn">tokenize</span> <span class="kn">import</span> <span class="n">generate_tokens</span><span class="p">,</span> <span class="n">NAME</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="k">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">tokenize</span> <span class="k">import</span> <span class="n">generate_tokens</span><span class="p">,</span> <span class="n">NAME</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">patsy</span>
-<span class="kn">from</span> <span class="nn">zbox</span> <span class="kn">import</span> <span class="n">toolz</span> <span class="k">as</span> <span class="n">tz</span>
+<span class="kn">from</span> <span class="nn">zbox</span> <span class="k">import</span> <span class="n">toolz</span> <span class="k">as</span> <span class="n">tz</span>
 
-<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="kn">import</span> <span class="n">log_start_finish</span>
+<span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="k">import</span> <span class="n">log_start_finish</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="apply_filter_query"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.apply_filter_query">[docs]</a><span class="k">def</span> <span class="nf">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="apply_filter_query"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.apply_filter_query">[docs]</a><span class="k">def</span> <span class="nf">apply_filter_query</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use the DataFrame.query method to filter a table down to the</span>
 <span class="sd">    desired rows.</span>
@@ -171,7 +174,7 @@
 <span class="sd">    filtered_df : pandas.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s1">&#39;apply filter query: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filters</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">log_start_finish</span><span class="p">(</span><span class="s1">&#39;apply filter query: </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filters</span><span class="p">),</span> <span class="n">logger</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">filters</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">query</span> <span class="o">=</span> <span class="n">filters</span>
@@ -213,14 +216,14 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="s1">&#39;==&#39;</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;{} {} {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s1">&#39;converted name={} and value={} to filter {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="s1">&#39;converted name=</span><span class="si">{}</span><span class="s1"> and value=</span><span class="si">{}</span><span class="s1"> to filter </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
-<div class="viewcode-block" id="filter_table"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.filter_table">[docs]</a><span class="k">def</span> <span class="nf">filter_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filter_series</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="filter_table"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.filter_table">[docs]</a><span class="k">def</span> <span class="nf">filter_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">filter_series</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter a table based on a set of restrictions given in</span>
 <span class="sd">    Series of column name / filter parameter pairs. The column</span>
@@ -291,18 +294,18 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">has_constant</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;ONE&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">has_constant</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">True</span>
+                <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">return</span> <span class="n">has_constant</span><span class="p">(</span><span class="n">patsy</span><span class="o">.</span><span class="n">parse_formula</span><span class="o">.</span><span class="n">parse_formula</span><span class="p">(</span><span class="n">expr</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="str_model_expression"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.str_model_expression">[docs]</a><span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="str_model_expression"><a class="viewcode-back" href="../../../models/util.html#urbansim.models.util.str_model_expression">[docs]</a><span class="k">def</span> <span class="nf">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    We support specifying model expressions as strings, lists, or dicts;</span>
 <span class="sd">    but for use with patsy and statsmodels we need a string.</span>
@@ -335,7 +338,7 @@
             <span class="n">right_side</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">[</span><span class="s1">&#39;right_side&#39;</span><span class="p">],</span> <span class="n">add_constant</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># some kind of iterable like a list</span>
-            <span class="n">left_side</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">left_side</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">right_side</span> <span class="o">=</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">left_side</span><span class="p">:</span>
@@ -353,7 +356,7 @@
             <span class="n">model_expression</span> <span class="o">+=</span> <span class="s1">&#39; - 1&#39;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s1">&#39;converted expression: {!r} to model: {!r}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="s1">&#39;converted expression: </span><span class="si">{!r}</span><span class="s1"> to model: </span><span class="si">{!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">expr</span><span class="p">,</span> <span class="n">model_expression</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">model_expression</span></div>
 
@@ -449,16 +452,16 @@
 <span class="sd">    columns : list of str</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">formula</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">formula</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="n">formula</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">formula</span> <span class="o">=</span> <span class="n">str_model_expression</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">add_constant</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">tokens</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span><span class="p">,</span>
         <span class="n">tz</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">_tokens_from_patsy</span><span class="p">(</span><span class="n">patsy</span><span class="o">.</span><span class="n">parse_formula</span><span class="o">.</span><span class="n">parse_formula</span><span class="p">(</span><span class="n">formula</span><span class="p">))))</span>
 
     <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>

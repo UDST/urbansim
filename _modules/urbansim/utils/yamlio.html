@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -138,7 +141,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 
@@ -157,7 +160,7 @@
 <span class="sd">    safe : dict</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_native_types</span><span class="p">(</span><span class="n">quoting</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_native_types</span><span class="p">(</span><span class="n">quoting</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">izip</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">)}</span></div>
@@ -222,13 +225,13 @@
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
             <span class="k">continue</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
@@ -265,7 +268,7 @@
         <span class="n">str_or_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="yaml_to_dict"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.yaml_to_dict">[docs]</a><span class="k">def</span> <span class="nf">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="yaml_to_dict"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.yaml_to_dict">[docs]</a><span class="k">def</span> <span class="nf">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Load YAML from a string, file, or buffer (an object with a .read method).</span>
 <span class="sd">    Parameters are mutually exclusive.</span>

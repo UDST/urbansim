@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -132,13 +135,13 @@
            <div itemprop="articleBody">
             
   <h1>Source code for urbansim.maps.dframe_explorer</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">bottle</span> <span class="kn">import</span> <span class="n">route</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">static_file</span>
-<span class="kn">from</span> <span class="nn">urbansim.utils</span> <span class="kn">import</span> <span class="n">yamlio</span>
+<span></span><span class="kn">from</span> <span class="nn">bottle</span> <span class="k">import</span> <span class="n">route</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">static_file</span>
+<span class="kn">from</span> <span class="nn">urbansim.utils</span> <span class="k">import</span> <span class="n">yamlio</span>
 <span class="kn">import</span> <span class="nn">simplejson</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span> <span class="nn">jinja2</span> <span class="k">import</span> <span class="n">Environment</span>
 
 
 <span class="nd">@hook</span><span class="p">(</span><span class="s1">&#39;after_request&#39;</span><span class="p">)</span>
@@ -148,7 +151,7 @@
         <span class="s1">&#39;Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token&#39;</span>
 
 <span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">CONFIG</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <span class="k">def</span> <span class="nf">get_schema</span><span class="p">():</span>
@@ -165,13 +168,13 @@
     <span class="n">df</span> <span class="o">=</span> <span class="n">DFRAMES</span><span class="p">[</span><span class="n">table</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s2">&quot;Col not found, trying eval:&quot;</span><span class="p">,</span> <span class="n">field</span>
+        <span class="nb">print</span> <span class="s2">&quot;Col not found, trying eval:&quot;</span><span class="p">,</span> <span class="n">field</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="n">field</span> <span class="o">=</span> <span class="s2">&quot;eval&quot;</span>
 
     <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;df</span><span class="si">%s</span><span class="s2">.groupby(&#39;</span><span class="si">%s</span><span class="s2">&#39;)[&#39;</span><span class="si">%s</span><span class="s2">&#39;].</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
           <span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">agg</span><span class="p">)</span>
-    <span class="k">print</span> <span class="n">cmd</span>
+    <span class="nb">print</span> <span class="n">cmd</span>
     <span class="n">results</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
     <span class="n">results</span><span class="p">[</span><span class="n">results</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
@@ -180,7 +183,7 @@
 
 
 <span class="nd">@route</span><span class="p">(</span><span class="s1">&#39;/map_query/&lt;table&gt;/&lt;filter&gt;/&lt;groupby&gt;/&lt;field&gt;/&lt;agg&gt;&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;OPTIONS&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">ans_options</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">ans_options</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">{}</span>
 
 
@@ -206,7 +209,7 @@
           <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
           <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span>
           <span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
-          <span class="n">testing</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+          <span class="n">testing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Start the web service which serves the Pandas queries and generates the</span>
 <span class="sd">    HTML for the map.  You will need to open a web browser and navigate to</span>
@@ -248,7 +251,7 @@
     <span class="k">global</span> <span class="n">DFRAMES</span><span class="p">,</span> <span class="n">CONFIG</span>
     <span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">views</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">views</span><span class="p">}</span>
 
-    <span class="n">root</span> <span class="o">=</span> <span class="s2">&quot;http://{}:{}/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="s2">&quot;http://</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;center&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">center</span><span class="p">),</span>
@@ -272,7 +275,7 @@
     <span class="k">if</span> <span class="n">testing</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></div>
+    <span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

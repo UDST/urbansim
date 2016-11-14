@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -139,10 +142,10 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">util</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
@@ -196,7 +199,7 @@
 
     <span class="n">movers</span> <span class="o">=</span> <span class="n">relocation_rates</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
         <span class="n">relocation_rates</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">))]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;picked {} movers for relocation&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;picked </span><span class="si">{}</span><span class="s1"> movers for relocation&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">movers</span><span class="p">)))</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: find movers for relocation&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">movers</span></div>
 
@@ -234,7 +237,7 @@
 <span class="sd">        If not given &#39;probability_of_relocating&#39; is used.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">rate_column</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">rate_column</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relocation_rates</span> <span class="o">=</span> <span class="n">rates</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rate_column</span> <span class="o">=</span> <span class="n">rate_column</span> <span class="ow">or</span> <span class="s1">&#39;probability_of_relocating&#39;</span>
 

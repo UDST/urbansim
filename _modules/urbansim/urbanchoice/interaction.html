@@ -30,6 +30,9 @@
   
 
   
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
@@ -140,13 +143,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">pmat</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-<span class="n">GPU</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">GPU</span> <span class="o">=</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="enable_gpu"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.interaction.enable_gpu">[docs]</a><span class="k">def</span> <span class="nf">enable_gpu</span><span class="p">():</span>
@@ -158,22 +161,22 @@
 <span class="c1"># TODO: split this out into separate functions for estimation</span>
 <span class="c1"># and simulation.</span>
 <div class="viewcode-block" id="mnl_interaction_dataset"><a class="viewcode-back" href="../../../models/urbanchoice.html#urbansim.urbanchoice.interaction.mnl_interaction_dataset">[docs]</a><span class="k">def</span> <span class="nf">mnl_interaction_dataset</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">,</span>
-                            <span class="n">chosenalts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                            <span class="n">chosenalts</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span>
-        <span class="s1">&#39;start: compute MNL interaction dataset with {} choosers, &#39;</span>
-        <span class="s1">&#39;{} alternatives, and sample_size={}&#39;</span>
+        <span class="s1">&#39;start: compute MNL interaction dataset with </span><span class="si">{}</span><span class="s1"> choosers, &#39;</span>
+        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> alternatives, and sample_size=</span><span class="si">{}</span><span class="s1">&#39;</span>
         <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">choosers</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">alternatives</span><span class="p">),</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
     <span class="c1"># filter choosers and their current choices if they point to</span>
     <span class="c1"># something that isn&#39;t in the alternatives table</span>
-    <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">isin</span> <span class="o">=</span> <span class="n">chosenalts</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">removing</span> <span class="o">=</span> <span class="n">isin</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">False</span><span class="p">]</span>
+            <span class="n">removing</span> <span class="o">=</span> <span class="n">isin</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="n">removing</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">removing</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">removing</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">((</span>
-                <span class="s2">&quot;Removing {} choice situations because chosen &quot;</span>
+                <span class="s2">&quot;Removing </span><span class="si">{}</span><span class="s2"> choice situations because chosen &quot;</span>
                 <span class="s2">&quot;alt doesn&#39;t exist&quot;</span>
             <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">removing</span><span class="p">))</span>
             <span class="n">choosers</span> <span class="o">=</span> <span class="n">choosers</span><span class="p">[</span><span class="n">isin</span><span class="p">]</span>
@@ -193,14 +196,14 @@
         <span class="c1"># same alternative).</span>
         <span class="c1"># random.sample is much faster than np.random.choice.</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alts_idx</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span> <span class="o">*</span> <span class="n">numchoosers</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># replace the first row for each chooser with</span>
             <span class="c1"># the currently chosen alternative.</span>
             <span class="c1"># chosenalts -&gt; integer position</span>
             <span class="n">sample</span><span class="p">[::</span><span class="n">SAMPLE_SIZE</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
                 <span class="n">alts_idx</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">chosenalts</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="bp">None</span>  <span class="c1"># if not sampling, must be simulating</span>
+        <span class="k">assert</span> <span class="n">chosenalts</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># if not sampling, must be simulating</span>
         <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">alts_idx</span><span class="p">,</span> <span class="n">numchoosers</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_unique</span><span class="p">:</span>
@@ -217,7 +220,7 @@
     <span class="n">alts_sample</span><span class="p">[</span><span class="s1">&#39;join_index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">choosers</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">)</span>
 
     <span class="n">alts_sample</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">alts_sample</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;join_index&#39;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">alts_sample</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;join_index&#39;</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_r&#39;</span><span class="p">))</span>
 
     <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numchoosers</span><span class="p">,</span> <span class="n">SAMPLE_SIZE</span><span class="p">))</span>
