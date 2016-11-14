@@ -192,6 +192,9 @@ def sample_rows(total, data, replace=True, accounting_column=None,
     max_iterations: int, optional, default 50
         When using an accounting attribute, the maximum number of sampling iterations
         that will be applied. Only applicable when sampling with replacement.
+    prob_column: string, optional, default None
+        If provided, name of the column in the data frame to provide probabilities
+        or weights. If not provided, the sampling is random.
     return_status: bool, optional, default True
         If True, will also return a bool indicating if the total was matched exactly.
 
