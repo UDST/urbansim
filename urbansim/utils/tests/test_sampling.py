@@ -47,12 +47,23 @@ def test_no_accounting_with_replacment(random_df):
     rows = sample_rows(control, random_df)
     assert control == len(rows)
 
+    # test with probabilities
+    rows, matched = sample_rows(
+        control, random_df, prob_column='p', return_status=True)
+    assert control == len(rows)
+    assert matched
+
 
 def test_no_accounting_no_replacment(random_df):
     control = 3
     rows = sample_rows(control, random_df, replace=False)
     print random_df
     assert control == len(rows)
+
+    rows, matched = sample_rows(
+        control, random_df, replace=False, prob_column='p', return_status=True)
+    assert control == len(rows)
+    assert matched
 
 
 def test_no_accounting_no_replacment_raises(random_df):
