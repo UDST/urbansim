@@ -56,8 +56,8 @@ def accounting_sample_replace(total, data, accounting_column, prob_column=None, 
         Table containing the sample.
     matched: bool
         Indicates if the total was matched exactly.
-    """
 
+    """
     # check for probabilities
     p = get_probs(data, prob_column)
 
@@ -119,9 +119,6 @@ def accounting_sample_no_replace(total, data, accounting_column, prob_column=Non
         Name of column with accounting totals/quantities to apply towards the control.
     prob_column: string, optional, default None
         Name of the column in the data to provide probabilities or weights.
-    exact: bool, optional, default True
-        If True, will attempt to match the total exactly. Otherwise it will be an
-        approximation.
 
     Returns
     -------
@@ -131,7 +128,6 @@ def accounting_sample_no_replace(total, data, accounting_column, prob_column=Non
         Indicates if the total was matched exactly.
 
     """
-
     # make sure this is even feasible
     if total > data[accounting_column].sum():
         raise ValueError('Control total exceeds the available samples')
@@ -203,8 +199,10 @@ def sample_rows(total, data, replace=True, accounting_column=None,
     -------
     sample_rows : pandas.DataFrame
         Table containing the sample.
-    """
+    matched: bool
+        If return_status is True, returns True if total is matched exactly.
 
+    """
     # simplest case, just return n random rows
     if accounting_column is None:
         if replace is False and total > len(data.index.values):
