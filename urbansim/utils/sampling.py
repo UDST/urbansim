@@ -42,9 +42,8 @@ def accounting_sample_replace(total, data, accounting_column, prob_column=None, 
         The control total the sampled rows will attempt to match.
     data: pandas.DataFrame
         Table to sample from.
-    accounting_column: string, optional
+    accounting_column: string
         Name of column with accounting totals/quantities to apply towards the control.
-        If not provided then row counts will be used for accounting.
     prob_column: string, optional, default None
         Name of the column in the data to provide probabilities or weights.
     max_iterations: int, optional, default 50
@@ -89,7 +88,6 @@ def accounting_sample_replace(total, data, accounting_column, prob_column=None, 
 
         if remaining > 0:
             # we're short, add to the sample
-            print p
             curr_ids = np.random.choice(data.index.values, num_samples, p=p)
             sample_rows = pd.concat([sample_rows, data.loc[curr_ids]])
         else:
@@ -140,7 +138,6 @@ def accounting_sample_no_replace(total, data, accounting_column, prob_column=Non
 
     # check for probabilities
     p = get_probs(data, prob_column)
-    print p
 
     # shuffle the rows
     if p is None:
