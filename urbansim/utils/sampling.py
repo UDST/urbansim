@@ -206,6 +206,9 @@ def sample_rows(total, data, replace=True, accounting_column=None,
         If return_status is True, returns True if total is matched exactly.
 
     """
+    if not data.index.is_unique:
+        raise ValueError('Data must have a unique index')
+
     # simplest case, just return n random rows
     if accounting_column is None:
         if replace is False and total > len(data.index.values):
