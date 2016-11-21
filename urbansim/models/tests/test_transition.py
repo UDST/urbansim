@@ -151,9 +151,11 @@ def test_remove_rows_all(basic_df):
 
 def test_remove_rows_with_accounting(random_df):
     control = 30
-    np.random.seed(10000)  # on particular system, a different seed is needed
-                           # to achieve an exact pick
-                           # this workaround should be removed when issue #178 is solved
+    # on particular system, a different seed is needed
+    # to achieve an exact pick
+    # this workaround should be removed when issue #178 is solved
+    np.random.seed(10000)
+
     new, removed = transition.remove_rows(
         random_df, control, accounting_column='some_count')
     assert control == random_df.loc[removed]['some_count'].sum()
