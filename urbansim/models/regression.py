@@ -469,7 +469,7 @@ class RegressionModel(object):
             util.columns_in_formula(self.model_expression))))
 
     @classmethod
-    def fit_from_cfg(cls, df, cfgname, debug=False):
+    def fit_from_cfg(cls, df, cfgname, debug=False, outcfgname=None):
         """
         Parameters
         ----------
@@ -479,6 +479,8 @@ class RegressionModel(object):
             The name of the yaml config file which describes the hedonic model.
         debug : boolean, optional (default False)
             Whether to generate debug information on the model.
+        outcfgname : string, optional (default cfgname)
+            The name of the output yaml config file where estimation results are written into.
 
         Returns
         -------
@@ -488,8 +490,9 @@ class RegressionModel(object):
         hm = cls.from_yaml(str_or_buffer=cfgname)
         ret = hm.fit(df, debug=debug)
         print(ret.summary())
-        hm.to_yaml(str_or_buffer=cfgname)
-        logger.debug('start: fit from configuration {}'.format(cfgname))
+        outcfgname = outcfgname or cfgname
+        hm.to_yaml(str_or_buffer=outcfgname)
+        logger.debug('finish: fit into configuration {}'.format(outcfgname))
         return hm
 
     @classmethod
@@ -964,7 +967,7 @@ class SegmentedRegressionModel(object):
             [self.segmentation_col])))
 
     @classmethod
-    def fit_from_cfg(cls, df, cfgname, debug=False, min_segment_size=None):
+    def fit_from_cfg(cls, df, cfgname, debug=False, min_segment_size=None, outcfgname=None):
         """
         Parameters
         ----------
@@ -976,6 +979,8 @@ class SegmentedRegressionModel(object):
             Whether to generate debug information on the model.
         min_segment_size : int, optional
             Set attribute on the model.
+        outcfgname : string, optional (default cfgname)
+            The name of the output yaml config file where estimation results are written into.
 
         Returns
         -------
@@ -989,8 +994,9 @@ class SegmentedRegressionModel(object):
         for k, v in hm.fit(df, debug=debug).items():
             print("REGRESSION RESULTS FOR SEGMENT %s\n" % str(k))
             print(v.summary())
-        hm.to_yaml(str_or_buffer=cfgname)
-        logger.debug('finish: fit from configuration {}'.format(cfgname))
+        outcfgname = outcfgname or cfgname
+        hm.to_yaml(str_or_buffer=outcfgname)
+        logger.debug('finish: fit into configuration {}'.format(outcfgname))
         return hm
 
     @classmethod

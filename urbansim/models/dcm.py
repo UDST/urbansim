@@ -750,7 +750,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             self.interaction_columns_used())))
 
     @classmethod
-    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname):
+    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname, outcfgname=None):
         """
         Parameters
         ----------
@@ -767,6 +767,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         cfgname : string
             The name of the yaml config file from which to read the discrete
             choice model.
+        outcfgname : string, optional (default cfgname)
+            The name of the output yaml config file where estimation results are written into.
 
         Returns
         -------
@@ -776,8 +778,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         lcm = cls.from_yaml(str_or_buffer=cfgname)
         lcm.fit(choosers, alternatives, choosers[chosen_fname])
         lcm.report_fit()
-        lcm.to_yaml(str_or_buffer=cfgname)
-        logger.debug('finish: fit from configuration {}'.format(cfgname))
+        outcfgname = outcfgname or cfgname
+        lcm.to_yaml(str_or_buffer=outcfgname)
+        logger.debug('finish: fit into configuration {}'.format(outcfgname))
         return lcm
 
     @classmethod
@@ -1761,7 +1764,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
             [self.segmentation_col])))
 
     @classmethod
-    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname):
+    def fit_from_cfg(cls, choosers, chosen_fname, alternatives, cfgname, outcfgname=None):
         """
         Parameters
         ----------
@@ -1778,6 +1781,8 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         cfgname : string
             The name of the yaml config file from which to read the discrete
             choice model.
+        outcfgname : string, optional (default cfgname)
+            The name of the output yaml config file where estimation results are written into.
 
         Returns
         -------
@@ -1789,8 +1794,9 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         for k, v in lcm._group.models.items():
             print("LCM RESULTS FOR SEGMENT %s\n" % str(k))
             v.report_fit()
-        lcm.to_yaml(str_or_buffer=cfgname)
-        logger.debug('finish: fit from configuration {}'.format(cfgname))
+        outcfgname = outcfgname or cfgname
+        lcm.to_yaml(str_or_buffer=outcfgname)
+        logger.debug('finish: fit into configuration {}'.format(outcfgname))
         return lcm
 
     @classmethod
