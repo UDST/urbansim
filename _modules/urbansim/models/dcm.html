@@ -887,7 +887,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">interaction_columns_used</span><span class="p">())))</span></div>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MNLDiscreteChoiceModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">chosen_fname</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
+<div class="viewcode-block" id="MNLDiscreteChoiceModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">chosen_fname</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">outcfgname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -904,6 +904,8 @@
 <span class="sd">        cfgname : string</span>
 <span class="sd">            The name of the yaml config file from which to read the discrete</span>
 <span class="sd">            choice model.</span>
+<span class="sd">        outcfgname : string, optional (default cfgname)</span>
+<span class="sd">            The name of the output yaml config file where estimation results are written into.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -913,8 +915,9 @@
         <span class="n">lcm</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
         <span class="n">lcm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">choosers</span><span class="p">[</span><span class="n">chosen_fname</span><span class="p">])</span>
         <span class="n">lcm</span><span class="o">.</span><span class="n">report_fit</span><span class="p">()</span>
-        <span class="n">lcm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: fit from configuration </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">outcfgname</span> <span class="o">=</span> <span class="n">outcfgname</span> <span class="ow">or</span> <span class="n">cfgname</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">outcfgname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: fit into configuration </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outcfgname</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">lcm</span></div>
 
     <span class="nd">@classmethod</span>
@@ -1898,7 +1901,7 @@
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">])))</span></div>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SegmentedMNLDiscreteChoiceModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">chosen_fname</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
+<div class="viewcode-block" id="SegmentedMNLDiscreteChoiceModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">chosen_fname</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">outcfgname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1915,6 +1918,8 @@
 <span class="sd">        cfgname : string</span>
 <span class="sd">            The name of the yaml config file from which to read the discrete</span>
 <span class="sd">            choice model.</span>
+<span class="sd">        outcfgname : string, optional (default cfgname)</span>
+<span class="sd">            The name of the output yaml config file where estimation results are written into.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1926,8 +1931,9 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lcm</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LCM RESULTS FOR SEGMENT </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
             <span class="n">v</span><span class="o">.</span><span class="n">report_fit</span><span class="p">()</span>
-        <span class="n">lcm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">cfgname</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: fit from configuration </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfgname</span><span class="p">))</span>
+        <span class="n">outcfgname</span> <span class="o">=</span> <span class="n">outcfgname</span> <span class="ow">or</span> <span class="n">cfgname</span>
+        <span class="n">lcm</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="o">=</span><span class="n">outcfgname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: fit into configuration </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outcfgname</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">lcm</span></div>
 
     <span class="nd">@classmethod</span>
