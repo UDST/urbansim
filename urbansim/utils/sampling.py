@@ -215,7 +215,7 @@ def sample_rows(total, data, replace=True, accounting_column=None,
             raise ValueError('Control total exceeds the available samples')
         p = get_probs(prob_column)
         rows = data.loc[np.random.choice(
-            data.index.values, total, replace=replace, p=p)].copy()
+            data.index.values, int(total), replace=replace, p=p)].copy()
         matched = True
 
     # sample with accounting
