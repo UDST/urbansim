@@ -94,7 +94,7 @@ def choosers(test_data):
 @pytest.fixture
 def chosen(df, num_alts, test_data):
     return df[test_data['column']].values.astype('int').reshape(
-        (len(df) / num_alts, num_alts))
+        (int(len(df) / num_alts), num_alts))
 
 
 @pytest.fixture
