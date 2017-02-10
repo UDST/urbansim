@@ -833,7 +833,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
                  "and only %d choosers") %
                 (len(alternatives), len(choosers)))
             idxes = np.random.choice(
-                alternatives.index, size=len(choosers) * alternative_ratio,
+                alternatives.index, size=int(len(choosers) *
+                                             alternative_ratio),
                 replace=False)
             alternatives = alternatives.loc[idxes]
             logger.info(
@@ -1848,7 +1849,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
                 (len(alternatives), len(choosers)))
             idxes = np.random.choice(
                 alternatives.index,
-                size=np.floor(len(choosers) * alternative_ratio),
+                size=int(np.floor(len(choosers) * alternative_ratio)),
                 replace=False)
             alternatives = alternatives.loc[idxes]
             logger.info(
