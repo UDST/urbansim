@@ -71,9 +71,10 @@ def test_predict_with_nans():
 
     fit = regression.fit_model(df.loc[['a', 'b', 'e']], None, 'col1 ~ col2')
 
-    with pytest.raises(ModelEvaluationError):
-        regression.predict(
-            df.loc[['c', 'd']], None, fit)
+    predict = regression.predict(
+        df.loc[['c', 'd']], None, fit)
+
+    assert np.isnan(predict.loc['c'])
 
 
 def test_rhs():
