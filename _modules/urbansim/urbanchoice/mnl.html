@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -43,6 +45,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -83,7 +86,10 @@
           
             
             
-                <ul>
+              
+            
+            
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models/index.html">Core Models</a></li>
@@ -102,8 +108,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../../../index.html">urbansim</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">urbansim</a>
+        
       </nav>
 
 
@@ -116,19 +124,36 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../../../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-      
-    <li>urbansim.urbanchoice.mnl</li>
+        
+      <li>urbansim.urbanchoice.mnl</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
+            
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -154,7 +179,7 @@
 
 <span class="kn">from</span> <span class="nn">..utils.logutil</span> <span class="k">import</span> <span class="n">log_start_finish</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># right now MNL can only estimate location choice models, where every equation</span>
 <span class="c1"># is the same</span>
@@ -174,16 +199,16 @@
 
     <span class="n">exponentiated_utility</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">inftoval</span><span class="p">(</span><span class="mi">1</span><span class="n">e20</span><span class="p">)</span>
+        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">inftoval</span><span class="p">(</span><span class="mf">1e20</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
     <span class="n">sum_exponentiated_utility</span> <span class="o">=</span> <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">probs</span> <span class="o">=</span> <span class="n">exponentiated_utility</span><span class="o">.</span><span class="n">divide_by_row</span><span class="p">(</span>
         <span class="n">sum_exponentiated_utility</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">nantoval</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">probs</span><span class="o">.</span><span class="n">nantoval</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
-        <span class="n">probs</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">probs</span><span class="o">.</span><span class="n">clamptomin</span><span class="p">(</span><span class="mf">1e-300</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: calculate MNL probabilities&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">probs</span></div>
@@ -406,6 +431,9 @@
 </pre></div>
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
@@ -439,7 +467,8 @@
             VERSION:'0.2dev',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
