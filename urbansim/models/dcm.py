@@ -1182,7 +1182,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
 
         for name, df in self._iter_groups(choosers):
             choices = self.models[name].predict(df, alternatives, debug=debug)
-            if self.remove_alts:
+            if self.remove_alts and len(alternatives) > 0:
                 alternatives = alternatives.loc[
                     ~alternatives.index.isin(choices)]
             results.append(choices)
