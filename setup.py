@@ -41,7 +41,7 @@ setup(
         'pyyaml>=3.10',
         'scipy>=0.13.3',
         'simplejson>=3.3',
-        'statsmodels>=0.5.0',
+        'statsmodels>=0.8.0',
         'tables>=3.1.0',
         'toolz>=0.7.0',
         'zbox>=1.2'
