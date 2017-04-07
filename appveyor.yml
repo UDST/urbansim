@@ -22,10 +22,10 @@ install:
 
 before_test:
   - git clone https://github.com/synthicity/sanfran_urbansim.git
-  - cd sanfran_urbansim; ipython nbconvert --to python Simulation.ipynb
-  - cd ..
+  - cd sanfran_urbansim & ipython nbconvert --to python Simulation.ipynb
+  - cd..
 
 test_script:
   - pep8 urbansim scripts
   - pytest urbansim
-  - cd sanfran_urbansim; python Simulation.py
+  - cd sanfran_urbansim & python Simulation.py
