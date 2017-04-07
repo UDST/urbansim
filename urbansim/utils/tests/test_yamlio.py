@@ -23,9 +23,10 @@ def test_cfg():
 @pytest.fixture
 def expected_yaml():
     return (
-        'name: test{carriage}'
-        'ytransform: xyz{carriage}'
-        'unordered: abc{newline}').format(carriage='\n\r\n', newline='\n')
+        'name: test{newline}{newline}'
+        'ytransform: xyz{newline}{newline}'
+        'unordered: abc{newline}'.format(newline='\n')
+    )
 
 
 @pytest.fixture
