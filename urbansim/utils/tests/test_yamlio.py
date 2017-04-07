@@ -23,9 +23,9 @@ def test_cfg():
 @pytest.fixture
 def expected_yaml():
     return (
-        'name: test{linesep}{linesep}'
-        'ytransform: xyz{linesep}{linesep}'
-        'unordered: abc{linesep}').format(linesep=os.linesep)
+        'name: test{carriage}'
+        'ytransform: xyz{carriage}'
+        'unordered: abc{newline}').format(carriage='\n\r\n', newline='\n')
 
 
 @pytest.fixture
@@ -101,13 +101,24 @@ b:
             yamlio.yaml_to_dict()
 
 
+def assert_series_equal(a, b):
+    assert (a.index.values == b.index.values).all()
+    assert (a.values == b.values).all()
+
+
+def assert_dfs_equal(a, b):
+    assert (a.columns == b.columns).all()
+    assert (a.index.values == b.index.values).all()
+    assert (a.values == b.values).all()
+
+
 def test_series_to_yaml_safe_int_index():
     s = pd.Series(np.arange(100, 103), index=np.arange(3))
     d = yamlio.series_to_yaml_safe(s)
 
     assert d == {0: 100, 1: 101, 2: 102}
     y = yaml.dump(d, default_flow_style=False)
-    pdt.assert_series_equal(pd.Series(yaml.load(y)), s)
+    assert_series_equal(pd.Series(yaml.load(y)), s)
 
 
 def test_series_to_yaml_safe_str_index():
@@ -117,7 +128,7 @@ def test_series_to_yaml_safe_str_index():
 
     assert d == {'x': 'a', 'y': 'b', 'z': 'c'}
     y = yaml.dump(d, default_flow_style=False)
-    pdt.assert_series_equal(pd.Series(yaml.load(y)), s)
+    assert_series_equal(pd.Series(yaml.load(y)), s)
 
 
 def test_frame_to_yaml_safe():
@@ -130,4 +141,4 @@ def test_frame_to_yaml_safe():
     assert d == {'col1': {0: 100, 1: 200, 2: 300},
                  'col2': {0: 'a', 1: 'b', 2: 'c'}}
     y = yaml.dump(d, default_flow_style=False)
-    pdt.assert_frame_equal(pd.DataFrame(yaml.load(y)), df)
+    assert_dfs_equal(pd.DataFrame(yaml.load(y)), df)
