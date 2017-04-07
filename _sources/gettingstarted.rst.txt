@@ -36,7 +36,7 @@ UrbanSim depends on the following libraries, most of which are in Anaconda:
 * `pyyaml <http://pyyaml.org/>`__ >= 3.10
 * `scipy <http://scipy.org>`__ >= 0.13.3
 * `simplejson <http://simplejson.readthedocs.org/en/latest/>`__ >= 3.3.3
-* `statsmodels <http://statsmodels.sourceforge.net/stable/index.html>`__ >= 0.5.0
+* `statsmodels <http://statsmodels.sourceforge.net/stable/index.html>`__ >= 0.8.0
 * `tables <http://www.pytables.org/moin>`__ >= 3.1.0
 * `toolz <http://toolz.readthedocs.org/en/latest/>`__ >= 0.7
 
