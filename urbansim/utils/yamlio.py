@@ -96,7 +96,7 @@ def ordered_yaml(cfg):
         s.append(
             yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
 
-    return os.linesep.join(s)
+    return '\n'.join(s)
 
 
 def convert_to_yaml(cfg, str_or_buffer):
