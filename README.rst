@@ -2,8 +2,14 @@ UrbanSim
 ========
 
 .. image:: https://travis-ci.org/UDST/urbansim.svg?branch=master
-   :alt: Build Status
+   :alt: Build Status (Linux)
    :target: https://travis-ci.org/UDST/urbansim
+
+
+.. image:: https://ci.appveyor.com/api/projects/status/0ygo756020jpcrg3?svg=true
+   :alt: Build Status (Windows)
+   :target: https://ci.appveyor.com/project/pksohn/urbansim
+
 
 .. image:: https://coveralls.io/repos/UDST/urbansim/badge.png?branch=master
    :alt: Test Coverage
