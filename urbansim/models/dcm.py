@@ -1135,6 +1135,9 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             Summed probabilities from each segment added together.
 
         """
+        if len(alternatives) == 0 or len(choosers) == 0:
+            return pd.Series()
+
         logger.debug(
             'start: calculate summed probabilities in LCM group {}'.format(
                 self.name))
