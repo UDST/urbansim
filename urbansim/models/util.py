@@ -5,7 +5,10 @@ Utilities used within the ``urbansim.models`` package.
 import collections
 import logging
 import numbers
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 from tokenize import generate_tokens, NAME
 
 import numpy as np

@@ -1,6 +1,9 @@
 import os
 import tempfile
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import numpy as np
 import numpy.testing as npt

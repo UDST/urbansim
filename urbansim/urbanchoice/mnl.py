@@ -12,8 +12,8 @@ import numpy as np
 import pandas as pd
 import scipy.optimize
 
-import pmat
-from pmat import PMAT
+from . import pmat
+from .pmat import PMAT
 
 from ..utils.logutil import log_start_finish
 
