@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -57,7 +59,7 @@ def test_no_accounting_with_replacment(random_df):
 def test_no_accounting_no_replacment(random_df):
     control = 3
     rows = sample_rows(control, random_df, replace=False)
-    print random_df
+    print(random_df)
     assert control == len(rows)
 
     rows, matched = sample_rows(

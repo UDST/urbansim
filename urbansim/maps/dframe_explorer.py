@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from bottle import route, response, run, hook, static_file
 from urbansim.utils import yamlio
 import simplejson
@@ -31,13 +33,13 @@ def map_query(table, filter, groupby, field, agg):
     df = DFRAMES[table]
 
     if field not in df.columns:
-        print "Col not found, trying eval:", field
+        print("Col not found, trying eval:", field)
         df["eval"] = df.eval(field)
         field = "eval"
 
     cmd = "df%s.groupby('%s')['%s'].%s" % \
           (filter, groupby, field, agg)
-    print cmd
+    print(cmd)
     results = eval(cmd)
     results[results == np.inf] = np.nan
     results = yamlio.series_to_yaml_safe(results.dropna())
