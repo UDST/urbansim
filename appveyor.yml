@@ -4,6 +4,8 @@ environment:
   matrix:
     - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
+    - PYTHON_VERSION: 3.5
+      MINICONDA: C:\Miniconda3
 
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
@@ -16,16 +18,19 @@ install:
   - "conda create -q -n test-environment python=%PYTHON_VERSION% cytoolz ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz"
   - activate test-environment
   - conda install -c conda-forge shapely geopandas
-  - pip install pandana bottle orca simplejson zbox
-  - pip install pep8
+  # Update orca installation once version 1.4.0 is released
+  - pip install https://github.com/udst/orca/archive/master.zip
+  - pip install osmnet pandana bottle simplejson zbox
+  - pip install pycodestyle
   - pip install .
 
 before_test:
-  - git clone https://github.com/synthicity/sanfran_urbansim.git
-  - cd sanfran_urbansim & ipython nbconvert --to python Simulation.ipynb
+# Update sanfran_urbansim clone once python3 branch is merged
+  - git clone -b python3 https://github.com/udst/sanfran_urbansim.git
+  - cd sanfran_urbansim & jupyter nbconvert --to python Simulation.ipynb
   - cd..
 
 test_script:
-  - pep8 urbansim scripts
+  - pycodestyle urbansim scripts
   - pytest urbansim
   - cd sanfran_urbansim & python Simulation.py

@@ -13,20 +13,23 @@ install:
 - conda update -q conda
 - conda info -a
 - >
-  conda create -q -c synthicity -n test-environment
+  conda create -q -n test-environment
   python=$TRAVIS_PYTHON_VERSION
   cytoolz ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy
-  statsmodels pandana pytables pytest pyyaml toolz
+  statsmodels pytables pytest pyyaml toolz
 - source activate test-environment
-- pip install bottle orca simplejson zbox
-- pip install pytest-cov coveralls pep8
+# Update orca installation once version 1.4.0 is released
+- pip install https://github.com/udst/orca/archive/master.zip
+- pip install osmnet pandana bottle simplejson zbox
+- pip install pytest-cov coveralls pycodestyle
 - pip install .
 before_script:
-- git clone https://github.com/synthicity/sanfran_urbansim.git
-- cd sanfran_urbansim; ipython nbconvert --to python Simulation.ipynb
+# Update sanfran_urbansim clone once python3 branch is merged
+- git clone -b python3 https://github.com/udst/sanfran_urbansim.git
+- cd sanfran_urbansim; jupyter nbconvert --to python Simulation.ipynb
 - cd ..
 script:
-- pep8 urbansim scripts
+- pycodestyle urbansim scripts
 - py.test --cov urbansim --cov-report term-missing
 - cd sanfran_urbansim; python Simulation.py
 - cd ..
