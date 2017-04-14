@@ -66,9 +66,10 @@ def test_column_names_from_metadata():
     cnfm = accounts._column_names_from_metadata
 
     assert cnfm([]) == []
-    assert cnfm([{'a': 1, 'b': 2}]) == ['a', 'b']
-    assert cnfm([{'a': 1}, {'b': 2}]) == ['a', 'b']
-    assert cnfm([{'a': 1, 'b': 2}, {'a': 3, 'b': 4}]) == ['a', 'b']
+    # Sort to ensure order for tests
+    assert sorted(cnfm([{'a': 1, 'b': 2}])) == ['a', 'b']
+    assert sorted(cnfm([{'a': 1}, {'b': 2}])) == ['a', 'b']
+    assert sorted(cnfm([{'a': 1, 'b': 2}, {'a': 3, 'b': 4}])) == ['a', 'b']
 
 
 def test_to_frame(acc, acc_bal):
