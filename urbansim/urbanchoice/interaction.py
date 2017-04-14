@@ -35,7 +35,7 @@ def mnl_interaction_dataset(choosers, alternatives, SAMPLE_SIZE,
         isin = chosenalts.isin(alternatives.index)
         try:
             removing = isin.value_counts().loc[False]
-        except:
+        except Exception:
             removing = None
         if removing:
             logger.info((

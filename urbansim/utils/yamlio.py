@@ -56,7 +56,7 @@ def to_scalar_safe(obj):
     """
     try:
         return np.asscalar(obj)
-    except:
+    except Exception:
         return obj
 
 
