@@ -145,8 +145,12 @@ class Test_str_model_expression(object):
 
 
 def test_sorted_groupby():
+    try:
+        letters = string.lowercase
+    except AttributeError:
+        letters = string.ascii_lowercase
     df = pd.DataFrame(
-        {'alpha': np.random.choice(list(string.lowercase), 100),
+        {'alpha': np.random.choice(list(letters), 100),
          'num': np.random.randint(100)})
     sorted_df = df.sort('alpha')
 
