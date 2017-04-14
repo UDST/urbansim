@@ -42,10 +42,17 @@ def test_column_map_none(fta, ftb):
 
 
 def test_column_map(fta, ftb):
-    assert misc.column_map([fta, ftb], ['aa', 'by', 'bz']) == \
-        {'a': ['aa'], 'b': ['by', 'bz']}
-    assert misc.column_map([fta, ftb], ['by', 'bz']) == \
-        {'a': [], 'b': ['by', 'bz']}
+
+    result = misc.column_map([fta, ftb], ['aa', 'by', 'bz'])
+    # misc.column_map() does not guarantee order, so sort for testing
+    result_sorted = {k: sorted(v) for k, v in result.items()}
+
+    assert result_sorted == {'a': ['aa'], 'b': ['by', 'bz']}
+
+    result = misc.column_map([fta, ftb], ['by', 'bz'])
+    result_sorted = {k: sorted(v) for k, v in result.items()}
+
+    assert result_sorted == {'a': [], 'b': ['by', 'bz']}
 
 
 def test_dirs(clean_fake_data_home):
@@ -122,5 +129,5 @@ def test_misc_dffunctions(simple_dev_inputs):
 
 
 def test_column_list(fta, ftb):
-    assert misc.column_list([fta, ftb], ['aa', 'by', 'bz', 'c']) == \
-        ['aa', 'by', 'bz']
+    result = misc.column_list([fta, ftb], ['aa', 'by', 'bz', 'c'])
+    assert sorted(result) == ['aa', 'by', 'bz']
