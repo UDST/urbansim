@@ -150,8 +150,8 @@ class PMAT:
 
     def divide_by_row(self, rowvec, inplace=False):
         if self.typ == 'numpy':
-            # TODO confirm we want floor division here
-            return PMAT(self.mat // rowvec.mat)
+            # TODO confirm we want true division here
+            return PMAT(self.mat / rowvec.mat)
         elif self.typ == 'cuda':
             if inplace:
                 rowvec.mat.reciprocal()
