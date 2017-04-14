@@ -2,7 +2,10 @@
 Utilities for doing IO to YAML files.
 
 """
-import itertools
+try:
+    from itertools import izip as zip
+except ImportError:
+    pass
 import os
 import numpy as np
 
@@ -26,7 +29,7 @@ def series_to_yaml_safe(series):
     index = series.index.to_native_types(quoting=True)
     values = series.values.tolist()
 
-    return {i: v for i, v in itertools.izip(index, values)}
+    return {i: v for i, v in zip(index, values)}
 
 
 def frame_to_yaml_safe(frame):
