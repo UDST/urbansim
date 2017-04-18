@@ -33,7 +33,6 @@ def mnl_probs(data, beta, numalts):
     utilities = beta.multiply(data)
     if numalts == 0:
         raise Exception("Number of alternatives is zero")
-    # TODO confirm we want floor division here
     utilities.reshape(numalts, utilities.size() // numalts)
 
     exponentiated_utility = utilities.exp(inplace=True)
@@ -68,7 +67,6 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
                stderr=0):
     logger.debug('start: calculate MNL log-likelihood')
     numvars = beta.size
-    # TODO confirm we want floor division here
     numobs = data.size() // numvars // numalts
 
     beta = np.reshape(beta, (1, beta.size))
@@ -167,7 +165,6 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
         probs = PMAT(probs.get_mat())
 
     probs = probs.cumsum(axis=0)
-    # TODO confirm we want floor division here
     r = pmat.random(probs.size() // numalts)
     choices = probs.subtract(r, inplace=True).firstpositive(axis=0)
 
@@ -222,7 +219,6 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     atype = 'numpy' if not GPU else 'cuda'
 
     numvars = data.shape[1]
-    # TODO confirm we want floor division here
     numobs = data.shape[0] // numalts
 
     if chosen is None:

@@ -92,10 +92,8 @@ class PMAT:
 
     def reshape(self, rowlen, collen):
         if rowlen == -1:
-            # TODO confirm we want floor division here
             rowlen = self.size() // collen
         if collen == -1:
-            # TODO confirm we want floor division here
             collen = self.size() // rowlen
         if self.typ == 'numpy':
             self.mat = np.reshape(self.mat, (rowlen, collen), order='F')
@@ -150,7 +148,6 @@ class PMAT:
 
     def divide_by_row(self, rowvec, inplace=False):
         if self.typ == 'numpy':
-            # TODO confirm we want true division here
             return PMAT(self.mat / rowvec.mat)
         elif self.typ == 'cuda':
             if inplace:
