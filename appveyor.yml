@@ -18,9 +18,7 @@ install:
   - "conda create -q -n test-environment python=%PYTHON_VERSION% cytoolz ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz"
   - activate test-environment
   - conda install -c conda-forge shapely geopandas
-  # Update orca installation once version 1.4.0 is released
-  - pip install https://github.com/udst/orca/archive/master.zip
-  - pip install osmnet pandana bottle simplejson zbox
+  - pip install orca osmnet pandana bottle simplejson zbox
   - pip install pycodestyle
   - pip install .
 
