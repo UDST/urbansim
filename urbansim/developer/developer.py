@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+
 import pandas as pd
 import numpy as np
 
@@ -90,13 +93,14 @@ class Developer(object):
         number_of_units : int
             the number of units that need to be built
         """
-        print "Number of agents: {:,}".format(num_agents)
-        print "Number of agent spaces: {:,}".format(int(num_units))
+        print("Number of agents: {:,}".format(num_agents))
+        print("Number of agent spaces: {:,}".format(int(num_units)))
         assert target_vacancy < 1.0
         target_units = int(max(num_agents / (1 - target_vacancy) - num_units, 0))
-        print "Current vacancy = {:.2f}".format(1 - num_agents / float(num_units))
-        print "Target vacancy = {:.2f}, target of new units = {:,}".\
-            format(target_vacancy, target_units)
+        print("Current vacancy = {:.2f}"
+              .format(1 - num_agents / float(num_units)))
+        print("Target vacancy = {:.2f}, target of new units = {:,}"
+              .format(target_vacancy, target_units))
         return target_units
 
     def pick(self, form, target_units, parcel_size, ave_unit_size,
@@ -190,12 +194,12 @@ class Developer(object):
         df = df[df.net_units > 0]
 
         if len(df) == 0:
-            print "WARNING THERE ARE NO FEASIBLE BUILDING TO CHOOSE FROM"
+            print("WARNING THERE ARE NO FEASIBLE BUILDING TO CHOOSE FROM")
             return
 
         # print "Describe of net units\n", df.net_units.describe()
-        print "Sum of net units that are profitable: {:,}".\
-            format(int(df.net_units.sum()))
+        print("Sum of net units that are profitable: {:,}"
+              .format(int(df.net_units.sum())))
 
         if profit_to_prob_func:
             p = profit_to_prob_func(df)
@@ -204,8 +208,8 @@ class Developer(object):
             p = df.max_profit_per_size.values / df.max_profit_per_size.sum()
 
         if df.net_units.sum() < target_units:
-            print "WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO " \
-                  "MATCH DEMAND"
+            print("WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO",
+                  "MATCH DEMAND")
             build_idx = df.index.values
         elif target_units <= 0:
             build_idx = []

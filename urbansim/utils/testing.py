@@ -48,7 +48,7 @@ def assert_frames_equal(actual, expected, use_close=False):
                 comp(act_item, exp_item)
             except AssertionError as e:
                 raise AssertionError(
-                    e.message + '\n\nColumn: {!r}\nRow: {!r}'.format(j, i))
+                    str(e) + '\n\nColumn: {!r}\nRow: {!r}'.format(j, i))
 
 
 def assert_index_equal(left, right):

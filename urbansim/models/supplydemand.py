@@ -2,6 +2,8 @@
 Tools for modeling how supply and demand affect real estate prices.
 
 """
+from __future__ import division
+
 import logging
 
 import numpy as np

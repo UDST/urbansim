@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import logging
 import yaml
 
@@ -12,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def from_yaml(net, cfgname):
-    print "Computing accessibility variables"
+    print("Computing accessibility variables")
     cfg = yaml.load(open(misc.config(cfgname)))
 
     nodes = pd.DataFrame(index=net.node_ids)
@@ -23,7 +25,7 @@ def from_yaml(net, cfgname):
     for variable in cfg['variable_definitions']:
 
         name = variable["name"]
-        print "Computing %s" % name
+        print("Computing %s" % name)
 
         decay = variable.get("decay", "linear")
         agg = variable.get("aggregation", "sum")
