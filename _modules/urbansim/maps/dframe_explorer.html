@@ -160,7 +160,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for urbansim.maps.dframe_explorer</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">bottle</span> <span class="k">import</span> <span class="n">route</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">static_file</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+
+<span class="kn">from</span> <span class="nn">bottle</span> <span class="k">import</span> <span class="n">route</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">static_file</span>
 <span class="kn">from</span> <span class="nn">urbansim.utils</span> <span class="k">import</span> <span class="n">yamlio</span>
 <span class="kn">import</span> <span class="nn">simplejson</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -174,6 +176,7 @@
     <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
     <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Access-Control-Allow-Headers&#39;</span><span class="p">]</span> <span class="o">=</span> \
         <span class="s1">&#39;Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token&#39;</span>
+
 
 <span class="n">DFRAMES</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">CONFIG</span> <span class="o">=</span> <span class="kc">None</span>
@@ -193,13 +196,13 @@
     <span class="n">df</span> <span class="o">=</span> <span class="n">DFRAMES</span><span class="p">[</span><span class="n">table</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="nb">print</span> <span class="s2">&quot;Col not found, trying eval:&quot;</span><span class="p">,</span> <span class="n">field</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Col not found, trying eval:&quot;</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="n">field</span> <span class="o">=</span> <span class="s2">&quot;eval&quot;</span>
 
     <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;df</span><span class="si">%s</span><span class="s2">.groupby(&#39;</span><span class="si">%s</span><span class="s2">&#39;)[&#39;</span><span class="si">%s</span><span class="s2">&#39;].</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
           <span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="n">groupby</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">agg</span><span class="p">)</span>
-    <span class="nb">print</span> <span class="n">cmd</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
     <span class="n">results</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
     <span class="n">results</span><span class="p">[</span><span class="n">results</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">yamlio</span><span class="o">.</span><span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>

@@ -160,7 +160,10 @@
            <div itemprop="articleBody">
             
   <h1>Source code for urbansim.developer.developer</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
@@ -252,13 +255,14 @@
 <span class="sd">        number_of_units : int</span>
 <span class="sd">            the number of units that need to be built</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">print</span> <span class="s2">&quot;Number of agents: </span><span class="si">{:,}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_agents</span><span class="p">)</span>
-        <span class="nb">print</span> <span class="s2">&quot;Number of agent spaces: </span><span class="si">{:,}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_units</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of agents: </span><span class="si">{:,}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num_agents</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of agent spaces: </span><span class="si">{:,}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_units</span><span class="p">)))</span>
         <span class="k">assert</span> <span class="n">target_vacancy</span> <span class="o">&lt;</span> <span class="mf">1.0</span>
         <span class="n">target_units</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_agents</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">target_vacancy</span><span class="p">)</span> <span class="o">-</span> <span class="n">num_units</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="nb">print</span> <span class="s2">&quot;Current vacancy = </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">num_agents</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_units</span><span class="p">))</span>
-        <span class="nb">print</span> <span class="s2">&quot;Target vacancy = </span><span class="si">{:.2f}</span><span class="s2">, target of new units = </span><span class="si">{:,}</span><span class="s2">&quot;</span><span class="o">.</span>\
-            <span class="nb">format</span><span class="p">(</span><span class="n">target_vacancy</span><span class="p">,</span> <span class="n">target_units</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current vacancy = </span><span class="si">{:.2f}</span><span class="s2">&quot;</span>
+              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">num_agents</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">num_units</span><span class="p">)))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Target vacancy = </span><span class="si">{:.2f}</span><span class="s2">, target of new units = </span><span class="si">{:,}</span><span class="s2">&quot;</span>
+              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">target_vacancy</span><span class="p">,</span> <span class="n">target_units</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">target_units</span></div>
 
 <div class="viewcode-block" id="Developer.pick"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">target_units</span><span class="p">,</span> <span class="n">parcel_size</span><span class="p">,</span> <span class="n">ave_unit_size</span><span class="p">,</span>
@@ -352,12 +356,12 @@
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">net_units</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s2">&quot;WARNING THERE ARE NO FEASIBLE BUILDING TO CHOOSE FROM&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING THERE ARE NO FEASIBLE BUILDING TO CHOOSE FROM&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># print &quot;Describe of net units\n&quot;, df.net_units.describe()</span>
-        <span class="nb">print</span> <span class="s2">&quot;Sum of net units that are profitable: </span><span class="si">{:,}</span><span class="s2">&quot;</span><span class="o">.</span>\
-            <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sum of net units that are profitable: </span><span class="si">{:,}</span><span class="s2">&quot;</span>
+              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">())))</span>
 
         <span class="k">if</span> <span class="n">profit_to_prob_func</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">profit_to_prob_func</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -366,8 +370,8 @@
             <span class="n">p</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">max_profit_per_size</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">net_units</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">target_units</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s2">&quot;WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO &quot;</span> \
-                  <span class="s2">&quot;MATCH DEMAND&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING THERE WERE NOT ENOUGH PROFITABLE UNITS TO&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;MATCH DEMAND&quot;</span><span class="p">)</span>
             <span class="n">build_idx</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
         <span class="k">elif</span> <span class="n">target_units</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">build_idx</span> <span class="o">=</span> <span class="p">[]</span>

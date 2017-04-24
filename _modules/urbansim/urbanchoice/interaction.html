@@ -171,7 +171,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">pmat</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">pmat</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">GPU</span> <span class="o">=</span> <span class="kc">False</span>
@@ -197,7 +197,7 @@
         <span class="n">isin</span> <span class="o">=</span> <span class="n">chosenalts</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">alternatives</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">removing</span> <span class="o">=</span> <span class="n">isin</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">removing</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">removing</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">((</span>
