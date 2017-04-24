@@ -28,10 +28,13 @@ UrbanSim is now available.
 here <http://udst.github.io/urbansim/gettingstarted.html#installation>`__
 for installation instructions.
 
+Let us know what you are working on or if you think you have a great use case
+by tweeting us at ``@urbansim`` or post on the UrbanSim `forum`_.
+
 UrbanSim History
 ----------------
 
-UrbanSim (http://urbansim.org/) is a model system for analyzing
+UrbanSim (http://www.urbansim.com) is a model system for analyzing
 urban development. It is an open source platform that has been
 continuously refined and distributed for planning applications around
 the world for over 15 years. Part of the evolution of the platform is
@@ -83,3 +86,20 @@ project to make sure you can get support when you need it,
 and know what you are getting into. For major applied projects,
 professional support is highly recommended.
 
+Reporting bugs and contributing to UrbanSim
+--------------------------------------------
+
+Please report any bugs you encounter via `GitHub Issues <https://github.com/UDST/urbansim/issues>`__.
+
+If you have improvements or new features you would like to see in UrbanSim:
+
+1. Open a feature request via `GitHub Issues <https://github.com/UDST/urbansim/issues>`__.
+2. See our code contribution instructions `here <https://github.com/UDST/urbansim/blob/master/CONTRIBUTING.md>`__.
+3. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
+
+Academic literature
+-------------------
+
+A selection of academic literature on UrbanSim can be found `here <http://www.urbansim.com/research/>`_.
+
+.. _forum: http://discussion.urbansim.com/

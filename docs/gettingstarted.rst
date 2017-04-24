@@ -1,6 +1,9 @@
 Getting Started
 ===============
 
+Let us know what you are working on or if you think you have a great use case
+by tweeting us at ``@urbansim`` or post on the UrbanSim `forum`_.
+
 Installation
 ------------
 
@@ -27,18 +30,24 @@ Dependencies
 
 UrbanSim depends on the following libraries, most of which are in Anaconda:
 
-* `bottle <http://bottlepy.org/docs/dev/index.html>`__ >= 0.12.5
+* `bottle <http://bottlepy.org/docs/dev/index.html>`__ >= 0.12
 * `matplotlib <http://matplotlib.org>`__ >= 1.3.1
 * `numpy <http://numpy.org>`__ >= 1.8.0
-* `pandas <http://pandas.pydata.org>`__ >= 0.13.1
+* `orca <https://github.com/UDST/orca>`__ >= 1.1
+* `pandas <http://pandas.pydata.org>`__ >= 0.15.
 * `patsy <http://patsy.readthedocs.org/en/latest/>`__ >= 0.2.1
 * `prettytable <https://code.google.com/p/prettytable/>`__ >= 0.7.2
 * `pyyaml <http://pyyaml.org/>`__ >= 3.10
 * `scipy <http://scipy.org>`__ >= 0.13.3
-* `simplejson <http://simplejson.readthedocs.org/en/latest/>`__ >= 3.3.3
+* `simplejson <http://simplejson.readthedocs.org/en/latest/>`__ >= 3.3
 * `statsmodels <http://statsmodels.sourceforge.net/stable/index.html>`__ >= 0.8.0
 * `tables <http://www.pytables.org/moin>`__ >= 3.1.0
 * `toolz <http://toolz.readthedocs.org/en/latest/>`__ >= 0.7
+* `zbox <https://github.com/jiffyclub/zbox>`__ >= 1.2
+
+Extras require:
+
+* `pandana <https://github.com/UDST/pandana>`__ >= 0.1
 
 Latest Release
 ^^^^^^^^^^^^^^
@@ -107,6 +116,17 @@ your fork to your computer. Then run ``python setup.py develop`` to install
 UrbanSim in developer mode. In this mode you won't have to reinstall
 UrbanSim every time you make changes.
 
+Reporting bugs and contributing to UrbanSim
+--------------------------------------------
+
+Please report any bugs you encounter via `GitHub Issues <https://github.com/UDST/urbansim/issues>`__.
+
+If you have improvements or new features you would like to see in UrbanSim:
+
+1. Open a feature request via `GitHub Issues <https://github.com/UDST/urbansim/issues>`__.
+2. See our code contribution instructions `here <https://github.com/UDST/urbansim/blob/master/CONTRIBUTING.md>`__.
+3. Contribute your code from a fork or branch by using a Pull Request and request a review so it can be considered as an addition to the codebase.
+
 Tools of the Trade
 ------------------
 
@@ -160,7 +180,7 @@ A Gentle Introduction to UrbanSim
 Background
 ~~~~~~~~~~
 
-UrbanSim has been an active research project since the late 1990's, and has undergone continual re-thinking, and re-engineering over the ensuing years, as documented in many of the `accumulated research papers <http://urbansim.org/Research/ResearchPapers>`_.  Below is a brief, high-level summary of UrbanSim in only a few paragraphs from a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down to a series of models estimated and then simulated in sequence.::
+UrbanSim has been an active research project since the late 1990's, and has undergone continual re-thinking, and re-engineering over the ensuing years, as documented in many of the `accumulated research papers <http://www.urbansim.com/research/>`_.  Below is a brief, high-level summary of UrbanSim in only a few paragraphs from a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down to a series of models estimated and then simulated in sequence.::
 
     for model in models:
         model.estimate(model_configuration_parameters)
@@ -290,3 +310,5 @@ Note that this approach is inspired by a number of different frameworks (in Pyth
 
 Note that this is designed to be an *extremely* flexible framework.  Models can be injected into tables, and tables into models, and infinite recursion is possible (this is not suggested!).  Additionally, multiple kinds of decorators can be added to the same file so that a piece of functionality can be separated - for instance, an affordable housing module.  On the other hand, models could be kept together, columns together, and tables together - the organization is up to you.  We hope that this flexibility inspires innovation for specific use cases, but what follows is a set of tutorials that we consider best practices.
 
+
+.. _forum: http://discussion.urbansim.com/
