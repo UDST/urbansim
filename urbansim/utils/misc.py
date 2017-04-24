@@ -107,7 +107,7 @@ def get_run_number():
         f = open(os.path.join(os.getenv('DATA_HOME', "."), 'RUNNUM'), 'r')
         num = int(f.read())
         f.close()
-    except:
+    except Exception:
         num = 1
     f = open(os.path.join(os.getenv('DATA_HOME', "."), 'RUNNUM'), 'w')
     f.write(str(num + 1))

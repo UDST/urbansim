@@ -515,7 +515,7 @@ class TransitionModel(object):
         with log_start_finish('add/remove rows', logger):
             updated, added, copied, removed = self.transitioner(data, year)
 
-        for table_name, (table, col) in linked_tables.iteritems():
+        for table_name, (table, col) in linked_tables.items():
             logger.debug('updating linked table {}'.format(table_name))
             updated_links[table_name] = \
                 _update_linked_table(table, col, added, copied, removed)

@@ -43,7 +43,7 @@ def test_apply_filter_query(test_df):
     expected = pd.DataFrame(
         {'col1': [2], 'col2': [7]},
         index=['c'])
-    pdt.assert_frame_equal(filtered, expected)
+    pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 
 def test_apply_filter_query_empty(test_df):
@@ -61,14 +61,14 @@ def test_apply_filter_query_or(test_df):
     expected = pd.DataFrame(
         {'col1': [0, 4], 'col2': [5, 9]},
         index=['a', 'e'])
-    pdt.assert_frame_equal(filtered, expected)
+    pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 
 def test_apply_filter_query_no_filter(test_df):
     filters = []
     filtered = util.apply_filter_query(test_df, filters)
     expected = test_df
-    pdt.assert_frame_equal(filtered, expected)
+    pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 
 def test_apply_filter_query_str(test_df):
@@ -78,7 +78,7 @@ def test_apply_filter_query_str(test_df):
         {'col1': [0, 1, 2],
          'col2': [5, 6, 7]},
         index=['a', 'b', 'c'])
-    pdt.assert_frame_equal(filtered, expected)
+    pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 
 @pytest.mark.parametrize('name, val, filter_exp', [
@@ -145,8 +145,12 @@ class Test_str_model_expression(object):
 
 
 def test_sorted_groupby():
+    try:
+        letters = string.lowercase
+    except AttributeError:
+        letters = string.ascii_lowercase
     df = pd.DataFrame(
-        {'alpha': np.random.choice(list(string.lowercase), 100),
+        {'alpha': np.random.choice(list(letters), 100),
          'num': np.random.randint(100)})
     sorted_df = df.sort('alpha')
 

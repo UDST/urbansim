@@ -10,7 +10,7 @@ def test_frames_equal_not_frames():
     with pytest.raises(AssertionError) as info:
         testing.assert_frames_equal(frame, 1)
 
-    assert info.value.message == 'Inputs must both be pandas DataFrames.'
+    assert str(info.value) == 'Inputs must both be pandas DataFrames.'
 
 
 def test_frames_equal_mismatched_columns():
@@ -20,7 +20,7 @@ def test_frames_equal_mismatched_columns():
     with pytest.raises(AssertionError) as info:
         testing.assert_frames_equal(actual, expected)
 
-    assert info.value.message == "Expected column 'a' not found."
+    assert str(info.value) == "Expected column 'a' not found."
 
 
 def test_frames_equal_mismatched_rows():
@@ -30,7 +30,7 @@ def test_frames_equal_mismatched_rows():
     with pytest.raises(AssertionError) as info:
         testing.assert_frames_equal(actual, expected)
 
-    assert info.value.message == "Expected row 0 not found."
+    assert str(info.value) == "Expected row 0 not found."
 
 
 def test_frames_equal_mismatched_items():
@@ -40,7 +40,7 @@ def test_frames_equal_mismatched_items():
     with pytest.raises(AssertionError) as info:
         testing.assert_frames_equal(actual, expected)
 
-    assert info.value.message == """
+    assert str(info.value) == """
 Items are not equal:
  ACTUAL: 2
  DESIRED: 1

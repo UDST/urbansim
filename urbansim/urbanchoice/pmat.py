@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 from numpy.linalg import inv
 from numpy.core.umath_tests import inner1d
@@ -90,9 +92,9 @@ class PMAT:
 
     def reshape(self, rowlen, collen):
         if rowlen == -1:
-            rowlen = self.size() / collen
+            rowlen = self.size() // collen
         if collen == -1:
-            collen = self.size() / rowlen
+            collen = self.size() // rowlen
         if self.typ == 'numpy':
             self.mat = np.reshape(self.mat, (rowlen, collen), order='F')
             return self

@@ -2,6 +2,7 @@ language: python
 sudo: false
 python:
 - '2.7'
+- '3.5'
 install:
 - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
   -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -13,20 +14,21 @@ install:
 - conda update -q conda
 - conda info -a
 - >
-  conda create -q -c synthicity -n test-environment
+  conda create -q -n test-environment
   python=$TRAVIS_PYTHON_VERSION
   cytoolz ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy
-  statsmodels pandana pytables pytest pyyaml toolz
+  statsmodels pytables pytest pyyaml toolz
 - source activate test-environment
-- pip install bottle orca simplejson zbox
-- pip install pytest-cov coveralls pep8
+- pip install orca osmnet pandana bottle simplejson zbox
+- pip install pytest-cov coveralls pycodestyle
 - pip install .
 before_script:
-- git clone https://github.com/synthicity/sanfran_urbansim.git
-- cd sanfran_urbansim; ipython nbconvert --to python Simulation.ipynb
+# Update sanfran_urbansim clone once python3 branch is merged
+- git clone -b python3 https://github.com/udst/sanfran_urbansim.git
+- cd sanfran_urbansim; jupyter nbconvert --to python Simulation.ipynb
 - cd ..
 script:
-- pep8 urbansim scripts
+- pycodestyle urbansim scripts
 - py.test --cov urbansim --cov-report term-missing
 - cd sanfran_urbansim; python Simulation.py
 - cd ..

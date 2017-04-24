@@ -36,7 +36,7 @@ setup(
         'numpy>=1.8.0',
         'orca>=1.1',
         'pandas>=0.15.0',
-        'patsy>=0.2.1',
+        'patsy>=0.3.0',
         'prettytable>=0.7.2',
         'pyyaml>=3.10',
         'scipy>=0.13.3',
