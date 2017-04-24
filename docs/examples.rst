@@ -276,8 +276,7 @@ network-based method is perhaps more appropriate when analyses are happening
 at the parcel- and building-scale and this is the exactly the intended purpose
 of the `Pandana <https://github.com/udst/pandana>`_ framework.
 Most full UrbanSim implementations now use aggregations along the local street
-network, and ``Pandana`` will be released as an official product by the
-end of 2014.
+network.
 
 Jobs or Establishments
 ~~~~~~~~~~~~~~~~~~~~~~
