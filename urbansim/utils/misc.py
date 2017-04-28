@@ -179,6 +179,71 @@ def reindex(series1, series2):
     # return pd.Series(series1.loc[series2.values].values, index=series2.index)
 
 
+def fidx(right, left, left_fk=None):
+    """
+    Re-indexes a series or data frame (right) to align with
+    another (left) series or data frame via foreign key relationship.
+    The index of the right must be unique.
+
+    This is similar to misc.reindex, but allows for data frame
+    re-indexes and supports re-indexing data frames or
+    series with a multi-index.
+
+    Parameters:
+    -----------
+    right: pandas.DataFrame or pandas.Series
+        Series or set of data frame to re-index from.
+    left: pandas.Series or pandas.DataFrame
+        Series or data frame to re-index to.
+        If a series is provided, its values serve as the foreign keys.
+        If a data frame is provided, one or more columns may be used
+        as foreign keys, must specify the ``left_fk`` argument to
+        specify which columns will serve as keys.
+    left_fk: optional, str or list of str
+        Used when the left is a data frame, specifies the columns in
+        the left to serve as foreign keys. The ordering must match
+        the order of the multi-index in the right.
+
+    Returns:
+    --------
+    pandas.Series or pandas.DataFrame with column(s) from
+    right aligned with the left.
+
+    """
+    # ensure that we can align correctly
+    if not right.index.is_unique:
+        raise ValueError("The right's index must be unique!")
+
+    # simpler case:
+    # if the left (target) is a single series then just re-index to it
+    if isinstance(left_fk, str):
+        left = left[left_fk]
+
+    if isinstance(left, pd.Series):
+        a = right.reindex(left)
+        a.index = left.index
+        return a
+
+    # when reindexing using multiple columns (composite foreign key)
+    # i.e. the right has a multindex
+
+    # if a series for the right provided, convert to a data frame
+    if isinstance(right, pd.Series):
+        right = right.to_frame('right')
+        right_cols = 'right'
+    else:
+        right_cols = right.columns
+
+    # do the merge
+    return pd.merge(
+        left=left,
+        right=right,
+        left_on=left_fk,
+        right_index=True,
+        how='left'
+    )[right_cols]
+
+
 def signif(val):
     """
     Convert a statistical significance to its ascii representation - this

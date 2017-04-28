@@ -131,3 +131,74 @@ def test_misc_dffunctions(simple_dev_inputs):
 def test_column_list(fta, ftb):
     result = misc.column_list([fta, ftb], ['aa', 'by', 'bz', 'c'])
     assert sorted(result) == ['aa', 'by', 'bz']
+
+
+######################
+# FK REINDEX TESTS
+######################
+
+
+@pytest.fixture()
+def left_df():
+    return pd.DataFrame({
+        'some_val': [10, 9, 8, 7, 6],
+        'fk': ['z', 'g', 'g', 'b', 't'],
+        'grp': ['r', 'g', 'r', 'g', 'r']
+    })
+
+
+@pytest.fixture()
+def right_df():
+    return pd.DataFrame(
+        {
+            'col1': [100, 200, 50],
+            'col2': [1, 2, 3]
+        },
+        index=pd.Index(['g', 'b', 'z'])
+    )
+
+
+@pytest.fixture()
+def right_df2(right_df):
+    df = pd.concat([right_df, right_df * -1])
+    df['fk'] = df.index
+    df['grp'] = ['r', 'r', 'r', 'g', 'g', 'g']
+    df.set_index(['fk', 'grp'], inplace=True)
+    return df
+
+
+def test_fidx_right_not_unique(right_df, left_df):
+    with pytest.raises(ValueError):
+        s = right_df.col1
+        misc.fidx(s.append(s), left_df.fk)
+
+
+def test_series_fidx(right_df, left_df):
+    b = misc.fidx(right_df.col1, left_df.fk).fillna(-1)
+    assert (b.values == [50, 100, 100, 200, -1]).all()
+
+
+def assert_df_fidx(b):
+    assert (b.col1.values == [50, 100, 100, 200, -1]).all()
+    assert (b.col2.values == [3, 1, 1, 2, -1]).all()
+
+
+def test_df_fidx(right_df, left_df):
+    b = misc.fidx(right_df, left_df.fk).fillna(-1)
+    assert_df_fidx(b)
+
+
+def test_fk_reindex_with_fk_col(right_df, left_df):
+    b = misc.fidx(right_df, left_df, 'fk').fillna(-1)
+    assert_df_fidx(b)
+
+
+def test_series_multi_col_fidx(right_df2, left_df):
+    b = misc.fidx(right_df2.col1, left_df, ['fk', 'grp']).fillna(-9999)
+    assert (b.values == [50, -100, 100, -200, -9999]).all()
+
+
+def test_df_multi_col_fidx(right_df2, left_df):
+    b = misc.fidx(right_df2, left_df, ['fk', 'grp']).fillna(-9999)
+    assert (b.col1.values == [50, -100, 100, -200, -9999]).all()
+    assert (b.col2.values == [3, -1, 1, -2, -9999]).all()
