@@ -192,17 +192,17 @@ def fidx(right, left, left_fk=None):
     Parameters:
     -----------
     right: pandas.DataFrame or pandas.Series
-        Series or set of data frame to re-index from.
+        Series or data frame to re-index from.
     left: pandas.Series or pandas.DataFrame
         Series or data frame to re-index to.
         If a series is provided, its values serve as the foreign keys.
         If a data frame is provided, one or more columns may be used
         as foreign keys, must specify the ``left_fk`` argument to
-        specify which columns will serve as keys.
+        specify which column(s) will serve as keys.
     left_fk: optional, str or list of str
-        Used when the left is a data frame, specifies the columns in
-        the left to serve as foreign keys. The ordering must match
-        the order of the multi-index in the right.
+        Used when the left is a data frame, specifies the column(s) in
+        the left to serve as foreign keys. The specified columns' ordering
+        must match the order of the multi-index in the right.
 
     Returns:
     --------
