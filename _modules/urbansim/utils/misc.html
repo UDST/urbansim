@@ -341,6 +341,71 @@
     <span class="c1"># return pd.Series(series1.loc[series2.values].values, index=series2.index)</span>
 
 
+<div class="viewcode-block" id="fidx"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.fidx">[docs]</a><span class="k">def</span> <span class="nf">fidx</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">left_fk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Re-indexes a series or data frame (right) to align with</span>
+<span class="sd">    another (left) series or data frame via foreign key relationship.</span>
+<span class="sd">    The index of the right must be unique.</span>
+
+<span class="sd">    This is similar to misc.reindex, but allows for data frame</span>
+<span class="sd">    re-indexes and supports re-indexing data frames or</span>
+<span class="sd">    series with a multi-index.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    right: pandas.DataFrame or pandas.Series</span>
+<span class="sd">        Series or data frame to re-index from.</span>
+<span class="sd">    left: pandas.Series or pandas.DataFrame</span>
+<span class="sd">        Series or data frame to re-index to.</span>
+<span class="sd">        If a series is provided, its values serve as the foreign keys.</span>
+<span class="sd">        If a data frame is provided, one or more columns may be used</span>
+<span class="sd">        as foreign keys, must specify the ``left_fk`` argument to</span>
+<span class="sd">        specify which column(s) will serve as keys.</span>
+<span class="sd">    left_fk: optional, str or list of str</span>
+<span class="sd">        Used when the left is a data frame, specifies the column(s) in</span>
+<span class="sd">        the left to serve as foreign keys. The specified columns&#39; ordering</span>
+<span class="sd">        must match the order of the multi-index in the right.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    --------</span>
+<span class="sd">    pandas.Series or pandas.DataFrame with column(s) from</span>
+<span class="sd">    right aligned with the left.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ensure that we can align correctly</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">right</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_unique</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The right&#39;s index must be unique!&quot;</span><span class="p">)</span>
+
+    <span class="c1"># simpler case:</span>
+    <span class="c1"># if the left (target) is a single series then just re-index to it</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left_fk</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">left</span><span class="p">[</span><span class="n">left_fk</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">a</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">return</span> <span class="n">a</span>
+
+    <span class="c1"># when reindexing using multiple columns (composite foreign key)</span>
+    <span class="c1"># i.e. the right has a multindex</span>
+
+    <span class="c1"># if a series for the right provided, convert to a data frame</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="n">right_cols</span> <span class="o">=</span> <span class="s1">&#39;right&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">right_cols</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">columns</span>
+
+    <span class="c1"># do the merge</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span>
+        <span class="n">left_on</span><span class="o">=</span><span class="n">left_fk</span><span class="p">,</span>
+        <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span>
+    <span class="p">)[</span><span class="n">right_cols</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="signif"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.signif">[docs]</a><span class="k">def</span> <span class="nf">signif</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a statistical significance to its ascii representation - this</span>

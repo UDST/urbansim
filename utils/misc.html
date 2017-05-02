@@ -328,6 +328,17 @@ website).</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="urbansim.utils.misc.fidx">
+<code class="descclassname">urbansim.utils.misc.</code><code class="descname">fidx</code><span class="sig-paren">(</span><em>right</em>, <em>left</em>, <em>left_fk=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/misc.html#fidx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.fidx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-indexes a series or data frame (right) to align with
+another (left) series or data frame via foreign key relationship.
+The index of the right must be unique.</p>
+<p>This is similar to misc.reindex, but allows for data frame
+re-indexes and supports re-indexing data frames or
+series with a multi-index.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="urbansim.utils.misc.get_run_number">
 <code class="descclassname">urbansim.utils.misc.</code><code class="descname">get_run_number</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/misc.html#get_run_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.get_run_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a run number for this execution of the model system, for
