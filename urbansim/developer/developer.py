@@ -169,9 +169,7 @@ class Developer(object):
             # no feasible buildings, might as well bail
             return
 
-        if form is None:
-            df = self.feasibility
-        elif isinstance(form, list):
+        if form is None or isinstance(form, list):
             df = self.keep_form_with_max_profit(form)
         else:
             df = self.feasibility[form]
