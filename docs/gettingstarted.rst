@@ -362,7 +362,8 @@ Using Orca as a simulation framework
 ------------------------------------
 
 Before moving on, it's useful to describe at a high level how `Orca <https://github.com/udst/orca>`_,
-the pipeline orchestration framework built out of UrbanSim's helps solve the problems described thus far in this *getting started* document.
+the pipeline orchestration framework built for UrbanSim,
+helps solve the problems described thus far in this *getting started* document.
 
 Over many years of implementing UrbanSim models, we realized that we wanted a
 flexible framework that had the following features:
