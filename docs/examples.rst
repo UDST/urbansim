@@ -283,22 +283,22 @@ method on the Regressionmodel.
 There are two things that warrant further explanation at this point.
 
 * ``utils.py`` is a set of helper functions that assist with merging data and
-running models from configuration files.  Note that the code in this file is
-generally shareable across UrbanSim implementations (in fact, this exact code
-is in use in multiple live simulations).  It defines a certain style of
-UrbanSim and handles a number of boundary cases in a transparent way.  In the
-long run, this kind of functionality might be unit tested and moved to
-UrbanSim, but for now we think it helps with transparency, flexibility, and
-debugging to keep this file with the specific client implementations.
+  running models from configuration files.  Note that the code in this file is
+  generally shareable across UrbanSim implementations (in fact, this exact code
+  is in use in multiple live simulations).  It defines a certain style of
+  UrbanSim and handles a number of boundary cases in a transparent way.  In the
+  long run, this kind of functionality might be unit tested and moved to
+  UrbanSim, but for now we think it helps with transparency, flexibility, and
+  debugging to keep this file with the specific client implementations.
 
 * Many of the models use configuration files to define the actual model
-configuration.  In fact, most models in this file are very short *stub*
-functions which pass a Pandas DataFrame into the estimation and configure the
-model using a configuration file in the `YAML file format <http://en.wikipedia.org/wiki/YAML>`_.
-For instance, the ``rsh_estimate`` function knows to read the configuration
-file, estimate the model defined in the configuration on the dataframe passed
-in, and write the estimated coefficients back to the same configuration file,
-and the complete method is pasted below::
+  configuration.  In fact, most models in this file are very short *stub*
+  functions which pass a Pandas DataFrame into the estimation and configure the
+  model using a configuration file in the `YAML file format <http://en.wikipedia.org/wiki/YAML>`_.
+  For instance, the ``rsh_estimate`` function knows to read the configuration
+  file, estimate the model defined in the configuration on the dataframe passed
+  in, and write the estimated coefficients back to the same configuration file,
+  and the complete method is pasted below::
 
     @sim.model('rsh_estimate')
     def rsh_estimate(buildings, zones):

@@ -19,7 +19,7 @@ Anaconda
 UrbanSim is a Python library that uses a number of packages from the
 scientific Python ecosystem.
 The easiest way to get your own scientific Python installation is to
-install `Anaconda <http://docs.continuum.io/anaconda/index.html>`__,
+install `Anaconda <https://docs.continuum.io/anaconda/>`__,
 which contains most of the libraries upon which UrbanSim depends.
 
 UrbanSim
@@ -35,13 +35,13 @@ UrbanSim depends on the following libraries, most of which are in Anaconda:
 * `numpy <http://numpy.org>`__ >= 1.8.0
 * `orca <https://github.com/UDST/orca>`__ >= 1.1
 * `pandas <http://pandas.pydata.org>`__ >= 0.15.
-* `patsy <http://patsy.readthedocs.org/en/latest/>`__ >= 0.2.1
+* `patsy <http://patsy.readthedocs.org/en/latest/>`__ >= 0.3.0
 * `prettytable <https://code.google.com/p/prettytable/>`__ >= 0.7.2
 * `pyyaml <http://pyyaml.org/>`__ >= 3.10
 * `scipy <http://scipy.org>`__ >= 0.13.3
 * `simplejson <http://simplejson.readthedocs.org/en/latest/>`__ >= 3.3
 * `statsmodels <http://statsmodels.sourceforge.net/stable/index.html>`__ >= 0.8.0
-* `tables <http://www.pytables.org/moin>`__ >= 3.1.0
+* `tables <http://www.pytables.org/>`__ >= 3.1.0
 * `toolz <http://toolz.readthedocs.org/en/latest/>`__ >= 0.7
 * `zbox <https://github.com/jiffyclub/zbox>`__ >= 1.2
 
@@ -55,13 +55,13 @@ Latest Release
 conda
 #####
 
-`conda <http://conda.pydata.org/>`__, which comes with Anaconda, is the
+`conda <https://conda.io/docs/>`__, which comes with Anaconda, is the
 easiest way to install UrbanSim because it has binary installers for
 all of UrbanSim's hard-to-install dependencies.
-First, add the `synthicity channel <https://binstar.org/synthicity>`__
+First, add the `udst channel <https://anaconda.org/udst>`__
 to your conda configuration::
 
-    conda config --add channels synthicity
+    conda config --add channels udst
 
 Then use conda to install UrbanSim::
 
@@ -119,7 +119,7 @@ UrbanSim every time you make changes.
 Reporting bugs and contributing to UrbanSim
 -------------------------------------------
 
-Please report any bugs you encounter via `GitHub Issues<https://github.com/UDST/urbansim/issues>`__.
+Please report any bugs you encounter via `GitHub Issues <https://github.com/UDST/urbansim/issues>`__.
 
 If you have improvements or new features you would like to see in UrbanSim:
 
@@ -131,7 +131,7 @@ If you have improvements or new features you would like to see in UrbanSim:
 Tools of the Trade
 ------------------
 
-This page provides a brief introduction to Pandas and IPython Notebooks -
+This page provides a brief introduction to Pandas and Jupyter Notebooks -
 two of the key tools that the new implementation of UrbanSim relies on.
 
 Pandas
@@ -145,7 +145,7 @@ Pandas is similar to a relational database with a much easier API than SQL,
 and with much faster performance.  However, it makes no attempt to enable
 multi-user editing of data and transactions the way a database would.
 
-The previous implementation of UrbanSim, known as `OPUS <http://urbansim.org>`_,
+The previous implementation of UrbanSim, known as OPUS,
 implemented much of this functionality itself in the absence of such robust
 libraries - in fact, the OPUS implementation of UrbanSim was started around
 2005, while Pandas wasn't developed until 2010.
@@ -161,7 +161,7 @@ A Note on Pandas Indexing
 One very important note about Pandas - the real genius of the abstraction is
 that all records in a table are viewed as key-value pairs.  Every table has an
 `index <http://pandas.pydata.org/pandas-docs/stable/indexing.html>`_ or a
-`multi-index <http://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex>`_
+`multi-index <http://pandas.pydata.org/pandas-docs/stable/advanced.html#advanced>`_
 which is used to `align <http://pandas.pydata.org/pandas-docs/stable/basics.html#aligning-objects-with-each-other-with-align>`_
 the table on the key for that table.
 
@@ -195,28 +195,30 @@ The tables can be merged using
 You will do this a lot.  If you want a comparison of SQL and pandas, check out
 this `series of blog posts <http://www.gregreda.com/2013/01/23/translating-sql-to-pandas-part1/>`_.
 
-IPython
-~~~~~~~
-`IPython <http://ipython.org/>`_ is an interactive Python interpreter that is
-built on Python that helps when interfacing with the operating system,
-profiling, parallelizing, and with many other technical details.
-
-One of the most useful features of IPython is the `IPython notebook <http://ipython.org/notebook.html>`_,
+Jupyter Notebooks
+~~~~~~~~~~~~~~~~~
+One of our favorite development tools is `Jupyter Notebook <https://jupyter.org/#about-notebook>`_,
 which is perfect for interactively executing small cells of Python code.
 We use notebooks a LOT, and they are a wonderful way to avoid the command line
 in a cross-platform way.  The notebook is a fantastic tool to develop snippets
 of code a few lines at a time, and to capture and communicate higher-level
 workflows.
 
-This also makes the notebook a fantastic pedagogical tool - in other words it's
-great for demos and communicating both the input and output of cells of Python
-code (e.g. `nbviewer <http://nbviewer.ipython.org/>`_).  Many of the full-size
-examples of UrbanSim on this site are presented in notebooks.
+This also makes the notebook a fantastic pedagogical tool - in other words
+it's great for demos and communicating both the input and output of cells of
+Python code (e.g. `nbviewer <https://nbviewer.jupyter.org/>`_).
+Many of the full-size examples of UrbanSim on this site are presented
+in notebooks.
 
 In many cases, you can write entire UrbanSim models in the notebook, but this
 is not generally considered the best practice.  It's entirely up to you though,
 and we are happy to share with you our insights from many hours of developing
 and using this set of tools.
+
+The Python flavor of Jupyter notebook uses `IPython <http://ipython.org/>`_,
+an interactive Python interpreter that is built on Python that helps when
+interfacing with the operating system, profiling, parallelizing, and with many
+other technical details.
 
 A Gentle Introduction to UrbanSim
 ---------------------------------
@@ -356,13 +358,11 @@ assumptions can include, but are not limited to the following.
   the impact of mixed use buildings on feasibility, of density bonuses for
   neighborhood amenities, and of lowering or raising parking requirements.
 
-Taking the Next Step
---------------------
+Using Orca as a simulation framework
+------------------------------------
 
-The simulation framework will be discussed in depth in the `next section <sim/index.html>`_,
-but before moving on it's useful to describe at a high level how the simulation
-framework solves the problems described thus far in this *getting started*
-document.
+Before moving on, it's useful to describe at a high level how `Orca <https://github.com/udst/orca>`_,
+the pipeline orchestration framework built out of UrbanSim's helps solve the problems described thus far in this *getting started* document.
 
 Over many years of implementing UrbanSim models, we realized that we wanted a
 flexible framework that had the following features:
@@ -377,18 +377,20 @@ flexible framework that had the following features:
   user-specified breakpoints, capturing semantic steps that can be mixed and
   matched by the user.
 
-To this end UrbanSim now implements this functionality as `tables <sim/index.html#tables>`_,
-`broadcasts <sim/index.html#urbansim.sim.simulation.broadcast>`_,
-`columns <sim/index.html#columns>`_, and `models <sim/index.html#models>`_
+To this end Orca implements this functionality as
+`tables <https://udst.github.io/orca/core.html#tables>`_,
+`broadcasts <https://udst.github.io/orca/core.html#automated-merges>`_,
+`columns <https://udst.github.io/orca/core.html#columns>`_,
+and model `steps <https://udst.github.io/orca/core.html#steps>`_
 respectively.  We decided to implement these concepts with Python functions and
 `decorators <http://thecodeship.com/patterns/guide-to-python-function-decorators/>`_.
-This is what is happening when you see the ``@sim.DECORATOR_NAME`` syntax everywhere, e.g.: ::
+This is what is happening when you see the ``@orca.DECORATOR_NAME`` syntax everywhere, e.g.: ::
 
-    @sim.table_source('buildings')
+    @orca.table('buildings')
     def buildings(store):
         return store['buildings']
 
-    @sim.table_source('parcels')
+    @orca.table('parcels')
     def parcels(store):
         return store['parcels']
 
@@ -405,7 +407,7 @@ with a function which takes the buildings and parcels objects as arguments.
 The tables that were registered are now available within the function and can
 be used in many other functions as well.::
 
-    @sim.column('parcels', 'total_units')
+    @orca.column('parcels', 'total_units')
     def residential_unit_density(buildings, parcels):
         return buildings.residential_units.groupby(buildings.parcel_id).sum() / parcels.acres
 
@@ -414,7 +416,7 @@ very specific piece of functionality, and there will be more detailed examples
 in the tutorials section.
 
 Note that this approach is inspired by a number of different frameworks (in
-Python and otherwise) such as `py.test <http://pytest.org/latest/fixture.html#fixture>`_,
+Python and otherwise) such as `py.test <https://docs.pytest.org/en/latest/fixture.html>`_,
 `flask <http://flask.pocoo.org/>`_, and even web frameworks like
 `Angular <https://docs.angularjs.org/guide/di>`_.
 
