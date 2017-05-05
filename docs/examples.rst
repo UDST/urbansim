@@ -5,8 +5,8 @@ Basic Example - Residential Price Hedonic
 -----------------------------------------
 
 A fairly complete case study of using UrbanSim can be shown entirely within a
-single IPython Notebook, as is the case with
-`this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/6539736cbc9dbe5bbe4e2cd4559168308d46ded0/Hedonic%20Example.ipynb>`_
+single Jupyter Notebook, as is the case with
+`this Notebook <http://nbviewer.jupyter.org/github/udst/sanfran_urbansim/blob/master/Hedonic%20Example.ipynb>`_
 from the `example repository <https://github.com/udst/sanfran_urbansim>`_.
 
 As the canonical example of using UrbanSim, take the case of a residential
@@ -20,8 +20,8 @@ assessed or observed price of each unit.  The example repository includes
 sample data so that this Notebook can be executed.
 
 This Notebook performs the exact same residential price hedonic as in the
-complete example below, but all entirely within the same IPython Notebook
-(and without explicitly using the ``sim.model`` decorator).  The simplest use
+complete example below, but all entirely within the same Jupyter Notebook
+(and without explicitly using the ``@orca.step`` decorator).  The simplest use
 case of the UrbanSim methodology is to create a single model to study an
 empirical behavior of interest to the modeler, and a good place to start in
 building such a model is this example.
@@ -66,31 +66,33 @@ Complete Example - San Francisco UrbanSim Modules
 A complete example of the latest UrbanSim framework is now being maintained on
 `GitHub <https://github.com/udst/sanfran_urbansim>`_.  The example requires
 that the UrbanSim package is already installed (no other dependencies are
-required).  The example is maintained under `Travis Continuous Integration <https://travis-ci.org/udst/sanfran_urbansim>`_
+required).  The example is maintained under `Travis Continuous Integration <https://travis-ci.org/UDST/sanfran_urbansim>`_
 so should always run with the latest version of UrbanSim.
 
 The example has a number of Python modules including ``dataset.py``,
 ``assumptions.py``, ``variables.py``, ``models.py`` which will be discussed one
-at a time below.  The modules are then used in *workflows* which are IPython
+at a time below.  The modules are then used in *workflows* which are Jupyter
 Notebooks and will be described in detail in the following section.
 
 Table Sources
 ~~~~~~~~~~~~~
 
-Table sources are a decorator that describes from where UrbanSim data comes.
-All table sources return `Pandas DataFrames <http://pandas.pydata.org/pandas-docs/dev/generated/pandas.DataFrame.html>`_
+Data can be loaded into the simulation framework using the Orca ``table``
+decorator with functions that describe where the data comes from.
+Registered tables return
+`Pandas DataFrames <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html>`_
 but the data can come from different locations, including HDF5 files, CSV
 files, databases, Excel files, and others.  Pandas has a large and
-ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/dev/io.html>`_
+ever-expanding set of `data connectivity modules <http://pandas.pydata.org/pandas-docs/stable/io.html>`_
 although this example keeps data in a single HDF5 data store which is
 `provided directly in the repo <https://github.com/udst/sanfran_urbansim/blob/master/data>`_.
 
-Specifying a source of data for a dataframe is done with the
-`table_source <sim/index.html#urbansim.sim.simulation.table_source>`_
+Specifying a source of data for a DataFrame is done with the
+`orca.table <https://udst.github.io/orca/core.html#tables>`_
 decorator as in the code below, which is lifted
-`directly from the example <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L26>`_. ::
+`directly from the example <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/dataset.py#L28>`_. ::
 
-    @sim.table_source('households')
+    @orca.table('households')
     def households(store):
         df = store['households']
         return df
@@ -99,27 +101,27 @@ The complete example includes mappings of tables stored in the HDF5 file to
 table sources for a typical UrbanSim schema, including parcels, buildings,
 households, jobs, zoning (density limits and allowable uses), and zones
 (aggregate geographic shapes in the city).  By convention these table sources
-are stored in the `dataset.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py>`_
+are stored in the `dataset.py <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/dataset.py>`_
 file but this is not a strict requirement.
 
 Arbitrary Python can occur in these table sources as shown in the
-`zoning_baseline table source <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L69>`_
+`zoning_baseline table source <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/dataset.py#L71>`_
 which uses injections of ``zoning`` and ``zoning_for_parcels`` that were
 defined in the prior lines of code.
 
 Finally, the relationships between all tables can be specified with the
-`sim.broadcast decorator <sim/index.html#urbansim.sim.simulation.broadcast>`_
+`orca.broadcast() function <https://udst.github.io/orca/core.html#orca.orca.broadcast>`_
 and all of the broadcasts for the example are specified together at the
-`bottom of the dataset.py file <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/dataset.py#L78>`_.
+`bottom of the dataset.py file <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/dataset.py#L80>`_.
 Once these relationships are set they can be used later in the simulation using
-the `merge_tables helper <sim/index.html#urbansim.sim.simulation.merge_tables>`_.
+the `merge_tables function <https://udst.github.io/orca/core.html#orca.orca.merge_tables>`_.
 
 Assumptions
 ~~~~~~~~~~~
 
-By convention `assumptions.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py>`_
+By convention `assumptions.py <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/assumptions.py>`_
 contains all of the high-level assumptions for the simulation. A typical
-assumption would be the `one below <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L28>`_,
+assumption would be the `one below <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/assumptions.py#L29>`_,
 which sets a Python dictionary that can be used to map building types to land
 use category names. ::
 
@@ -142,21 +144,23 @@ use category names. ::
         14: "Office"
     })
 
-All assumptions are registered with the simulation with the
-`add_injectable <file:///Users/ffoti/src/urbansim/docs/_build/html/sim/index.html#urbansim.sim.simulation.add_injectable>`_
+In this example, all assumptions are registered using the
+`orca.add_injectable <https://udst.github.io/orca/core.html#orca.orca.add_injectable>`_
 method, which is used to register Python data types with names that can be
-injected to other simulation methods.  Although not all injectables are
-assumptions, this file mostly contains high-level assumptions including a
-`dictionary of building square feet per job for each building type <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L7>`_,
-`a map of building forms to building types <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L52>`_, etc.
+injected to other Orca methods. Like Orca tables and columns, injectables can
+also be added using the `orca.injectable decorator <https://udst.github.io/orca/core.html#orca.orca.injectable>`_ as well.
+Although not all injectables are assumptions, this file mostly contains
+high-level assumptions including a
+`dictionary of building square feet per job for each building type <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/assumptions.py#L8>`_,
+`a map of building forms to building types <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/assumptions.py#L53>`_, etc.
 
 Note that the above code simply sets the map to the name ``building_type_map``
 - it must be injected and used somewhere else to have an effect.  In fact, this
 map is used in ``variables.py`` to compute the
-`general_type <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L125>`_
+`general_type <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/variables.py#L127>`_
 attribute on the ``buildings`` table.
 
-Perhaps most importantly, the `location of the HDFStore <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/assumptions.py#L62>`_
+Perhaps most importantly, the `location of the HDFStore <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/assumptions.py#L63>`_
 is set using the ``store`` injectable.  An observant reader will notice that
 this ``store`` injectable which is set here was used in the table_source
 described above.  Note that the ``store`` injectable could be defined *after*
@@ -166,18 +170,17 @@ the simulation makes an attempt to call the registered methods.
 Variables
 ~~~~~~~~~
 
-`variables.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py>`_
-is similar to the
-`variable library <http://www.urbansim.org/downloads/manual/dev-version/opus-userguide/node211.html>`_
-from the OPUS version of UrbanSim.  By convention all variables which are
-computed from underlying attributes are stored in this file.  Although the
-previous version of UrbanSim used a domain-specific *expression language*,
-the current version uses native Pandas, along with the ``@sim.column``
-decorator and dependency injection.  As before, the convention is to name the
-underlying data the *primary attributes* and the functions specified here as
-*computed columns*.  A typical example is shown below: ::
+`variables.py <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/variables.py>`_
+is similar to the variable library from the OPUS version of UrbanSim.
+By convention all variables which are computed from underlying attributes are
+stored in this file.  Although the previous version of UrbanSim used a
+domain-specific *expression language*, the current version uses native Pandas,
+along with the ``@orca.column`` decorator and dependency injection.
+As before, the convention is to name the underlying data the
+*primary attributes* and the functions specified here as *computed columns*.
+A typical example is shown below: ::
 
-    @sim.column('zones', 'sum_residential_units')
+    @orca.column('zones', 'sum_residential_units')
     def sum_residential_units(buildings):
         return buildings.residential_units.groupby(buildings.zone_id).sum()
 
@@ -194,9 +197,9 @@ To move an attribute from one table to another using a foreign key, the
 Thus even though ``zone_id`` is *only* a primary attribute on the ``parcels``
 table, it can be moved using ``reindex`` to the ``buildings`` table using the
 ``parcel_id`` (foreign key) of that table.  This is shown below and extracted
-`from the example <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/variables.py#L122>`_.  ::
+`from the example <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/variables.py#L122>`_.  ::
 
-    @sim.column('buildings', 'zone_id', cache=True)
+    @orca.column('buildings', 'zone_id', cache=True)
     def zone_id(buildings, parcels):
         return misc.reindex(parcels.zone_id, buildings.parcel_id)
 
@@ -218,15 +221,15 @@ framework.*
 **A Note on Table Wrappers**
 
 The ``buildings`` object that gets passed in is a
-`Table Wrapper <sim/index.html#table-wrappers>`_ and the reader is referred
-to the API documentation to learn more about this concept.  In general, this
-means the user has access to the Series object by name on the wrapper but the
-**full set of Pandas DataFrame methods is not necessarily available.**
-For instance ``.loc`` and ``.groupby`` will both yield exceptions on the
-``Table Wrapper``.
+`DataFrame Wrapper <https://udst.github.io/orca/core.html#orca.orca.DataFrameWrapper>`_
+and the reader is referred to the API documentation to learn more about this
+concept.  In general, this means the user has access to the Series object by
+name on the wrapper but the **full set of Pandas DataFrame methods is not
+necessarily available.** For instance ``.loc`` and ``.groupby`` will both yield
+exceptions on the ``DataFrameWrapper``.
 
-To convert a ``Table Wrapper`` to a DataFrame, the user can simply call
-`to_frame <sim/index.html#urbansim.sim.simulation.DataFrameWrapper.to_frame>`_
+To convert a ``DataFrameWrapper`` to a DataFrame, the user can simply call
+`to_frame <https://udst.github.io/orca/core.html#orca.orca.DataFrameWrapper.to_frame>`_
 but this returns *all* computed columns on the table and so has performance
 implications.  In general it's better to use the Series objects directly where
 possible.
@@ -258,10 +261,10 @@ Models
 ~~~~~~
 
 The main objective of the
-`models.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py>`_
+`models.py <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/models.py>`_
 file is to define the "entry points" into the model system. Although UrbanSim
 provides the direct API for a `Regression Model <models/statistical.html#urbansim.models.regression.RegressionModel>`_,
-a `Location Choice Model <models/statistical.html#urbansim.models.lcm.MNLLocationChoiceModel>`_,
+a `Location Choice Model <models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel>`_,
 etc, it is the models.py file which defines the specific *steps* that outline
 a simulation or even a more general data processing workflow.
 
@@ -269,13 +272,13 @@ In the San Francisco example, there are two price/rent
 `hedonic models <http://en.wikipedia.org/wiki/Hedonic_regression>`_
 which both use the RegressionModel, one which is the residential sales hedonic
 which is estimated with the entry point
-`rsh_estimate <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L9>`_
+`rsh_estimate <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/models.py#L15>`_
 and then run in simulation mode with the entry point rsh_simulate.
 The non-residential rent hedonic has similar entry points
-`nrh_estimate <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/models.py#L20>`_
+`nrh_estimate <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/models.py#L26>`_
 and nrh_simulate.  Note that both functions call
-`hedonic_estimate <https://github.com/udst/sanfran_urbansim/blob/master/utils.py#L110>`_
-and hedonic_simulate in `utils.py <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/utils.py>`_.
+`hedonic_estimate <https://github.com/udst/sanfran_urbansim/blob/master/utils.py#L111>`_
+and hedonic_simulate in `utils.py <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/utils.py>`_.
 In this case ``utils.py`` actually uses the UrbanSim API by calling the
 `fit_from_cfg <models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg>`_
 method on the Regressionmodel.
@@ -300,7 +303,7 @@ There are two things that warrant further explanation at this point.
   in, and write the estimated coefficients back to the same configuration file,
   and the complete method is pasted below::
 
-    @sim.model('rsh_estimate')
+    @orca.step('rsh_estimate')
     def rsh_estimate(buildings, zones):
         return utils.hedonic_estimate("rsh.yaml", buildings, zones)
 
@@ -310,7 +313,7 @@ There are two things that warrant further explanation at this point.
  given attribute name (in this case to the ``residential_sales_price``
  attribute of buildings table).::
 
-    @sim.model('rsh_simulate')
+    @orca.step('rsh_simulate')
     def rsh_simulate(buildings, zones):
         return utils.hedonic_simulate("rsh.yaml", buildings, zones,
                                   "residential_sales_price")
@@ -368,9 +371,9 @@ code (as in the basic example) or in YAML configuration files (as in the
 complete example).  If using the ``utils.py`` methods above, the simulation is
 set up to read and write from the configuration files.
 
-The example has `four configuration files <https://github.com/udst/sanfran_urbansim/tree/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs>`_
+The example has `four configuration files <https://github.com/udst/sanfran_urbansim/tree/5b93eb4708fc7ea97f38a497ad16264e4203dbca/configs>`_
 which can be navigated on the GitHub site.  The
-`rsh.yaml <https://github.com/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/configs/rsh.yaml>`_
+`rsh.yaml <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/configs/rsh.yaml>`_
 file has a mixture of input and output parameters and the complete set of input
 parameters is displayed below. ::
 
@@ -420,16 +423,16 @@ Complete Example - San Francisco UrbanSim Workflows
 
 Once the proper setup of Python modules is accomplished as above, interactive
 execution of certain UrbanSim workflows is extremely easy to accomplish, and
-will be described in the subsections below.  These are all done in the IPython
+will be described in the subsections below.  These are all done in the Jupyter
 Notebook and use nbviewer to display the results in a web browser.  We use
-IPython Notebooks (or the UrbanSim web portal) for almost any workflow in order
+Jupyter Notebooks (or the UrbanSim web portal) for almost any workflow in order
 to avoid executing Python from the command line / console, although this is an
 option as well.
 
-*Note that because these workflows are IPython Notebooks, the reader should
+*Note that because these workflows are Jupyter Notebooks, the reader should
 browse to the example on the web and no example code will be pasted here.*
 
-One thing to note is the `autoreload magic <http://ipython.org/ipython-doc/dev/config/extensions/autoreload.html>`_
+One thing to note is the `autoreload magic <http://ipython.readthedocs.io/en/stable/config/extensions/autoreload.html>`_
 used in all of these workflows.  This can be very helpful when interactively
 editing code in the underlying Python modules as it automatically keeps the
 code in sync within the notebooks (i.e. it re-imports the modules when the
@@ -439,32 +442,33 @@ Estimation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
 A sample estimation workflow is available
-`in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Estimation.ipynb>`__.
+`in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Estimation.ipynb>`__.
 
 This notebook estimates all of the models in the example that need estimation
 (because they are statistical models).  In fact, every cell simply calls the
-`sim.run <sim/index.html#running-simulations>`_ method with one of the names of
-the model entry points defined in ``models.py``. The ``sim.run`` method
-resolves all of the dependencies and prints the output of the model estimation
-in the result cell of the IPython Notebook.  Note that the hedonic models are
-estimated first, then simulated, and then the location choice models are
-estimated since the hedonic models are dependencies of the location choice
-models.  In other words, the ``rsh_simulate`` method is configured to create
-the ``residential_sales_price`` column which is then a right hand side variable
-in the ``hlcm_estimate`` model (because residential price is theorized to
-impact the location choices of households).
+`orca.run <https://udst.github.io/orca/core.html#running-pipelines>`_
+method with one of the names of the model entry points defined in
+``models.py``. The ``orca.run`` method resolves all of the dependencies and
+prints the output of the model estimation in the result cell of the Jupyter
+Notebook.  Note that the hedonic models are estimated first, then simulated,
+and then the location choice models are estimated since the hedonic models are
+dependencies of the location choice models.  In other words, the
+``rsh_simulate`` method is configured to create the ``residential_sales_price``
+column which is then a right hand side variable in the ``hlcm_estimate`` model
+(because residential price is theorized to impact the location choices of
+households).
 
 Simulation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
 A sample simulation workflow (a complete UrbanSim simulation) is available
-`in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Simulation.ipynb>`__.
+`in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Simulation.ipynb>`__.
 
 This notebook is possibly even simpler than the estimation workflow as it has
 only one substantive cell which runs all of the available models in the
 appropriate sequence.  Passing a range of years will run the simulation for
 multiple years (the example simply runs the simulation for a single year).
-Other parameters are available to the  `sim.run <sim/index.html#running-simulations>`_
+Other parameters are available to the  `orca.run <https://udst.github.io/orca/core.html#running-pipelines>`_
 method which write the output to an HDF5 file.
 
 .. _exploration-workflow:
@@ -474,7 +478,7 @@ Exploration Workflow
 
 UrbanSim now also provides a method to interactively explore UrbanSim inputs
 and outputs using web mapping tools, and the
-`exploration notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/462f1f9f7286ffbaf83ae5ad04775494bf4d1677/Exploration.ipynb>`_
+`exploration notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Exploration.ipynb>`_
 demonstrates how to set up and use this interactive display tool.
 
 This is another simple and powerful notebook which can be used to quickly map
@@ -488,12 +492,12 @@ method.
 See :ref:`dframe-explorer` for detailed information on how to call the
 ``start`` method and what queries the website is performing.
 
-Once the ``start`` method has been called, the IPython Notebook is running a
+Once the ``start`` method has been called, the Jupyter Notebook is running a
 web service which will respond to queries from a web browser.  Try it out -
 open your web browser and navigate to http://localhost:8765/ or follow the same
 link embedded in your notebook.  Note the link won't work on the web example -
 you need to have the example running on your local machine - all queries are run
-interactively between your web browser and the IPython Notebook.  Your web
+interactively between your web browser and the Jupyter Notebook.  Your web
 browser should show a page like the following:
 
 .. image:: screenshots/dframe_explorer_screenshot.png
@@ -501,10 +505,10 @@ browser should show a page like the following:
 See :ref:`dframe-explorer-website` for a description of how to use the website
 that is rendered.
 
-Because the web service is serving these queries directly from the IPython
+Because the web service is serving these queries directly from the Jupyter
 Notebook, you can execute some part of a data processing workflow, then run
 ``dframe_explorer`` and look at the results.  If something needs modification,
-simply hit the ``interrupt kernel`` menu item in the IPython Notebook.
+simply hit the ``interrupt kernel`` menu item in the Jupyter Notebook.
 You can now execute more Notebook cells and return to ``dframe_explorer``
 at any time by running the appropriate cell again.  Now map exploration is
 simply another interactive step in your data processing workflow.
@@ -579,7 +583,7 @@ missing data) within UrbanSim, but there is a good convention that can be
 used.  First an injectable can be set with an object in this form (make sure
 to set the name appropriately): ::
 
-    sim.add_injectable("fillna_config", {
+    orca.add_injectable("fillna_config", {
         "buildings": {
             "residential_sales_price": ("zero", "int"),
             "non_residential_rent": ("zero", "int"),
@@ -599,5 +603,6 @@ of the tuple is what to call the Pandas ``fillna`` function with,
 and can be a choice of "zero," "median," or "mode" and should be set
 appropriately by the user for the specific column.  The second argument is
 the data type to convert to. The user can then call
-``utils.fill_na_from_config`` as in the `example <https://github.com/udst/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/dataset.py#L22>`_ with a DataFrame and table name and all NaNs will be filled. This
-functionality will eventually be moved into UrbanSim.
+``utils.fill_na_from_config`` as in the `example <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/dataset.py#L24>`_
+with a DataFrame and table name and all NaNs will be filled. This functionality
+will eventually be moved into UrbanSim.

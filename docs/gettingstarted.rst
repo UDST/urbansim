@@ -345,7 +345,7 @@ assumptions can include, but are not limited to the following.
 
 * *Zoning Changes* in the form of scenario-specific density limits such as
   ``max_far`` and ``max_dua`` are `passed to the pro formas <developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup>`_
-  when testing for feasibility.  Simple `utility functions <https://github.com/udst/sanfran_urbansim/blob/98b308f795c73ffc36c420845f394cbe3322b11b/utils.py#L29>`_
+  when testing for feasibility.  Simple `utility functions <https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/utils.py#L29>`_
   are also common to *upzone* certain parcels only if certain policies affect
   them.
 
