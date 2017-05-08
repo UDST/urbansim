@@ -1,3 +1,12 @@
+v3.1.0
+======
+
+2017/5/8
+
+* Python 3 compatibility
+* Updated documentation
+* Various improvements and bugfixes
+
 v3.0.0
 ======
 
