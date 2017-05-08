@@ -23,8 +23,7 @@ install:
 - pip install pytest-cov coveralls pycodestyle
 - pip install .
 before_script:
-# Update sanfran_urbansim clone once python3 branch is merged
-- git clone -b python3 https://github.com/udst/sanfran_urbansim.git
+- git clone https://github.com/udst/sanfran_urbansim.git
 - cd sanfran_urbansim; jupyter nbconvert --to python Simulation.ipynb
 - cd ..
 script:

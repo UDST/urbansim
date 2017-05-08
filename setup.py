@@ -14,7 +14,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='urbansim',
-    version='3.1dev',
+    version='3.1.0',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
     author='UrbanSim Inc.',
@@ -24,6 +24,8 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: BSD License'
     ],
     package_data={

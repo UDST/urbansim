@@ -13,6 +13,8 @@ class SqFtProFormaConfig(object):
     This class encapsulates the configuration options for the square
     foot based pro forma.
 
+    Parameters
+    ----------
     parcel_sizes : list
         A list of parcel sizes to test.  Interestingly, right now
         the parcel sizes cancel in this style of pro forma computation so
@@ -421,6 +423,7 @@ class SqFtProForma(object):
     def get_ave_cost_sqft(self, form, parking_config):
         """
         Get the average cost per sqft for the pro forma for a given form
+
         Parameters
         ----------
         form : string
@@ -428,12 +431,14 @@ class SqFtProForma(object):
             the config
         parking_config : string
             The parking configuration to get debug info for
+
         Returns
         -------
         cost : series
             A series where the index is the far and the values are the average
             cost per sqft at which the building is "break even" given the
             configuration parameters that were passed at run time.
+
         """
         return self.dev_d[(form, parking_config)].ave_cost_sqft
 
