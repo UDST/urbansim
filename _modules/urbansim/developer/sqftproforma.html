@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>urbansim.developer.sqftproforma &mdash; urbansim 0.2dev documentation</title>
+  <title>urbansim.developer.sqftproforma &mdash; urbansim 3.1.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="urbansim 0.2dev documentation" href="../../../index.html"/>
+    <link rel="top" title="urbansim 3.1.0 documentation" href="../../../index.html"/>
         <link rel="up" title="Module code" href="../../index.html"/> 
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.2dev
+                3.1
               </div>
             
           
@@ -175,6 +175,8 @@
 <span class="sd">    This class encapsulates the configuration options for the square</span>
 <span class="sd">    foot based pro forma.</span>
 
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
 <span class="sd">    parcel_sizes : list</span>
 <span class="sd">        A list of parcel sizes to test.  Interestingly, right now</span>
 <span class="sd">        the parcel sizes cancel in this style of pro forma computation so</span>
@@ -583,6 +585,7 @@
 <div class="viewcode-block" id="SqFtProForma.get_ave_cost_sqft"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">[docs]</a>    <span class="k">def</span> <span class="nf">get_ave_cost_sqft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the average cost per sqft for the pro forma for a given form</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        form : string</span>
@@ -590,12 +593,14 @@
 <span class="sd">            the config</span>
 <span class="sd">        parking_config : string</span>
 <span class="sd">            The parking configuration to get debug info for</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        cost : series</span>
 <span class="sd">            A series where the index is the far and the values are the average</span>
 <span class="sd">            cost per sqft at which the building is &quot;break even&quot; given the</span>
 <span class="sd">            configuration parameters that were passed at run time.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_d</span><span class="p">[(</span><span class="n">form</span><span class="p">,</span> <span class="n">parking_config</span><span class="p">)]</span><span class="o">.</span><span class="n">ave_cost_sqft</span></div>
 
@@ -885,7 +890,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div>
@@ -907,7 +912,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
-            VERSION:'0.2dev',
+            VERSION:'3.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

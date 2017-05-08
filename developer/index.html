@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Real Estate Development Models &mdash; urbansim 0.2dev documentation</title>
+  <title>Real Estate Development Models &mdash; urbansim 3.1.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="../genindex.html"/>
         <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="urbansim 0.2dev documentation" href="../index.html"/>
+    <link rel="top" title="urbansim 3.1.0 documentation" href="../index.html"/>
         <link rel="next" title="UrbanSim Utilities" href="../utils/index.html"/>
         <link rel="prev" title="Location Choice Utilities" href="../models/urbanchoice.html"/> 
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.2dev
+                3.1
               </div>
             
           
@@ -313,23 +313,32 @@ pro forma are documented on the configuration object.</p>
 <dl class="method">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
 <code class="descname">get_ave_cost_sqft</code><span class="sig-paren">(</span><em>form</em>, <em>parking_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the average cost per sqft for the pro forma for a given form
-Parameters
-&#8212;&#8212;&#8212;-
-form : string</p>
+<dd><p>Get the average cost per sqft for the pro forma for a given form</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string</p>
 <blockquote>
-<div>Get a series representing the average cost per sqft for each form in
-the config</div></blockquote>
-<dl class="docutils">
-<dt>parking_config <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The parking configuration to get debug info for</dd>
-</dl>
-<dl class="docutils">
-<dt>cost <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd>A series where the index is the far and the values are the average
+<div><p>Get a series representing the average cost per sqft for each form in
+the config</p>
+</div></blockquote>
+<p><strong>parking_config</strong> : string</p>
+<blockquote>
+<div><p>The parking configuration to get debug info for</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> : series</p>
+<blockquote class="last">
+<div><p>A series where the index is the far and the values are the average
 cost per sqft at which the building is &#8220;break even&#8221; given the
-configuration parameters that were passed at run time.</dd>
-</dl>
+configuration parameters that were passed at run time.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -488,27 +497,37 @@ and max_height from the input dataframe).</p>
 <em class="property">class </em><code class="descclassname">urbansim.developer.sqftproforma.</code><code class="descname">SqFtProFormaConfig</code><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class encapsulates the configuration options for the square
 foot based pro forma.</p>
-<dl class="docutils">
-<dt>parcel_sizes <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of parcel sizes to test.  Interestingly, right now
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>parcel_sizes</strong> : list</p>
+<blockquote>
+<div><p>A list of parcel sizes to test.  Interestingly, right now
 the parcel sizes cancel in this style of pro forma computation so
 you can set this to something reasonable for debugging purposes -
 e.g. [10000].  All sizes can be feet or meters as long as they are
-consistently used.</dd>
-<dt>fars <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of floor area ratios to use.  FAR is a multiple of
+consistently used.</p>
+</div></blockquote>
+<p><strong>fars</strong> : list</p>
+<blockquote>
+<div><p>A list of floor area ratios to use.  FAR is a multiple of
 the parcel size that is the total building bulk that is allowed by
 zoning on the site.  In this case, all of these ratios will be
 tested regardless of zoning and the zoning test will be performed
-later.</dd>
-<dt>uses <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of space uses to use within a building.  These are
+later.</p>
+</div></blockquote>
+<p><strong>uses</strong> : list</p>
+<blockquote>
+<div><p>A list of space uses to use within a building.  These are
 mixed into forms.  Generally speaking, you should only have uses
 for which you have an estimate (or observed) values for rents in
 the building.  By default, uses are retail, industrial, office,
-and residential.</dd>
-<dt>forms <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>A dictionary where keys are names for the form and values
+and residential.</p>
+</div></blockquote>
+<p><strong>forms</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary where keys are names for the form and values
 are also dictionaries where keys are uses and values are the
 proportion of that use used in this form.  The values of the
 dictionary should sum to 1.0.  For instance, a form called
@@ -516,79 +535,111 @@ dictionary should sum to 1.0.  For instance, a form called
 {&#8220;residential&#8221;: 1.0} while a form called &#8220;mixedresidential&#8221;
 might have a dictionary of space allocations equal to
 {&#8220;retail&#8221;: .1, &#8220;residential&#8221; .9] which is 90% residential and
-10% retail.</dd>
-<dt>parking_rates <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>A dict of rates per thousand square feet where keys are the uses
+10% retail.</p>
+</div></blockquote>
+<p><strong>parking_rates</strong> : dict</p>
+<blockquote>
+<div><p>A dict of rates per thousand square feet where keys are the uses
 from the list specified in the attribute above.  The ratios
 are typically in the range 0.5 - 3.0 or similar.  So for
 instance, a key-value pair of &#8220;retail&#8221;: 2.0 would be two parking
 spaces per 1,000 square feet of retail.  This is a per square
 foot pro forma, so the more typically parking ratio of spaces
 per residential unit must be converted to square feet for use in
-this pro forma.</dd>
-<dt>sqft_per_rate <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The number of square feet per unit for use in the
+this pro forma.</p>
+</div></blockquote>
+<p><strong>sqft_per_rate</strong> : float</p>
+<blockquote>
+<div><p>The number of square feet per unit for use in the
 parking_rates above.  By default this is set to 1,000 but can be
-overridden.</dd>
-<dt>parking_configs <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>An expert parameter and is usually unchanged.  By default
+overridden.</p>
+</div></blockquote>
+<p><strong>parking_configs</strong> : list</p>
+<blockquote>
+<div><p>An expert parameter and is usually unchanged.  By default
 it is set to [&#8216;surface&#8217;, &#8216;deck&#8217;, &#8216;underground&#8217;] and very semantic
 differences in the computation are performed for each of these
 parking configurations.  Generally speaking it will break things
 to change this array, but an item can be removed if that parking
-configuration should not be tested.</dd>
-<dt>parking_sqft_d <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>A dictionary where keys are the three parking
+configuration should not be tested.</p>
+</div></blockquote>
+<p><strong>parking_sqft_d</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary where keys are the three parking
 configurations listed above and values are square foot uses of
 parking spaces in that configuration.  This is to capture the
 fact that surface parking is usually more space intensive
-than deck or underground parking.</dd>
-<dt>parking_cost_d <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The parking cost for each parking configuration.  Keys are the
+than deck or underground parking.</p>
+</div></blockquote>
+<p><strong>parking_cost_d</strong> : dict</p>
+<blockquote>
+<div><p>The parking cost for each parking configuration.  Keys are the
 name of the three parking configurations listed above and values
 are dollars PER SQUARE FOOT for parking in that configuration.
 Used to capture the fact that underground and deck are far more
-expensive than surface parking.</dd>
-<dt>height_for_costs <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd>A list of &#8220;break points&#8221; as heights at which construction becomes
+expensive than surface parking.</p>
+</div></blockquote>
+<p><strong>height_for_costs</strong> : list</p>
+<blockquote>
+<div><p>A list of &#8220;break points&#8221; as heights at which construction becomes
 more expensive.  Generally these are the heights at which
 construction materials change from wood, to concrete, to steel.
 Costs are also given as lists by use for each of these break
 points and are considered to be valid up to the break point.  A
-list would look something like [15, 55, 120, np.inf].</dd>
-<dt>costs <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd>The keys are uses from the attribute above and the values are a
+list would look something like [15, 55, 120, np.inf].</p>
+</div></blockquote>
+<p><strong>costs</strong> : dict</p>
+<blockquote>
+<div><p>The keys are uses from the attribute above and the values are a
 list of floating point numbers of same length as the
 height_for_costs attribute.  A key-value pair of
 &#8220;residential&#8221;: [160.0, 175.0, 200.0, 230.0] would say that the
 residential use if $160/sqft up to 15ft in total height for the
 building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
 $230/sqft beyond.  A final value in the height_for_costs
-array of np.inf is typical.</dd>
-<dt>height_per_story <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The per-story height for the building used to turn an
-FAR into an actual height.</dd>
-<dt>max_retail_height <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The maximum height of retail buildings to consider.</dd>
-<dt>max_industrial_height <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The maximum height of industrial buildings to consider.</dd>
-<dt>profit_factor <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The ratio of profit a developer expects to make above the break
+array of np.inf is typical.</p>
+</div></blockquote>
+<p><strong>height_per_story</strong> : float</p>
+<blockquote>
+<div><p>The per-story height for the building used to turn an
+FAR into an actual height.</p>
+</div></blockquote>
+<p><strong>max_retail_height</strong> : float</p>
+<blockquote>
+<div><p>The maximum height of retail buildings to consider.</p>
+</div></blockquote>
+<p><strong>max_industrial_height</strong> : float</p>
+<blockquote>
+<div><p>The maximum height of industrial buildings to consider.</p>
+</div></blockquote>
+<p><strong>profit_factor</strong> : float</p>
+<blockquote>
+<div><p>The ratio of profit a developer expects to make above the break
 even rent.  Should be greater than 1.0, e.g. a 10% profit would be
-a profit factor of 1.1.</dd>
-<dt>building_efficiency <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The efficiency of the building.  This turns total FAR into the
+a profit factor of 1.1.</p>
+</div></blockquote>
+<p><strong>building_efficiency</strong> : float</p>
+<blockquote>
+<div><p>The efficiency of the building.  This turns total FAR into the
 amount of space which gets a square foot rent.  The entire building
-gets the cost of course.</dd>
-<dt>parcel_coverage <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The ratio of the building footprint to the parcel size.  Also used
-to turn an FAR into a height to cost properly.</dd>
-<dt>cap_rate <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd>The rate an investor is willing to pay for a cash flow per year.
+gets the cost of course.</p>
+</div></blockquote>
+<p><strong>parcel_coverage</strong> : float</p>
+<blockquote>
+<div><p>The ratio of the building footprint to the parcel size.  Also used
+to turn an FAR into a height to cost properly.</p>
+</div></blockquote>
+<p><strong>cap_rate</strong> : float</p>
+<blockquote class="last">
+<div><p>The rate an investor is willing to pay for a cash flow per year.
 This means $1/year is equivalent to 1/cap_rate present dollars.
 This is a macroeconomic input that is widely available on the
-internet.</dd>
-</dl>
+internet.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -813,7 +864,7 @@ DataFrame that is returned from feasibility.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, UrbanSim Inc..
+        &copy; Copyright 2017, UrbanSim Inc.
 
     </p>
   </div>
@@ -835,7 +886,7 @@ DataFrame that is returned from feasibility.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.2dev',
+            VERSION:'3.1.0',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
