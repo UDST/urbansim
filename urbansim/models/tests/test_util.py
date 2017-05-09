@@ -152,7 +152,7 @@ def test_sorted_groupby():
     df = pd.DataFrame(
         {'alpha': np.random.choice(list(letters), 100),
          'num': np.random.randint(100)})
-    sorted_df = df.sort('alpha')
+    sorted_df = df.sort_values('alpha')
 
     expected = {name: d.to_dict() for name, d in df.groupby('alpha')}
     test = {name: d.to_dict()

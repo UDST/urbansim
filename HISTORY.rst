@@ -1,3 +1,10 @@
+v3.1.1
+======
+
+2017/5/9
+
+* Updated deprecated `sort` method for Pandas Series and DataFrames
+
 v3.1.0
 ======
 

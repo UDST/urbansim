@@ -142,7 +142,7 @@ def accounting_sample_no_replace(total, data, accounting_column, prob_column=Non
     else:
         # weighted shuffle
         ran_p = pd.Series(np.power(np.random.rand(len(p)), 1.0 / p), index=data.index)
-        ran_p.sort(ascending=False)
+        ran_p.sort_values(ascending=False)
         shuff_idx = ran_p.index.values
 
     # get the initial sample
