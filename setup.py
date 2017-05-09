@@ -14,7 +14,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='urbansim',
-    version='3.1.0',
+    version='3.1.1',
     description='Tool for modeling metropolitan real estate markets',
     long_description=long_description,
     author='UrbanSim Inc.',
@@ -37,7 +37,7 @@ setup(
         'matplotlib>=1.3.1',
         'numpy>=1.8.0',
         'orca>=1.1',
-        'pandas>=0.15.0',
+        'pandas>=0.17.0',
         'patsy>=0.3.0',
         'prettytable>=0.7.2',
         'pyyaml>=3.10',
