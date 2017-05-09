@@ -34,7 +34,7 @@ UrbanSim depends on the following libraries, most of which are in Anaconda:
 * `matplotlib <http://matplotlib.org>`__ >= 1.3.1
 * `numpy <http://numpy.org>`__ >= 1.8.0
 * `orca <https://github.com/UDST/orca>`__ >= 1.1
-* `pandas <http://pandas.pydata.org>`__ >= 0.15.
+* `pandas <http://pandas.pydata.org>`__ >= 0.17.0
 * `patsy <http://patsy.readthedocs.org/en/latest/>`__ >= 0.3.0
 * `prettytable <https://code.google.com/p/prettytable/>`__ >= 0.7.2
 * `pyyaml <http://pyyaml.org/>`__ >= 3.10
