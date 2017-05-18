@@ -10,6 +10,7 @@ import os
 import numpy as np
 
 import yaml
+from collections import OrderedDict
 
 
 def series_to_yaml_safe(series):
@@ -60,7 +61,7 @@ def to_scalar_safe(obj):
         return obj
 
 
-def ordered_yaml(cfg):
+def ordered_yaml(cfg, order=None):
     """
     Convert a dictionary to a YAML string with preferential ordering
     for some keys. Converted string is meant to be fairly human readable.
@@ -69,6 +70,8 @@ def ordered_yaml(cfg):
     ----------
     cfg : dict
         Dictionary to convert to a YAML string.
+    order: list
+        If provided, overrides the default key ordering.
 
     Returns
     -------
@@ -76,15 +79,16 @@ def ordered_yaml(cfg):
         Nicely formatted YAML string.
 
     """
-    order = ['name', 'model_type', 'segmentation_col', 'fit_filters',
-             'predict_filters',
-             'choosers_fit_filters', 'choosers_predict_filters',
-             'alts_fit_filters', 'alts_predict_filters',
-             'interaction_predict_filters',
-             'choice_column', 'sample_size', 'estimation_sample_size',
-             'prediction_sample_size',
-             'model_expression', 'ytransform', 'min_segment_size',
-             'default_config', 'models', 'coefficients', 'fitted']
+    if order is None:
+        order = ['name', 'model_type', 'segmentation_col', 'fit_filters',
+                 'predict_filters',
+                 'choosers_fit_filters', 'choosers_predict_filters',
+                 'alts_fit_filters', 'alts_predict_filters',
+                 'interaction_predict_filters',
+                 'choice_column', 'sample_size', 'estimation_sample_size',
+                 'prediction_sample_size',
+                 'model_expression', 'ytransform', 'min_segment_size',
+                 'default_config', 'models', 'coefficients', 'fitted']
 
     s = []
     for key in order:
@@ -102,6 +106,29 @@ def ordered_yaml(cfg):
     return '\n'.join(s)
 
 
+def represent_ordereddict(dumper, data):
+    """
+    Allows for OrderedDict to be written out to yaml.
+
+    References:
+        https://codedump.io/share/2MLFLtw3wnX7/1/can-pyyaml-dump-dict-items-in-non-alphabetical-order
+        http://stackoverflow.com/questions/16782112/can-pyyaml-dump-dict-items-in-non-alphabetical-order
+
+    """
+    value = []
+
+    for item_key, item_value in data.items():
+        node_key = dumper.represent_data(item_key)
+        node_value = dumper.represent_data(item_value)
+
+        value.append((node_key, node_value))
+
+    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
+
+
+yaml.add_representer(OrderedDict, represent_ordereddict)
+
+
 def convert_to_yaml(cfg, str_or_buffer):
     """
     Convert a dictionary to YAML and return the string or write it out
@@ -109,8 +136,8 @@ def convert_to_yaml(cfg, str_or_buffer):
 
     Parameters
     ----------
-    cfg : dict
-        Dictionary to convert.
+    cfg : dict or OrderedDict
+        Dictionary or OrderedDict to convert.
     str_or_buffer : None, str, or buffer
         If None: the YAML string will be returned.
         If string: YAML will be saved to a file.
@@ -123,7 +150,11 @@ def convert_to_yaml(cfg, str_or_buffer):
         is written out to a separate destination.
 
     """
-    s = ordered_yaml(cfg)
+    order = None
+    if isinstance(cfg, OrderedDict):
+        order = []
+
+    s = ordered_yaml(cfg, order)
 
     if not str_or_buffer:
         return s

@@ -10,6 +10,7 @@ import pandas as pd
 import pytest
 import yaml
 from pandas.util import testing as pdt
+from collections import OrderedDict
 
 from .. import yamlio
 
@@ -146,3 +147,19 @@ def test_frame_to_yaml_safe():
                  'col2': {0: 'a', 1: 'b', 2: 'c'}}
     y = yaml.dump(d, default_flow_style=False)
     assert_dfs_equal(pd.DataFrame(yaml.load(y)), df)
+
+
+def test_orderered_dict_out():
+
+    inner_dict = OrderedDict()
+    inner_dict['z'] = 'had'
+    inner_dict['a'] = 'a'
+    inner_dict['f'] = 'little'
+
+    outer_dict = OrderedDict()
+    outer_dict[10] = 'marry'
+    outer_dict['inner'] = inner_dict
+    outer_dict['a'] = 'lamb'
+
+    expected = '10: marry\n\ninner:\n    z: had\n    a: a\n    f: little\n\na: lamb\n'
+    assert expected == yamlio.convert_to_yaml(outer_dict, None)
