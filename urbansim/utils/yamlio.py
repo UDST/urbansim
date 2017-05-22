@@ -14,11 +14,12 @@ import yaml
 from collections import OrderedDict
 
 
-if sys.version_info < 3:
+if sys.version_info[0] < 3:
 
     def represent_long(dumper, data):
         """
-        Strips away extraneous long format text.
+        Strips away extraneous long format text. Only applicable
+        for py27.
 
         e.g. !!python/long '14' will be formatted as 14
 
