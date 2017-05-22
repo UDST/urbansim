@@ -7,23 +7,25 @@ try:
 except ImportError:
     pass
 import os
+import sys
 import numpy as np
 
 import yaml
 from collections import OrderedDict
 
 
-def represent_long(dumper, data):
-    """
-    Strips away extraneous long format text.
+if sys.version_info < 3:
 
-    e.g. !!python/long '14' will be formatted as 14
+    def represent_long(dumper, data):
+        """
+        Strips away extraneous long format text.
 
-    """
-    return dumper.represent_int(data)
+        e.g. !!python/long '14' will be formatted as 14
 
+        """
+        return dumper.represent_int(data)
 
-yaml.add_representer(long, represent_long)
+    yaml.add_representer(long, represent_long)
 
 
 def series_to_yaml_safe(series, ordered=False):
