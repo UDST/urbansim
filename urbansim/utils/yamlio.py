@@ -16,7 +16,7 @@ from collections import OrderedDict
 
 if sys.version_info[0] < 3:
 
-    def represent_long(dumper, data):
+    def __represent_long(dumper, data):
         """
         Strips away extraneous long format text. Only applicable
         for py27.
@@ -26,7 +26,7 @@ if sys.version_info[0] < 3:
         """
         return dumper.represent_int(data)
 
-    yaml.add_representer(long, represent_long)
+    yaml.add_representer(long, __represent_long)
 
 
 def series_to_yaml_safe(series, ordered=False):
@@ -63,10 +63,12 @@ def frame_to_yaml_safe(frame, ordered=False):
     Parameters
     ----------
     frame : pandas.DataFrame
+    ordered: bool, optional, default False
+        If True, an OrderedDict is returned.
 
     Returns
     -------
-    safe : dict
+    safe : dict or OrderedDict
 
     """
     if ordered:
@@ -132,7 +134,7 @@ def ordered_yaml(cfg, order=None):
     return '\n'.join(s)
 
 
-def represent_ordereddict(dumper, data):
+def __represent_ordereddict(dumper, data):
     """
     Allows for OrderedDict to be written out to yaml.
 
@@ -152,7 +154,7 @@ def represent_ordereddict(dumper, data):
     return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
 
 
-yaml.add_representer(OrderedDict, represent_ordereddict)
+yaml.add_representer(OrderedDict, __represent_ordereddict)
 
 
 def convert_to_yaml(cfg, str_or_buffer):
@@ -202,6 +204,8 @@ def yaml_to_dict(yaml_str=None, str_or_buffer=None, ordered=False):
         A string of YAML.
     str_or_buffer : str or file like, optional
         File name or buffer from which to load YAML.
+    ordered: bool, optional, default False
+        If True, an OrderedDict is returned.
 
     Returns
     -------
@@ -214,7 +218,7 @@ def yaml_to_dict(yaml_str=None, str_or_buffer=None, ordered=False):
 
     # determine which load method to use
     if ordered:
-        loader = ordered_load
+        loader = __ordered_load
     else:
         loader = yaml.load
 
@@ -229,7 +233,7 @@ def yaml_to_dict(yaml_str=None, str_or_buffer=None, ordered=False):
     return d
 
 
-def ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
+def __ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
     """
     Loads yaml into an OrderedDict.
 

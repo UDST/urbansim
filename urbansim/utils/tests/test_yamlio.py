@@ -149,7 +149,7 @@ def test_frame_to_yaml_safe():
     assert_dfs_equal(pd.DataFrame(yaml.load(y)), df)
 
 
-def test_orderered_dict():
+def test_ordered_dict():
 
     inner_dict = OrderedDict()
     inner_dict['z'] = 'had'
