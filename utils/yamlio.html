@@ -189,9 +189,9 @@ depending on the type of <cite>str_or_buffer</cite>.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cfg</strong> : dict</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cfg</strong> : dict or OrderedDict</p>
 <blockquote>
-<div><p>Dictionary to convert.</p>
+<div><p>Dictionary or OrderedDict to convert.</p>
 </div></blockquote>
 <p><strong>str_or_buffer</strong> : None, str, or buffer</p>
 <blockquote>
@@ -214,16 +214,22 @@ is written out to a separate destination.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.frame_to_yaml_safe">
-<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">frame_to_yaml_safe</code><span class="sig-paren">(</span><em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#frame_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.frame_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">frame_to_yaml_safe</code><span class="sig-paren">(</span><em>frame</em>, <em>ordered=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#frame_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.frame_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pandas DataFrame to a dictionary that will survive
 YAML serialization and re-conversion back to a DataFrame.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>frame</strong> : pandas.DataFrame</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>frame</strong> : pandas.DataFrame</p>
+<p><strong>ordered: bool, optional, default False</strong></p>
+<blockquote>
+<div><p>If True, an OrderedDict is returned.</p>
+</div></blockquote>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>safe</strong> : dict</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>safe</strong> : dict or OrderedDict</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -231,7 +237,7 @@ YAML serialization and re-conversion back to a DataFrame.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.ordered_yaml">
-<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">ordered_yaml</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#ordered_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.ordered_yaml" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">ordered_yaml</code><span class="sig-paren">(</span><em>cfg</em>, <em>order=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#ordered_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.ordered_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a dictionary to a YAML string with preferential ordering
 for some keys. Converted string is meant to be fairly human readable.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -241,6 +247,10 @@ for some keys. Converted string is meant to be fairly human readable.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cfg</strong> : dict</p>
 <blockquote>
 <div><p>Dictionary to convert to a YAML string.</p>
+</div></blockquote>
+<p><strong>order: list</strong></p>
+<blockquote>
+<div><p>If provided, overrides the default key ordering.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -256,16 +266,22 @@ for some keys. Converted string is meant to be fairly human readable.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.series_to_yaml_safe">
-<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">series_to_yaml_safe</code><span class="sig-paren">(</span><em>series</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#series_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.series_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">series_to_yaml_safe</code><span class="sig-paren">(</span><em>series</em>, <em>ordered=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#series_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.series_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pandas Series to a dict that will survive YAML serialization
 and re-conversion back to a Series.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>series</strong> : pandas.Series</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>series</strong> : pandas.Series</p>
+<p><strong>ordered: bool, optional, default False</strong></p>
+<blockquote>
+<div><p>If True, an OrderedDict is returned.</p>
+</div></blockquote>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>safe</strong> : dict</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>safe</strong> : dict or OrderedDict</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -279,7 +295,7 @@ and re-conversion back to a Series.</p>
 
 <dl class="function">
 <dt id="urbansim.utils.yamlio.yaml_to_dict">
-<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">yaml_to_dict</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#yaml_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.yaml_to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.utils.yamlio.</code><code class="descname">yaml_to_dict</code><span class="sig-paren">(</span><em>yaml_str=None</em>, <em>str_or_buffer=None</em>, <em>ordered=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#yaml_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.yaml_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load YAML from a string, file, or buffer (an object with a .read method).
 Parameters are mutually exclusive.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -293,6 +309,10 @@ Parameters are mutually exclusive.</p>
 <p><strong>str_or_buffer</strong> : str or file like, optional</p>
 <blockquote>
 <div><p>File name or buffer from which to load YAML.</p>
+</div></blockquote>
+<p><strong>ordered: bool, optional, default False</strong></p>
+<blockquote>
+<div><p>If True, an OrderedDict is returned.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -363,7 +383,7 @@ Parameters are mutually exclusive.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
