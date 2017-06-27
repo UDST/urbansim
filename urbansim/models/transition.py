@@ -91,10 +91,11 @@ def remove_rows(data, nrows, accounting_column=None):
     """
     logger.debug('start: removing {} rows in transition model'.format(nrows))
     nrows = abs(nrows)  # in case a negative number came in
+    unit_check = data[accounting_column].sum() if accounting_column else len(data)
     if nrows == 0:
         return data, _empty_index()
-    elif nrows > len(data):
-        raise ValueError('Number of rows to remove exceeds number of rows in table.')
+    elif nrows > unit_check:
+        raise ValueError('Number of rows to remove exceeds number of records in table.')
 
     remove_rows = sample_rows(nrows, data, accounting_column=accounting_column, replace=False)
     remove_index = remove_rows.index
