@@ -49,6 +49,6 @@ setup(
         'zbox>=1.2'
     ],
     extras_require={
-        'pandana': ['pandana>=0.1']
+        'pandana': ['pandana==0.3.0']
     }
 )
