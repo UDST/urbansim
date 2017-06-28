@@ -179,7 +179,7 @@
 <h1>Misc. Utilities<a class="headerlink" href="#misc-utilities" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-urbansim.utils.misc">
 <span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.utils.misc" title="Permalink to this headline">¶</a></h2>
-<p>Utilities used within urbansim that don&#8217;t yet have a better home.</p>
+<p>Utilities used within urbansim that don’t yet have a better home.</p>
 <dl class="function">
 <dt id="urbansim.utils.misc.charts_dir">
 <code class="descclassname">urbansim.utils.misc.</code><code class="descname">charts_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/misc.html#charts_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.misc.charts_dir" title="Permalink to this definition">¶</a></dt>
@@ -388,7 +388,7 @@ with default column headers.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A pandas dataframe with the same data as the input matrix but with columns</p>
-<p class="last">named x0,  x1, ... x[n-1] for the number of columns.</p>
+<p class="last">named x0,  x1, … x[n-1] for the number of columns.</p>
 </td>
 </tr>
 </tbody>
@@ -424,8 +424,8 @@ common operation that does not appear to  be in Pandas at this time.
 If anyone knows of an easier way to do this in Pandas, please inform the
 UrbanSim developers.</p>
 <p>The canonical example would be a parcel series which has an index which is
-parcel_ids and a value which you want to fetch, let&#8217;s say it&#8217;s land_area.
-Another dataset, let&#8217;s say of buildings has a series which indicate the
+parcel_ids and a value which you want to fetch, let’s say it’s land_area.
+Another dataset, let’s say of buildings has a series which indicate the
 parcel_ids that the buildings are located on, but which does not have
 land_area.  If you pass parcels.land_area as the first series and
 buildings.parcel_id as the second series, this function returns a series
@@ -434,7 +434,7 @@ added to the buildings dataset.</p>
 <p>In short, this is a join on to a different table using a foreign key
 stored in the current table, but with only one attribute rather than
 for a full dataset.</p>
-<p>This is very similar to the pandas &#8220;loc&#8221; function or &#8220;reindex&#8221; function,
+<p>This is very similar to the pandas “loc” function or “reindex” function,
 but neither of those functions return the series indexed on the current
 table.  In both of those cases, the series would be indexed on the foreign
 table and would require a second step to change the index.</p>

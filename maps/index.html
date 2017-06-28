@@ -98,7 +98,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">DataFrame Explorer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#website-description">Website Description</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#what-s-it-doing-exactly">What&#8217;s it Doing Exactly?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-it-doing-exactly">What’s it Doing Exactly?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a></li>
 </ul>
 </li>
@@ -207,7 +207,7 @@ that are not already columns on the DataFrame.</li>
 </ul>
 </div>
 <div class="section" id="what-s-it-doing-exactly">
-<h2>What&#8217;s it Doing Exactly?<a class="headerlink" href="#what-s-it-doing-exactly" title="Permalink to this headline">¶</a></h2>
+<h2>What’s it Doing Exactly?<a class="headerlink" href="#what-s-it-doing-exactly" title="Permalink to this headline">¶</a></h2>
 <p>So what is this doing?  The web service is translating the drop downs to a
 simple interactive Pandas statement, for example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)[</span><span class="s1">&#39;residential_units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -246,7 +246,7 @@ household in each zone, or the average household size by zone.</p>
 <span id="dataframe-explorer-api"></span><h2>DataFrame Explorer API<a class="headerlink" href="#module-urbansim.maps.dframe_explorer" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="urbansim.maps.dframe_explorer.start">
-<code class="descclassname">urbansim.maps.dframe_explorer.</code><code class="descname">start</code><span class="sig-paren">(</span><em>views, center=[37.7792, -122.2191], zoom=11, shape_json='data/zones.json', geom_name='ZONE_ID', join_name='zone_id', precision=8, port=8765, host='localhost', testing=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">urbansim.maps.dframe_explorer.</code><code class="descname">start</code><span class="sig-paren">(</span><em>views, center=[37.7792, -122.2191], zoom=11, shape_json=’data/zones.json’, geom_name=’ZONE_ID’, join_name=’zone_id’, precision=8, port=8765, host=’localhost’, testing=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the web service which serves the Pandas queries and generates the
 HTML for the map.  You will need to open a web browser and navigate to
 <a class="reference external" href="http://localhost:8765">http://localhost:8765</a> (or the specified port)</p>

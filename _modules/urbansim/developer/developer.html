@@ -236,8 +236,8 @@
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Developer.compute_units_to_build"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.compute_units_to_build">[docs]</a>    <span class="k">def</span> <span class="nf">compute_units_to_build</span><span class="p">(</span><span class="n">num_agents</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">target_vacancy</span><span class="p">):</span>
+<div class="viewcode-block" id="Developer.compute_units_to_build"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.compute_units_to_build">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_units_to_build</span><span class="p">(</span><span class="n">num_agents</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">target_vacancy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute number of units to build to match target vacancy.</span>
 
@@ -392,8 +392,8 @@
         <span class="n">new_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;parcel_id&quot;</span>
         <span class="k">return</span> <span class="n">new_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
 
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Developer.merge"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">old_df</span><span class="p">,</span> <span class="n">new_df</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Developer.merge"><a class="viewcode-back" href="../../../developer/index.html#urbansim.developer.developer.Developer.merge">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">old_df</span><span class="p">,</span> <span class="n">new_df</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merge two dataframes of buildings.  The old dataframe is</span>
 <span class="sd">        usually the buildings dataset and the new dataframe is a modified</span>

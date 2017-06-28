@@ -207,14 +207,14 @@ different segments of the table. Below is an example table:</p>
 on the table to which the rates will be applied. The column names are
 inspected to determine the type of the filter and the table column
 to which the filter applies.</p>
-<p>Column names that end with <code class="docutils literal"><span class="pre">_min</span></code> indicate a &#8220;greater than or equal to&#8221;
+<p>Column names that end with <code class="docutils literal"><span class="pre">_min</span></code> indicate a “greater than or equal to”
 filter. For example, the second row of the above table will have a filter
 like <code class="docutils literal"><span class="pre">num_children</span> <span class="pre">&gt;=</span> <span class="pre">2</span></code>.</p>
-<p>Column names that end with <code class="docutils literal"><span class="pre">_max</span></code> indicate a &#8220;less than&#8221; filter.
+<p>Column names that end with <code class="docutils literal"><span class="pre">_max</span></code> indicate a “less than” filter.
 For example, the second row of the above table will have a filter like
 <code class="docutils literal"><span class="pre">num_children</span> <span class="pre">&lt;</span> <span class="pre">4</span></code>. Notice that the maximum is not inclusive.</p>
 <p>Column names that do not end in <code class="docutils literal"><span class="pre">_min</span></code> or <code class="docutils literal"><span class="pre">_max</span></code> indicate an
-&#8220;equal to&#8221; filter. In the above table the first, second, and third rows
+“equal to” filter. In the above table the first, second, and third rows
 will have a filter like <code class="docutils literal"><span class="pre">num_cars</span> <span class="pre">==</span> <span class="pre">0</span></code>.</p>
 <p><code class="docutils literal"><span class="pre">nan</span></code> values indicate filters that do not apply in a given row.</p>
 </div>
@@ -222,7 +222,7 @@ will have a filter like <code class="docutils literal"><span class="pre">num_car
 <h2>Transition Model Notes<a class="headerlink" href="#transition-model-notes" title="Permalink to this headline">¶</a></h2>
 <p>Transition models have two components. The main interface is the
 <a class="reference internal" href="#urbansim.models.transition.TransitionModel" title="urbansim.models.transition.TransitionModel"><code class="xref py py-class docutils literal"><span class="pre">TransitionModel</span></code></a>, but it
-is configured by providing a &#8220;transitioner&#8221;.
+is configured by providing a “transitioner”.
 Transitioners can make transitions based on different inputs like
 growth rates and control totals. Available transitioners are:</p>
 <ul class="simple">
@@ -246,10 +246,10 @@ the indexes of rows copied, and the indexes of rows removed.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><code class="xref py py-obj docutils literal"><span class="pre">GrowthRateTransition</span></code></a>(growth_rate[,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><code class="xref py py-obj docutils literal"><span class="pre">GrowthRateTransition</span></code></a>(growth_rate[,&nbsp;…])</td>
 <td>Transition given tables using a simple growth rate.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><code class="xref py py-obj docutils literal"><span class="pre">TabularGrowthRateTransition</span></code></a>(growth_rates,&nbsp;...)</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><code class="xref py py-obj docutils literal"><span class="pre">TabularGrowthRateTransition</span></code></a>(growth_rates,&nbsp;…)</td>
 <td>Growth rate based transitions where the rates are stored in a table indexed by year with optional segmentation.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.transition.TabularTotalsTransition" title="urbansim.models.transition.TabularTotalsTransition"><code class="xref py py-obj docutils literal"><span class="pre">TabularTotalsTransition</span></code></a>(targets,&nbsp;totals_column)</td>
@@ -514,7 +514,7 @@ of rows copied, and the indexes of rows removed.</p>
 </div></blockquote>
 <p><strong>linked_tables</strong> : dict of tuple, optional</p>
 <blockquote>
-<div><p>Dictionary of (table, &#8216;column name&#8217;) pairs. The column name
+<div><p>Dictionary of (table, ‘column name’) pairs. The column name
 should match the index of <cite>data</cite>. Indexes in <cite>data</cite> that
 are copied or removed will also be copied and removed in
 linked tables. They dictionary keys are used in the
@@ -683,10 +683,10 @@ relocation rates.</p>
 <div><p>Table of relocation rates. Index is unused.</p>
 <p>Other columns describe filters on the <cite>choosers</cite>
 table so that different segments can have different relocation
-rates. Columns that ends with &#8216;_max&#8217; will be used to create
-a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
-used to create &#8220;greater than or equal to&#8221; filters.
-A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+rates. Columns that ends with ‘_max’ will be used to create
+a “less than” filters, columns that end with ‘_min’ will be
+used to create “greater than or equal to” filters.
+A column with no suffix will be used to make an ‘equal to’ filter.</p>
 <p>An example <cite>rates</cite> structure:</p>
 <dl class="docutils">
 <dt>age_of_head_max  age_of_head_min</dt>
@@ -698,14 +698,14 @@ A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</
 </dd>
 </dl>
 <p>In this example the <cite>choosers</cite> table would need to have an
-&#8216;age_of_head&#8217; column on which to filter.</p>
+‘age_of_head’ column on which to filter.</p>
 <p>nan should be used to flag filters that do not apply
 in a given row.</p>
 </div></blockquote>
 <p><strong>rate_column</strong> : object, optional</p>
 <blockquote class="last">
 <div><p>Name of column in <cite>rates</cite> table that contains relocation rates.
-If not given &#8216;probability_of_relocating&#8217; is used.</p>
+If not given ‘probability_of_relocating’ is used.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -756,10 +756,10 @@ to move.</p>
 <div><p>Table of relocation rates. Index is unused.</p>
 <p>Other columns describe filters on the <cite>choosers</cite>
 table so that different segments can have different relocation
-rates. Columns that ends with &#8216;_max&#8217; will be used to create
-a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
-used to create &#8220;greater than or equal to&#8221; filters.
-A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+rates. Columns that ends with ‘_max’ will be used to create
+a “less than” filters, columns that end with ‘_min’ will be
+used to create “greater than or equal to” filters.
+A column with no suffix will be used to make an ‘equal to’ filter.</p>
 <p>An example <cite>rates</cite> structure:</p>
 <dl class="docutils">
 <dt>age_of_head_max  age_of_head_min</dt>
@@ -771,7 +771,7 @@ A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</
 </dd>
 </dl>
 <p>In this example the <cite>choosers</cite> table would need to have an
-&#8216;age_of_head&#8217; column on which to filter.</p>
+‘age_of_head’ column on which to filter.</p>
 <p>nan should be used to flag filters that do not apply
 in a given row.</p>
 </div></blockquote>

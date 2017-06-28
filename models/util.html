@@ -182,7 +182,7 @@
 <h1>Model Related Utilities<a class="headerlink" href="#model-related-utilities" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>These are utility functions used within UrbanSim&#8217;s model packages.
+<p>These are utility functions used within UrbanSim’s model packages.
 They may be useful when implementing new models or adding custom
 behavior to UrbanSim.</p>
 </div>
@@ -231,7 +231,7 @@ desired rows.</p>
 <p><strong>filters</strong> : list of str or str, optional</p>
 <blockquote>
 <div><p>List of filters to apply. Will be joined together with
-&#8216; and &#8216; and passed to DataFrame.query. A string will be passed
+‘ and ‘ and passed to DataFrame.query. A string will be passed
 straight to DataFrame.query.
 If not supplied no filtering will be done.</p>
 </div></blockquote>
@@ -311,7 +311,7 @@ If not supplied no filtering will be done.</p>
 <dd><p>Filter a table based on a set of restrictions given in
 Series of column name / filter parameter pairs. The column
 names can have suffixes <cite>_min</cite> and <cite>_max</cite> to indicate
-&#8220;less than&#8221; and &#8220;greater than&#8221; constraints.</p>
+“less than” and “greater than” constraints.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -323,10 +323,10 @@ names can have suffixes <cite>_min</cite> and <cite>_max</cite> to indicate
 <p><strong>filter_series</strong> : pandas.Series</p>
 <blockquote>
 <div><p>Series of column name / value pairs of filter constraints.
-Columns that ends with &#8216;_max&#8217; will be used to create
-a &#8220;less than&#8221; filters, columns that end with &#8216;_min&#8217; will be
-used to create &#8220;greater than or equal to&#8221; filters.
-A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</p>
+Columns that ends with ‘_max’ will be used to create
+a “less than” filters, columns that end with ‘_min’ will be
+used to create “greater than or equal to” filters.
+A column with no suffix will be used to make an ‘equal to’ filter.</p>
 </div></blockquote>
 <p><strong>ignore</strong> : sequence of str, optional</p>
 <blockquote>
@@ -346,7 +346,7 @@ A column with no suffix will be used to make an &#8216;equal to&#8217; filter.</
 <code class="descclassname">urbansim.models.util.</code><code class="descname">has_constant_expr</code><span class="sig-paren">(</span><em>expr</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#has_constant_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.has_constant_expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Report whether a model expression has constant specific term.
 That is, a term explicitly specying whether the model should or
-should not include a constant. (e.g. &#8216;+ 1&#8217; or &#8216;- 1&#8217;.)</p>
+should not include a constant. (e.g. ‘+ 1’ or ‘- 1’.)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -404,16 +404,16 @@ This function will take any of those as input and return a string.</p>
 <blockquote>
 <div><p>A string will be returned unmodified except to add or remove
 a constant.
-An iterable sequence will be joined together with &#8216; + &#8216;.
+An iterable sequence will be joined together with ‘ + ‘.
 A dictionary should have <code class="docutils literal"><span class="pre">right_side</span></code> and, optionally,
 <code class="docutils literal"><span class="pre">left_side</span></code> keys. The <code class="docutils literal"><span class="pre">right_side</span></code> can be a list or a string
 and will be handled as above. If <code class="docutils literal"><span class="pre">left_side</span></code> is present it will
-be joined with <code class="docutils literal"><span class="pre">right_side</span></code> with &#8216; ~ &#8216;.</p>
+be joined with <code class="docutils literal"><span class="pre">right_side</span></code> with ‘ ~ ‘.</p>
 </div></blockquote>
 <p><strong>add_constant</strong> : bool, optional</p>
 <blockquote>
-<div><p>Whether to add a &#8216; + 1&#8217; (if True) or &#8216; - 1&#8217; (if False) to the model.
-If the expression already has a &#8216;+ 1&#8217; or &#8216;- 1&#8217; this option will be
+<div><p>Whether to add a ‘ + 1’ (if True) or ‘ - 1’ (if False) to the model.
+If the expression already has a ‘+ 1’ or ‘- 1’ this option will be
 ignored.</p>
 </div></blockquote>
 </td>

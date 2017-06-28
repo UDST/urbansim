@@ -198,7 +198,7 @@ fitting and prediction.</li>
 </div>
 <div class="section" id="model-expressions">
 <h2>Model Expressions<a class="headerlink" href="#model-expressions" title="Permalink to this headline">¶</a></h2>
-<p>Statistical models require specification of a &#8220;model expression&#8221; that
+<p>Statistical models require specification of a “model expression” that
 describes the model as a mathematical formula.
 UrbanSim uses <a class="reference external" href="http://patsy.readthedocs.org/">patsy</a> to interpret
 model expressions, but UrbanSim gives you some flexibility
@@ -231,7 +231,7 @@ attractively formatted formulae in <a class="reference internal" href="#yaml-con
 </div>
 <div class="section" id="yaml-persistence">
 <span id="yaml-config"></span><h2>YAML Persistence<a class="headerlink" href="#yaml-persistence" title="Permalink to this headline">¶</a></h2>
-<p>UrbanSim&#8217;s regression and location choice models can be saved as
+<p>UrbanSim’s regression and location choice models can be saved as
 <a class="reference external" href="http://en.wikipedia.org/wiki/YAML">YAML</a> files and loaded again
 at another time.
 This feature is especially useful for estimating models in one location,
@@ -239,7 +239,7 @@ saving the fit parameters to disk, and then using the fitted model for
 prediction somewhere else.</p>
 <p>Use the <code class="docutils literal"><span class="pre">.to_yaml</span></code> and <code class="docutils literal"><span class="pre">.from_yaml</span></code> methods to save files to disk
 and load them back as configured models.
-Here&#8217;s an example of loading a regression model, performing fitting, and
+Here’s an example of loading a regression model, performing fitting, and
 saving the model back to YAML:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;my_model.yaml&#39;</span><span class="p">)</span>
 
@@ -261,10 +261,10 @@ YAML and load them into Python only for fitting and prediction.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModel" title="urbansim.models.regression.RegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModel</span></code></a>(fit_filters,&nbsp;...[,&nbsp;...])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModel" title="urbansim.models.regression.RegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModel</span></code></a>(fit_filters,&nbsp;…[,&nbsp;…])</td>
 <td>A hedonic (regression) model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.regression.SegmentedRegressionModel" title="urbansim.models.regression.SegmentedRegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedRegressionModel</span></code></a>(segmentation_col[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.regression.SegmentedRegressionModel" title="urbansim.models.regression.SegmentedRegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedRegressionModel</span></code></a>(segmentation_col[,&nbsp;…])</td>
 <td>A regression model group that allows segments to have different model expressions and ytransforms but all have the same filters.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModelGroup" title="urbansim.models.regression.RegressionModelGroup"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModelGroup</span></code></a>(segmentation_col[,&nbsp;name])</td>
@@ -281,10 +281,10 @@ YAML and load them into Python only for fitting and prediction.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></code></a>(model_expression,&nbsp;...)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></code></a>(model_expression,&nbsp;…)</td>
 <td>A discrete choice model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></code></a>(...[,&nbsp;...])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></code></a>(…[,&nbsp;…])</td>
 <td>An MNL LCM group that allows segments to have different model expressions but otherwise share configurations.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="urbansim.models.dcm.MNLDiscreteChoiceModelGroup"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModelGroup</span></code></a>(segmentation_col)</td>
@@ -295,14 +295,14 @@ YAML and load them into Python only for fitting and prediction.</p>
 </div>
 <div class="section" id="module-urbansim.models.regression">
 <span id="regression-api-docs"></span><h3>Regression API Docs<a class="headerlink" href="#module-urbansim.models.regression" title="Permalink to this headline">¶</a></h3>
-<p>Use the <code class="docutils literal"><span class="pre">RegressionModel</span></code> class to fit a model using statsmodels&#8217;
+<p>Use the <code class="docutils literal"><span class="pre">RegressionModel</span></code> class to fit a model using statsmodels’
 OLS capability and then do subsequent prediction.</p>
 <dl class="class">
 <dt id="urbansim.models.regression.RegressionModel">
 <em class="property">class </em><code class="descclassname">urbansim.models.regression.</code><code class="descname">RegressionModel</code><span class="sig-paren">(</span><em>fit_filters</em>, <em>predict_filters</em>, <em>model_expression</em>, <em>ytransform=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#RegressionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.RegressionModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A hedonic (regression) model with the ability to store an
 estimated model and predict new data based on the model.</p>
-<p>statsmodels&#8217; OLS implementation is used.</p>
+<p>statsmodels’ OLS implementation is used.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -365,7 +365,7 @@ columns referenced by the <cite>model_expression</cite>.</p>
 </div></blockquote>
 <p><strong>debug</strong> : bool</p>
 <blockquote>
-<div><p>If debug is set to true, this sets the attribute &#8220;est_data&#8221;
+<div><p>If debug is set to true, this sets the attribute “est_data”
 to a dataframe with the actual data used for estimation of
 this model.</p>
 </div></blockquote>
@@ -755,7 +755,7 @@ the results reflect actual price.</p>
 </table>
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.add_segment">
-<code class="descname">add_segment</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression=None</em>, <em>ytransform='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_segment</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression=None</em>, <em>ytransform=’default’</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new segment with its own model expression and ytransform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1068,7 +1068,7 @@ multinomial logit and make subsequent choice predictions.</p>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel">
-<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">MNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">MNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode=’full_product’</em>, <em>choice_mode=’individual’</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A discrete choice model with the ability to store an estimated
 model and predict new data based on the model.
 Based on multinomial logit.</p>
@@ -1088,26 +1088,26 @@ Based on multinomial logit.</p>
 <blockquote>
 <div><p>Specify the method to use for calculating probabilities
 during prediction.
-Available string options are &#8216;single_chooser&#8217; and &#8216;full_product&#8217;.
-In &#8220;single chooser&#8221; mode one agent is chosen for calculating
-probabilities across all alternatives. In &#8220;full product&#8221; mode
+Available string options are ‘single_chooser’ and ‘full_product’.
+In “single chooser” mode one agent is chosen for calculating
+probabilities across all alternatives. In “full product” mode
 probabilities are calculated for every chooser across all alternatives.
-Currently &#8220;single chooser&#8221; mode must be used with a <cite>choice_mode</cite>
-of &#8216;aggregate&#8217; and &#8220;full product&#8221; mode must be used with a
-<cite>choice_mode</cite> of &#8216;individual&#8217;.</p>
+Currently “single chooser” mode must be used with a <cite>choice_mode</cite>
+of ‘aggregate’ and “full product” mode must be used with a
+<cite>choice_mode</cite> of ‘individual’.</p>
 </div></blockquote>
 <p><strong>choice_mode</strong> : str, optional</p>
 <blockquote>
 <div><p>Specify the method to use for making choices among alternatives.
-Available string options are &#8216;individual&#8217; and &#8216;aggregate&#8217;.
-In &#8220;individual&#8221; mode choices will be made separately for each chooser.
-In &#8220;aggregate&#8221; mode choices are made for all choosers at once.
+Available string options are ‘individual’ and ‘aggregate’.
+In “individual” mode choices will be made separately for each chooser.
+In “aggregate” mode choices are made for all choosers at once.
 Aggregate mode implies that an alternative chosen by one agent
 is unavailable to other agents and that the same probabilities
 can be used for all choosers.
-Currently &#8220;individual&#8221; mode must be used with a <cite>probability_mode</cite>
-of &#8216;full_product&#8217; and &#8220;aggregate&#8221; mode must be used with a
-<cite>probability_mode</cite> of &#8216;single_chooser&#8217;.</p>
+Currently “individual” mode must be used with a <cite>probability_mode</cite>
+of ‘full_product’ and “aggregate” mode must be used with a
+<cite>probability_mode</cite> of ‘single_chooser’.</p>
 </div></blockquote>
 <p><strong>choosers_fit_filters</strong> : list of str, optional</p>
 <blockquote>
@@ -1146,7 +1146,7 @@ alternative.</p>
 <p><strong>choice_column</strong> : optional</p>
 <blockquote>
 <div><p>Name of the column in the <cite>alternatives</cite> table that choosers
-should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+should choose. e.g. the ‘building_id’ column. If not provided
 the alternatives index is used.</p>
 </div></blockquote>
 <p><strong>name</strong> : optional</p>
@@ -1264,7 +1264,7 @@ and values matching the index of <cite>alternatives</cite>.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict</p>
 <blockquote class="last">
 <div><p>Dict of log-liklihood values describing the quality of the
-model fit. Will have keys &#8216;null&#8217;, &#8216;convergence&#8217;, and &#8216;ratio&#8217;.</p>
+model fit. Will have keys ‘null’, ‘convergence’, and ‘ratio’.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -1371,7 +1371,7 @@ alternatives tables.</p>
 </div></blockquote>
 <p><strong>debug</strong> : bool</p>
 <blockquote>
-<div><p>If debug is set to true, will set the variable &#8220;sim_pdf&#8221; on
+<div><p>If debug is set to true, will set the variable “sim_pdf” on
 the object to store the probabilities for mapping of the
 outcome.</p>
 </div></blockquote>
@@ -1605,7 +1605,7 @@ in the choosers table.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params">
-<code class="descname">add_model_from_params</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_model_from_params</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode=’full_product’</em>, <em>choice_mode=’individual’</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a model by passing parameters through to MNLDiscreteChoiceModel.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1627,18 +1627,18 @@ in the choosers table.</p>
 <blockquote>
 <div><p>Specify the method to use for calculating probabilities
 during prediction.
-Available string options are &#8216;single_chooser&#8217; and &#8216;full_product&#8217;.
-In &#8220;single chooser&#8221; mode one agent is chosen for calculating
-probabilities across all alternatives. In &#8220;full product&#8221; mode
+Available string options are ‘single_chooser’ and ‘full_product’.
+In “single chooser” mode one agent is chosen for calculating
+probabilities across all alternatives. In “full product” mode
 probabilities are calculated for every chooser across all
 alternatives.</p>
 </div></blockquote>
 <p><strong>choice_mode</strong> : str or callable, optional</p>
 <blockquote>
 <div><p>Specify the method to use for making choices among alternatives.
-Available string options are &#8216;individual&#8217; and &#8216;aggregate&#8217;.
-In &#8220;individual&#8221; mode choices will be made separately for each
-chooser. In &#8220;aggregate&#8221; mode choices are made for all choosers at
+Available string options are ‘individual’ and ‘aggregate’.
+In “individual” mode choices will be made separately for each
+chooser. In “aggregate” mode choices are made for all choosers at
 once. Aggregate mode implies that an alternative chosen by one
 agent is unavailable to other agents and that the same
 probabilities can be used for all choosers.</p>
@@ -1680,7 +1680,7 @@ alternative.</p>
 <p><strong>choice_column</strong> : optional</p>
 <blockquote class="last">
 <div><p>Name of the column in the <cite>alternatives</cite> table that choosers
-should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+should choose. e.g. the ‘building_id’ column. If not provided
 the alternatives index is used.</p>
 </div></blockquote>
 </td>
@@ -1836,7 +1836,7 @@ Must have a column matching the .segmentation_col attribute.</p>
 </div></blockquote>
 <p><strong>debug</strong> : bool</p>
 <blockquote>
-<div><p>If debug is set to true, will set the variable &#8220;sim_pdf&#8221; on
+<div><p>If debug is set to true, will set the variable “sim_pdf” on
 the object to store the probabilities for mapping of the
 outcome.</p>
 </div></blockquote>
@@ -1915,7 +1915,7 @@ Must have a column matching the .segmentation_col attribute.</p>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel">
-<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">SegmentedMNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">SegmentedMNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode=’full_product’</em>, <em>choice_mode=’individual’</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>An MNL LCM group that allows segments to have different model expressions
 but otherwise share configurations.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1934,26 +1934,26 @@ but otherwise share configurations.</p>
 <blockquote>
 <div><p>Specify the method to use for calculating probabilities
 during prediction.
-Available string options are &#8216;single_chooser&#8217; and &#8216;full_product&#8217;.
-In &#8220;single chooser&#8221; mode one agent is chosen for calculating
-probabilities across all alternatives. In &#8220;full product&#8221; mode
+Available string options are ‘single_chooser’ and ‘full_product’.
+In “single chooser” mode one agent is chosen for calculating
+probabilities across all alternatives. In “full product” mode
 probabilities are calculated for every chooser across all alternatives.
-Currently &#8220;single chooser&#8221; mode must be used with a <cite>choice_mode</cite>
-of &#8216;aggregate&#8217; and &#8220;full product&#8221; mode must be used with a
-<cite>choice_mode</cite> of &#8216;individual&#8217;.</p>
+Currently “single chooser” mode must be used with a <cite>choice_mode</cite>
+of ‘aggregate’ and “full product” mode must be used with a
+<cite>choice_mode</cite> of ‘individual’.</p>
 </div></blockquote>
 <p><strong>choice_mode</strong> : str, optional</p>
 <blockquote>
 <div><p>Specify the method to use for making choices among alternatives.
-Available string options are &#8216;individual&#8217; and &#8216;aggregate&#8217;.
-In &#8220;individual&#8221; mode choices will be made separately for each chooser.
-In &#8220;aggregate&#8221; mode choices are made for all choosers at once.
+Available string options are ‘individual’ and ‘aggregate’.
+In “individual” mode choices will be made separately for each chooser.
+In “aggregate” mode choices are made for all choosers at once.
 Aggregate mode implies that an alternative chosen by one agent
 is unavailable to other agents and that the same probabilities
 can be used for all choosers.
-Currently &#8220;individual&#8221; mode must be used with a <cite>probability_mode</cite>
-of &#8216;full_product&#8217; and &#8220;aggregate&#8221; mode must be used with a
-<cite>probability_mode</cite> of &#8216;single_chooser&#8217;.</p>
+Currently “individual” mode must be used with a <cite>probability_mode</cite>
+of ‘full_product’ and “aggregate” mode must be used with a
+<cite>probability_mode</cite> of ‘single_chooser’.</p>
 </div></blockquote>
 <p><strong>choosers_fit_filters</strong> : list of str, optional</p>
 <blockquote>
@@ -1992,7 +1992,7 @@ alternative.</p>
 <p><strong>choice_column</strong> : optional</p>
 <blockquote>
 <div><p>Name of the column in the <cite>alternatives</cite> table that choosers
-should choose. e.g. the &#8216;building_id&#8217; column. If not provided
+should choose. e.g. the ‘building_id’ column. If not provided
 the alternatives index is used.</p>
 </div></blockquote>
 <p><strong>default_model_expr</strong> : str, iterable, or dict, optional</p>
@@ -2251,7 +2251,7 @@ Must have a column matching the .segmentation_col attribute.</p>
 </div></blockquote>
 <p><strong>debug</strong> : bool</p>
 <blockquote>
-<div><p>If debug is set to true, will set the variable &#8220;sim_pdf&#8221; on
+<div><p>If debug is set to true, will set the variable “sim_pdf” on
 the object to store the probabilities for mapping of the
 outcome.</p>
 </div></blockquote>

@@ -228,8 +228,8 @@ with reasonable imputations (medians, modes, or zeros respectively)</li>
 <li>And finally run the model in predict mode and describe the predicted values</li>
 </ul>
 <p>If you can follow this simple functionality, most of UrbanSim simply repeats
-this sort of flow for other urban behaviors.  It&#8217;s probably a good idea to read
-through this example a few times until it&#8217;s relatively clear how the parts fit
+this sort of flow for other urban behaviors.  It’s probably a good idea to read
+through this example a few times until it’s relatively clear how the parts fit
 together before moving on to the complete example. For the complete example, a
 process like the one described above is then repeated for each model of urban
 behavior described in the <a class="reference external" href="gettingstarted.html#a-gentle-introduction-to-urbansim">gentle introduction to UrbanSim</a>.</p>
@@ -335,7 +335,7 @@ attribute on the <code class="docutils literal"><span class="pre">buildings</spa
 is set using the <code class="docutils literal"><span class="pre">store</span></code> injectable.  An observant reader will notice that
 this <code class="docutils literal"><span class="pre">store</span></code> injectable which is set here was used in the table_source
 described above.  Note that the <code class="docutils literal"><span class="pre">store</span></code> injectable could be defined <em>after</em>
-the <code class="docutils literal"><span class="pre">households</span></code> <code class="docutils literal"><span class="pre">table_source</span></code> as long as they&#8217;re both registered before
+the <code class="docutils literal"><span class="pre">households</span></code> <code class="docutils literal"><span class="pre">table_source</span></code> as long as they’re both registered before
 the simulation makes an attempt to call the registered methods.</p>
 </div>
 <div class="section" id="variables">
@@ -396,7 +396,7 @@ exceptions on the <code class="docutils literal"><span class="pre">DataFrameWrap
 <p>To convert a <code class="docutils literal"><span class="pre">DataFrameWrapper</span></code> to a DataFrame, the user can simply call
 <a class="reference external" href="https://udst.github.io/orca/core.html#orca.orca.DataFrameWrapper.to_frame">to_frame</a>
 but this returns <em>all</em> computed columns on the table and so has performance
-implications.  In general it&#8217;s better to use the Series objects directly where
+implications.  In general it’s better to use the Series objects directly where
 possible.</p>
 <p>As a concrete example, the following code is recommended:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">zone_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -426,7 +426,7 @@ although this is a verbose syntax, i.e. this <em>will</em> work but is
 <h3>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h3>
 <p>The main objective of the
 <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/models.py">models.py</a>
-file is to define the &#8220;entry points&#8221; into the model system. Although UrbanSim
+file is to define the “entry points” into the model system. Although UrbanSim
 provides the direct API for a <a class="reference external" href="models/statistical.html#urbansim.models.regression.RegressionModel">Regression Model</a>,
 a <a class="reference external" href="models/statistical.html#urbansim.models.dcm.MNLDiscreteChoiceModel">Location Choice Model</a>,
 etc, it is the models.py file which defines the specific <em>steps</em> that outline
@@ -504,7 +504,7 @@ configurable.</p>
 <code class="docutils literal"><span class="pre">hlcm_simulate</span></code> and <code class="docutils literal"><span class="pre">feasibility</span></code> are both dependent on <code class="docutils literal"><span class="pre">rsh_simulate</span></code>.
 At this time there is no way to guarantee that model dependencies are met and
 this is left to the user to resolve.  For full simulations, there is a typical
-order of models which doesn&#8217;t change very often, so this requirement is not
+order of models which doesn’t change very often, so this requirement is not
 terribly onerous.</p>
 <p>Clearly <code class="docutils literal"><span class="pre">models.py</span></code> is extremely flexible - any method which reads and writes
 data using the simulation framework can be considered a model. Models with more
@@ -639,7 +639,7 @@ method.</p>
 <p>Once the <code class="docutils literal"><span class="pre">start</span></code> method has been called, the Jupyter Notebook is running a
 web service which will respond to queries from a web browser.  Try it out -
 open your web browser and navigate to <a class="reference external" href="http://localhost:8765/">http://localhost:8765/</a> or follow the same
-link embedded in your notebook.  Note the link won&#8217;t work on the web example -
+link embedded in your notebook.  Note the link won’t work on the web example -
 you need to have the example running on your local machine - all queries are run
 interactively between your web browser and the Jupyter Notebook.  Your web
 browser should show a page like the following:</p>
@@ -733,7 +733,7 @@ to set the name appropriately):</p>
 <p>The keys in this object are table names, the values are also a dictionary
 where the keys are column names and the values are a tuple.  The first value
 of the tuple is what to call the Pandas <code class="docutils literal"><span class="pre">fillna</span></code> function with,
-and can be a choice of &#8220;zero,&#8221; &#8220;median,&#8221; or &#8220;mode&#8221; and should be set
+and can be a choice of “zero,” “median,” or “mode” and should be set
 appropriately by the user for the specific column.  The second argument is
 the data type to convert to. The user can then call
 <code class="docutils literal"><span class="pre">utils.fill_na_from_config</span></code> as in the <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/dataset.py#L24">example</a>

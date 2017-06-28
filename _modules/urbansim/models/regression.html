@@ -418,8 +418,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_parameters</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">est_data</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="RegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.from_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.from_yaml">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a RegressionModel instance from a saved YAML configuration.</span>
 <span class="sd">        Arguments are mutually exclusive.</span>
@@ -630,8 +630,8 @@
             <span class="n">util</span><span class="o">.</span><span class="n">columns_in_filters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_filters</span><span class="p">),</span>
             <span class="n">util</span><span class="o">.</span><span class="n">columns_in_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_expression</span><span class="p">))))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="RegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outcfgname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.fit_from_cfg">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outcfgname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -657,8 +657,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: fit into configuration </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outcfgname</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">hm</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="RegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
+<div class="viewcode-block" id="RegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.RegressionModel.predict_from_cfg">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -884,8 +884,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_segment_size</span> <span class="o">=</span> <span class="n">min_segment_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;SegmentedRegressionModel&#39;</span>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SegmentedRegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.from_yaml">[docs]</a>    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.from_yaml"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.from_yaml">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a SegmentedRegressionModel instance from a saved YAML</span>
 <span class="sd">        configuration. Arguments are mutally exclusive.</span>
@@ -1128,8 +1128,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_group</span><span class="o">.</span><span class="n">columns_used</span><span class="p">(),</span>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segmentation_col</span><span class="p">])))</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SegmentedRegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_segment_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outcfgname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.fit_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.fit_from_cfg">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fit_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_segment_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outcfgname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1161,8 +1161,8 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: fit into configuration </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outcfgname</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">hm</span></div>
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SegmentedRegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">[docs]</a>    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">min_segment_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SegmentedRegressionModel.predict_from_cfg"><a class="viewcode-back" href="../../../models/statistical.html#urbansim.models.regression.SegmentedRegressionModel.predict_from_cfg">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">predict_from_cfg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">cfgname</span><span class="p">,</span> <span class="n">min_segment_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>

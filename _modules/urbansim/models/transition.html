@@ -253,10 +253,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;start: removing </span><span class="si">{}</span><span class="s1"> rows in transition model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nrows</span><span class="p">))</span>
     <span class="n">nrows</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span>  <span class="c1"># in case a negative number came in</span>
+    <span class="n">unit_check</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">accounting_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="k">if</span> <span class="n">accounting_column</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">nrows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">_empty_index</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Number of rows to remove exceeds number of rows in table.&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">nrows</span> <span class="o">&gt;</span> <span class="n">unit_check</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Number of rows to remove exceeds number of records in table.&#39;</span><span class="p">)</span>
 
     <span class="n">remove_rows</span> <span class="o">=</span> <span class="n">sample_rows</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">accounting_column</span><span class="o">=</span><span class="n">accounting_column</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">remove_index</span> <span class="o">=</span> <span class="n">remove_rows</span><span class="o">.</span><span class="n">index</span>

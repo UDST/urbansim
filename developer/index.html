@@ -200,7 +200,7 @@ building costs at different heights (taller buildings typically requiring
 more expensive construction methods), the profit ratio required,
 the building efficiency, parcel coverage, and cap rate to name a few.  See
 the API documentation for the complete list and detailed descriptions.</p>
-<p>Note that unit mixes don&#8217;t typically enter in to the square foot pro forma
+<p>Note that unit mixes don’t typically enter in to the square foot pro forma
 (hence the name).  After discussions with numerous real estate developers,
 we found that most developers thought first and foremost in terms of price and
 cost per square foot and the arbitrage between, and second in terms of the
@@ -241,10 +241,10 @@ at the regional level, it can also be used to meet vacancy rates at a
 sub-regional level.  The developer model itself is agnostic to which parcels
 the user passes it, and the user is responsible for knowing at which level of
 geography demand is assumed to operate.  The developer model then chooses
-which buildings to &#8220;build,&#8221; usually as a random choice weighted by profitability.
+which buildings to “build,” usually as a random choice weighted by profitability.
 This means more profitable buildings are more likely to be built although
 the results are a bit stochastic.</p>
-<p>The only remaining steps are then &#8220;bookkeeping&#8221; in the sense that some
+<p>The only remaining steps are then “bookkeeping” in the sense that some
 additional fields might need to be added (<code class="docutils literal"><span class="pre">year_built</span></code> or a conversion from
 developer <code class="docutils literal"><span class="pre">forms</span></code> to <code class="docutils literal"><span class="pre">building_type_ids</span></code>).  Finally the new buildings
 and old buildings need to be merged in such a way that the old ids are
@@ -332,7 +332,7 @@ the config</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>cost</strong> : series</p>
 <blockquote class="last">
 <div><p>A series where the index is the far and the values are the average
-cost per sqft at which the building is &#8220;break even&#8221; given the
+cost per sqft at which the building is “break even” given the
 configuration parameters that were passed at run time.</p>
 </div></blockquote>
 </td>
@@ -409,7 +409,7 @@ developer</p>
 <blockquote>
 <div><p>A set of columns, one for each of the uses passed in the configuration.
 Values are yearly rents for that use.  Typical column names would be
-&#8220;residential&#8221;, &#8220;retail&#8221;, &#8220;industrial&#8221; and &#8220;office&#8221;</p>
+“residential”, “retail”, “industrial” and “office”</p>
 </div></blockquote>
 <p><strong>land_cost</strong> : series</p>
 <blockquote>
@@ -531,10 +531,10 @@ and residential.</p>
 are also dictionaries where keys are uses and values are the
 proportion of that use used in this form.  The values of the
 dictionary should sum to 1.0.  For instance, a form called
-&#8220;residential&#8221; might have a dict of space allocations equal to
-{&#8220;residential&#8221;: 1.0} while a form called &#8220;mixedresidential&#8221;
+“residential” might have a dict of space allocations equal to
+{“residential”: 1.0} while a form called “mixedresidential”
 might have a dictionary of space allocations equal to
-{&#8220;retail&#8221;: .1, &#8220;residential&#8221; .9] which is 90% residential and
+{“retail”: .1, “residential” .9] which is 90% residential and
 10% retail.</p>
 </div></blockquote>
 <p><strong>parking_rates</strong> : dict</p>
@@ -542,7 +542,7 @@ might have a dictionary of space allocations equal to
 <div><p>A dict of rates per thousand square feet where keys are the uses
 from the list specified in the attribute above.  The ratios
 are typically in the range 0.5 - 3.0 or similar.  So for
-instance, a key-value pair of &#8220;retail&#8221;: 2.0 would be two parking
+instance, a key-value pair of “retail”: 2.0 would be two parking
 spaces per 1,000 square feet of retail.  This is a per square
 foot pro forma, so the more typically parking ratio of spaces
 per residential unit must be converted to square feet for use in
@@ -557,7 +557,7 @@ overridden.</p>
 <p><strong>parking_configs</strong> : list</p>
 <blockquote>
 <div><p>An expert parameter and is usually unchanged.  By default
-it is set to [&#8216;surface&#8217;, &#8216;deck&#8217;, &#8216;underground&#8217;] and very semantic
+it is set to [‘surface’, ‘deck’, ‘underground’] and very semantic
 differences in the computation are performed for each of these
 parking configurations.  Generally speaking it will break things
 to change this array, but an item can be removed if that parking
@@ -581,7 +581,7 @@ expensive than surface parking.</p>
 </div></blockquote>
 <p><strong>height_for_costs</strong> : list</p>
 <blockquote>
-<div><p>A list of &#8220;break points&#8221; as heights at which construction becomes
+<div><p>A list of “break points” as heights at which construction becomes
 more expensive.  Generally these are the heights at which
 construction materials change from wood, to concrete, to steel.
 Costs are also given as lists by use for each of these break
@@ -593,7 +593,7 @@ list would look something like [15, 55, 120, np.inf].</p>
 <div><p>The keys are uses from the attribute above and the values are a
 list of floating point numbers of same length as the
 height_for_costs attribute.  A key-value pair of
-&#8220;residential&#8221;: [160.0, 175.0, 200.0, 230.0] would say that the
+“residential”: [160.0, 175.0, 200.0, 230.0] would say that the
 residential use if $160/sqft up to 15ft in total height for the
 building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
 $230/sqft beyond.  A final value in the height_for_costs
@@ -735,7 +735,7 @@ index after the merge)</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>df</strong> : dataframe</p>
 <blockquote>
-<div><p>Combined DataFrame of buildings, makes sure indexes don&#8217;t overlap</p>
+<div><p>Combined DataFrame of buildings, makes sure indexes don’t overlap</p>
 </div></blockquote>
 <p><strong>index</strong> : pd.Index</p>
 <blockquote class="last">
@@ -761,7 +761,7 @@ order to match the specified demand.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>form</strong> : string or list</p>
 <blockquote>
 <div><p>One or more of the building forms from the pro forma specification -
-e.g. &#8220;residential&#8221; or &#8220;mixedresidential&#8221; - these are configuration
+e.g. “residential” or “mixedresidential” - these are configuration
 parameters passed previously to the pro forma.  If more than one form
 is passed the forms compete with each other (based on profitability)
 for which one gets built in order to meet demand.</p>

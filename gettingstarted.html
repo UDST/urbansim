@@ -242,7 +242,7 @@ which contains most of the libraries upon which UrbanSim depends.</p>
 <h5>conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h5>
 <p><a class="reference external" href="https://conda.io/docs/">conda</a>, which comes with Anaconda, is the
 easiest way to install UrbanSim because it has binary installers for
-all of UrbanSim&#8217;s hard-to-install dependencies.
+all of UrbanSim’s hard-to-install dependencies.
 First, add the <a class="reference external" href="https://anaconda.org/udst">udst channel</a>
 to your conda configuration:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">udst</span>
@@ -265,10 +265,10 @@ via <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>:
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
-<p>When using this method it&#8217;s best to already have most of the dependencies
+<p>When using this method it’s best to already have most of the dependencies
 installed, otherwise pip will try to download and install things like
 NumPy, SciPy, and matplotlib.
-If you&#8217;re using Anaconda you will already have all of the hard-to-install
+If you’re using Anaconda you will already have all of the hard-to-install
 libraries.</p>
 <p>To update to a new release of UrbanSim use the <code class="docutils literal"><span class="pre">-U</span></code> option with
 <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
@@ -296,7 +296,7 @@ included in Anaconda.</p>
 <p>If you are going to be developing on UrbanSim you will want to fork our
 <a class="reference external" href="https://github.com/udst/urbansim">GitHub repository</a> and clone
 your fork to your computer. Then run <code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> to install
-UrbanSim in developer mode. In this mode you won&#8217;t have to reinstall
+UrbanSim in developer mode. In this mode you won’t have to reinstall
 UrbanSim every time you make changes.</p>
 </div>
 </div>
@@ -320,14 +320,14 @@ two of the key tools that the new implementation of UrbanSim relies on.</p>
 <h3>Pandas<a class="headerlink" href="#pandas" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="http://pandas.pydata.org">Pandas</a> is a data science library written in
 Python which is an outstanding tool for data manipulation and exploration.
-To get started, we recommend Wes McKinney&#8217;s <a class="reference external" href="http://vimeo.com/59324550">10 minute video tour</a>.</p>
+To get started, we recommend Wes McKinney’s <a class="reference external" href="http://vimeo.com/59324550">10 minute video tour</a>.</p>
 <p>Pandas is similar to a relational database with a much easier API than SQL,
 and with much faster performance.  However, it makes no attempt to enable
 multi-user editing of data and transactions the way a database would.</p>
 <p>The previous implementation of UrbanSim, known as OPUS,
 implemented much of this functionality itself in the absence of such robust
 libraries - in fact, the OPUS implementation of UrbanSim was started around
-2005, while Pandas wasn&#8217;t developed until 2010.</p>
+2005, while Pandas wasn’t developed until 2010.</p>
 <p>One of the main motivations for the current implementation of UrbanSim is to
 refactor the code to make it simpler, faster, and smaller, while leveraging
 terrific new libraries like Pandas that have solved very elegantly some of the
@@ -347,14 +347,14 @@ For instance, you can now take a column from one table and a column from
 another table and add or multiply them and the operation will automatically
 align on the key (i.e. it will add elements with the same index value).</p>
 <p>This is incredibly handy.  Almost all of the benefits of using Pandas come down
-to using these indexes in intelligent and powerful ways.  But it&#8217;s not always
+to using these indexes in intelligent and powerful ways.  But it’s not always
 easy to get the functionality exactly right the first time.</p>
 <p><strong>Some general advice about using Pandas: if you have a problem with Pandas,
 check your indexes, re-check your indexes, and do it one more time for good
 measure.</strong></p>
 <p>A surprising amount of the time when you have bugs in your code, the Pandas
 series is not indexed correctly when performing the subsequent operations and
-it is not doing what you intend.  You&#8217;ve been warned.</p>
+it is not doing what you intend.  You’ve been warned.</p>
 <p>To be clear, the canonical example of using Pandas might be having a parcel
 table indexed on parcel id and a building table indexed on building_id,
 but with an attribute in the buildings table called parcel_id
@@ -373,12 +373,12 @@ in a cross-platform way.  The notebook is a fantastic tool to develop snippets
 of code a few lines at a time, and to capture and communicate higher-level
 workflows.</p>
 <p>This also makes the notebook a fantastic pedagogical tool - in other words
-it&#8217;s great for demos and communicating both the input and output of cells of
+it’s great for demos and communicating both the input and output of cells of
 Python code (e.g. <a class="reference external" href="https://nbviewer.jupyter.org/">nbviewer</a>).
 Many of the full-size examples of UrbanSim on this site are presented
 in notebooks.</p>
 <p>In many cases, you can write entire UrbanSim models in the notebook, but this
-is not generally considered the best practice.  It&#8217;s entirely up to you though,
+is not generally considered the best practice.  It’s entirely up to you though,
 and we are happy to share with you our insights from many hours of developing
 and using this set of tools.</p>
 <p>The Python flavor of Jupyter notebook uses <a class="reference external" href="http://ipython.org/">IPython</a>,
@@ -391,7 +391,7 @@ other technical details.</p>
 <h2>A Gentle Introduction to UrbanSim<a class="headerlink" href="#a-gentle-introduction-to-urbansim" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="background">
 <h3>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h3>
-<p>UrbanSim has been an active research project since the late 1990&#8217;s, and has
+<p>UrbanSim has been an active research project since the late 1990’s, and has
 undergone continual re-thinking, and re-engineering over the ensuing years,
 as documented in many of the <a class="reference external" href="http://www.urbansim.com/research/">accumulated research papers</a>.
 Below is a brief, high-level summary of UrbanSim in only a few paragraphs from
@@ -477,7 +477,7 @@ over time.</p>
 <div class="section" id="specifying-scenario-inputs">
 <h2>Specifying Scenario Inputs<a class="headerlink" href="#specifying-scenario-inputs" title="Permalink to this headline">¶</a></h2>
 <p>Although UrbanSim is designed to model real estate markets,
-the <em>raison d&#8217;etre</em> of UrbanSim is as a scenario planning tool. Regional or
+the <em>raison d’etre</em> of UrbanSim is as a scenario planning tool. Regional or
 city planners want to understand how their cities will develop in the
 presence or absence of different policies or in the context of different
 assumptions that they have little or no control over, like economic growth or
@@ -485,8 +485,8 @@ migration of households.</p>
 <p>In a sense, this style of regional modeling is kind of like retirement
 planning, but for cities - will there be enough room for all the households and
 jobs if the city grows by 3% every year?  What if it grows by 5%?  10%?
-If current zoning policies don&#8217;t appropriately accommodate that growth,
-it&#8217;s likely that prices will rise, but by how much?  If growth is pushed to
+If current zoning policies don’t appropriately accommodate that growth,
+it’s likely that prices will rise, but by how much?  If growth is pushed to
 different parts of the region, will there be environmental impacts or an
 inefficient transportation network that increases traffic, travel times,
 and infrastructure costs?  What will the resulting urban form look like?
@@ -515,7 +515,7 @@ neighborhood amenities, and of lowering or raising parking requirements.</li>
 </div>
 <div class="section" id="using-orca-as-a-simulation-framework">
 <h2>Using Orca as a simulation framework<a class="headerlink" href="#using-orca-as-a-simulation-framework" title="Permalink to this headline">¶</a></h2>
-<p>Before moving on, it&#8217;s useful to describe at a high level how <a class="reference external" href="https://github.com/udst/orca">Orca</a>,
+<p>Before moving on, it’s useful to describe at a high level how <a class="reference external" href="https://github.com/udst/orca">Orca</a>,
 the pipeline orchestration framework built for UrbanSim,
 helps solve the problems described thus far in this <em>getting started</em> document.</p>
 <p>Over many years of implementing UrbanSim models, we realized that we wanted a
