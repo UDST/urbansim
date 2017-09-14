@@ -94,8 +94,13 @@ def remove_rows(data, nrows, accounting_column=None):
     unit_check = data[accounting_column].sum() if accounting_column else len(data)
     if nrows == 0:
         return data, _empty_index()
-    elif nrows > unit_check:
-        raise ValueError('Number of rows to remove exceeds number of records in table.')
+
+    if accounting_column:
+        if nrows > data[accounting_column].sum():
+            raise ValueError('Number of rows to remove exceeds number of rows in table.')
+    else:
+        if nrows > len(data):
+            raise ValueError('Number of rows to remove exceeds number of rows in table.')
 
     remove_rows = sample_rows(nrows, data, accounting_column=accounting_column, replace=False)
     remove_index = remove_rows.index
