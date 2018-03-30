@@ -534,6 +534,11 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         coeffs = [self.fit_parameters['Coefficient'][x]
                   for x in model_design.columns]
 
+        normalization_mean = [self.fit_parameters['Normalization Mean'][x]
+                  for x in model_design.columns]
+        normalization_std = [self.fit_parameters['Normalization Std'][x]
+                  for x in model_design.columns]
+
         # probabilities are returned from mnl_simulate as a 2d array
         # with choosers along rows and alternatives along columns
         if self.probability_mode == 'single_chooser':
@@ -544,7 +549,10 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
             coeffs,
-            numalts=numalts, returnprobs=True)
+            normalization_mean,
+            normalization_std,
+            numalts=numalts,
+            returnprobs=True)
 
         # want to turn probabilities into a Series with a MultiIndex
         # of chooser IDs and alternative IDs.

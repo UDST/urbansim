@@ -118,7 +118,7 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
+def mnl_simulate(data, coeff, normalization_mean, normalization_std, numalts, GPU=False, returnprobs=True):
     """
     Get the probabilities for each chooser choosing between `numalts`
     alternatives.
@@ -131,6 +131,10 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
         choosers. Alternatives must be in the same order for each chooser.
     coeff : 1D array
         The model coefficients corresponding to each column in `data`.
+    normalization_mean : 1D array
+        The model normalization constant corresponding to each column in `data`.
+    normalization_std : 1D array
+        The model normalization factor corresponding to each column in `data`.
     numalts : int
         The number of alternatives available to each chooser.
     GPU : bool, optional
@@ -150,6 +154,7 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
             len(data), numalts))
     atype = 'numpy' if not GPU else 'cuda'
 
+    data = (data.copy() - normalization_mean) / normalization_std
     data = np.transpose(data)
     coeff = np.reshape(np.array(coeff), (1, len(coeff)))
 
@@ -221,6 +226,11 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     numvars = data.shape[1]
     numobs = data.shape[0] // numalts
 
+    normalization_mean = data.mean(0)
+    normalization_std = data.std(0, ddof=1)
+
+    data = (data.copy() - normalization_mean) / normalization_std
+
     if chosen is None:
         chosen = np.ones((numobs, numalts))  # used for latent classes
 
@@ -260,6 +270,8 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     }
 
     fit_parameters = pd.DataFrame({
+        'Normalization Mean': normalization_mean,
+        'Normalization Std': normalization_std,
         'Coefficient': beta,
         'Std. Error': stderr,
         'T-Score': beta / stderr})
