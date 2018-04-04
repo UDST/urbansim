@@ -219,7 +219,8 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
         'choice_column': basic_dcm.choice_column,
         'fitted': False,
         'log_likelihoods': None,
-        'fit_parameters': None
+        'fit_parameters': None,
+        'normalize': False,
     }
 
     assert yaml.load(basic_dcm.to_yaml()) == expected_dict
@@ -512,14 +513,16 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
                 'name': 'x',
                 'fitted': False,
                 'log_likelihoods': None,
-                'fit_parameters': None
+                'fit_parameters': None,
+                'normalize': False,
             },
             'y': {
                 'name': 'y',
                 'model_expression': 'var3 + var1:var2',
                 'fitted': False,
                 'log_likelihoods': None,
-                'fit_parameters': None
+                'fit_parameters': None,
+                'normalize': False,
             }
         }
     }
