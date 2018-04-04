@@ -234,13 +234,15 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Whether (and how much) to sample alternatives during prediction.
         Note that this can lead to multiple choosers picking the same
         alternative.
-    choice_column : optional
+    choice_column : str, optional
         Name of the column in the `alternatives` table that choosers
         should choose. e.g. the 'building_id' column. If not provided
         the alternatives index is used.
-    name : optional
+    name : str, optional
         Optional descriptive name for this model that may be used
         in output.
+    normalize : bool, optional default False
+        subtract the mean and divide by the standard deviation before fitting the Coefficients
 
     """
     def __init__(
@@ -251,7 +253,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             interaction_predict_filters=None,
             estimation_sample_size=None,
             prediction_sample_size=None,
-            choice_column=None, name=None):
+            choice_column=None, name=None,
+            normalize=False):
         self._check_prob_choice_mode_compat(probability_mode, choice_mode)
         self._check_prob_mode_interaction_compat(
             probability_mode, interaction_predict_filters)
@@ -270,6 +273,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.choice_column = choice_column
         self.name = name if name is not None else 'MNLDiscreteChoiceModel'
         self.sim_pdf = None
+        self.normalize = normalize
 
         self.log_likelihoods = None
         self.fit_parameters = None
@@ -308,7 +312,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             estimation_sample_size=cfg.get('estimation_sample_size', None),
             prediction_sample_size=cfg.get('prediction_sample_size', None),
             choice_column=cfg.get('choice_column', None),
-            name=cfg.get('name', None)
+            name=cfg.get('name', None),
+            normalize=cfg.get('normalize', False),
         )
 
         if cfg.get('log_likelihoods', None):
@@ -420,7 +425,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
                 'the input columns.')
 
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
-            model_design.as_matrix(), chosen, self.sample_size)
+            model_design.as_matrix(), chosen, self.sample_size, self.normalize)
         self.fit_parameters.index = model_design.columns
 
         logger.debug('finish: fit LCM model {}'.format(self.name))
@@ -534,10 +539,17 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         coeffs = [self.fit_parameters['Coefficient'][x]
                   for x in model_design.columns]
 
-        normalization_mean = [self.fit_parameters['Normalization Mean'][x]
-                  for x in model_design.columns]
-        normalization_std = [self.fit_parameters['Normalization Std'][x]
-                  for x in model_design.columns]
+        normalization_mean = 0.0
+        if 'Normalization Mean' in self.fit_parameters.columns:
+            normalization_mean = self.fit_parameters['Normalization Mean']
+            normalization_mean = [normalization_mean[x]
+                      for x in model_design.columns]
+
+        normalization_std = 1.0
+        if 'Normalization Std' in self.fit_parameters.columns:
+            normalization_std = self.fit_parameters['Normalization Std']
+            normalization_std = [normalization_std[x]
+                      for x in model_design.columns]
 
         # probabilities are returned from mnl_simulate as a 2d array
         # with choosers along rows and alternatives along columns
@@ -549,9 +561,9 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         probabilities = mnl.mnl_simulate(
             model_design.as_matrix(),
             coeffs,
+            numalts,
             normalization_mean,
             normalization_std,
-            numalts=numalts,
             returnprobs=True)
 
         # want to turn probabilities into a Series with a MultiIndex
@@ -688,7 +700,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             'fitted': self.fitted,
             'log_likelihoods': self.log_likelihoods,
             'fit_parameters': (yamlio.frame_to_yaml_safe(self.fit_parameters)
-                               if self.fitted else None)
+                               if self.fitted else None),
+            'normalize': self.normalize,
         }
 
     def to_yaml(self, str_or_buffer=None):

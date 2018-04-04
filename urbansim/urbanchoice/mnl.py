@@ -118,7 +118,7 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, normalization_mean, normalization_std, numalts, GPU=False, returnprobs=True):
+def mnl_simulate(data, coeff, numalts, normalization_mean=0.0, normalization_std=1.0, GPU=False, returnprobs=True):
     """
     Get the probabilities for each chooser choosing between `numalts`
     alternatives.
@@ -131,12 +131,12 @@ def mnl_simulate(data, coeff, normalization_mean, normalization_std, numalts, GP
         choosers. Alternatives must be in the same order for each chooser.
     coeff : 1D array
         The model coefficients corresponding to each column in `data`.
-    normalization_mean : 1D array
-        The model normalization constant corresponding to each column in `data`.
-    normalization_std : 1D array
-        The model normalization factor corresponding to each column in `data`.
     numalts : int
         The number of alternatives available to each chooser.
+    normalization_mean : 1D array, optional
+        The model normalization constant corresponding to each column in `data`.
+    normalization_std : 1D array, optional
+        The model normalization factor corresponding to each column in `data`.
     GPU : bool, optional
     returnprobs : bool, optional
         If True, return the probabilities for each chooser/alternative instead
@@ -178,7 +178,7 @@ def mnl_simulate(data, coeff, normalization_mean, normalization_std, numalts, GP
 
 
 def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
-                 weights=None, lcgrad=False, beta=None):
+                 weights=None, lcgrad=False, beta=None, normalize=False):
     """
     Calculate coefficients of the MNL model.
 
@@ -202,6 +202,8 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     lcgrad : bool, optional
     beta : 1D array, optional
         Any initial guess for the coefficients.
+    normalize : bool, optional default False
+        subtract the mean and divide by the standard deviation before fitting the Coefficients
 
     Returns
     -------
@@ -226,10 +228,11 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     numvars = data.shape[1]
     numobs = data.shape[0] // numalts
 
-    normalization_mean = data.mean(0)
-    normalization_std = data.std(0, ddof=1)
+    if normalize:
+        normalization_mean = data.mean(0)
+        normalization_std = data.std(0, ddof=1)
 
-    data = (data.copy() - normalization_mean) / normalization_std
+        data = (data.copy() - normalization_mean) / normalization_std
 
     if chosen is None:
         chosen = np.ones((numobs, numalts))  # used for latent classes
@@ -270,11 +273,13 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     }
 
     fit_parameters = pd.DataFrame({
-        'Normalization Mean': normalization_mean,
-        'Normalization Std': normalization_std,
         'Coefficient': beta,
         'Std. Error': stderr,
         'T-Score': beta / stderr})
+
+    if normalize:
+        fit_parameters['Normalization Mean'] = normalization_mean
+        fit_parameters['Normalization Std'] = normalization_std
 
     logger.debug('finish: MNL fit')
     return log_likelihood, fit_parameters
