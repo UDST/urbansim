@@ -115,10 +115,10 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
         gradarr = np.reshape(gradarr.get_mat(), (1, gradarr.size()))[0]
 
     loglik -= l1 * np.abs(beta.get_mat()).sum()
-    gradarr -= l1 * np.sign(beta.get_mat())
+    gradarr -= l1 * np.sign(beta.get_mat())[0]
 
     loglik -= l2 * np.square(beta.get_mat()).sum()
-    gradarr -= l1 * beta.get_mat()
+    gradarr -= l2 * beta.get_mat()[0]
 
     logger.debug('finish: calculate MNL log-likelihood')
     return -1 * loglik, -1 * gradarr

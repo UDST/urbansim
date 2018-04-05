@@ -221,6 +221,8 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
         'log_likelihoods': None,
         'fit_parameters': None,
         'normalize': False,
+        'l1': 0.0,
+        'l2': 0.0,
     }
 
     assert yaml.load(basic_dcm.to_yaml()) == expected_dict
@@ -515,6 +517,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
                 'log_likelihoods': None,
                 'fit_parameters': None,
                 'normalize': False,
+                'l1': 0.0,
+                'l2': 0.0,
             },
             'y': {
                 'name': 'y',
@@ -523,6 +527,8 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
                 'log_likelihoods': None,
                 'fit_parameters': None,
                 'normalize': False,
+                'l1': 0.0,
+                'l2': 0.0,
             }
         }
     }
