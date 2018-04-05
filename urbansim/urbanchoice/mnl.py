@@ -64,7 +64,7 @@ def get_standard_error(hessian):
 
 
 def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
-               stderr=0):
+               stderr=0, l1=0.0, l2=0.0):
     logger.debug('start: calculate MNL log-likelihood')
     numvars = beta.size
     numobs = data.size() // numvars // numalts
@@ -113,6 +113,12 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     else:
         loglik = loglik.get_mat()[0, 0]
         gradarr = np.reshape(gradarr.get_mat(), (1, gradarr.size()))[0]
+
+    loglik -= l1 * np.abs(beta.get_mat()).sum()
+    gradarr -= l1 * np.sign(beta.get_mat())
+
+    loglik -= l2 * np.square(beta.get_mat()).sum()
+    gradarr -= l1 * beta.get_mat()
 
     logger.debug('finish: calculate MNL log-likelihood')
     return -1 * loglik, -1 * gradarr
@@ -178,7 +184,7 @@ def mnl_simulate(data, coeff, numalts, normalization_mean=0.0, normalization_std
 
 
 def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
-                 weights=None, lcgrad=False, beta=None, normalize=False):
+                 weights=None, lcgrad=False, beta=None, normalize=False, l1=0.0, l2=0.0):
     """
     Calculate coefficients of the MNL model.
 
@@ -249,7 +255,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     bounds = [coeffrange] * numvars
 
     with log_start_finish('scipy optimization for MNL fit', logger):
-        args = (data, chosen, numalts, weights, lcgrad)
+        args = (data, chosen, numalts, weights, lcgrad, l1, l2)
         bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
                                                    beta,
                                                    args=args,

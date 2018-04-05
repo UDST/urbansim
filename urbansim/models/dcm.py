@@ -243,6 +243,10 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         in output.
     normalize : bool, optional default False
         subtract the mean and divide by the standard deviation before fitting the Coefficients
+    l1 : float, optional default 0.0
+        the amount of l1 (Lasso) regularization when fitting the Coefficients
+    l2 : float, optional default 0.0
+        the amount of l2 (Ridge) regularization when fitting the Coefficients
 
     """
     def __init__(
@@ -254,7 +258,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             estimation_sample_size=None,
             prediction_sample_size=None,
             choice_column=None, name=None,
-            normalize=False):
+            normalize=False, l1=0.0, l2=0.0):
         self._check_prob_choice_mode_compat(probability_mode, choice_mode)
         self._check_prob_mode_interaction_compat(
             probability_mode, interaction_predict_filters)
@@ -274,6 +278,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         self.name = name if name is not None else 'MNLDiscreteChoiceModel'
         self.sim_pdf = None
         self.normalize = normalize
+        self.l1 = l1
+        self.l2 = l2
 
         self.log_likelihoods = None
         self.fit_parameters = None
@@ -314,6 +320,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             choice_column=cfg.get('choice_column', None),
             name=cfg.get('name', None),
             normalize=cfg.get('normalize', False),
+            l1=cfg.get('l1', 0.0),
+            l2=cfg.get('l2', 0.0),
         )
 
         if cfg.get('log_likelihoods', None):
@@ -425,7 +433,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
                 'the input columns.')
 
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
-            model_design.as_matrix(), chosen, self.sample_size, self.normalize)
+            model_design.as_matrix(), chosen, self.sample_size, self.normalize, self.l1, self.l2)
         self.fit_parameters.index = model_design.columns
 
         logger.debug('finish: fit LCM model {}'.format(self.name))
@@ -702,6 +710,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             'fit_parameters': (yamlio.frame_to_yaml_safe(self.fit_parameters)
                                if self.fitted else None),
             'normalize': self.normalize,
+            'l1': self.l1,
+            'l2': self.l2,
         }
 
     def to_yaml(self, str_or_buffer=None):
