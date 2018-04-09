@@ -124,7 +124,8 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, numalts, normalization_mean=0.0, normalization_std=1.0, GPU=False, returnprobs=True):
+def mnl_simulate(data, coeff, numalts, normalization_mean=0.0, normalization_std=1.0, GPU=False,
+                 returnprobs=True):
     """
     Get the probabilities for each chooser choosing between `numalts`
     alternatives.
