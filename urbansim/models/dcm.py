@@ -551,13 +551,13 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         if 'Normalization Mean' in self.fit_parameters.columns:
             normalization_mean = self.fit_parameters['Normalization Mean']
             normalization_mean = [normalization_mean[x]
-                      for x in model_design.columns]
+                                  for x in model_design.columns]
 
         normalization_std = 1.0
         if 'Normalization Std' in self.fit_parameters.columns:
             normalization_std = self.fit_parameters['Normalization Std']
             normalization_std = [normalization_std[x]
-                      for x in model_design.columns]
+                                 for x in model_design.columns]
 
         # probabilities are returned from mnl_simulate as a 2d array
         # with choosers along rows and alternatives along columns
