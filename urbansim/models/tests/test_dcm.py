@@ -45,7 +45,7 @@ def alternatives():
 
 
 @pytest.fixture
-def basic_dcm():
+def simple_dcm(request):
     model_exp = 'var2 + var1:var3'
     sample_size = 5
     probability_mode = 'full_product'
@@ -67,6 +67,21 @@ def basic_dcm():
         alts_fit_filters, alts_predict_filters,
         interaction_predict_filters, estimation_sample_size,
         prediction_sample_size, choice_column, name)
+
+    return model
+
+
+@pytest.fixture
+def simple_dcm_fit(simple_dcm, choosers, alternatives):
+    simple_dcm.fit(choosers, alternatives, choosers.thing_id)
+    return simple_dcm
+
+
+@pytest.fixture(params=[(False, 0.0, 0.0), (True, 0.0, 0.0),
+                        (True, 1.0e-2, 0.0), (True, 0.0, 1.0e-2), (True, 1.0e-2, 1.0e-2)])
+def basic_dcm(request, simple_dcm):
+    model = simple_dcm
+    model.normalize, model.l1, model.l2 = request.param
 
     return model
 
@@ -144,7 +159,7 @@ def test_mnl_dcm(seed, basic_dcm, choosers, alternatives):
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
     assert len(basic_dcm.fit_parameters) == 2
-    assert len(basic_dcm.fit_parameters.columns) == 3
+    assert len(basic_dcm.fit_parameters.columns) == 5 if basic_dcm.normalize else 3
 
     filtered_choosers, filtered_alts = basic_dcm.apply_predict_filters(
         choosers, alternatives)
@@ -160,10 +175,17 @@ def test_mnl_dcm(seed, basic_dcm, choosers, alternatives):
 
     choices = basic_dcm.predict(choosers.iloc[1:], alternatives)
 
-    pdt.assert_series_equal(
-        choices,
-        pd.Series(
-            ['h', 'c', 'f'], index=pd.Index([1, 3, 4], name='chooser_id')))
+    if basic_dcm.normalize:
+        # normalize should not change the predictions but we hit the limits of coeffrange
+        pdt.assert_series_equal(
+            choices,
+            pd.Series(
+                ['j', 'b', 'b'], index=pd.Index([1, 3, 4], name='chooser_id')))
+    else:
+        pdt.assert_series_equal(
+            choices,
+            pd.Series(
+                ['h', 'c', 'f'], index=pd.Index([1, 3, 4], name='chooser_id')))
 
     # check that we can do a YAML round-trip
     yaml_str = basic_dcm.to_yaml()
@@ -190,7 +212,7 @@ def test_mnl_dcm_repeated_alts(basic_dcm, choosers, alternatives):
     # involved, but can at least do a smoke test.
     assert len(loglik) == 3
     assert len(basic_dcm.fit_parameters) == 2
-    assert len(basic_dcm.fit_parameters.columns) == 3
+    assert len(basic_dcm.fit_parameters.columns) == 5 if basic_dcm.normalize else 3
 
     repeated_index = alternatives.index.repeat([1, 2, 3, 2, 4, 3, 2, 1, 5, 8])
     repeated_alts = alternatives.loc[repeated_index].reset_index()
@@ -220,9 +242,9 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
         'fitted': False,
         'log_likelihoods': None,
         'fit_parameters': None,
-        'normalize': False,
-        'l1': 0.0,
-        'l2': 0.0,
+        'normalize': basic_dcm.normalize,
+        'l1': basic_dcm.l1,
+        'l2': basic_dcm.l2,
     }
 
     assert yaml.load(basic_dcm.to_yaml()) == expected_dict
@@ -246,13 +268,13 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
     assert new_mod.fitted is True
 
 
-def test_mnl_dcm_prob_mode_single(seed, basic_dcm_fit, choosers, alternatives):
-    basic_dcm_fit.probability_mode = 'single_chooser'
+def test_mnl_dcm_prob_mode_single(seed, simple_dcm_fit, choosers, alternatives):
+    simple_dcm_fit.probability_mode = 'single_chooser'
 
-    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+    filtered_choosers, filtered_alts = simple_dcm_fit.apply_predict_filters(
         choosers, alternatives)
 
-    probs = basic_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
+    probs = simple_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
 
     pdt.assert_series_equal(
         probs,
@@ -270,21 +292,21 @@ def test_mnl_dcm_prob_mode_single(seed, basic_dcm_fit, choosers, alternatives):
                 [[1], filtered_alts.index.values],
                 names=['chooser_id', 'alternative_id'])))
 
-    sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    sprobs = simple_dcm_fit.summed_probabilities(choosers, alternatives)
     pdt.assert_index_equal(
         sprobs.index, filtered_alts.index, check_names=False)
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
 
 def test_mnl_dcm_prob_mode_single_prediction_sample_size(
-        seed, basic_dcm_fit, choosers, alternatives):
-    basic_dcm_fit.probability_mode = 'single_chooser'
-    basic_dcm_fit.prediction_sample_size = 5
+        seed, simple_dcm_fit, choosers, alternatives):
+    simple_dcm_fit.probability_mode = 'single_chooser'
+    simple_dcm_fit.prediction_sample_size = 5
 
-    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+    filtered_choosers, filtered_alts = simple_dcm_fit.apply_predict_filters(
         choosers, alternatives)
 
-    probs = basic_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
+    probs = simple_dcm_fit.probabilities(choosers.iloc[1:], alternatives)
 
     pdt.assert_series_equal(
         probs,
@@ -298,7 +320,7 @@ def test_mnl_dcm_prob_mode_single_prediction_sample_size(
                 [[1], ['g', 'j', 'f', 'd', 'a']],
                 names=['chooser_id', 'alternative_id'])))
 
-    sprobs = basic_dcm_fit.summed_probabilities(choosers, alternatives)
+    sprobs = simple_dcm_fit.summed_probabilities(choosers, alternatives)
     pdt.assert_index_equal(
         sprobs.index,
         pd.Index(['d', 'g', 'a', 'c', 'd'], name='alternative_id'))
@@ -323,14 +345,14 @@ def test_mnl_dcm_prob_mode_full_prediction_sample_size(
     npt.assert_allclose(sprobs.sum(), len(filtered_choosers))
 
 
-def test_mnl_dcm_choice_mode_agg(seed, basic_dcm_fit, choosers, alternatives):
-    basic_dcm_fit.probability_mode = 'single_chooser'
-    basic_dcm_fit.choice_mode = 'aggregate'
+def test_mnl_dcm_choice_mode_agg(seed, simple_dcm_fit, choosers, alternatives):
+    simple_dcm_fit.probability_mode = 'single_chooser'
+    simple_dcm_fit.choice_mode = 'aggregate'
 
-    filtered_choosers, filtered_alts = basic_dcm_fit.apply_predict_filters(
+    filtered_choosers, filtered_alts = simple_dcm_fit.apply_predict_filters(
         choosers, alternatives)
 
-    choices = basic_dcm_fit.predict(choosers, alternatives)
+    choices = simple_dcm_fit.predict(choosers, alternatives)
 
     pdt.assert_series_equal(
         choices,
