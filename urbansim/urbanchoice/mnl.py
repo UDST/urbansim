@@ -256,7 +256,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     bounds = [coeffrange] * numvars
 
     with log_start_finish('scipy optimization for MNL fit', logger):
-        args = (data, chosen, numalts, weights, lcgrad, l1, l2)
+        args = (data, chosen, numalts, weights, lcgrad, 0, l1, l2)
         bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
                                                    beta,
                                                    args=args,

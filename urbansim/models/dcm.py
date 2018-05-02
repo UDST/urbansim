@@ -434,7 +434,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
 
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
             model_design.as_matrix(), chosen, self.sample_size,
-            self.normalize, l1=self.l1, l2=self.l2)
+            normalize=self.normalize, l1=self.l1, l2=self.l2)
         self.fit_parameters.index = model_design.columns
 
         logger.debug('finish: fit LCM model {}'.format(self.name))
