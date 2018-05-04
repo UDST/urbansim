@@ -79,6 +79,12 @@ class PMAT:
         # elif self.typ == 'cuda':
         #  return PMAT(misc.cumsum(self.mat,axis=axis))
 
+    def max(self, axis):
+        if self.typ == 'numpy':
+            return PMAT(np.max(self.mat, axis=axis))
+        elif self.typ == 'cuda':
+            return PMAT(self.mat.max(axis=axis))
+
     def argmax(self, axis):
         if self.typ == 'numpy':
             return PMAT(np.argmax(self.mat, axis=axis))
