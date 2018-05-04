@@ -245,6 +245,10 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
                                                    approx_grad=False,
                                                    bounds=bounds
                                                    )
+
+    if bfgs_result[2]['warnflag'] > 0:
+        logger.warn("mnl did not converge correctly: %s",  bfgs_result)
+
     beta = bfgs_result[0]
     stderr = mnl_loglik(
         beta, data, chosen, numalts, weights, stderr=1, lcgrad=lcgrad)
