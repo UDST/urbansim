@@ -35,6 +35,10 @@ def mnl_probs(data, beta, numalts):
         raise Exception("Number of alternatives is zero")
     utilities.reshape(numalts, utilities.size() // numalts)
 
+    # https://stats.stackexchange.com/questions/304758/softmax-overflow
+    if clamp:
+        utilities.mat -= utilities.mat.max(0)
+
     exponentiated_utility = utilities.exp(inplace=True)
     if clamp:
         exponentiated_utility.inftoval(1e20)
