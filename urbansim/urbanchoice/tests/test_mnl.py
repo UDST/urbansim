@@ -111,30 +111,54 @@ def choosers_dm(choosers, test_data):
 @pytest.fixture
 def fit_coeffs(dm, chosen, num_alts):
     log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts)
-    return fit.Coefficient.values
+    return fit
 
 
-def test_mnl_estimate(dm, chosen, num_alts, test_data):
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts)
-    result = pd.Series(fit.Coefficient.values, index=dm.columns)
+@pytest.fixture
+def fit_normalize(dm, chosen, num_alts):
+    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts, normalize=True)
+    return fit
+
+
+def test_mnl_estimate(fit_coeffs, fit_normalize, dm, chosen, num_alts, test_data):
+    result = pd.Series(fit_coeffs.Coefficient.values, index=dm.columns)
     result, expected = result.align(test_data['est_expected'])
     npt.assert_allclose(result.values, expected.values, rtol=1e-4)
 
+    l1 = abs(fit_normalize.Coefficient).sum()
+    _, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts, normalize=True, l1=0.1)
+    fit_l1 = abs(fit.Coefficient).sum()
+    assert fit_l1 < l1, "we asked that the l1 norm be minimized so it should be smaller"
 
-def test_mnl_simulate(dm, fit_coeffs, num_alts, test_data, choosers_dm):
+    l2 = np.square(fit_normalize.Coefficient).sum()
+    _, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts, normalize=True, l1=0.2)
+    fit_l2 = np.square(fit.Coefficient).sum()
+    assert fit_l2 < l2, "we asked that the l2 norm be minimized so it should be smaller"
+
+
+def test_mnl_simulate(dm, fit_coeffs, fit_normalize, num_alts, test_data, choosers_dm):
     # check that if all the alternatives have the same numbers
     # we get an even probability distribution
     data = np.array(
         [[10 ** (x + 1) for x in range(len(dm.columns))]] * num_alts)
 
     probs = mnl.mnl_simulate(
-        data, fit_coeffs, num_alts, returnprobs=True)
+        data, fit_coeffs.Coefficient.values, num_alts, returnprobs=True)
 
     npt.assert_allclose(probs, [[1 / num_alts] * num_alts])
 
     # now test with real data
     probs = mnl.mnl_simulate(
-        choosers_dm.as_matrix(), fit_coeffs, num_alts, returnprobs=True)
+        choosers_dm.as_matrix(), fit_coeffs.Coefficient.values, num_alts, returnprobs=True)
+    results = pd.DataFrame(probs, columns=test_data['sim_expected'].columns)
+    results, expected = results.align(test_data['sim_expected'])
+    npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
+
+    # now test with real data
+    probs = mnl.mnl_simulate(
+        choosers_dm.as_matrix(), fit_normalize.Coefficient.values, num_alts, returnprobs=True,
+        normalization_mean=fit_normalize['Normalization Mean'].values,
+        normalization_std=fit_normalize['Normalization Std'].values)
     results = pd.DataFrame(probs, columns=test_data['sim_expected'].columns)
     results, expected = results.align(test_data['sim_expected'])
     npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
