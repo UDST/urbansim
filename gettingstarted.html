@@ -25,26 +25,19 @@
   
 
   
-  
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="urbansim 3.1.1 documentation" href="index.html"/>
-        <link rel="next" title="Examples" href="examples.html"/>
-        <link rel="prev" title="UrbanSim" href="index.html"/> 
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="UrbanSim" href="index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -137,7 +130,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">urbansim</a>
@@ -145,9 +138,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -192,7 +186,7 @@
   <div class="section" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <p>Let us know what you are working on or if you think you have a great use case
-by tweeting us at <code class="docutils literal"><span class="pre">&#64;urbansim</span></code> or post on the UrbanSim <a class="reference external" href="http://discussion.urbansim.com/">forum</a>.</p>
+by tweeting us at <code class="docutils literal notranslate"><span class="pre">&#64;urbansim</span></code> or post on the UrbanSim <a class="reference external" href="http://discussion.urbansim.com/">forum</a>.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="admonition note">
@@ -245,15 +239,15 @@ easiest way to install UrbanSim because it has binary installers for
 all of UrbanSim’s hard-to-install dependencies.
 First, add the <a class="reference external" href="https://anaconda.org/udst">udst channel</a>
 to your conda configuration:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">udst</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">udst</span>
 </pre></div>
 </div>
 <p>Then use conda to install UrbanSim:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">urbansim</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
-<p>To update to a new UrbanSim version use the <code class="docutils literal"><span class="pre">conda</span> <span class="pre">update</span></code> command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="n">urbansim</span>
+<p>To update to a new UrbanSim version use the <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">update</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 </div>
@@ -262,7 +256,7 @@ to your conda configuration:</p>
 <p>UrbanSim can also be installed from
 <a class="reference external" href="https://pypi.python.org/pypi/urbansim">PyPI</a>
 via <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">urbansim</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 <p>When using this method it’s best to already have most of the dependencies
@@ -270,9 +264,9 @@ installed, otherwise pip will try to download and install things like
 NumPy, SciPy, and matplotlib.
 If you’re using Anaconda you will already have all of the hard-to-install
 libraries.</p>
-<p>To update to a new release of UrbanSim use the <code class="docutils literal"><span class="pre">-U</span></code> option with
-<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">urbansim</span>
+<p>To update to a new release of UrbanSim use the <code class="docutils literal notranslate"><span class="pre">-U</span></code> option with
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">urbansim</span>
 </pre></div>
 </div>
 </div>
@@ -284,7 +278,7 @@ libraries.</p>
 using <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, a Python package manager.
 pip is included with Anaconda so you should now be able to open a terminal
 and run the following command to install UrbanSim:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">udst</span><span class="o">/</span><span class="n">urbansim</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">master</span><span class="o">.</span><span class="n">zip</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">udst</span><span class="o">/</span><span class="n">urbansim</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">master</span><span class="o">.</span><span class="n">zip</span>
 </pre></div>
 </div>
 <p>This will download urbansim and install the remaining dependencies not
@@ -295,7 +289,7 @@ included in Anaconda.</p>
 <h4>Developer Install<a class="headerlink" href="#developer-install" title="Permalink to this headline">¶</a></h4>
 <p>If you are going to be developing on UrbanSim you will want to fork our
 <a class="reference external" href="https://github.com/udst/urbansim">GitHub repository</a> and clone
-your fork to your computer. Then run <code class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> to install
+your fork to your computer. Then run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code> to install
 UrbanSim in developer mode. In this mode you won’t have to reinstall
 UrbanSim every time you make changes.</p>
 </div>
@@ -360,7 +354,7 @@ table indexed on parcel id and a building table indexed on building_id,
 but with an attribute in the buildings table called parcel_id
 (the <a class="reference external" href="http://en.wikipedia.org/wiki/Foreign_key">foreign key</a>).</p>
 <p>The tables can be merged using</p>
-<p><code class="docutils literal"><span class="pre">pd.merge(buildings,</span> <span class="pre">parcels,</span> <span class="pre">left_on=&quot;parcel_id&quot;,</span> <span class="pre">right_index=True,</span> <span class="pre">how=&quot;left&quot;)</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">pd.merge(buildings,</span> <span class="pre">parcels,</span> <span class="pre">left_on=&quot;parcel_id&quot;,</span> <span class="pre">right_index=True,</span> <span class="pre">how=&quot;left&quot;)</span></code></p>
 <p>You will do this a lot.  If you want a comparison of SQL and pandas, check out
 this <a class="reference external" href="http://www.gregreda.com/2013/01/23/translating-sql-to-pandas-part1/">series of blog posts</a>.</p>
 </div>
@@ -397,7 +391,7 @@ as documented in many of the <a class="reference external" href="http://www.urba
 Below is a brief, high-level summary of UrbanSim in only a few paragraphs from
 a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down
 to a series of models estimated and then simulated in sequence.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
     <span class="n">model</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">model_configuration_parameters</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUMYEARSINSIMULATION</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
@@ -500,7 +494,7 @@ the basic assumptions on demographic shifts of households and of sector
 shifts of employment. These files control the transition models and which new
 households and jobs are added to the simulation.</li>
 <li><em>Zoning Changes</em> in the form of scenario-specific density limits such as
-<code class="docutils literal"><span class="pre">max_far</span></code> and <code class="docutils literal"><span class="pre">max_dua</span></code> are <a class="reference external" href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">passed to the pro formas</a>
+<code class="docutils literal notranslate"><span class="pre">max_far</span></code> and <code class="docutils literal notranslate"><span class="pre">max_dua</span></code> are <a class="reference external" href="developer/index.html#urbansim.developer.sqftproforma.SqFtProForma.lookup">passed to the pro formas</a>
 when testing for feasibility.  Simple <a class="reference external" href="https://github.com/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/utils.py#L29">utility functions</a>
 are also common to <em>upzone</em> certain parcels only if certain policies affect
 them.</li>
@@ -538,8 +532,8 @@ matched by the user.</li>
 and model <a class="reference external" href="https://udst.github.io/orca/core.html#steps">steps</a>
 respectively.  We decided to implement these concepts with Python functions and
 <a class="reference external" href="http://thecodeship.com/patterns/guide-to-python-function-decorators/">decorators</a>.
-This is what is happening when you see the <code class="docutils literal"><span class="pre">&#64;orca.DECORATOR_NAME</span></code> syntax everywhere, e.g.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@orca</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">)</span>
+This is what is happening when you see the <code class="docutils literal notranslate"><span class="pre">&#64;orca.DECORATOR_NAME</span></code> syntax everywhere, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@orca</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="n">store</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span>
 
@@ -555,11 +549,11 @@ certain variable, or how to run a certain model.</p>
 <p>The objects can then be passed to each other using <em>injection</em>, which passes
 objects by name automatically into a function.  For instance, assuming the
 parcels and buildings tables have previously been registered (as above),
-a new column called <code class="docutils literal"><span class="pre">total_units</span></code> on the <code class="docutils literal"><span class="pre">parcels</span></code> table can be defined
+a new column called <code class="docutils literal notranslate"><span class="pre">total_units</span></code> on the <code class="docutils literal notranslate"><span class="pre">parcels</span></code> table can be defined
 with a function which takes the buildings and parcels objects as arguments.
 The tables that were registered are now available within the function and can
 be used in many other functions as well.:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nd">@orca</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">,</span> <span class="s1">&#39;total_units&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@orca</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s1">&#39;parcels&#39;</span><span class="p">,</span> <span class="s1">&#39;total_units&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">residential_unit_density</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parcels</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">buildings</span><span class="o">.</span><span class="n">residential_units</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">parcel_id</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">parcels</span><span class="o">.</span><span class="n">acres</span>
 </pre></div>
@@ -584,9 +578,7 @@ cases, but what follows is a set of tutorials that we consider best practices.</
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -608,7 +600,7 @@ cases, but what follows is a set of tutorials that we consider best practices.</
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -627,6 +619,7 @@ cases, but what follows is a set of tutorials that we consider best practices.</
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'3.1.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -636,7 +629,7 @@ cases, but what follows is a set of tutorials that we consider best practices.</
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
@@ -645,14 +638,11 @@ cases, but what follows is a set of tutorials that we consider best practices.</
     <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

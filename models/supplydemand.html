@@ -25,27 +25,19 @@
   
 
   
-  
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="urbansim 3.1.1 documentation" href="../index.html"/>
-        <link rel="up" title="Core Models" href="index.html"/>
-        <link rel="next" title="Transition and Relocation Models" href="transrelo.html"/>
-        <link rel="prev" title="Statistical Models" href="statistical.html"/> 
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Transition and Relocation Models" href="transrelo.html" />
+    <link rel="prev" title="Statistical Models" href="statistical.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -123,7 +115,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
@@ -131,9 +123,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -180,7 +173,7 @@
   <div class="section" id="supply-and-demand-accounting">
 <span id="supply-and-demand"></span><h1>Supply and Demand Accounting<a class="headerlink" href="#supply-and-demand-accounting" title="Permalink to this headline">¶</a></h1>
 <p>Regression models of real estate prices don’t account for
-supply and demand affects. The <code class="docutils literal"><span class="pre">supplydemand</span></code> module has models that
+supply and demand affects. The <code class="docutils literal notranslate"><span class="pre">supplydemand</span></code> module has models that
 work in tandem with <a class="reference internal" href="statistical.html#statistical-models"><span class="std std-ref">location choice models</span></a>
 to estimate supply and demand and adjust real estate prices
 to compensate for mismatches.</p>
@@ -195,65 +188,61 @@ to compensate for mismatches.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>lcm</strong> : LocationChoiceModel</p>
-<blockquote>
-<div><p>Used to calculate the probability of agents choosing among
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>lcm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">LocationChoiceModel</span></dt>
+<dd><p class="first last">Used to calculate the probability of agents choosing among
 alternatives. Must be fully configured and fitted.</p>
-</div></blockquote>
-<p><strong>choosers</strong> : pandas.DataFrame</p>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<p><strong>alt_segmenter</strong> : str, array, or pandas.Series</p>
-<blockquote>
-<div><p>Will be used to segment alternatives and probabilities to do
+</dd>
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>alt_segmenter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, array, or pandas.Series</span></dt>
+<dd><p class="first last">Will be used to segment alternatives and probabilities to do
 comparisons of supply and demand by submarket.
 If a string, it is expected to be the name of a column
 in <cite>alternatives</cite>. If a Series it should have the same index
 as <cite>alternatives</cite>.</p>
-</div></blockquote>
-<p><strong>price_col</strong> : str</p>
-<blockquote>
-<div><p>The name of the column in <cite>alternatives</cite> that corresponds to price.
+</dd>
+<dt><strong>price_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The name of the column in <cite>alternatives</cite> that corresponds to price.
 This column is what is adjusted by this model.</p>
-</div></blockquote>
-<p><strong>base_multiplier</strong> : pandas.Series, optional</p>
-<blockquote>
-<div><p>A series describing a starting multiplier for submarket prices.
+</dd>
+<dt><strong>base_multiplier</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series, optional</span></dt>
+<dd><p class="first last">A series describing a starting multiplier for submarket prices.
 Index should be submarket IDs.</p>
-</div></blockquote>
-<p><strong>clip_change_low</strong> : float, optional</p>
-<blockquote>
-<div><p>The minimum amount by which to multiply prices each iteration.</p>
-</div></blockquote>
-<p><strong>clip_change_high</strong> : float, optional</p>
-<blockquote>
-<div><p>The maximum amount by which to multiply prices each iteration.</p>
-</div></blockquote>
-<p><strong>iterations</strong> : int, optional</p>
-<blockquote>
-<div><p>Number of times to update prices based on supply/demand comparisons.</p>
-</div></blockquote>
-<p><strong>multiplier_func</strong> : function (returns Series, boolean)</p>
-<blockquote>
-<div><p>A function which takes separate demand and supply Series
+</dd>
+<dt><strong>clip_change_low</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">The minimum amount by which to multiply prices each iteration.</p>
+</dd>
+<dt><strong>clip_change_high</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">The maximum amount by which to multiply prices each iteration.</p>
+</dd>
+<dt><strong>iterations</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Number of times to update prices based on supply/demand comparisons.</p>
+</dd>
+<dt><strong>multiplier_func</strong> <span class="classifier-delimiter">:</span> <span class="classifier">function (returns Series, boolean)</span></dt>
+<dd><p class="first last">A function which takes separate demand and supply Series
 and returns a tuple where the first item is a Series with the
 ratio of new price to old price (all indexes should be the same) -
 by default the ratio of demand to supply is the ratio of the new
 price to the old price.  The second return value is a
 boolean which when True tells this module to stop looping (that
 convergence has been satisfied)</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_prices</strong> : pandas.Series</p>
-<blockquote>
-<div><p>Equivalent of the <cite>price_col</cite> in <cite>alternatives</cite>.</p>
-</div></blockquote>
-<p><strong>submarkets_ratios</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Price adjustment ratio for each submarket. If <cite>base_multiplier</cite> is
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>new_prices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Equivalent of the <cite>price_col</cite> in <cite>alternatives</cite>.</p>
+</dd>
+<dt><strong>submarkets_ratios</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Price adjustment ratio for each submarket. If <cite>base_multiplier</cite> is
 given this will be a cummulative multiplier including the
 <cite>base_multiplier</cite> and the multipliers calculated for this year.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -265,9 +254,7 @@ given this will be a cummulative multiplier including the
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -289,7 +276,7 @@ given this will be a cummulative multiplier including the
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -308,6 +295,7 @@ given this will be a cummulative multiplier including the
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
             VERSION:'3.1.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -317,7 +305,7 @@ given this will be a cummulative multiplier including the
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
@@ -326,14 +314,11 @@ given this will be a cummulative multiplier including the
     <script type="text/javascript" src="../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

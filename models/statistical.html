@@ -25,27 +25,19 @@
   
 
   
-  
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="urbansim 3.1.1 documentation" href="../index.html"/>
-        <link rel="up" title="Core Models" href="index.html"/>
-        <link rel="next" title="Supply and Demand Accounting" href="supplydemand.html"/>
-        <link rel="prev" title="Core Models" href="index.html"/> 
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Supply and Demand Accounting" href="supplydemand.html" />
+    <link rel="prev" title="Core Models" href="index.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -126,7 +118,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
@@ -134,9 +126,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -205,11 +198,11 @@ model expressions, but UrbanSim gives you some flexibility
 as to how you define them.</p>
 <p><a class="reference external" href="http://patsy.readthedocs.org/">patsy</a> works with string formula like this simplified regression example
 (names refer to columns in the <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrames</a> used during fitting and prediction):</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="s1">&#39;np.log1p(sqft_price) ~ I(year_built &lt; 1940) + dist_hwy + ave_income&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="s1">&#39;np.log1p(sqft_price) ~ I(year_built &lt; 1940) + dist_hwy + ave_income&#39;</span>
 </pre></div>
 </div>
 <p>In UrbanSim that same formula could be expressed in a dictionary:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;left_side&#39;</span><span class="p">:</span> <span class="s1">&#39;np.log1p(sqft_price)&#39;</span><span class="p">,</span>
     <span class="s1">&#39;right_side&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s1">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s1">&#39;ave_income&#39;</span><span class="p">]</span>
 <span class="p">}</span>
@@ -218,7 +211,7 @@ as to how you define them.</p>
 <p>Formulae used with location choice models have only a right hand side
 since the models do not predict new numeric values. Right-hand-side formulae
 can be written as lists or dictionaries:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">expr</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;right_side&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;I(year_built &lt; 1940)&#39;</span><span class="p">,</span> <span class="s1">&#39;dist_hwy&#39;</span><span class="p">,</span> <span class="s1">&#39;ave_income&#39;</span><span class="p">]</span>
 <span class="p">}</span>
 
@@ -237,11 +230,11 @@ at another time.
 This feature is especially useful for estimating models in one location,
 saving the fit parameters to disk, and then using the fitted model for
 prediction somewhere else.</p>
-<p>Use the <code class="docutils literal"><span class="pre">.to_yaml</span></code> and <code class="docutils literal"><span class="pre">.from_yaml</span></code> methods to save files to disk
+<p>Use the <code class="docutils literal notranslate"><span class="pre">.to_yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">.from_yaml</span></code> methods to save files to disk
 and load them back as configured models.
 Here’s an example of loading a regression model, performing fitting, and
 saving the model back to YAML:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;my_model.yaml&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">RegressionModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;my_model.yaml&#39;</span><span class="p">)</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
@@ -261,13 +254,13 @@ YAML and load them into Python only for fitting and prediction.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModel" title="urbansim.models.regression.RegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModel</span></code></a>(fit_filters,&nbsp;…[,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModel" title="urbansim.models.regression.RegressionModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegressionModel</span></code></a>(fit_filters,&nbsp;…[,&nbsp;…])</td>
 <td>A hedonic (regression) model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.regression.SegmentedRegressionModel" title="urbansim.models.regression.SegmentedRegressionModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedRegressionModel</span></code></a>(segmentation_col[,&nbsp;…])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.regression.SegmentedRegressionModel" title="urbansim.models.regression.SegmentedRegressionModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SegmentedRegressionModel</span></code></a>(segmentation_col[,&nbsp;…])</td>
 <td>A regression model group that allows segments to have different model expressions and ytransforms but all have the same filters.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModelGroup" title="urbansim.models.regression.RegressionModelGroup"><code class="xref py py-obj docutils literal"><span class="pre">RegressionModelGroup</span></code></a>(segmentation_col[,&nbsp;name])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.regression.RegressionModelGroup" title="urbansim.models.regression.RegressionModelGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegressionModelGroup</span></code></a>(segmentation_col[,&nbsp;name])</td>
 <td>Manages a group of regression models that refer to different segments within a single table.</td>
 </tr>
 </tbody>
@@ -281,13 +274,13 @@ YAML and load them into Python only for fitting and prediction.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></code></a>(model_expression,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="urbansim.models.dcm.MNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MNLDiscreteChoiceModel</span></code></a>(model_expression,&nbsp;…)</td>
 <td>A discrete choice model with the ability to store an estimated model and predict new data based on the model.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></code></a>(…[,&nbsp;…])</td>
+<tr class="row-even"><td><a class="reference internal" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SegmentedMNLDiscreteChoiceModel</span></code></a>(…[,&nbsp;…])</td>
 <td>An MNL LCM group that allows segments to have different model expressions but otherwise share configurations.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="urbansim.models.dcm.MNLDiscreteChoiceModelGroup"><code class="xref py py-obj docutils literal"><span class="pre">MNLDiscreteChoiceModelGroup</span></code></a>(segmentation_col)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup" title="urbansim.models.dcm.MNLDiscreteChoiceModelGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MNLDiscreteChoiceModelGroup</span></code></a>(segmentation_col)</td>
 <td>Manages a group of discrete choice models that refer to different segments of choosers.</td>
 </tr>
 </tbody>
@@ -295,7 +288,7 @@ YAML and load them into Python only for fitting and prediction.</p>
 </div>
 <div class="section" id="module-urbansim.models.regression">
 <span id="regression-api-docs"></span><h3>Regression API Docs<a class="headerlink" href="#module-urbansim.models.regression" title="Permalink to this headline">¶</a></h3>
-<p>Use the <code class="docutils literal"><span class="pre">RegressionModel</span></code> class to fit a model using statsmodels’
+<p>Use the <code class="docutils literal notranslate"><span class="pre">RegressionModel</span></code> class to fit a model using statsmodels’
 OLS capability and then do subsequent prediction.</p>
 <dl class="class">
 <dt id="urbansim.models.regression.RegressionModel">
@@ -307,32 +300,29 @@ estimated model and predict new data based on the model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fit_filters</strong> : list of str</p>
-<blockquote>
-<div><p>Filters applied before fitting the model.</p>
-</div></blockquote>
-<p><strong>predict_filters</strong> : list of str</p>
-<blockquote>
-<div><p>Filters applied before calculating new data points.</p>
-</div></blockquote>
-<p><strong>model_expression</strong> : str or dict</p>
-<blockquote>
-<div><p>A patsy model expression that can be used with statsmodels.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd><p class="first last">Filters applied before fitting the model.</p>
+</dd>
+<dt><strong>predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd><p class="first last">Filters applied before calculating new data points.</p>
+</dd>
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or dict</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.</p>
-</div></blockquote>
-<p><strong>ytransform</strong> : callable, optional</p>
-<blockquote>
-<div><p>A function to call on the array of predicted output.
+</dd>
+<dt><strong>ytransform</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, optional</span></dt>
+<dd><p class="first">A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
+of price, you might pass <code class="docutils literal notranslate"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
-<p>By default no transformation is applied.</p>
-</div></blockquote>
-<p><strong>name</strong> : optional</p>
-<blockquote class="last">
-<div><p>Optional descriptive name for this model that may be used
+<p class="last">By default no transformation is applied.</p>
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">optional</span></dt>
+<dd><p class="first last">Optional descriptive name for this model that may be used
 in output.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -358,24 +348,25 @@ and in the model expression.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Data to use for fitting the model. Must contain all the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Data to use for fitting the model. Must contain all the
 columns referenced by the <cite>model_expression</cite>.</p>
-</div></blockquote>
-<p><strong>debug</strong> : bool</p>
-<blockquote>
-<div><p>If debug is set to true, this sets the attribute “est_data”
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If debug is set to true, this sets the attribute “est_data”
 to a dataframe with the actual data used for estimation of
 this model.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
-<blockquote class="last">
-<div><p>This is returned for inspection, but also stored on the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">statsmodels.regression.linear_model.OLSResults</span></dt>
+<dd><p class="first last">This is returned for inspection, but also stored on the
 class instance for use during prediction.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -389,25 +380,26 @@ class instance for use during prediction.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
-<blockquote>
-<div><p>The dataframe which contains the columns to use for the estimation.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file which describes the hedonic model.</p>
-</div></blockquote>
-<p><strong>debug</strong> : boolean, optional (default False)</p>
-<blockquote>
-<div><p>Whether to generate debug information on the model.</p>
-</div></blockquote>
-<p><strong>outcfgname</strong> : string, optional (default cfgname)</p>
-<blockquote>
-<div><p>The name of the output yaml config file where estimation results are written into.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">The dataframe which contains the columns to use for the estimation.</p>
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file which describes the hedonic model.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional (default False)</span></dt>
+<dd><p class="first last">Whether to generate debug information on the model.</p>
+</dd>
+<dt><strong>outcfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional (default cfgname)</span></dt>
+<dd><p class="first last">The name of the output yaml config file where estimation results are written into.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>RegressionModel which was used to fit</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -429,17 +421,20 @@ Arguments are mutually exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
-<blockquote>
-<div><p>A YAML string from which to load model.</p>
-</div></blockquote>
-<p><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>File name or buffer from which to load YAML.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>yaml_str</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">A YAML string from which to load model.</p>
+</dd>
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">File name or buffer from which to load YAML.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">RegressionModel</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>RegressionModel</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -454,18 +449,20 @@ Arguments are mutually exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Data to use for prediction. Must contain all the columns
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Data to use for prediction. Must contain all the columns
 referenced by the right-hand side of the <cite>model_expression</cite>.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Predicted values as a pandas Series. Will have the index of <cite>data</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>result</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Predicted values as a pandas Series. Will have the index of <cite>data</cite>
 after applying filters.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -479,23 +476,25 @@ after applying filters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
-<blockquote>
-<div><p>The dataframe which contains the columns to use for the estimation.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file which describes the hedonic model.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">The dataframe which contains the columns to use for the estimation.</p>
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file which describes the hedonic model.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
-<blockquote>
-<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>predicted</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
 models.</p>
-</div></blockquote>
-<p class="last"><strong>hm</strong> : RegressionModel which was used to predict</p>
+</dd>
+<dt><strong>hm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">RegressionModel which was used to predict</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -528,19 +527,21 @@ models.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>By default a YAML string is returned. If a string is
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
+If an object with a <code class="docutils literal notranslate"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
-<blockquote class="last">
-<div><p>YAML string if <cite>str_or_buffer</cite> is not given.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>j</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">YAML string if <cite>str_or_buffer</cite> is not given.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -559,14 +560,14 @@ within a single table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
-<blockquote>
-<div><p>Name of the column on which to segment.</p>
-</div></blockquote>
-<p><strong>name</strong></p>
-<blockquote class="last">
-<div><p>Optional name used to identify the model in places.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>segmentation_col</strong></dt>
+<dd><p class="first last">Name of the column on which to segment.</p>
+</dd>
+<dt><strong>name</strong></dt>
+<dd><p class="first last">Optional name used to identify the model in places.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -579,11 +580,12 @@ within a single table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : <cite>RegressionModel</cite></p>
-<blockquote class="last">
-<div><p>Should have a <code class="docutils literal"><span class="pre">.name</span></code> attribute matching one of
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>model</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><cite>RegressionModel</cite></span></dt>
+<dd><p class="first last">Should have a <code class="docutils literal notranslate"><span class="pre">.name</span></code> attribute matching one of
 the groupby segments.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -598,31 +600,28 @@ the groupby segments.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : any</p>
-<blockquote>
-<div><p>Must match a groupby segment name.</p>
-</div></blockquote>
-<p><strong>fit_filters</strong> : list of str</p>
-<blockquote>
-<div><p>Filters applied before fitting the model.</p>
-</div></blockquote>
-<p><strong>predict_filters</strong> : list of str</p>
-<blockquote>
-<div><p>Filters applied before calculating new data points.</p>
-</div></blockquote>
-<p><strong>model_expression</strong> : str</p>
-<blockquote>
-<div><p>A patsy model expression that can be used with statsmodels.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">any</span></dt>
+<dd><p class="first last">Must match a groupby segment name.</p>
+</dd>
+<dt><strong>fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd><p class="first last">Filters applied before fitting the model.</p>
+</dd>
+<dt><strong>predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd><p class="first last">Filters applied before calculating new data points.</p>
+</dd>
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.</p>
-</div></blockquote>
-<p><strong>ytransform</strong> : callable, optional</p>
-<blockquote class="last">
-<div><p>A function to call on the array of predicted output.
+</dd>
+<dt><strong>ytransform</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, optional</span></dt>
+<dd><p class="first">A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
+of price, you might pass <code class="docutils literal notranslate"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
-<p>By default no transformation is applied.</p>
-</div></blockquote>
+<p class="last">By default no transformation is applied.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -644,21 +643,22 @@ for filtering and in the model expression.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
-</div></blockquote>
-<p><strong>debug</strong> : bool</p>
-<blockquote>
-<div><p>If set to true (default false) will pass the debug parameter
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Must have a column with the same name as <cite>segmentation_col</cite>.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If set to true (default false) will pass the debug parameter
 to model estimation.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
-<blockquote class="last">
-<div><p>Keys are the segment names.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fits</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of statsmodels.regression.linear_model.OLSResults</span></dt>
+<dd><p class="first last">Keys are the segment names.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -679,19 +679,21 @@ to model estimation.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Data to use for prediction. Must have a column with the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Data to use for prediction. Must have a column with the
 same name as <cite>segmentation_col</cite>.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>predicted</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
 models.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -709,77 +711,70 @@ model expressions and ytransforms but all have the same filters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
-<blockquote>
-<div><p>Name of column in the data table on which to segment. Will be used
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>segmentation_col</strong></dt>
+<dd><p class="first last">Name of column in the data table on which to segment. Will be used
 with a pandas groupby on the data table.</p>
-</div></blockquote>
-<p><strong>fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied before fitting the model.</p>
-</div></blockquote>
-<p><strong>predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied before calculating new data points.</p>
-</div></blockquote>
-<p><strong>min_segment_size</strong> : int</p>
-<blockquote>
-<div><p>This model will add all segments that have at least this number of
+</dd>
+<dt><strong>fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied before fitting the model.</p>
+</dd>
+<dt><strong>predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied before calculating new data points.</p>
+</dd>
+<dt><strong>min_segment_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">This model will add all segments that have at least this number of
 observations. A very small number of observations (e.g. 1) will
 cause an error with estimation.</p>
-</div></blockquote>
-<p><strong>default_model_expr</strong> : str or dict, optional</p>
-<blockquote>
-<div><p>A patsy model expression that can be used with statsmodels.
+</dd>
+<dt><strong>default_model_expr</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or dict, optional</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.</p>
-</div></blockquote>
-<p><strong>default_ytransform</strong> : callable, optional</p>
-<blockquote>
-<div><p>A function to call on the array of predicted output.
+</dd>
+<dt><strong>default_ytransform</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, optional</span></dt>
+<dd><p class="first">A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
+of price, you might pass <code class="docutils literal notranslate"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
-<p>By default no transformation is applied.</p>
-</div></blockquote>
-<p><strong>min_segment_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Segments with less than this many members will be skipped.</p>
-</div></blockquote>
-<p><strong>name</strong> : str, optional</p>
-<blockquote class="last">
-<div><p>A name used in places to identify the model.</p>
-</div></blockquote>
+<p class="last">By default no transformation is applied.</p>
+</dd>
+<dt><strong>min_segment_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Segments with less than this many members will be skipped.</p>
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">A name used in places to identify the model.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="urbansim.models.regression.SegmentedRegressionModel.add_segment">
-<code class="descname">add_segment</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression=None</em>, <em>ytransform=’default’</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_segment</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression=None</em>, <em>ytransform='default'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/regression.html#SegmentedRegressionModel.add_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.regression.SegmentedRegressionModel.add_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new segment with its own model expression and ytransform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name :</strong></p>
-<blockquote>
-<div><p>Segment name. Must match a segment in the groupby of the data.</p>
-</div></blockquote>
-<p><strong>model_expression</strong> : str or dict, optional</p>
-<blockquote>
-<div><p>A patsy model expression that can be used with statsmodels.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>name :</strong></dt>
+<dd><p class="first last">Segment name. Must match a segment in the groupby of the data.</p>
+</dd>
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or dict, optional</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.
 If not given the default model will be used, which must not be
 None.</p>
-</div></blockquote>
-<p><strong>ytransform</strong> : callable, optional</p>
-<blockquote class="last">
-<div><p>A function to call on the array of predicted output.
+</dd>
+<dt><strong>ytransform</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, optional</span></dt>
+<dd><p class="first">A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
+of price, you might pass <code class="docutils literal notranslate"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
-<p>If not given the default ytransform will be used.</p>
-</div></blockquote>
+<p class="last">If not given the default ytransform will be used.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -802,20 +797,21 @@ added will be automatically added with default model and ytransform.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Must have a column with the same name as <cite>segmentation_col</cite>.</p>
-</div></blockquote>
-<p><strong>debug</strong> : bool</p>
-<blockquote>
-<div><p>If set to true will pass debug to the fit method of each model.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Must have a column with the same name as <cite>segmentation_col</cite>.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If set to true will pass debug to the fit method of each model.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fits</strong> : dict of statsmodels.regression.linear_model.OLSResults</p>
-<blockquote class="last">
-<div><p>Keys are the segment names.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fits</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of statsmodels.regression.linear_model.OLSResults</span></dt>
+<dd><p class="first last">Keys are the segment names.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -829,29 +825,29 @@ added will be automatically added with default model and ytransform.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
-<blockquote>
-<div><p>The dataframe which contains the columns to use for the estimation.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file which describes the hedonic model.</p>
-</div></blockquote>
-<p><strong>debug</strong> : boolean, optional (default False)</p>
-<blockquote>
-<div><p>Whether to generate debug information on the model.</p>
-</div></blockquote>
-<p><strong>min_segment_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Set attribute on the model.</p>
-</div></blockquote>
-<p><strong>outcfgname</strong> : string, optional (default cfgname)</p>
-<blockquote>
-<div><p>The name of the output yaml config file where estimation results are written into.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">The dataframe which contains the columns to use for the estimation.</p>
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file which describes the hedonic model.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional (default False)</span></dt>
+<dd><p class="first last">Whether to generate debug information on the model.</p>
+</dd>
+<dt><strong>min_segment_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Set attribute on the model.</p>
+</dd>
+<dt><strong>outcfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional (default cfgname)</span></dt>
+<dd><p class="first last">The name of the output yaml config file where estimation results are written into.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>hm</strong> : SegmentedRegressionModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>hm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">SegmentedRegressionModel which was used to fit</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -873,17 +869,20 @@ configuration. Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
-<blockquote>
-<div><p>A YAML string from which to load model.</p>
-</div></blockquote>
-<p><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>File name or buffer from which to load YAML.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>yaml_str</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">A YAML string from which to load model.</p>
+</dd>
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">File name or buffer from which to load YAML.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedRegressionModel</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>SegmentedRegressionModel</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -898,18 +897,20 @@ configuration. Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Data to use for prediction. Must have a column with the
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Data to use for prediction. Must have a column with the
 same name as <cite>segmentation_col</cite>.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>predicted</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -923,27 +924,28 @@ after applying filters.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : DataFrame</p>
-<blockquote>
-<div><p>The dataframe which contains the columns to use for the estimation.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file which describes the hedonic model.</p>
-</div></blockquote>
-<p><strong>min_segment_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Set attribute on the model.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">The dataframe which contains the columns to use for the estimation.</p>
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file which describes the hedonic model.</p>
+</dd>
+<dt><strong>min_segment_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Set attribute on the model.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>predicted</strong> : pandas.Series</p>
-<blockquote>
-<div><p>Predicted data in a pandas Series. Will have the index of <cite>data</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>predicted</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Predicted data in a pandas Series. Will have the index of <cite>data</cite>
 after applying filters and minus any groups that do not have
 models.</p>
-</div></blockquote>
-<p class="last"><strong>hm</strong> : SegmentedRegressionModel which was used to predict</p>
+</dd>
+<dt><strong>hm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">SegmentedRegressionModel which was used to predict</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -965,19 +967,21 @@ conversion to YAML.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>By default a YAML string is returned. If a string is
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
+If an object with a <code class="docutils literal notranslate"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
-<blockquote class="last">
-<div><p>YAML string if <cite>str_or_buffer</cite> is not given.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>j</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">YAML string if <cite>str_or_buffer</cite> is not given.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -994,23 +998,25 @@ YAML will be written to that object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Data to use for fit. Should contain all the columns
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Data to use for fit. Should contain all the columns
 referenced in the <cite>model_expression</cite>.</p>
-</div></blockquote>
-<p><strong>filters</strong> : list of str</p>
-<blockquote>
-<div><p>Any filters to apply before doing the model fit.</p>
-</div></blockquote>
-<p><strong>model_expression</strong> : str</p>
-<blockquote>
-<div><p>A patsy model expression that can be used with statsmodels.
+</dd>
+<dt><strong>filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd><p class="first last">Any filters to apply before doing the model fit.</p>
+</dd>
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">statsmodels.regression.linear_model.OLSResults</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1025,30 +1031,31 @@ Should contain both the left- and right-hand sides.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame</p>
-<p><strong>filters</strong> : list of str</p>
-<blockquote>
-<div><p>Any filters to apply before doing prediction.</p>
-</div></blockquote>
-<p><strong>model_fit</strong> : statsmodels.regression.linear_model.OLSResults</p>
-<blockquote>
-<div><p>Result of model estimation.</p>
-</div></blockquote>
-<p><strong>ytransform</strong> : callable, optional</p>
-<blockquote>
-<div><p>A function to call on the array of predicted output.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+<dt><strong>filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd><p class="first last">Any filters to apply before doing prediction.</p>
+</dd>
+<dt><strong>model_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">statsmodels.regression.linear_model.OLSResults</span></dt>
+<dd><p class="first last">Result of model estimation.</p>
+</dd>
+<dt><strong>ytransform</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, optional</span></dt>
+<dd><p class="first">A function to call on the array of predicted output.
 For example, if the model relation is predicting the log
-of price, you might pass <code class="docutils literal"><span class="pre">ytransform=np.exp</span></code> so that
+of price, you might pass <code class="docutils literal notranslate"><span class="pre">ytransform=np.exp</span></code> so that
 the results reflect actual price.</p>
-<p>By default no transformation is applied.</p>
-</div></blockquote>
+<p class="last">By default no transformation is applied.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Predicted values as a pandas Series. Will have the index of <cite>df</cite>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>result</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Predicted values as a pandas Series. Will have the index of <cite>df</cite>
 after applying filters.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1058,7 +1065,7 @@ after applying filters.</p>
 </div>
 <div class="section" id="module-urbansim.models.dcm">
 <span id="discrete-choice-api-docs"></span><h3>Discrete Choice API Docs<a class="headerlink" href="#module-urbansim.models.dcm" title="Permalink to this headline">¶</a></h3>
-<p>Use the <code class="docutils literal"><span class="pre">MNLDiscreteChoiceModel</span></code> class to train a choice module using
+<p>Use the <code class="docutils literal notranslate"><span class="pre">MNLDiscreteChoiceModel</span></code> class to train a choice module using
 multinomial logit and make subsequent choice predictions.</p>
 <dl class="class">
 <dt id="urbansim.models.dcm.DiscreteChoiceModel">
@@ -1068,7 +1075,7 @@ multinomial logit and make subsequent choice predictions.</p>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModel">
-<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">MNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode=’full_product’</em>, <em>choice_mode=’individual’</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">MNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A discrete choice model with the ability to store an estimated
 model and predict new data based on the model.
 Based on multinomial logit.</p>
@@ -1076,17 +1083,15 @@ Based on multinomial logit.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model_expression</strong> : str, iterable, or dict</p>
-<blockquote>
-<div><p>A patsy model expression. Should contain only a right-hand side.</p>
-</div></blockquote>
-<p><strong>sample_size</strong> : int</p>
-<blockquote>
-<div><p>Number of choices to sample for estimating the model.</p>
-</div></blockquote>
-<p><strong>probability_mode</strong> : str, optional</p>
-<blockquote>
-<div><p>Specify the method to use for calculating probabilities
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, iterable, or dict</span></dt>
+<dd><p class="first last">A patsy model expression. Should contain only a right-hand side.</p>
+</dd>
+<dt><strong>sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of choices to sample for estimating the model.</p>
+</dd>
+<dt><strong>probability_mode</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Specify the method to use for calculating probabilities
 during prediction.
 Available string options are ‘single_chooser’ and ‘full_product’.
 In “single chooser” mode one agent is chosen for calculating
@@ -1095,10 +1100,9 @@ probabilities are calculated for every chooser across all alternatives.
 Currently “single chooser” mode must be used with a <cite>choice_mode</cite>
 of ‘aggregate’ and “full product” mode must be used with a
 <cite>choice_mode</cite> of ‘individual’.</p>
-</div></blockquote>
-<p><strong>choice_mode</strong> : str, optional</p>
-<blockquote>
-<div><p>Specify the method to use for making choices among alternatives.
+</dd>
+<dt><strong>choice_mode</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Specify the method to use for making choices among alternatives.
 Available string options are ‘individual’ and ‘aggregate’.
 In “individual” mode choices will be made separately for each chooser.
 In “aggregate” mode choices are made for all choosers at once.
@@ -1108,52 +1112,44 @@ can be used for all choosers.
 Currently “individual” mode must be used with a <cite>probability_mode</cite>
 of ‘full_product’ and “aggregate” mode must be used with a
 <cite>probability_mode</cite> of ‘single_chooser’.</p>
-</div></blockquote>
-<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to choosers table before fitting the model.</p>
-</div></blockquote>
-<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the choosers table before calculating
+</dd>
+<dt><strong>choosers_fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to choosers table before fitting the model.</p>
+</dd>
+<dt><strong>choosers_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the choosers table before calculating
 new data points.</p>
-</div></blockquote>
-<p><strong>alts_fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the alternatives table before fitting the model.</p>
-</div></blockquote>
-<p><strong>alts_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the alternatives table before calculating
+</dd>
+<dt><strong>alts_fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the alternatives table before fitting the model.</p>
+</dd>
+<dt><strong>alts_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the alternatives table before calculating
 new data points.</p>
-</div></blockquote>
-<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the merged choosers/alternatives table
+</dd>
+<dt><strong>interaction_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the merged choosers/alternatives table
 before predicting agent choices.</p>
-</div></blockquote>
-<p><strong>estimation_sample_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Whether to sample choosers during estimation
+</dd>
+<dt><strong>estimation_sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Whether to sample choosers during estimation
 (needs to be applied after choosers_fit_filters).</p>
-</div></blockquote>
-<p><strong>prediction_sample_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Whether (and how much) to sample alternatives during prediction.
+</dd>
+<dt><strong>prediction_sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Whether (and how much) to sample alternatives during prediction.
 Note that this can lead to multiple choosers picking the same
 alternative.</p>
-</div></blockquote>
-<p><strong>choice_column</strong> : optional</p>
-<blockquote>
-<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+</dd>
+<dt><strong>choice_column</strong> <span class="classifier-delimiter">:</span> <span class="classifier">optional</span></dt>
+<dd><p class="first last">Name of the column in the <cite>alternatives</cite> table that choosers
 should choose. e.g. the ‘building_id’ column. If not provided
 the alternatives index is used.</p>
-</div></blockquote>
-<p><strong>name</strong> : optional</p>
-<blockquote class="last">
-<div><p>Optional descriptive name for this model that may be used
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">optional</span></dt>
+<dd><p class="first last">Optional descriptive name for this model that may be used
 in output.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1172,18 +1168,21 @@ in output.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filtered_choosers, filtered_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1198,18 +1197,21 @@ e.g. buildings.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filtered_choosers, filtered_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1243,29 +1245,29 @@ the choosers or alternatives tables.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
-<p><strong>current_choice</strong> : pandas.Series or any</p>
-<blockquote>
-<div><p>A Series describing the <cite>alternatives</cite> currently chosen
+</dd>
+<dt><strong>current_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series or any</span></dt>
+<dd><p class="first">A Series describing the <cite>alternatives</cite> currently chosen
 by the <cite>choosers</cite>. Should have an index matching <cite>choosers</cite>
 and values matching the index of <cite>alternatives</cite>.</p>
-<p>If a non-Series is given it should be a column in <cite>choosers</cite>.</p>
-</div></blockquote>
+<p class="last">If a non-Series is given it should be a column in <cite>choosers</cite>.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict</p>
-<blockquote class="last">
-<div><p>Dict of log-liklihood values describing the quality of the
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>log_likelihoods</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Dict of log-liklihood values describing the quality of the
 model fit. Will have keys ‘null’, ‘convergence’, and ‘ratio’.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1279,34 +1281,34 @@ model fit. Will have keys ‘null’, ‘convergence’, and ‘ratio’.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe in which rows represent choosers.</p>
-</div></blockquote>
-<p><strong>chosen_fname</strong> : string</p>
-<blockquote>
-<div><p>A string indicating the column in the choosers dataframe which
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe in which rows represent choosers.</p>
+</dd>
+<dt><strong>chosen_fname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">A string indicating the column in the choosers dataframe which
 gives which alternatives the choosers have chosen.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : DataFrame</p>
-<blockquote>
-<div><p>A table of alternatives. It should include the choices
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A table of alternatives. It should include the choices
 from the choosers table as well as other alternatives from
 which to sample.  Values in choosers[chosen_fname] should index
 into the alternatives dataframe.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file from which to read the discrete
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file from which to read the discrete
 choice model.</p>
-</div></blockquote>
-<p><strong>outcfgname</strong> : string, optional (default cfgname)</p>
-<blockquote>
-<div><p>The name of the output yaml config file where estimation results are written into.</p>
-</div></blockquote>
+</dd>
+<dt><strong>outcfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional (default cfgname)</span></dt>
+<dd><p class="first last">The name of the output yaml config file where estimation results are written into.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : MNLDiscreteChoiceModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>lcm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">MNLDiscreteChoiceModel which was used to fit</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1328,17 +1330,20 @@ Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
-<blockquote>
-<div><p>A YAML string from which to load model.</p>
-</div></blockquote>
-<p><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>File name or buffer from which to load YAML.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>yaml_str</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">A YAML string from which to load model.</p>
+</dd>
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">File name or buffer from which to load YAML.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MNLDiscreteChoiceModel</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>MNLDiscreteChoiceModel</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1361,28 +1366,28 @@ alternatives tables.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
-<p><strong>debug</strong> : bool</p>
-<blockquote>
-<div><p>If debug is set to true, will set the variable “sim_pdf” on
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If debug is set to true, will set the variable “sim_pdf” on
 the object to store the probabilities for mapping of the
 outcome.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Mapping of chooser ID to alternative ID. Some choosers
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>choices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1397,44 +1402,42 @@ for all the choosers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe of agents doing the choosing.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe of locations which the choosers are locating in and
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe of agents doing the choosing.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe of locations which the choosers are locating in and
 which have a supply.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file from which to read the discrete
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file from which to read the discrete
 choice model.</p>
-</div></blockquote>
-<p><strong>cfg: string</strong></p>
-<blockquote>
-<div><p>an ordered yaml string of the model discrete choice model configuration.
+</dd>
+<dt><strong>cfg: string</strong></dt>
+<dd><p class="first last">an ordered yaml string of the model discrete choice model configuration.
 Used to read config from memory in lieu of loading cfgname from disk.</p>
-</div></blockquote>
-<p><strong>alternative_ratio</strong> : float, optional</p>
-<blockquote>
-<div><p>Above the ratio of alternatives to choosers (default of 2.0),
+</dd>
+<dt><strong>alternative_ratio</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Above the ratio of alternatives to choosers (default of 2.0),
 the alternatives will be sampled to meet this ratio
 (for performance reasons).</p>
-</div></blockquote>
-<p><strong>debug</strong> : boolean, optional (default False)</p>
-<blockquote>
-<div><p>Whether to generate debug information on the model.</p>
-</div></blockquote>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional (default False)</span></dt>
+<dd><p class="first last">Whether to generate debug information on the model.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
-<blockquote>
-<div><p>Mapping of chooser ID to alternative ID. Some choosers
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>choices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
-</div></blockquote>
-<p class="last"><strong>lcm</strong> : MNLDiscreteChoiceModel which was used to predict</p>
+</dd>
+<dt><strong>lcm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">MNLDiscreteChoiceModel which was used to predict</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1450,27 +1453,27 @@ from among a set of alternatives.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
-<p><strong>filter_tables</strong> : bool, optional</p>
-<blockquote>
-<div><p>If True, filter <cite>choosers</cite> and <cite>alternatives</cite> with prediction
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+<dt><strong>filter_tables</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">If True, filter <cite>choosers</cite> and <cite>alternatives</cite> with prediction
 filters before calculating probabilities.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probabilities</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Probability of selection associated with each chooser
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probabilities</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Probability of selection associated with each chooser
 and alternative. Index will be a MultiIndex with alternative
 IDs in the inner index and chooser IDs in the out index.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1497,20 +1500,21 @@ IDs in the inner index and chooser IDs in the out index.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Total probability associated with each alternative.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Total probability associated with each alternative.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1532,19 +1536,21 @@ instance.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>By default a YAML string is returned. If a string is
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
+If an object with a <code class="docutils literal notranslate"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
-<blockquote class="last">
-<div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>j</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">YAML is string if <cite>str_or_buffer</cite> is not given.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1563,23 +1569,22 @@ segments of choosers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong> : str</p>
-<blockquote>
-<div><p>Name of a column in the table of choosers. Will be used to perform
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>segmentation_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">Name of a column in the table of choosers. Will be used to perform
 a pandas groupby on the choosers table.</p>
-</div></blockquote>
-<p><strong>remove_alts</strong> : bool, optional</p>
-<blockquote>
-<div><p>Specify how to handle alternatives between prediction for different
+</dd>
+<dt><strong>remove_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Specify how to handle alternatives between prediction for different
 models. If False, the alternatives table is not modified between
 predictions. If True, alternatives that have been chosen
 are removed from the alternatives table before doing another
 round of prediction.</p>
-</div></blockquote>
-<p><strong>name</strong> : str, optional</p>
-<blockquote class="last">
-<div><p>A name that may be used in places to identify this group.</p>
-</div></blockquote>
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">A name that may be used in places to identify this group.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1592,11 +1597,12 @@ round of prediction.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>model</strong> : MNLDiscreteChoiceModel</p>
-<blockquote class="last">
-<div><p>Should have a <code class="docutils literal"><span class="pre">.name</span></code> attribute matching one of the segments
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>model</strong> <span class="classifier-delimiter">:</span> <span class="classifier">MNLDiscreteChoiceModel</span></dt>
+<dd><p class="first last">Should have a <code class="docutils literal notranslate"><span class="pre">.name</span></code> attribute matching one of the segments
 in the choosers table.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1605,84 +1611,73 @@ in the choosers table.</p>
 
 <dl class="method">
 <dt id="urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params">
-<code class="descname">add_model_from_params</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode=’full_product’</em>, <em>choice_mode=’individual’</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_model_from_params</code><span class="sig-paren">(</span><em>name</em>, <em>model_expression</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#MNLDiscreteChoiceModelGroup.add_model_from_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.MNLDiscreteChoiceModelGroup.add_model_from_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a model by passing parameters through to MNLDiscreteChoiceModel.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
-<blockquote>
-<div><p>Must match a segment in the choosers table.</p>
-</div></blockquote>
-<p><strong>model_expression</strong> : str, iterable, or dict</p>
-<blockquote>
-<div><p>A patsy model expression. Should contain only a right-hand side.</p>
-</div></blockquote>
-<p><strong>sample_size</strong> : int</p>
-<blockquote>
-<div><p>Number of choices to sample for estimating the model.</p>
-</div></blockquote>
-<p><strong>probability_mode</strong> : str, optional</p>
-<blockquote>
-<div><p>Specify the method to use for calculating probabilities
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>name</strong></dt>
+<dd><p class="first last">Must match a segment in the choosers table.</p>
+</dd>
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, iterable, or dict</span></dt>
+<dd><p class="first last">A patsy model expression. Should contain only a right-hand side.</p>
+</dd>
+<dt><strong>sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of choices to sample for estimating the model.</p>
+</dd>
+<dt><strong>probability_mode</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Specify the method to use for calculating probabilities
 during prediction.
 Available string options are ‘single_chooser’ and ‘full_product’.
 In “single chooser” mode one agent is chosen for calculating
 probabilities across all alternatives. In “full product” mode
 probabilities are calculated for every chooser across all
 alternatives.</p>
-</div></blockquote>
-<p><strong>choice_mode</strong> : str or callable, optional</p>
-<blockquote>
-<div><p>Specify the method to use for making choices among alternatives.
+</dd>
+<dt><strong>choice_mode</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or callable, optional</span></dt>
+<dd><p class="first last">Specify the method to use for making choices among alternatives.
 Available string options are ‘individual’ and ‘aggregate’.
 In “individual” mode choices will be made separately for each
 chooser. In “aggregate” mode choices are made for all choosers at
 once. Aggregate mode implies that an alternative chosen by one
 agent is unavailable to other agents and that the same
 probabilities can be used for all choosers.</p>
-</div></blockquote>
-<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to choosers table before fitting the model.</p>
-</div></blockquote>
-<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the choosers table before calculating
+</dd>
+<dt><strong>choosers_fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to choosers table before fitting the model.</p>
+</dd>
+<dt><strong>choosers_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the choosers table before calculating
 new data points.</p>
-</div></blockquote>
-<p><strong>alts_fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the alternatives table before fitting the model.</p>
-</div></blockquote>
-<p><strong>alts_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the alternatives table before calculating
+</dd>
+<dt><strong>alts_fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the alternatives table before fitting the model.</p>
+</dd>
+<dt><strong>alts_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the alternatives table before calculating
 new data points.</p>
-</div></blockquote>
-<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the merged choosers/alternatives table
+</dd>
+<dt><strong>interaction_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the merged choosers/alternatives table
 before predicting agent choices.</p>
-</div></blockquote>
-<p><strong>estimation_sample_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Whether to sample choosers during estimation
+</dd>
+<dt><strong>estimation_sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Whether to sample choosers during estimation
 (needs to be applied after choosers_fit_filters)</p>
-</div></blockquote>
-<p><strong>prediction_sample_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Whether (and how much) to sample alternatives during prediction.
+</dd>
+<dt><strong>prediction_sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Whether (and how much) to sample alternatives during prediction.
 Note that this can lead to multiple choosers picking the same
 alternative.</p>
-</div></blockquote>
-<p><strong>choice_column</strong> : optional</p>
-<blockquote class="last">
-<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+</dd>
+<dt><strong>choice_column</strong> <span class="classifier-delimiter">:</span> <span class="classifier">optional</span></dt>
+<dd><p class="first last">Name of the column in the <cite>alternatives</cite> table that choosers
 should choose. e.g. the ‘building_id’ column. If not provided
 the alternatives index is used.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1705,18 +1700,21 @@ the results.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filtered_choosers, filtered_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1733,18 +1731,21 @@ the results.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filtered_choosers, filtered_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1773,29 +1774,29 @@ the <cite>choosers</cite> table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column with the same name as the .segmentation_col
 attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
-<p><strong>current_choice</strong></p>
-<blockquote>
-<div><p>Name of column in <cite>choosers</cite> that indicates which alternative
+</dd>
+<dt><strong>current_choice</strong></dt>
+<dd><p class="first last">Name of column in <cite>choosers</cite> that indicates which alternative
 they have currently chosen.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
-<blockquote class="last">
-<div><p>Keys will be model names and values will be dictionaries of
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>log_likelihoods</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of dict</span></dt>
+<dd><p class="first last">Keys will be model names and values will be dictionaries of
 log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1825,29 +1826,29 @@ segmenting the <cite>choosers</cite> table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column matching the .segmentation_col attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
-<p><strong>debug</strong> : bool</p>
-<blockquote>
-<div><p>If debug is set to true, will set the variable “sim_pdf” on
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If debug is set to true, will set the variable “sim_pdf” on
 the object to store the probabilities for mapping of the
 outcome.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Mapping of chooser ID to alternative ID. Some choosers
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>choices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1863,18 +1864,21 @@ a dictionary keyed by segment name.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column matching the .segmentation_col attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>probabilties</strong> : dict of pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probabilties</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of pandas.Series</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1890,21 +1894,22 @@ chooser segments.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column matching the .segmentation_col attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Summed probabilities from each segment added together.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Summed probabilities from each segment added together.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -1915,24 +1920,22 @@ Must have a column matching the .segmentation_col attribute.</p>
 
 <dl class="class">
 <dt id="urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel">
-<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">SegmentedMNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode=’full_product’</em>, <em>choice_mode=’individual’</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">urbansim.models.dcm.</code><code class="descname">SegmentedMNLDiscreteChoiceModel</code><span class="sig-paren">(</span><em>segmentation_col</em>, <em>sample_size</em>, <em>probability_mode='full_product'</em>, <em>choice_mode='individual'</em>, <em>choosers_fit_filters=None</em>, <em>choosers_predict_filters=None</em>, <em>alts_fit_filters=None</em>, <em>alts_predict_filters=None</em>, <em>interaction_predict_filters=None</em>, <em>estimation_sample_size=None</em>, <em>prediction_sample_size=None</em>, <em>choice_column=None</em>, <em>default_model_expr=None</em>, <em>remove_alts=False</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/dcm.html#SegmentedMNLDiscreteChoiceModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.dcm.SegmentedMNLDiscreteChoiceModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>An MNL LCM group that allows segments to have different model expressions
 but otherwise share configurations.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>segmentation_col</strong></p>
-<blockquote>
-<div><p>Name of column in the choosers table that will be used for groupby.</p>
-</div></blockquote>
-<p><strong>sample_size</strong> : int</p>
-<blockquote>
-<div><p>Number of choices to sample for estimating the model.</p>
-</div></blockquote>
-<p><strong>probability_mode</strong> : str, optional</p>
-<blockquote>
-<div><p>Specify the method to use for calculating probabilities
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>segmentation_col</strong></dt>
+<dd><p class="first last">Name of column in the choosers table that will be used for groupby.</p>
+</dd>
+<dt><strong>sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of choices to sample for estimating the model.</p>
+</dd>
+<dt><strong>probability_mode</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Specify the method to use for calculating probabilities
 during prediction.
 Available string options are ‘single_chooser’ and ‘full_product’.
 In “single chooser” mode one agent is chosen for calculating
@@ -1941,10 +1944,9 @@ probabilities are calculated for every chooser across all alternatives.
 Currently “single chooser” mode must be used with a <cite>choice_mode</cite>
 of ‘aggregate’ and “full product” mode must be used with a
 <cite>choice_mode</cite> of ‘individual’.</p>
-</div></blockquote>
-<p><strong>choice_mode</strong> : str, optional</p>
-<blockquote>
-<div><p>Specify the method to use for making choices among alternatives.
+</dd>
+<dt><strong>choice_mode</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">Specify the method to use for making choices among alternatives.
 Available string options are ‘individual’ and ‘aggregate’.
 In “individual” mode choices will be made separately for each chooser.
 In “aggregate” mode choices are made for all choosers at once.
@@ -1954,63 +1956,53 @@ can be used for all choosers.
 Currently “individual” mode must be used with a <cite>probability_mode</cite>
 of ‘full_product’ and “aggregate” mode must be used with a
 <cite>probability_mode</cite> of ‘single_chooser’.</p>
-</div></blockquote>
-<p><strong>choosers_fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to choosers table before fitting the model.</p>
-</div></blockquote>
-<p><strong>choosers_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the choosers table before calculating
+</dd>
+<dt><strong>choosers_fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to choosers table before fitting the model.</p>
+</dd>
+<dt><strong>choosers_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the choosers table before calculating
 new data points.</p>
-</div></blockquote>
-<p><strong>alts_fit_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the alternatives table before fitting the model.</p>
-</div></blockquote>
-<p><strong>alts_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the alternatives table before calculating
+</dd>
+<dt><strong>alts_fit_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the alternatives table before fitting the model.</p>
+</dd>
+<dt><strong>alts_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the alternatives table before calculating
 new data points.</p>
-</div></blockquote>
-<p><strong>interaction_predict_filters</strong> : list of str, optional</p>
-<blockquote>
-<div><p>Filters applied to the merged choosers/alternatives table
+</dd>
+<dt><strong>interaction_predict_filters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str, optional</span></dt>
+<dd><p class="first last">Filters applied to the merged choosers/alternatives table
 before predicting agent choices.</p>
-</div></blockquote>
-<p><strong>estimation_sample_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Whether to sample choosers during estimation
+</dd>
+<dt><strong>estimation_sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Whether to sample choosers during estimation
 (needs to be applied after choosers_fit_filters)</p>
-</div></blockquote>
-<p><strong>prediction_sample_size</strong> : int, optional</p>
-<blockquote>
-<div><p>Whether (and how much) to sample alternatives during prediction.
+</dd>
+<dt><strong>prediction_sample_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
+<dd><p class="first last">Whether (and how much) to sample alternatives during prediction.
 Note that this can lead to multiple choosers picking the same
 alternative.</p>
-</div></blockquote>
-<p><strong>choice_column</strong> : optional</p>
-<blockquote>
-<div><p>Name of the column in the <cite>alternatives</cite> table that choosers
+</dd>
+<dt><strong>choice_column</strong> <span class="classifier-delimiter">:</span> <span class="classifier">optional</span></dt>
+<dd><p class="first last">Name of the column in the <cite>alternatives</cite> table that choosers
 should choose. e.g. the ‘building_id’ column. If not provided
 the alternatives index is used.</p>
-</div></blockquote>
-<p><strong>default_model_expr</strong> : str, iterable, or dict, optional</p>
-<blockquote>
-<div><p>A patsy model expression. Should contain only a right-hand side.</p>
-</div></blockquote>
-<p><strong>remove_alts</strong> : bool, optional</p>
-<blockquote>
-<div><p>Specify how to handle alternatives between prediction for different
+</dd>
+<dt><strong>default_model_expr</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, iterable, or dict, optional</span></dt>
+<dd><p class="first last">A patsy model expression. Should contain only a right-hand side.</p>
+</dd>
+<dt><strong>remove_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">Specify how to handle alternatives between prediction for different
 models. If False, the alternatives table is not modified between
 predictions. If True, alternatives that have been chosen
 are removed from the alternatives table before doing another
 round of prediction.</p>
-</div></blockquote>
-<p><strong>name</strong> : str, optional</p>
-<blockquote class="last">
-<div><p>An optional string used to identify the model in places.</p>
-</div></blockquote>
+</dd>
+<dt><strong>name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">An optional string used to identify the model in places.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2023,17 +2015,17 @@ round of prediction.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong></p>
-<blockquote>
-<div><p>Segment name. Must match a segment in the groupby of the data.</p>
-</div></blockquote>
-<p><strong>model_expression</strong> : str or dict, optional</p>
-<blockquote class="last">
-<div><p>A patsy model expression that can be used with statsmodels.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>name</strong></dt>
+<dd><p class="first last">Segment name. Must match a segment in the groupby of the data.</p>
+</dd>
+<dt><strong>model_expression</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or dict, optional</span></dt>
+<dd><p class="first last">A patsy model expression that can be used with statsmodels.
 Should contain both the left- and right-hand sides.
 If not given the default model will be used, which must not be
 None.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2054,18 +2046,21 @@ None.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filtered_choosers, filtered_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2080,18 +2075,21 @@ e.g. buildings.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>filtered_choosers, filtered_alts</strong> : pandas.DataFrame</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>filtered_choosers, filtered_alts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2121,29 +2119,29 @@ added will be automatically added with default model.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column with the same name as the .segmentation_col
 attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing,
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing,
 e.g. buildings.</p>
-</div></blockquote>
-<p><strong>current_choice</strong></p>
-<blockquote>
-<div><p>Name of column in <cite>choosers</cite> that indicates which alternative
+</dd>
+<dt><strong>current_choice</strong></dt>
+<dd><p class="first last">Name of column in <cite>choosers</cite> that indicates which alternative
 they have currently chosen.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihoods</strong> : dict of dict</p>
-<blockquote class="last">
-<div><p>Keys will be model names and values will be dictionaries of
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>log_likelihoods</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of dict</span></dt>
+<dd><p class="first last">Keys will be model names and values will be dictionaries of
 log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2157,34 +2155,34 @@ log-liklihood values as returned by MNLDiscreteChoiceModel.fit.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe of rows of agents that have made choices.</p>
-</div></blockquote>
-<p><strong>chosen_fname</strong> : string</p>
-<blockquote>
-<div><p>A string indicating the column in the choosers dataframe which
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe of rows of agents that have made choices.</p>
+</dd>
+<dt><strong>chosen_fname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">A string indicating the column in the choosers dataframe which
 gives which alternative the choosers have chosen.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe of alternatives. It should include the current choices
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe of alternatives. It should include the current choices
 from the choosers dataframe as well as some other alternatives from
 which to sample.  Values in choosers[chosen_fname] should index
 into the alternatives dataframe.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file from which to read the discrete
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file from which to read the discrete
 choice model.</p>
-</div></blockquote>
-<p><strong>outcfgname</strong> : string, optional (default cfgname)</p>
-<blockquote>
-<div><p>The name of the output yaml config file where estimation results are written into.</p>
-</div></blockquote>
+</dd>
+<dt><strong>outcfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional (default cfgname)</span></dt>
+<dd><p class="first last">The name of the output yaml config file where estimation results are written into.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>lcm</strong> : SegmentedMNLDiscreteChoiceModel which was used to fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>lcm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">SegmentedMNLDiscreteChoiceModel which was used to fit</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2206,17 +2204,20 @@ configuration. Arguments are mutally exclusive.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>yaml_str</strong> : str, optional</p>
-<blockquote>
-<div><p>A YAML string from which to load model.</p>
-</div></blockquote>
-<p><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>File name or buffer from which to load YAML.</p>
-</div></blockquote>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>yaml_str</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
+<dd><p class="first last">A YAML string from which to load model.</p>
+</dd>
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">File name or buffer from which to load YAML.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">SegmentedMNLDiscreteChoiceModel</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>SegmentedMNLDiscreteChoiceModel</strong></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2240,29 +2241,29 @@ segmenting the <cite>choosers</cite> table.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column matching the .segmentation_col attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
-<p><strong>debug</strong> : bool</p>
-<blockquote>
-<div><p>If debug is set to true, will set the variable “sim_pdf” on
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+<dt><strong>debug</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">If debug is set to true, will set the variable “sim_pdf” on
 the object to store the probabilities for mapping of the
 outcome.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Mapping of chooser ID to alternative ID. Some choosers
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>choices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2277,40 +2278,39 @@ for all the choosers.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe of agents doing the choosing.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : DataFrame</p>
-<blockquote>
-<div><p>A dataframe of alternatives which the choosers are locating in and
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe of agents doing the choosing.</p>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
+<dd><p class="first last">A dataframe of alternatives which the choosers are locating in and
 which have a supply.</p>
-</div></blockquote>
-<p><strong>cfgname</strong> : string</p>
-<blockquote>
-<div><p>The name of the yaml config file from which to read the discrete
+</dd>
+<dt><strong>cfgname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The name of the yaml config file from which to read the discrete
 choice model.</p>
-</div></blockquote>
-<p><strong>cfg: string</strong></p>
-<blockquote>
-<div><p>an ordered yaml string of the model discrete choice model configuration.
+</dd>
+<dt><strong>cfg: string</strong></dt>
+<dd><p class="first last">an ordered yaml string of the model discrete choice model configuration.
 Used to read config from memory in lieu of loading cfgname from disk.</p>
-</div></blockquote>
-<p><strong>alternative_ratio</strong> : float</p>
-<blockquote>
-<div><p>Above the ratio of alternatives to choosers (default of 2.0),
+</dd>
+<dt><strong>alternative_ratio</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Above the ratio of alternatives to choosers (default of 2.0),
 the alternatives will be sampled to meet this ratio
 (for performance reasons).</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
-<blockquote>
-<div><p>Mapping of chooser ID to alternative ID. Some choosers
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>choices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
-</div></blockquote>
-<p class="last"><strong>lcm</strong> : SegmentedMNLDiscreteChoiceModel which was used to predict</p>
+</dd>
+<dt><strong>lcm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">SegmentedMNLDiscreteChoiceModel which was used to predict</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2326,18 +2326,21 @@ a dictionary keyed by segment name.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column matching the .segmentation_col attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>probabilties</strong> : dict of pandas.Series</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probabilties</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of pandas.Series</span></dt>
+<dd></dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2353,21 +2356,22 @@ chooser segments.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>choosers</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the agents making choices, e.g. households.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the agents making choices, e.g. households.
 Must have a column matching the .segmentation_col attribute.</p>
-</div></blockquote>
-<p><strong>alternatives</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>Table describing the things from which agents are choosing.</p>
-</div></blockquote>
+</dd>
+<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table describing the things from which agents are choosing.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>probs</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Summed probabilities from each segment added together.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Summed probabilities from each segment added together.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2389,19 +2393,21 @@ conversion to YAML.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>str_or_buffer</strong> : str or file like, optional</p>
-<blockquote>
-<div><p>By default a YAML string is returned. If a string is
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>str_or_buffer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or file like, optional</span></dt>
+<dd><p class="first last">By default a YAML string is returned. If a string is
 given here the YAML will be written to that file.
-If an object with a <code class="docutils literal"><span class="pre">.write</span></code> method is given the
+If an object with a <code class="docutils literal notranslate"><span class="pre">.write</span></code> method is given the
 YAML will be written to that object.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>j</strong> : str</p>
-<blockquote class="last">
-<div><p>YAML is string if <cite>str_or_buffer</cite> is not given.</p>
-</div></blockquote>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>j</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">YAML is string if <cite>str_or_buffer</cite> is not given.</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2420,28 +2426,28 @@ alternative can only be chosen once.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>chooser_ids</strong> : 1d array_like</p>
-<blockquote>
-<div><p>Array of IDs of the agents that are making choices.</p>
-</div></blockquote>
-<p><strong>alternative_ids</strong> : 1d array_like</p>
-<blockquote>
-<div><p>Array of IDs of alternatives among which agents are making choices.</p>
-</div></blockquote>
-<p><strong>probabilities</strong> : 1d array_like</p>
-<blockquote>
-<div><p>The probability that an agent will choose an alternative.
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>chooser_ids</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1d array_like</span></dt>
+<dd><p class="first last">Array of IDs of the agents that are making choices.</p>
+</dd>
+<dt><strong>alternative_ids</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1d array_like</span></dt>
+<dd><p class="first last">Array of IDs of alternatives among which agents are making choices.</p>
+</dd>
+<dt><strong>probabilities</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1d array_like</span></dt>
+<dd><p class="first last">The probability that an agent will choose an alternative.
 Must be the same shape as <cite>alternative_ids</cite>. Unavailable
 alternatives should have a probability of 0.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>choices</strong> : pandas.Series</p>
-<blockquote class="last">
-<div><p>Mapping of chooser ID to alternative ID. Some choosers
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>choices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd><p class="first last">Mapping of chooser ID to alternative ID. Some choosers
 will map to a nan value when there are not enough alternatives
 for all the choosers.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -2454,9 +2460,7 @@ for all the choosers.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -2478,7 +2482,7 @@ for all the choosers.</p>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -2497,6 +2501,7 @@ for all the choosers.</p>
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
             VERSION:'3.1.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -2506,7 +2511,7 @@ for all the choosers.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
@@ -2515,14 +2520,11 @@ for all the choosers.</p>
     <script type="text/javascript" src="../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

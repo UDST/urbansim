@@ -25,27 +25,19 @@
   
 
   
-  
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="urbansim 3.1.1 documentation" href="../index.html"/>
-        <link rel="up" title="Core Models" href="index.html"/>
-        <link rel="next" title="Real Estate Development Models" href="../developer/index.html"/>
-        <link rel="prev" title="Model Related Utilities" href="util.html"/> 
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Real Estate Development Models" href="../developer/index.html" />
+    <link rel="prev" title="Model Related Utilities" href="util.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -124,7 +116,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
@@ -132,9 +124,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -183,8 +176,8 @@
 <div class="section" id="module-urbansim.urbanchoice.mnl">
 <span id="multinomial-logit-api"></span><h2>Multinomial Logit API<a class="headerlink" href="#module-urbansim.urbanchoice.mnl" title="Permalink to this headline">¶</a></h2>
 <p>Number crunching code for multinomial logit.
-<code class="docutils literal"><span class="pre">mnl_estimate</span></code> and <code class="docutils literal"><span class="pre">mnl_simulate</span></code> especially are used by
-<code class="docutils literal"><span class="pre">urbansim.models.lcm</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">mnl_estimate</span></code> and <code class="docutils literal notranslate"><span class="pre">mnl_simulate</span></code> especially are used by
+<code class="docutils literal notranslate"><span class="pre">urbansim.models.lcm</span></code>.</p>
 <dl class="function">
 <dt id="urbansim.urbanchoice.mnl.get_hessian">
 <code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">get_hessian</code><span class="sig-paren">(</span><em>derivative</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#get_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.get_hessian" title="Permalink to this definition">¶</a></dt>
@@ -203,47 +196,47 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : 2D array</p>
-<blockquote>
-<div><p>The data are expected to be in “long” form where each row is for
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">2D array</span></dt>
+<dd><p class="first last">The data are expected to be in “long” form where each row is for
 one alternative. Alternatives are in groups of <cite>numalts</cite> rows per
 choosers. Alternatives must be in the same order for each chooser.</p>
-</div></blockquote>
-<p><strong>chosen</strong> : 2D array</p>
-<blockquote>
-<div><p>This boolean array has a row for each chooser and a column for each
+</dd>
+<dt><strong>chosen</strong> <span class="classifier-delimiter">:</span> <span class="classifier">2D array</span></dt>
+<dd><p class="first last">This boolean array has a row for each chooser and a column for each
 alternative. The column ordering for alternatives is expected to be
 the same as their row ordering in the <cite>data</cite> array.
 A one (True) indicates which alternative each chooser has chosen.</p>
-</div></blockquote>
-<p><strong>numalts</strong> : int</p>
-<blockquote>
-<div><p>The number of alternatives.</p>
-</div></blockquote>
-<p><strong>GPU</strong> : bool, optional</p>
-<p><strong>coeffrange</strong> : tuple of floats, optional</p>
-<blockquote>
-<div><p>Limits of (min, max) to which coefficients are clipped.</p>
-</div></blockquote>
-<p><strong>weights</strong> : ndarray, optional</p>
-<p><strong>lcgrad</strong> : bool, optional</p>
-<p><strong>beta</strong> : 1D array, optional</p>
-<blockquote>
-<div><p>Any initial guess for the coefficients.</p>
-</div></blockquote>
+</dd>
+<dt><strong>numalts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of alternatives.</p>
+</dd>
+<dt><strong>GPU</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd></dd>
+<dt><strong>coeffrange</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple of floats, optional</span></dt>
+<dd><p class="first last">Limits of (min, max) to which coefficients are clipped.</p>
+</dd>
+<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, optional</span></dt>
+<dd></dd>
+<dt><strong>lcgrad</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd></dd>
+<dt><strong>beta</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1D array, optional</span></dt>
+<dd><p class="first last">Any initial guess for the coefficients.</p>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>log_likelihood</strong> : dict</p>
-<blockquote>
-<div><p>Dictionary of log-likelihood values describing the quality of
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>log_likelihood</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Dictionary of log-likelihood values describing the quality of
 the model fit.</p>
-</div></blockquote>
-<p><strong>fit_parameters</strong> : pandas.DataFrame</p>
-<blockquote class="last">
-<div><p>Table of fit parameters with columns ‘Coefficient’, ‘Std. Error’,
+</dd>
+<dt><strong>fit_parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><p class="first last">Table of fit parameters with columns ‘Coefficient’, ‘Std. Error’,
 ‘T-Score’. Each row corresponds to a column in <cite>data</cite> and are given
 in the same order as in <cite>data</cite>.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -251,7 +244,7 @@ in the same order as in <cite>data</cite>.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><code class="xref py py-obj docutils literal"><span class="pre">scipy.optimize.fmin_l_bfgs_b</span></code></dt>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.optimize.fmin_l_bfgs_b</span></code></dt>
 <dd>The optimization routine used.</dd>
 </dl>
 </div>
@@ -276,33 +269,33 @@ alternatives.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : 2D array</p>
-<blockquote>
-<div><p>The data are expected to be in “long” form where each row is for
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">2D array</span></dt>
+<dd><p class="first last">The data are expected to be in “long” form where each row is for
 one alternative. Alternatives are in groups of <cite>numalts</cite> rows per
 choosers. Alternatives must be in the same order for each chooser.</p>
-</div></blockquote>
-<p><strong>coeff</strong> : 1D array</p>
-<blockquote>
-<div><p>The model coefficients corresponding to each column in <cite>data</cite>.</p>
-</div></blockquote>
-<p><strong>numalts</strong> : int</p>
-<blockquote>
-<div><p>The number of alternatives available to each chooser.</p>
-</div></blockquote>
-<p><strong>GPU</strong> : bool, optional</p>
-<p><strong>returnprobs</strong> : bool, optional</p>
-<blockquote>
-<div><p>If True, return the probabilities for each chooser/alternative instead
+</dd>
+<dt><strong>coeff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1D array</span></dt>
+<dd><p class="first last">The model coefficients corresponding to each column in <cite>data</cite>.</p>
+</dd>
+<dt><strong>numalts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of alternatives available to each chooser.</p>
+</dd>
+<dt><strong>GPU</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd></dd>
+<dt><strong>returnprobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">If True, return the probabilities for each chooser/alternative instead
 of actual choices.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">probs or choices: 2D array</p>
-<blockquote class="last">
-<div><p>If <cite>returnprobs</cite> is True the probabilities are a 2D array with a
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>probs or choices: 2D array</strong></dt>
+<dd><p class="first last">If <cite>returnprobs</cite> is True the probabilities are a 2D array with a
 row for each chooser and columns for each alternative.</p>
-</div></blockquote>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
@@ -330,9 +323,7 @@ Used for location choice models.</p>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -354,7 +345,7 @@ Used for location choice models.</p>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -373,6 +364,7 @@ Used for location choice models.</p>
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
             VERSION:'3.1.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -382,7 +374,7 @@ Used for location choice models.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
@@ -391,14 +383,11 @@ Used for location choice models.</p>
     <script type="text/javascript" src="../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

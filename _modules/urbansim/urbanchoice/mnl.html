@@ -25,25 +25,17 @@
   
 
   
-  
     <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../../../genindex.html"/>
-        <link rel="search" title="Search" href="../../../search.html"/>
-    <link rel="top" title="urbansim 3.1.1 documentation" href="../../../index.html"/>
-        <link rel="up" title="Module code" href="../../index.html"/> 
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 
   
   <script src="../../../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -107,7 +99,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">urbansim</a>
@@ -115,9 +107,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -146,8 +139,6 @@
     
     
       <li class="wy-breadcrumbs-aside">
-        
-            
         
       </li>
     
@@ -196,6 +187,9 @@
     <span class="k">if</span> <span class="n">numalts</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Number of alternatives is zero&quot;</span><span class="p">)</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">numalts</span><span class="p">,</span> <span class="n">utilities</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">//</span> <span class="n">numalts</span><span class="p">)</span>
+
+    <span class="c1"># https://stats.stackexchange.com/questions/304758/softmax-overflow</span>
+    <span class="n">utilities</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">utilities</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
     <span class="n">exponentiated_utility</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
@@ -407,6 +401,10 @@
                                                    <span class="n">approx_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                                    <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span>
                                                    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">bfgs_result</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s1">&#39;warnflag&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;mnl did not converge correctly: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>  <span class="n">bfgs_result</span><span class="p">)</span>
+
     <span class="n">beta</span> <span class="o">=</span> <span class="n">bfgs_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">stderr</span> <span class="o">=</span> <span class="n">mnl_loglik</span><span class="p">(</span>
         <span class="n">beta</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">chosen</span><span class="p">,</span> <span class="n">numalts</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lcgrad</span><span class="o">=</span><span class="n">lcgrad</span><span class="p">)</span>
@@ -431,9 +429,7 @@
 </pre></div>
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -446,7 +442,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -465,6 +461,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../../',
             VERSION:'3.1.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -474,7 +471,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
@@ -483,14 +480,11 @@
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
   
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>
