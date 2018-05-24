@@ -67,7 +67,7 @@ def get_standard_error(hessian):
 
 
 def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
-               stderr=0):
+               stderr=0, l1=0.0, l2=0.0):
     logger.debug('start: calculate MNL log-likelihood')
     numvars = beta.size
     numobs = data.size() // numvars // numalts
@@ -117,11 +117,18 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
         loglik = loglik.get_mat()[0, 0]
         gradarr = np.reshape(gradarr.get_mat(), (1, gradarr.size()))[0]
 
+    loglik -= l1 * np.abs(beta.get_mat()).sum()
+    gradarr -= l1 * np.sign(beta.get_mat())[0]
+
+    loglik -= l2 * np.square(beta.get_mat()).sum()
+    gradarr -= l2 * beta.get_mat()[0]
+
     logger.debug('finish: calculate MNL log-likelihood')
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
+def mnl_simulate(data, coeff, numalts, normalization_mean=0.0, normalization_std=1.0, GPU=False,
+                 returnprobs=True):
     """
     Get the probabilities for each chooser choosing between `numalts`
     alternatives.
@@ -136,6 +143,10 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
         The model coefficients corresponding to each column in `data`.
     numalts : int
         The number of alternatives available to each chooser.
+    normalization_mean : 1D array, optional
+        The model normalization constant corresponding to each column in `data`.
+    normalization_std : 1D array, optional
+        The model normalization factor corresponding to each column in `data`.
     GPU : bool, optional
     returnprobs : bool, optional
         If True, return the probabilities for each chooser/alternative instead
@@ -153,6 +164,7 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
             len(data), numalts))
     atype = 'numpy' if not GPU else 'cuda'
 
+    data = (data.copy() - normalization_mean) / normalization_std
     data = np.transpose(data)
     coeff = np.reshape(np.array(coeff), (1, len(coeff)))
 
@@ -176,7 +188,7 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
 
 
 def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
-                 weights=None, lcgrad=False, beta=None):
+                 weights=None, lcgrad=False, beta=None, normalize=False, l1=0.0, l2=0.0):
     """
     Calculate coefficients of the MNL model.
 
@@ -200,6 +212,8 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     lcgrad : bool, optional
     beta : 1D array, optional
         Any initial guess for the coefficients.
+    normalize : bool, optional default False
+        subtract the mean and divide by the standard deviation before fitting the Coefficients
 
     Returns
     -------
@@ -224,6 +238,12 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     numvars = data.shape[1]
     numobs = data.shape[0] // numalts
 
+    if normalize:
+        normalization_mean = data.mean(0)
+        normalization_std = data.std(0, ddof=1)
+
+        data = (data.copy() - normalization_mean) / normalization_std
+
     if chosen is None:
         chosen = np.ones((numobs, numalts))  # used for latent classes
 
@@ -239,7 +259,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     bounds = [coeffrange] * numvars
 
     with log_start_finish('scipy optimization for MNL fit', logger):
-        args = (data, chosen, numalts, weights, lcgrad)
+        args = (data, chosen, numalts, weights, lcgrad, 0, l1, l2)
         bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
                                                    beta,
                                                    args=args,
@@ -270,6 +290,10 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
         'Coefficient': beta,
         'Std. Error': stderr,
         'T-Score': beta / stderr})
+
+    if normalize:
+        fit_parameters['Normalization Mean'] = normalization_mean
+        fit_parameters['Normalization Std'] = normalization_std
 
     logger.debug('finish: MNL fit')
     return log_likelihood, fit_parameters
