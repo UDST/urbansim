@@ -78,6 +78,12 @@ def test_data(request):
     }
 
 
+def test_mnl_estimate_temp():
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'data_test.csv'), index_col=0)
+    chosen = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'chosen_test.csv'), index_col=0)
+    mnl.mnl_estimate(data.values, chosen.values, 5, coeffrange=(-999, 999))
+
+
 @pytest.fixture
 def df(test_data):
     filen = os.path.join(os.path.dirname(__file__), 'data', test_data['data'])
