@@ -121,6 +121,19 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
     return -1 * loglik, -1 * gradarr
 
 
+def mnl_loglik_print(beta, data, chosen, numalts, weights=None, lcgrad=False,
+                     stderr=0):
+    # TODO: REMOVE when gradarr is correct
+    out = mnl_loglik(beta, data, chosen, numalts, weights, lcgrad, stderr)
+    approx_gradarr = scipy.optimize.approx_fprime(
+        beta,
+        lambda x: mnl_loglik(x, data, chosen, numalts, weights, lcgrad, stderr)[0],
+        1e-14
+    )
+    print(np.sqrt(np.sum((out[1] - approx_gradarr) ** 2)))
+    return out
+
+
 def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
     """
     Get the probabilities for each chooser choosing between `numalts`
@@ -240,7 +253,7 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
 
     with log_start_finish('scipy optimization for MNL fit', logger):
         args = (data, chosen, numalts, weights, lcgrad)
-        bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik,
+        bfgs_result = scipy.optimize.fmin_l_bfgs_b(mnl_loglik_print,
                                                    beta,
                                                    args=args,
                                                    fprime=None,
