@@ -138,7 +138,7 @@ def compute_range(travel_data, attr, travel_time_attr, dist, agg=np.sum):
     """
     travel_data = travel_data.reset_index(level=1)
     travel_data = travel_data[travel_data[travel_time_attr] < dist]
-    travel_data["attr"] = attr[travel_data.to_zone_id].values
+    travel_data["attr"] = attr.reindex(travel_data.to_zone_id, fill_value=0).values
     return travel_data.groupby(level=0).attr.apply(agg)
 
 
