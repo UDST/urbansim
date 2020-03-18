@@ -35,8 +35,8 @@ def test_interaction_dataset_sim(choosers, alternatives):
 
     assert len(merged) == len(choosers) * len(alternatives)
     npt.assert_array_equal(merged.index.values, sample)
-    assert list(merged.columns) == [
-        'var2', 'var3', 'join_index', 'thing_id', 'var1']
+    assert set(list(merged.columns)) == set([
+        'var2', 'var3', 'join_index', 'thing_id', 'var1'])
     npt.assert_array_equal(
         merged['var1'].values,
         choosers['var1'].values.repeat(len(alternatives)))
