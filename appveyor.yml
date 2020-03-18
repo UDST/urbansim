@@ -17,8 +17,8 @@ install:
   - conda info -a
   - "conda create -q -n test-environment python=%PYTHON_VERSION% cytoolz jupyter jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pyyaml toolz"
   - activate test-environment
-  - conda install -c conda-forge shapely geopandas pandana
-  - pip install orca osmnet bottle simplejson zbox prettytable
+  - conda install -c conda-forge shapely geopandas
+  - pip install orca pandana osmnet bottle simplejson zbox prettytable
   - pip install 'pytest<4.0' pycodestyle
   - pip install .
 
