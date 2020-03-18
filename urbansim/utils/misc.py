@@ -357,7 +357,7 @@ def series64bitto32bit(s):
 
 
 def _pandassummarytojson(v, ndigits=3):
-    return {i: round(float(v.ix[i]), ndigits) for i in v.index}
+    return {i: round(float(v.loc[i]), ndigits) for i in v.index}
 
 
 def pandasdfsummarytojson(df, ndigits=3):
