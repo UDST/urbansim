@@ -4,7 +4,7 @@ environment:
   matrix:
     - PYTHON_VERSION: 2.7
       MINICONDA: C:\Miniconda
-    - PYTHON_VERSION: 3.5
+    - PYTHON_VERSION: 3.6
       MINICONDA: C:\Miniconda3
 
 init:
@@ -15,11 +15,11 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% cytoolz ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz"
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% cytoolz jupyter jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pyyaml toolz"
   - activate test-environment
-  - conda install -c conda-forge shapely geopandas
-  - pip install orca osmnet pandana bottle simplejson zbox
-  - pip install pycodestyle
+  - conda install -c conda-forge shapely geopandas pandana
+  - pip install orca osmnet bottle simplejson zbox prettytable
+  - pip install 'pytest<4.0' pycodestyle
   - pip install .
 
 before_test:
