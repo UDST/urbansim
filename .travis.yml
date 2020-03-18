@@ -17,10 +17,11 @@ install:
 - >
   conda create -q -n test-environment
   python=$TRAVIS_PYTHON_VERSION
-  cytoolz jupyter jinja2 matplotlib numpy pandas pandana patsy pip scipy
-  statsmodels pytables pytest pyyaml toolz prettytable
+  cytoolz jupyter jinja2 matplotlib numpy pandas patsy pip scipy
+  statsmodels pytables pyyaml toolz
 - source activate test-environment
-- pip install orca osmnet pandana bottle simplejson zbox
+- conda install pandana -c conda-forge
+- pip install orca osmnet pandana bottle simplejson zbox prettytable
 - pip install 'pytest<4.0' pytest-cov coveralls pycodestyle
 - pip install .
 before_script:
