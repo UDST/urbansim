@@ -19,7 +19,7 @@ install:
   - activate test-environment
   - conda install -c conda-forge shapely geopandas
   - pip install orca pandana osmnet bottle simplejson zbox prettytable
-  - pip install 'pytest<4.0' pycodestyle
+  - pip install pytest<4.0 pycodestyle
   - pip install .
 
 before_test:
