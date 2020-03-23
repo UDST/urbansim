@@ -413,14 +413,14 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
 
-        if len(merged) != model_design.as_matrix().shape[0]:
+        if len(merged) != model_design.values.shape[0]:
             raise ModelEvaluationError(
                 'Estimated data does not have the same length as input.  '
                 'This suggests there are null values in one or more of '
                 'the input columns.')
 
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
-            model_design.as_matrix(), chosen, self.sample_size)
+            model_design.values, chosen, self.sample_size)
         self.fit_parameters.index = model_design.columns
 
         logger.debug('finish: fit LCM model {}'.format(self.name))
@@ -523,7 +523,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
 
-        if len(merged) != model_design.as_matrix().shape[0]:
+        if len(merged) != model_design.values.shape[0]:
             raise ModelEvaluationError(
                 'Simulated data does not have the same length as input.  '
                 'This suggests there are null values in one or more of '
@@ -542,7 +542,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             numalts = sample_size
 
         probabilities = mnl.mnl_simulate(
-            model_design.as_matrix(),
+            model_design.values,
             coeffs,
             numalts=numalts, returnprobs=True)
 
