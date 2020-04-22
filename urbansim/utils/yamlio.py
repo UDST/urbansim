@@ -220,7 +220,7 @@ def yaml_to_dict(yaml_str=None, str_or_buffer=None, ordered=False):
     if ordered:
         loader = __ordered_load
     else:
-        loader = yaml.load
+        loader = yaml.safe_load
 
     if yaml_str:
         d = loader(yaml_str)

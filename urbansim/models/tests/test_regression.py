@@ -211,7 +211,7 @@ class TestRegressionModelYAMLNotFit(object):
 
     def test_string(self):
         test_yaml = self.model.to_yaml()
-        assert_dict_specs_equal(yaml.load(test_yaml), self.expected_dict)
+        assert_dict_specs_equal(yaml.safe_load(test_yaml), self.expected_dict)
 
         model = regression.RegressionModel.from_yaml(yaml_str=test_yaml)
         assert isinstance(model, regression.RegressionModel)
@@ -220,7 +220,7 @@ class TestRegressionModelYAMLNotFit(object):
         test_buffer = StringIO()
         self.model.to_yaml(str_or_buffer=test_buffer)
         assert_dict_specs_equal(
-            yaml.load(test_buffer.getvalue()), self.expected_dict)
+            yaml.safe_load(test_buffer.getvalue()), self.expected_dict)
 
         test_buffer.seek(0)
         model = regression.RegressionModel.from_yaml(str_or_buffer=test_buffer)
@@ -233,7 +233,7 @@ class TestRegressionModelYAMLNotFit(object):
         self.model.to_yaml(str_or_buffer=test_file)
 
         with open(test_file) as f:
-            assert_dict_specs_equal(yaml.load(f), self.expected_dict)
+            assert_dict_specs_equal(yaml.safe_load(f), self.expected_dict)
 
         model = regression.RegressionModel.from_yaml(str_or_buffer=test_file)
         assert isinstance(model, regression.RegressionModel)
@@ -375,10 +375,10 @@ def test_SegmentedRegressionModel_yaml(groupby_df):
         }
     }
 
-    assert yaml.load(seg.to_yaml()) == expected_dict
+    assert yaml.safe_load(seg.to_yaml()) == expected_dict
 
     new_seg = regression.SegmentedRegressionModel.from_yaml(seg.to_yaml())
-    assert yaml.load(new_seg.to_yaml()) == expected_dict
+    assert yaml.safe_load(new_seg.to_yaml()) == expected_dict
 
     seg.fit(groupby_df)
 
@@ -392,7 +392,7 @@ def test_SegmentedRegressionModel_yaml(groupby_df):
     del expected_dict['models']['y']['fit_rsquared']
     del expected_dict['models']['y']['fit_rsquared_adj']
 
-    actual_dict = yaml.load(seg.to_yaml())
+    actual_dict = yaml.safe_load(seg.to_yaml())
     assert isinstance(actual_dict['models']['x'].pop('fit_parameters'), dict)
     assert isinstance(actual_dict['models']['x'].pop('fit_rsquared'), float)
     assert isinstance(
