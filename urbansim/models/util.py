@@ -14,7 +14,7 @@ from tokenize import generate_tokens, NAME
 import numpy as np
 import pandas as pd
 import patsy
-from zbox import toolz as tz
+import toolz as tz
 
 from ..utils.logutil import log_start_finish
 

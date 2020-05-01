@@ -38,12 +38,9 @@ setup(
         'pandas >= 0.17.0',
         'patsy >= 0.3.0',
         'prettytable >= 0.7.2',
-        'pyyaml >= 3.10',
-        'scipy >= 0.13.3',
+        'scipy >= 1.0',
         'statsmodels >= 0.8, <0.11; python_version <"3.6"',
         'statsmodels >= 0.8; python_version >="3.6"',
-        'tables >= 3.1.0',
-        'toolz >= 0.7.0',
-        'zbox >= 1.2'
+        'toolz >= 0.8.1'
     ]
 )
