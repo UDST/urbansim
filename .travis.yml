@@ -12,7 +12,6 @@ install:
   - pip install -r requirements-dev.txt
   - pip list
   - pip show urbansim
-  # - conda: cytoolz jinja2 osmnet
 
 before_script:
   - git clone https://github.com/udst/sanfran_urbansim.git
