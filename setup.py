@@ -1,12 +1,4 @@
-# Install setuptools if not installed.
-try:
-    import setuptools
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-
 from setuptools import setup, find_packages
-
 
 # read README as the long description
 with open('README.rst', 'r') as f:
