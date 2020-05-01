@@ -1,4 +1,16 @@
 # Additional requirements for development and testing
 
 matplotlib
-pandana >= 0.3
+pandana
+
+# testing
+coveralls
+jupyter
+pycodestyle
+pytest < 4.0
+pytest-cov
+
+# building documentation
+numpydoc
+sphinx
+sphinx-rtd-theme
