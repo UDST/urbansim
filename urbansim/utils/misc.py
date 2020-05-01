@@ -8,7 +8,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from zbox import toolz as tz
+import toolz as tz
 
 
 def _mkifnotexists(folder):

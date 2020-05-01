@@ -1,0 +1,18 @@
+# Additional requirements for development and testing
+
+bottle
+matplotlib
+pandana
+simplejson
+
+# testing
+coveralls
+jupyter
+pycodestyle
+pytest < 4.0
+pytest-cov
+
+# building documentation
+numpydoc
+sphinx
+sphinx-rtd-theme

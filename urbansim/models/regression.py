@@ -12,7 +12,7 @@ import pandas as pd
 import statsmodels.formula.api as smf
 from patsy import dmatrix
 from prettytable import PrettyTable
-from zbox import toolz as tz
+import toolz as tz
 
 from . import util
 from ..exceptions import ModelEvaluationError

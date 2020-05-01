@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
-from zbox import toolz as tz
+import toolz as tz
 
 from . import util
 from ..exceptions import ModelEvaluationError

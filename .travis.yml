@@ -1,44 +1,33 @@
 language: python
-sudo: false
+
 python:
-- '2.7'
-- '3.6'
-- '3.8'
+  - '2.7'
+  - '3.5'
+  - '3.6'
+  - '3.7'
+  - '3.8'
+
 install:
-- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
-  -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  -O miniconda.sh; fi
-- bash miniconda.sh -b -p $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
-- hash -r
-- conda config --set always_yes yes --set changeps1 no
-- conda update -q conda
-- conda info -a
-- >
-  conda create -q -n test-environment
-  python=$TRAVIS_PYTHON_VERSION
-  cytoolz jupyter jinja2 matplotlib numpy pandas patsy pip scipy
-  statsmodels pytables pyyaml toolz
-- source activate test-environment
-- conda install pandana -c conda-forge
-- pip install orca osmnet pandana bottle simplejson zbox prettytable
-- pip install 'pytest<4.0' pytest-cov coveralls pycodestyle
-- pip install .
+  - pip install .
+  - pip install -r requirements-dev.txt
+  - pip list
+  - pip show urbansim
+
 before_script:
-- git clone https://github.com/udst/sanfran_urbansim.git
-- cd sanfran_urbansim; jupyter nbconvert --to python Simulation.ipynb
-- cd ..
+  - git clone https://github.com/udst/sanfran_urbansim.git
+  - cd sanfran_urbansim; jupyter nbconvert --to python Simulation.ipynb
+  - cd ..
+
 script:
-- pycodestyle urbansim scripts
-- py.test --cov urbansim --cov-report term-missing
-- cd sanfran_urbansim; python Simulation.py
-- cd ..
+  - pycodestyle urbansim scripts
+  - py.test --cov urbansim --cov-report term-missing
+  - cd sanfran_urbansim; python Simulation.py
+  - cd ..
+
 after_success:
-- coveralls
-- bin/build_docs.sh
-notifications:
-  slack:
-    secure: LnbM2nYkvZF7FreNhqG+ExMeIsbbOWuuOi8ewZCCvMEMsYBEc9oE1hi23enpGUMElGzCTKOdCpQ/Z/QNHMycGZaL/wAZm5EPGNM7CZG1FKDrPYOTJ18ipi+k72k3GuqXM3DwGzjcRO6sw7kdy1k/3uVu8QHmkdgijLT6smIh6r4=
+  - coveralls
+  - bin/build_docs.sh
+
 env:
   global:
-  - secure: c2olC+qzN1VHJZlznPy7mUtRvAyU7I2C7N3sYkv71Ds+dx5WN8InF6mpwNs/ZKfERbbA9slSVmYjB4j2c+VT8S1J33o6aI4F4hWNr6l7DgBKoPmozvaDx0GQ45hMOeSHSG5OF+DZCSTEXtxQK82uj61sCvZ6dIlDOqRvAHCjQDI=
+    - secure: c2olC+qzN1VHJZlznPy7mUtRvAyU7I2C7N3sYkv71Ds+dx5WN8InF6mpwNs/ZKfERbbA9slSVmYjB4j2c+VT8S1J33o6aI4F4hWNr6l7DgBKoPmozvaDx0GQ45hMOeSHSG5OF+DZCSTEXtxQK82uj61sCvZ6dIlDOqRvAHCjQDI=
