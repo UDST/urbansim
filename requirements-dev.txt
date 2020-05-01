@@ -1,7 +1,9 @@
 # Additional requirements for development and testing
 
+bottle
 matplotlib
 pandana
+simplejson
 
 # testing
 coveralls

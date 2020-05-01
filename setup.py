@@ -33,18 +33,16 @@ setup(
     },
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
-        'bottle>=0.12',
-        'numpy>=1.8.0',
-        'orca>=1.1',
-        'pandas>=0.17.0',
-        'patsy>=0.3.0',
-        'prettytable>=0.7.2',
-        'pyyaml>=3.10',
-        'scipy>=0.13.3',
-        'simplejson>=3.3',
-        'statsmodels>=0.8.0',
-        'tables>=3.1.0',
-        'toolz>=0.7.0',
-        'zbox>=1.2'
+        'numpy >= 1.8.0',
+        'orca >= 1.1',
+        'pandas >= 0.17.0',
+        'patsy >= 0.3.0',
+        'prettytable >= 0.7.2',
+        'pyyaml >= 3.10',
+        'scipy >= 0.13.3',
+        'statsmodels >= 0.8.0',
+        'tables >= 3.1.0',
+        'toolz >= 0.7.0',
+        'zbox >= 1.2'
     ]
 )
