@@ -22,10 +22,15 @@ setup(
     license='BSD',
     url='https://github.com/udst/urbansim',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Information Analysis',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'License :: OSI Approved :: BSD License'
     ],
     package_data={
@@ -38,6 +43,7 @@ setup(
         'pandas >= 0.17.0',
         'patsy >= 0.3.0',
         'prettytable >= 0.7.2',
+        'pyyaml >= 3.10',
         'scipy >= 1.0',
         'statsmodels >= 0.8, <0.11; python_version <"3.6"',
         'statsmodels >= 0.8; python_version >="3.6"',
