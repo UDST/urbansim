@@ -16,10 +16,13 @@ environment:
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
 
+# Requirements or sub-requirements that don't install well with pip
+# are included directly in the conda environment
+
 install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   - conda update conda --yes --quiet
-  - "conda create --name test-env python=%PYTHON_VERSION% pip --yes --quiet"
+  - "conda create --name test-env python=%PYTHON_VERSION% pip geopandas --yes --quiet"
   - activate test-env
   - pip install .
   - pip install -r requirements-dev.txt
