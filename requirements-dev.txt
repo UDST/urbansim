@@ -1,0 +1,4 @@
+# Additional requirements for development and testing
+
+matplotlib
+pandana >= 0.3

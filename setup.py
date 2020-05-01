@@ -34,7 +34,6 @@ setup(
     packages=find_packages(exclude=['*.tests']),
     install_requires=[
         'bottle>=0.12',
-        'matplotlib>=1.3.1',
         'numpy>=1.8.0',
         'orca>=1.1',
         'pandas>=0.17.0',
@@ -47,8 +46,5 @@ setup(
         'tables>=3.1.0',
         'toolz>=0.7.0',
         'zbox>=1.2'
-    ],
-    extras_require={
-        'pandana': ['pandana==0.3.0']
-    }
+    ]
 )
