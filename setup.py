@@ -7,7 +7,7 @@ with open('README.rst', 'r') as f:
 setup(
     name='urbansim',
     version='3.1.1',
-    description='Tool for modeling metropolitan real estate markets',
+    description='Platform for building statistical models of cities and regions',
     long_description=long_description,
     author='UrbanSim Inc.',
     author_email='info@urbansim.com',
