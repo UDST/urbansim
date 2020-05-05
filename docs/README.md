@@ -2,7 +2,7 @@ This folder generates the UrbanSim online documentation, hosted at https://udst.
 
 ### How it works
 
-HTML files are generated using [Sphinx](http://sphinx-doc.org) and hosted with Github Pages from the `gh-pages` branch of the repository. The online documentation is rendered and updated **manually**. 
+HTML files are generated using [Sphinx](http://sphinx-doc.org) and hosted with GitHub Pages from the `gh-pages` branch of the repository. The online documentation is rendered and updated **manually**. 
 
 ### Editing the documentation
 
@@ -28,4 +28,4 @@ The HTML files will show up in `docs/build/`.
 
 ### Uploading changes
 
-Clone a second copy of the repository and check out the `gh-pages` branch. Copy over the updated HTML files, commit them, and push the changes to Github.
+Clone a second copy of the repository and check out the `gh-pages` branch. Copy over the updated HTML files, commit them, and push the changes to GitHub.

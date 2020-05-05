@@ -1,3 +1,13 @@
+v3.2
+====
+
+2020/05/05
+
+* Improved installation and compatibility
+* Support for Pandas 1.0
+* Various improvements and bug fixes
+* Note that active development of certain UrbanSim components has moved to stand-alone libraries in UDST: Developer, Choicemodels, UrbanSim Templates
+
 v3.1.1
 ======
 
