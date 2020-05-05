@@ -47,6 +47,6 @@ Technical documentation
 
 * `Full documentation <https://udst.github.io/urbansim/>`__
 
-* Other `UDST <https://github.com/UDST>`__ libraries
+* Other `UDST <https://docs.udst.org>`__ libraries
 
 * Documentation for `UrbanCanvas <https://cloud.urbansim.com/docs/>`__, the UrbanSim cloud platform
