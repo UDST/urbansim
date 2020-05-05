@@ -25,7 +25,7 @@ Operational UrbanSim models begin with detailed data about a particular region, 
 UrbanSim models are used by public agencies, consultancies, and researchers in dozens of cities around the U.S. and world. The core platform is open source, but many operational models make use of additional cloud-hosted model building and visualization tools provided by UrbanSim Inc. 
 
 Learn More
-~~~~~~~~~~
+----------
 
 * `An Introduction to UrbanSim <https://udst.github.io/urbansim/gettingstarted.html#a-gentle-introduction-to-urbansim>`__
 
