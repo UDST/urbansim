@@ -15,7 +15,7 @@ UrbanSim
 
 UrbanSim is a platform for building statistical models of cities and regions. These models help forecast long-range patterns in real estate development, demographics, and related outcomes, under various policy scenarios.
 
-This ``urbansim``` Python library is a core component. It contains tools for statistical estimation and simulation; domain-specific logic about housing markets, household relocation, and other processes; and frameworks and utilities for assembling a model. 
+This ``urbansim`` Python library is a core component. It contains tools for statistical estimation and simulation; domain-specific logic about housing markets, household relocation, and other processes; and frameworks and utilities for assembling a model. 
 
 How it works
 ------------
