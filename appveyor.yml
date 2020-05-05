@@ -34,6 +34,6 @@ before_test:
   - cd..
 
 test_script:
-  - pycodestyle urbansim scripts
+  - pycodestyle urbansim
   - pytest urbansim
   - cd sanfran_urbansim & python Simulation.py
