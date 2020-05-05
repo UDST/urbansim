@@ -33,6 +33,13 @@ Learn More
 
 * `UrbanSim Inc. <https://urbansim.com>`__
 
+Installation
+------------
+
+* ``pip install urbansim``
+
+* ``conda install urbansim --channel conda-forge``
+
 Technical documentation
 -----------------------
 
