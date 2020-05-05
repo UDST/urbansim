@@ -19,7 +19,7 @@ before_script:
   - cd ..
 
 script:
-  - pycodestyle urbansim
+  - pycodestyle --max-line-length=100 urbansim
   - py.test --cov urbansim --cov-report term-missing
   - cd sanfran_urbansim; python Simulation.py
   - cd ..

@@ -34,6 +34,6 @@ before_test:
   - cd..
 
 test_script:
-  - pycodestyle urbansim
+  - pycodestyle --max-line-length=100 urbansim
   - pytest urbansim
   - cd sanfran_urbansim & python Simulation.py
