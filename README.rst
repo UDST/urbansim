@@ -22,7 +22,7 @@ How it works
 
 Operational UrbanSim models begin with detailed data about a particular region, and then estimate and validate a system of interconnected model components. Full models draw on a number of libraries: not just ``urbansim``, but also `Orca <https://github.com/UDST/orca>`__ for task orchestration, `Synthpop <https://github.com/UDST/synthpop>`__ for population synthesis, `Pandana <https://github.com/UDST/pandana>`__ for network analysis, and so on. Collectively, these make up the `Urban Data Science Toolkit <https://github.com/UDST>`__ (UDST).
 
-UrbanSim models are used by public agencies, consultancies, and researchers in dozens of cities around the U.S. and world. The core platform is open source, but many operational models make use of additional cloud-hosted model building and visualization tools provided by UrbanSim Inc. 
+UrbanSim models are used by public agencies, consultancies, and researchers in dozens of cities around the U.S. and world. The core platform is open source, but many operational models make use of additional cloud-hosted model building and visualization tools provided by `UrbanSim Inc. <https://urbansim.com>`__
 
 Learn More
 ----------
@@ -43,8 +43,10 @@ Installation
 Technical documentation
 -----------------------
 
-* `Documentation <https://udst.github.io/urbansim/>`__ for the ``urbansim`` library
+* `Getting started <https://udst.github.io/urbansim/gettingstarted.html>`__
 
-* `Urban Data Science Toolkit <https://github.com/UDST>`__
+* `Full documentation <https://udst.github.io/urbansim/>`__
 
-* Documentation for the `UrbanSim Cloud Platform <https://cloud.urbansim.com/docs/>`__
+* Other `UDST <https://github.com/UDST>`__ libraries
+
+* Documentation for `UrbanCanvas <https://cloud.urbansim.com/docs/>`__, the UrbanSim cloud platform
