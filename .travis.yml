@@ -19,15 +19,10 @@ before_script:
   - cd ..
 
 script:
-  - pycodestyle urbansim scripts
+  - pycodestyle --max-line-length=100 urbansim
   - py.test --cov urbansim --cov-report term-missing
   - cd sanfran_urbansim; python Simulation.py
   - cd ..
 
 after_success:
   - coveralls
-  - bin/build_docs.sh
-
-env:
-  global:
-    - secure: c2olC+qzN1VHJZlznPy7mUtRvAyU7I2C7N3sYkv71Ds+dx5WN8InF6mpwNs/ZKfERbbA9slSVmYjB4j2c+VT8S1J33o6aI4F4hWNr6l7DgBKoPmozvaDx0GQ45hMOeSHSG5OF+DZCSTEXtxQK82uj61sCvZ6dIlDOqRvAHCjQDI=

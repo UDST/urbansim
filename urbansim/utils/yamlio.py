@@ -84,7 +84,7 @@ def to_scalar_safe(obj):
     Convert a numpy data type to a standard python scalar.
     """
     try:
-        return np.asscalar(obj)
+        return obj.item()
     except Exception:
         return obj
 
