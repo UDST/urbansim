@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Real Estate Development Models &mdash; urbansim 3.1.1 documentation</title>
+  <title>Real Estate Development Models &mdash; urbansim 3.2 documentation</title>
   
 
   
@@ -17,35 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="UrbanSim Utilities" href="../utils/index.html" />
     <link rel="prev" title="Location Choice Utilities" href="../models/urbanchoice.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                3.1
+                3.2
               </div>
             
           
@@ -278,9 +279,9 @@ ids+1 and then incremented from there).</p>
 </div>
 <div class="section" id="module-urbansim.developer.sqftproforma">
 <span id="square-foot-pro-forma-api"></span><h2>Square Foot Pro Forma API<a class="headerlink" href="#module-urbansim.developer.sqftproforma" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma">
-<em class="property">class </em><code class="descclassname">urbansim.developer.sqftproforma.</code><code class="descname">SqFtProForma</code><span class="sig-paren">(</span><em>config=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">urbansim.developer.sqftproforma.</code><code class="sig-name descname">SqFtProForma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the square foot based pro forma.</p>
 <p>This pro forma has no representation of units - it does not
 differentiate between the rent attained by 1BR, 2BR, or 3BR and change
@@ -290,225 +291,177 @@ its acquisition cost.  Thus rents and costs per sqft are used for new
 and current buildings which assumes there is a constant return on
 increasing and decreasing unit sizes, an extremely useful simplifying
 assumption above the project scale (i.e. city of regional scale)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>config</strong> <span class="classifier-delimiter">:</span> <span class="classifier"><cite>SqFtProFormaConfig</cite></span></dt>
-<dd><p class="first last">The configuration object which should be an
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>config</strong><span class="classifier"><cite>SqFtProFormaConfig</cite></span></dt><dd><p>The configuration object which should be an
 instance of <cite>SqFtProFormaConfig</cite>.  The configuration options for this
 pro forma are documented on the configuration object.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
-<code class="descname">get_ave_cost_sqft</code><span class="sig-paren">(</span><em>form</em>, <em>parking_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the average cost per sqft for the pro forma for a given form</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>form</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Get a series representing the average cost per sqft for each form in
-the config</p>
-</dd>
-<dt><strong>parking_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">The parking configuration to get debug info for</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>cost</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">A series where the index is the far and the values are the average
+<dl class="py method">
+<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
+<code class="sig-name descname">get_ave_cost_sqft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">parking_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the average cost per sqft for the pro forma for a given form</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>form</strong><span class="classifier">string</span></dt><dd><p>Get a series representing the average cost per sqft for each form in
+the config</p>
+</dd>
+<dt><strong>parking_config</strong><span class="classifier">string</span></dt><dd><p>The parking configuration to get debug info for</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>cost</strong><span class="classifier">series</span></dt><dd><p>A series where the index is the far and the values are the average
 cost per sqft at which the building is “break even” given the
 configuration parameters that were passed at run time.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">
-<code class="descname">get_debug_info</code><span class="sig-paren">(</span><em>form</em>, <em>parking_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the debug info after running the pro forma for a given form and parking
-configuration</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>form</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">The form to get debug info for</p>
-</dd>
-<dt><strong>parking_config</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">The parking configuration to get debug info for</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>debug_info</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dataframe</span></dt>
-<dd><p class="first last">A dataframe where the index is the far with many columns
+</dd></dl>
+
+<dl class="py method">
+<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">
+<code class="sig-name descname">get_debug_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">parking_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the debug info after running the pro forma for a given form and parking
+configuration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>form</strong><span class="classifier">string</span></dt><dd><p>The form to get debug info for</p>
+</dd>
+<dt><strong>parking_config</strong><span class="classifier">string</span></dt><dd><p>The parking configuration to get debug info for</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>debug_info</strong><span class="classifier">dataframe</span></dt><dd><p>A dataframe where the index is the far with many columns
 representing intermediate steps in the pro forma computation.
 Additional documentation will be added at a later date, although
 many of the columns should be fairly self-expanatory.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbansim.developer.sqftproforma.SqFtProForma.lookup">
-<code class="descname">lookup</code><span class="sig-paren">(</span><em>form</em>, <em>df</em>, <em>only_built=True</em>, <em>pass_through=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lookup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">only_built</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pass_through</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function does the developer model lookups for all the actual input data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>form</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">One of the forms specified in the configuration file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>form</strong><span class="classifier">string</span></dt><dd><p>One of the forms specified in the configuration file</p>
 </dd>
-<dt><strong>df: dataframe</strong></dt>
-<dd><p class="first last">Pass in a single data frame which is indexed by parcel_id and has the
+<dt><strong>df: dataframe</strong></dt><dd><p>Pass in a single data frame which is indexed by parcel_id and has the
 following columns</p>
 </dd>
-<dt><strong>only_built</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">Whether to return only those buildings that are profitable and allowed
+<dt><strong>only_built</strong><span class="classifier">bool</span></dt><dd><p>Whether to return only those buildings that are profitable and allowed
 by zoning, or whether to return as much information as possible, even if
 unlikely to be built (can be used when development might be subsidized
 or when debugging)</p>
 </dd>
-<dt><strong>pass_through</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of strings</span></dt>
-<dd><p class="first last">List of field names to take from the input parcel frame and pass
+<dt><strong>pass_through</strong><span class="classifier">list of strings</span></dt><dd><p>List of field names to take from the input parcel frame and pass
 to the output feasibility frame - is usually used for debugging
 purposes - these fields will be passed all the way through
 developer</p>
 </dd>
-<dt><strong>Input Dataframe Columns</strong></dt>
-<dd></dd>
-<dt><strong>rent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dataframe</span></dt>
-<dd><p class="first last">A set of columns, one for each of the uses passed in the configuration.
+<dt><strong>Input Dataframe Columns</strong></dt><dd></dd>
+<dt><strong>rent</strong><span class="classifier">dataframe</span></dt><dd><p>A set of columns, one for each of the uses passed in the configuration.
 Values are yearly rents for that use.  Typical column names would be
 “residential”, “retail”, “industrial” and “office”</p>
 </dd>
-<dt><strong>land_cost</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">A series representing the CURRENT yearly rent for each parcel.  Used to
+<dt><strong>land_cost</strong><span class="classifier">series</span></dt><dd><p>A series representing the CURRENT yearly rent for each parcel.  Used to
 compute acquisition costs for the parcel.</p>
 </dd>
-<dt><strong>parcel_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">A series representing the parcel size for each parcel.</p>
+<dt><strong>parcel_size</strong><span class="classifier">series</span></dt><dd><p>A series representing the parcel size for each parcel.</p>
 </dd>
-<dt><strong>max_far</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">A series representing the maximum far allowed by zoning.  Buildings
+<dt><strong>max_far</strong><span class="classifier">series</span></dt><dd><p>A series representing the maximum far allowed by zoning.  Buildings
 will not be built above these fars.</p>
 </dd>
-<dt><strong>max_height</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">A series representing the maxmium height allowed by zoning.  Buildings
+<dt><strong>max_height</strong><span class="classifier">series</span></dt><dd><p>A series representing the maxmium height allowed by zoning.  Buildings
 will not be built above these heights.  Will pick between the min of
 the far and height, will ignore on of them if one is nan, but will not
 build if both are nan.</p>
 </dd>
-<dt><strong>max_dua</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series, optional</span></dt>
-<dd><p class="first last">A series representing the maximum dwelling units per acre allowed by
+<dt><strong>max_dua</strong><span class="classifier">series, optional</span></dt><dd><p>A series representing the maximum dwelling units per acre allowed by
 zoning.  If max_dua is passed, the average unit size should be passed
 below to translate from dua to floor space.</p>
 </dd>
-<dt><strong>ave_unit_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series, optional</span></dt>
-<dd><p class="first last">This is required if max_dua is passed above, otherwise it is optional.
+<dt><strong>ave_unit_size</strong><span class="classifier">series, optional</span></dt><dd><p>This is required if max_dua is passed above, otherwise it is optional.
 This is the same as the parameter to Developer.pick() (it should be the
 same series).</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>index</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Series, int</span></dt>
-<dd><p class="first last">parcel identifiers</p>
 </dd>
-<dt><strong>building_sqft</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Series, float</span></dt>
-<dd><p class="first last">The number of square feet for the building to build.  Keep in mind
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>index</strong><span class="classifier">Series, int</span></dt><dd><p>parcel identifiers</p>
+</dd>
+<dt><strong>building_sqft</strong><span class="classifier">Series, float</span></dt><dd><p>The number of square feet for the building to build.  Keep in mind
 this includes parking and common space.  Will need a helpful function
 to convert from gross square feet to actual usable square feet in
 residential units.</p>
 </dd>
-<dt><strong>building_cost</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Series, float</span></dt>
-<dd><p class="first last">The cost of constructing the building as given by the
+<dt><strong>building_cost</strong><span class="classifier">Series, float</span></dt><dd><p>The cost of constructing the building as given by the
 ave_cost_per_sqft from the cost model (for this FAR) and the number
 of square feet.</p>
 </dd>
-<dt><strong>total_cost</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Series, float</span></dt>
-<dd><p class="first last">The cost of constructing the building plus the cost of acquisition of
+<dt><strong>total_cost</strong><span class="classifier">Series, float</span></dt><dd><p>The cost of constructing the building plus the cost of acquisition of
 the current parcel/building.</p>
 </dd>
-<dt><strong>building_revenue</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Series, float</span></dt>
-<dd><p class="first last">The NPV of the revenue for the building to be built, which is the
+<dt><strong>building_revenue</strong><span class="classifier">Series, float</span></dt><dd><p>The NPV of the revenue for the building to be built, which is the
 number of square feet times the yearly rent divided by the cap
 rate (with a few adjustment factors including building efficiency).</p>
 </dd>
-<dt><strong>max_profit_far</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Series, float</span></dt>
-<dd><p class="first last">The FAR of the maximum profit building (constrained by the max_far and
+<dt><strong>max_profit_far</strong><span class="classifier">Series, float</span></dt><dd><p>The FAR of the maximum profit building (constrained by the max_far and
 max_height from the input dataframe).</p>
 </dd>
-<dt><strong>max_profit :</strong></dt>
-<dd><p class="first last">The profit for the maximum profit building (constrained by the max_far
+<dt>max_profit :</dt><dd><p>The profit for the maximum profit building (constrained by the max_far
 and max_height from the input dataframe).</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="urbansim.developer.sqftproforma.SqFtProFormaConfig">
-<em class="property">class </em><code class="descclassname">urbansim.developer.sqftproforma.</code><code class="descname">SqFtProFormaConfig</code><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">urbansim.developer.sqftproforma.</code><code class="sig-name descname">SqFtProFormaConfig</code><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class encapsulates the configuration options for the square
 foot based pro forma.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>parcel_sizes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">A list of parcel sizes to test.  Interestingly, right now
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parcel_sizes</strong><span class="classifier">list</span></dt><dd><p>A list of parcel sizes to test.  Interestingly, right now
 the parcel sizes cancel in this style of pro forma computation so
 you can set this to something reasonable for debugging purposes -
 e.g. [10000].  All sizes can be feet or meters as long as they are
 consistently used.</p>
 </dd>
-<dt><strong>fars</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">A list of floor area ratios to use.  FAR is a multiple of
+<dt><strong>fars</strong><span class="classifier">list</span></dt><dd><p>A list of floor area ratios to use.  FAR is a multiple of
 the parcel size that is the total building bulk that is allowed by
 zoning on the site.  In this case, all of these ratios will be
 tested regardless of zoning and the zoning test will be performed
 later.</p>
 </dd>
-<dt><strong>uses</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">A list of space uses to use within a building.  These are
+<dt><strong>uses</strong><span class="classifier">list</span></dt><dd><p>A list of space uses to use within a building.  These are
 mixed into forms.  Generally speaking, you should only have uses
 for which you have an estimate (or observed) values for rents in
 the building.  By default, uses are retail, industrial, office,
 and residential.</p>
 </dd>
-<dt><strong>forms</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">A dictionary where keys are names for the form and values
+<dt><strong>forms</strong><span class="classifier">dict</span></dt><dd><p>A dictionary where keys are names for the form and values
 are also dictionaries where keys are uses and values are the
 proportion of that use used in this form.  The values of the
 dictionary should sum to 1.0.  For instance, a form called
@@ -518,8 +471,7 @@ might have a dictionary of space allocations equal to
 {“retail”: .1, “residential” .9] which is 90% residential and
 10% retail.</p>
 </dd>
-<dt><strong>parking_rates</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">A dict of rates per thousand square feet where keys are the uses
+<dt><strong>parking_rates</strong><span class="classifier">dict</span></dt><dd><p>A dict of rates per thousand square feet where keys are the uses
 from the list specified in the attribute above.  The ratios
 are typically in the range 0.5 - 3.0 or similar.  So for
 instance, a key-value pair of “retail”: 2.0 would be two parking
@@ -528,43 +480,37 @@ foot pro forma, so the more typically parking ratio of spaces
 per residential unit must be converted to square feet for use in
 this pro forma.</p>
 </dd>
-<dt><strong>sqft_per_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The number of square feet per unit for use in the
+<dt><strong>sqft_per_rate</strong><span class="classifier">float</span></dt><dd><p>The number of square feet per unit for use in the
 parking_rates above.  By default this is set to 1,000 but can be
 overridden.</p>
 </dd>
-<dt><strong>parking_configs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">An expert parameter and is usually unchanged.  By default
+<dt><strong>parking_configs</strong><span class="classifier">list</span></dt><dd><p>An expert parameter and is usually unchanged.  By default
 it is set to [‘surface’, ‘deck’, ‘underground’] and very semantic
 differences in the computation are performed for each of these
 parking configurations.  Generally speaking it will break things
 to change this array, but an item can be removed if that parking
 configuration should not be tested.</p>
 </dd>
-<dt><strong>parking_sqft_d</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">A dictionary where keys are the three parking
+<dt><strong>parking_sqft_d</strong><span class="classifier">dict</span></dt><dd><p>A dictionary where keys are the three parking
 configurations listed above and values are square foot uses of
 parking spaces in that configuration.  This is to capture the
 fact that surface parking is usually more space intensive
 than deck or underground parking.</p>
 </dd>
-<dt><strong>parking_cost_d</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">The parking cost for each parking configuration.  Keys are the
+<dt><strong>parking_cost_d</strong><span class="classifier">dict</span></dt><dd><p>The parking cost for each parking configuration.  Keys are the
 name of the three parking configurations listed above and values
 are dollars PER SQUARE FOOT for parking in that configuration.
 Used to capture the fact that underground and deck are far more
 expensive than surface parking.</p>
 </dd>
-<dt><strong>height_for_costs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">A list of “break points” as heights at which construction becomes
+<dt><strong>height_for_costs</strong><span class="classifier">list</span></dt><dd><p>A list of “break points” as heights at which construction becomes
 more expensive.  Generally these are the heights at which
 construction materials change from wood, to concrete, to steel.
 Costs are also given as lists by use for each of these break
 points and are considered to be valid up to the break point.  A
 list would look something like [15, 55, 120, np.inf].</p>
 </dd>
-<dt><strong>costs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">The keys are uses from the attribute above and the values are a
+<dt><strong>costs</strong><span class="classifier">dict</span></dt><dd><p>The keys are uses from the attribute above and the values are a
 list of floating point numbers of same length as the
 height_for_costs attribute.  A key-value pair of
 “residential”: [160.0, 175.0, 200.0, 230.0] would say that the
@@ -573,233 +519,183 @@ building, $175/sqft up to 55ft, $200/sqft up to 120ft, and
 $230/sqft beyond.  A final value in the height_for_costs
 array of np.inf is typical.</p>
 </dd>
-<dt><strong>height_per_story</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The per-story height for the building used to turn an
+<dt><strong>height_per_story</strong><span class="classifier">float</span></dt><dd><p>The per-story height for the building used to turn an
 FAR into an actual height.</p>
 </dd>
-<dt><strong>max_retail_height</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The maximum height of retail buildings to consider.</p>
+<dt><strong>max_retail_height</strong><span class="classifier">float</span></dt><dd><p>The maximum height of retail buildings to consider.</p>
 </dd>
-<dt><strong>max_industrial_height</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The maximum height of industrial buildings to consider.</p>
+<dt><strong>max_industrial_height</strong><span class="classifier">float</span></dt><dd><p>The maximum height of industrial buildings to consider.</p>
 </dd>
-<dt><strong>profit_factor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The ratio of profit a developer expects to make above the break
+<dt><strong>profit_factor</strong><span class="classifier">float</span></dt><dd><p>The ratio of profit a developer expects to make above the break
 even rent.  Should be greater than 1.0, e.g. a 10% profit would be
 a profit factor of 1.1.</p>
 </dd>
-<dt><strong>building_efficiency</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The efficiency of the building.  This turns total FAR into the
+<dt><strong>building_efficiency</strong><span class="classifier">float</span></dt><dd><p>The efficiency of the building.  This turns total FAR into the
 amount of space which gets a square foot rent.  The entire building
 gets the cost of course.</p>
 </dd>
-<dt><strong>parcel_coverage</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The ratio of the building footprint to the parcel size.  Also used
+<dt><strong>parcel_coverage</strong><span class="classifier">float</span></dt><dd><p>The ratio of the building footprint to the parcel size.  Also used
 to turn an FAR into a height to cost properly.</p>
 </dd>
-<dt><strong>cap_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">The rate an investor is willing to pay for a cash flow per year.
+<dt><strong>cap_rate</strong><span class="classifier">float</span></dt><dd><p>The rate an investor is willing to pay for a cash flow per year.
 This means $1/year is equivalent to 1/cap_rate present dollars.
 This is a macroeconomic input that is widely available on the
 internet.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-urbansim.developer.developer">
 <span id="developer-model-api"></span><h2>Developer Model API<a class="headerlink" href="#module-urbansim.developer.developer" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="urbansim.developer.developer.Developer">
-<em class="property">class </em><code class="descclassname">urbansim.developer.developer.</code><code class="descname">Developer</code><span class="sig-paren">(</span><em>feasibility</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">urbansim.developer.developer.</code><code class="sig-name descname">Developer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feasibility</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pass the dataframe that is returned by feasibility here</p>
 <p>Can also be a dictionary where keys are building forms and values are
 the individual data frames returned by the proforma lookup routine.</p>
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="urbansim.developer.developer.Developer.compute_units_to_build">
-<em class="property">static </em><code class="descname">compute_units_to_build</code><span class="sig-paren">(</span><em>num_agents</em>, <em>num_units</em>, <em>target_vacancy</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.compute_units_to_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.compute_units_to_build" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">compute_units_to_build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_agents</span></em>, <em class="sig-param"><span class="n">num_units</span></em>, <em class="sig-param"><span class="n">target_vacancy</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.compute_units_to_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.compute_units_to_build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute number of units to build to match target vacancy.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>num_agents</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">number of agents that need units in the region</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>num_agents</strong><span class="classifier">int</span></dt><dd><p>number of agents that need units in the region</p>
 </dd>
-<dt><strong>num_units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">number of units in buildings</p>
+<dt><strong>num_units</strong><span class="classifier">int</span></dt><dd><p>number of units in buildings</p>
 </dd>
-<dt><strong>target_vacancy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float (0-1.0)</span></dt>
-<dd><p class="first last">target vacancy rate</p>
+<dt><strong>target_vacancy</strong><span class="classifier">float (0-1.0)</span></dt><dd><p>target vacancy rate</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>number_of_units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">the number of units that need to be built</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>number_of_units</strong><span class="classifier">int</span></dt><dd><p>the number of units that need to be built</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbansim.developer.developer.Developer.keep_form_with_max_profit">
-<code class="descname">keep_form_with_max_profit</code><span class="sig-paren">(</span><em>forms=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.keep_form_with_max_profit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">keep_form_with_max_profit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">forms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.keep_form_with_max_profit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit" title="Permalink to this definition">¶</a></dt>
 <dd><p>This converts the dataframe, which shows all profitable forms,
 to the form with the greatest profit, so that more profitable
 forms outcompete less profitable forms.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>forms: list of strings</strong></dt>
-<dd><p class="first last">List of forms which compete which other.  Can leave some out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>forms: list of strings</strong></dt><dd><p>List of forms which compete which other.  Can leave some out.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>Nothing.  Goes from a multi-index to a single index with only the</strong></dt>
-<dd></dd>
-<dt><strong>most profitable form.</strong></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Nothing.  Goes from a multi-index to a single index with only the</dt><dd></dd>
+<dt>most profitable form.</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="py method">
 <dt id="urbansim.developer.developer.Developer.merge">
-<em class="property">static </em><code class="descname">merge</code><span class="sig-paren">(</span><em>old_df</em>, <em>new_df</em>, <em>return_index=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">old_df</span></em>, <em class="sig-param"><span class="n">new_df</span></em>, <em class="sig-param"><span class="n">return_index</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge two dataframes of buildings.  The old dataframe is
 usually the buildings dataset and the new dataframe is a modified
 (by the user) version of what is returned by the pick method.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>old_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dataframe</span></dt>
-<dd><p class="first last">Current set of buildings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>old_df</strong><span class="classifier">dataframe</span></dt><dd><p>Current set of buildings</p>
 </dd>
-<dt><strong>new_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dataframe</span></dt>
-<dd><p class="first last">New buildings to add, usually comes from this module</p>
+<dt><strong>new_df</strong><span class="classifier">dataframe</span></dt><dd><p>New buildings to add, usually comes from this module</p>
 </dd>
-<dt><strong>return_index</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">If return_index is true, this method will return the new
+<dt><strong>return_index</strong><span class="classifier">bool</span></dt><dd><p>If return_index is true, this method will return the new
 index of new_df (which changes in order to create a unique
 index after the merge)</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dataframe</span></dt>
-<dd><p class="first last">Combined DataFrame of buildings, makes sure indexes don’t overlap</p>
 </dd>
-<dt><strong>index</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.Index</span></dt>
-<dd><p class="first last">If and only if return_index is True, return the new index for the
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">dataframe</span></dt><dd><p>Combined DataFrame of buildings, makes sure indexes don’t overlap</p>
+</dd>
+<dt><strong>index</strong><span class="classifier">pd.Index</span></dt><dd><p>If and only if return_index is True, return the new index for the
 new_df dataframe (which changes in order to create a unique index
 after the merge)</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="urbansim.developer.developer.Developer.pick">
-<code class="descname">pick</code><span class="sig-paren">(</span><em>form</em>, <em>target_units</em>, <em>parcel_size</em>, <em>ave_unit_size</em>, <em>current_units</em>, <em>max_parcel_size=200000</em>, <em>min_unit_size=400</em>, <em>drop_after_build=True</em>, <em>residential=True</em>, <em>bldg_sqft_per_job=400.0</em>, <em>profit_to_prob_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pick</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">target_units</span></em>, <em class="sig-param"><span class="n">parcel_size</span></em>, <em class="sig-param"><span class="n">ave_unit_size</span></em>, <em class="sig-param"><span class="n">current_units</span></em>, <em class="sig-param"><span class="n">max_parcel_size</span><span class="o">=</span><span class="default_value">200000</span></em>, <em class="sig-param"><span class="n">min_unit_size</span><span class="o">=</span><span class="default_value">400</span></em>, <em class="sig-param"><span class="n">drop_after_build</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">residential</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">bldg_sqft_per_job</span><span class="o">=</span><span class="default_value">400.0</span></em>, <em class="sig-param"><span class="n">profit_to_prob_func</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
 <dd><p>Choose the buildings from the list that are feasible to build in
 order to match the specified demand.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>form</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string or list</span></dt>
-<dd><p class="first last">One or more of the building forms from the pro forma specification -
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>form</strong><span class="classifier">string or list</span></dt><dd><p>One or more of the building forms from the pro forma specification -
 e.g. “residential” or “mixedresidential” - these are configuration
 parameters passed previously to the pro forma.  If more than one form
 is passed the forms compete with each other (based on profitability)
 for which one gets built in order to meet demand.</p>
 </dd>
-<dt><strong>target_units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The number of units to build.  For non-residential buildings this
+<dt><strong>target_units</strong><span class="classifier">int</span></dt><dd><p>The number of units to build.  For non-residential buildings this
 should be passed as the number of job spaces that need to be created.</p>
 </dd>
-<dt><strong>parcel_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">The size of the parcels.  This was passed to feasibility as well,
+<dt><strong>parcel_size</strong><span class="classifier">series</span></dt><dd><p>The size of the parcels.  This was passed to feasibility as well,
 but should be passed here as well.  Index should be parcel_ids.</p>
 </dd>
-<dt><strong>ave_unit_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">The average residential unit size around each parcel - this is
+<dt><strong>ave_unit_size</strong><span class="classifier">series</span></dt><dd><p>The average residential unit size around each parcel - this is
 indexed by parcel, but is usually a disaggregated version of a
 zonal or accessibility aggregation.</p>
 </dd>
-<dt><strong>bldg_sqft_per_job</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float (default 400.0)</span></dt>
-<dd><p class="first last">The average square feet per job for this building form.</p>
+<dt><strong>bldg_sqft_per_job</strong><span class="classifier">float (default 400.0)</span></dt><dd><p>The average square feet per job for this building form.</p>
 </dd>
-<dt><strong>min_unit_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Values less than this number in ave_unit_size will be set to this
+<dt><strong>min_unit_size</strong><span class="classifier">float</span></dt><dd><p>Values less than this number in ave_unit_size will be set to this
 number.  Deals with cases where units are currently not built.</p>
 </dd>
-<dt><strong>current_units</strong> <span class="classifier-delimiter">:</span> <span class="classifier">series</span></dt>
-<dd><p class="first last">The current number of units on the parcel.  Is used to compute the
+<dt><strong>current_units</strong><span class="classifier">series</span></dt><dd><p>The current number of units on the parcel.  Is used to compute the
 net number of units produced by the developer model.  Many times
 the developer model is redeveloping units (demolishing them) and
 is trying to meet a total number of net units produced.</p>
 </dd>
-<dt><strong>max_parcel_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Parcels larger than this size will not be considered for
+<dt><strong>max_parcel_size</strong><span class="classifier">float</span></dt><dd><p>Parcels larger than this size will not be considered for
 development - usually large parcels should be specified manually
 in a development projects table.</p>
 </dd>
-<dt><strong>drop_after_build</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">Whether or not to drop parcels from consideration after they
+<dt><strong>drop_after_build</strong><span class="classifier">bool</span></dt><dd><p>Whether or not to drop parcels from consideration after they
 have been chosen for development.  Usually this is true so as
 to not develop the same parcel twice.</p>
 </dd>
-<dt><strong>residential: bool</strong></dt>
-<dd><p class="first last">If creating non-residential buildings set this to false and
+<dt><strong>residential: bool</strong></dt><dd><p>If creating non-residential buildings set this to false and
 developer will fill in job_spaces rather than residential_units</p>
 </dd>
-<dt><strong>profit_to_prob_func: function</strong></dt>
-<dd><p class="first last">As there are so many ways to turn the development feasibility
+<dt><strong>profit_to_prob_func: function</strong></dt><dd><p>As there are so many ways to turn the development feasibility
 into a probability to select it for building, the user may pass
 a function which takes the feasibility dataframe and returns
 a series of probabilities.  If no function is passed, the behavior
 of this method will not change</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>None if thar are no feasible buildings</strong></dt>
-<dd></dd>
-<dt><strong>new_buildings</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dataframe</span></dt>
-<dd><p class="first last">DataFrame of buildings to add.  These buildings are rows from the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>None if thar are no feasible buildings</dt><dd></dd>
+<dt><strong>new_buildings</strong><span class="classifier">dataframe</span></dt><dd><p>DataFrame of buildings to add.  These buildings are rows from the
 DataFrame that is returned from feasibility.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -818,7 +714,7 @@ DataFrame that is returned from feasibility.</p>
         <a href="../utils/index.html" class="btn btn-neutral float-right" title="UrbanSim Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../models/urbanchoice.html" class="btn btn-neutral" title="Location Choice Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../models/urbanchoice.html" class="btn btn-neutral float-left" title="Location Choice Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -827,7 +723,7 @@ DataFrame that is returned from feasibility.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc.
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div>
@@ -844,36 +740,16 @@ DataFrame that is returned from feasibility.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'3.1.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

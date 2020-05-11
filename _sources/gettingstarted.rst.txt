@@ -1,120 +1,48 @@
 Getting Started
 ===============
 
-Let us know what you are working on or if you think you have a great use case
-by tweeting us at ``@urbansim`` or post on the UrbanSim `forum`_.
+Let us know what you are working on, or if you think you have a great use case,
+by tweeting us at `@urbansim <https://twitter.com/urbansim>`__, posting on the UrbanSim `forum <http://discussion.urbansim.com>`__, or contacting us at info@urbansim.com.
 
 Installation
 ------------
 
-.. note::
-   In the instructions below we will direct you to run various commands.
-   On Mac and Linux these should go in your standard terminal.
-   On Windows you may use the standard command prompt, the Anaconda
-   command prompt, or even Git Bash (if you have that installed).
+The UrbanSim library is currently tested with Python versions 2.7, 3.5, 3.6, 3.7, and 3.8.
 
-Anaconda
-~~~~~~~~
+UrbanSim is distributed on the `Python Package Index <https://pypi.org/project/urbansim/>`__ (for Pip) and on `Conda Forge <https://anaconda.org/conda-forge/urbansim>`__. The official source code is hosted on `GitHub <https://github.com/udst/urbansim>`__. (UrbanSim versions before 3.2 are on the UDST Conda channel rather than Conda Forge.)
 
-UrbanSim is a Python library that uses a number of packages from the
-scientific Python ecosystem.
-The easiest way to get your own scientific Python installation is to
-install `Anaconda <https://docs.continuum.io/anaconda/>`__,
-which contains most of the libraries upon which UrbanSim depends.
+You can install UrbanSim with either the Pip or Conda package manager:
 
-UrbanSim
-~~~~~~~~
-
-Dependencies
-^^^^^^^^^^^^
-
-UrbanSim depends on the following libraries, most of which are in Anaconda:
-
-* `bottle <http://bottlepy.org/docs/dev/index.html>`__ >= 0.12
-* `matplotlib <http://matplotlib.org>`__ >= 1.3.1
-* `numpy <http://numpy.org>`__ >= 1.8.0
-* `orca <https://github.com/UDST/orca>`__ >= 1.1
-* `pandas <http://pandas.pydata.org>`__ >= 0.17.0
-* `patsy <http://patsy.readthedocs.org/en/latest/>`__ >= 0.3.0
-* `prettytable <https://code.google.com/p/prettytable/>`__ >= 0.7.2
-* `pyyaml <http://pyyaml.org/>`__ >= 3.10
-* `scipy <http://scipy.org>`__ >= 0.13.3
-* `simplejson <http://simplejson.readthedocs.org/en/latest/>`__ >= 3.3
-* `statsmodels <http://statsmodels.sourceforge.net/stable/index.html>`__ >= 0.8.0
-* `tables <http://www.pytables.org/>`__ >= 3.1.0
-* `toolz <http://toolz.readthedocs.org/en/latest/>`__ >= 0.7
-* `zbox <https://github.com/jiffyclub/zbox>`__ >= 1.2
-
-Extras require:
-
-* `pandana <https://github.com/UDST/pandana>`__ >= 0.1
-
-Latest Release
-^^^^^^^^^^^^^^
-
-conda
-#####
-
-`conda <https://conda.io/docs/>`__, which comes with Anaconda, is the
-easiest way to install UrbanSim because it has binary installers for
-all of UrbanSim's hard-to-install dependencies.
-First, add the `udst channel <https://anaconda.org/udst>`__
-to your conda configuration::
-
-    conda config --add channels udst
-
-Then use conda to install UrbanSim::
-
-    conda install urbansim
-
-To update to a new UrbanSim version use the ``conda update`` command::
-
-    conda update urbansim
-
-pip
-###
-
-UrbanSim can also be installed from
-`PyPI <https://pypi.python.org/pypi/urbansim>`__
-via `pip <https://pip.pypa.io/en/latest/>`__::
+.. code-block:: python
 
     pip install urbansim
 
-When using this method it's best to already have most of the dependencies
-installed, otherwise pip will try to download and install things like
-NumPy, SciPy, and matplotlib.
-If you're using Anaconda you will already have all of the hard-to-install
-libraries.
+.. code-block:: python
 
-To update to a new release of UrbanSim use the ``-U`` option with
-``pip install``::
+    conda install urbansim --channel conda-forge
 
-    pip install -U urbansim
+Dependencies include `NumPy <http://numpy.org/>`__, `Pandas <http://pandas.pydata.org/>`__, and `Statsmodels <http://statsmodels.org/>`__, plus another UDST library: `Orca <http://udst.github.io/orca>`__ for task orchestration. These will be installed automatically if needed.
 
-Development Version
-^^^^^^^^^^^^^^^^^^^
+When new releases of UrbanSim come out, you can upgrade like this:
 
-UrbanSim can be installed from our
-`development repository <https://github.com/udst/urbansim>`__
-using `pip <https://pip.pypa.io/en/latest/>`__, a Python package manager.
-pip is included with Anaconda so you should now be able to open a terminal
-and run the following command to install UrbanSim::
+.. code-block:: python
 
-    pip install -U https://github.com/udst/urbansim/archive/master.zip
+    pip install urbansim --upgrade
 
-This will download urbansim and install the remaining dependencies not
-included in Anaconda.
+.. code-block:: python
 
-If you need to update UrbanSim run the above command again.
+    conda update urbansim --channel conda-forge
 
-Developer Install
-^^^^^^^^^^^^^^^^^
+Installing from GitHub
+~~~~~~~~~~~~~~~~~~~~~~
 
-If you are going to be developing on UrbanSim you will want to fork our
-`GitHub repository <https://github.com/udst/urbansim>`_ and clone
-your fork to your computer. Then run ``python setup.py develop`` to install
-UrbanSim in developer mode. In this mode you won't have to reinstall
-UrbanSim every time you make changes.
+You can also install UrbanSim directly from source code on GitHub, for example to use pre-release features or to modify the code yourself. The UrbanSim library is written entirely in Python; no compilation is needed.
+
+.. code-block:: python
+
+    git clone -b branch-name https://github.com/udst/urbansim.git
+    cd urbansim
+    pip install .
 
 Reporting bugs and contributing to UrbanSim
 -------------------------------------------
@@ -429,6 +357,3 @@ can be added to the same file so that a piece of functionality can be separated
 be kept together, columns together, and tables together - the organization is
 up to you.  We hope that this flexibility inspires innovation for specific use
 cases, but what follows is a set of tutorials that we consider best practices.
-
-
-.. _forum: http://discussion.urbansim.com/

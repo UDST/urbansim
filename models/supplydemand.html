@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Supply and Demand Accounting &mdash; urbansim 3.1.1 documentation</title>
+  <title>Supply and Demand Accounting &mdash; urbansim 3.2 documentation</title>
   
 
   
@@ -17,35 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Transition and Relocation Models" href="transrelo.html" />
     <link rel="prev" title="Statistical Models" href="statistical.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                3.1
+                3.2
               </div>
             
           
@@ -180,49 +181,37 @@ to compensate for mismatches.</p>
 <div class="section" id="module-urbansim.models.supplydemand">
 <span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.models.supplydemand" title="Permalink to this headline">¶</a></h2>
 <p>Tools for modeling how supply and demand affect real estate prices.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.models.supplydemand.supply_and_demand">
-<code class="descclassname">urbansim.models.supplydemand.</code><code class="descname">supply_and_demand</code><span class="sig-paren">(</span><em>lcm</em>, <em>choosers</em>, <em>alternatives</em>, <em>alt_segmenter</em>, <em>price_col</em>, <em>base_multiplier=None</em>, <em>clip_change_low=0.75</em>, <em>clip_change_high=1.25</em>, <em>iterations=5</em>, <em>multiplier_func=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/supplydemand.html#supply_and_demand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.supplydemand.supply_and_demand" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.models.supplydemand.</code><code class="sig-name descname">supply_and_demand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lcm</span></em>, <em class="sig-param"><span class="n">choosers</span></em>, <em class="sig-param"><span class="n">alternatives</span></em>, <em class="sig-param"><span class="n">alt_segmenter</span></em>, <em class="sig-param"><span class="n">price_col</span></em>, <em class="sig-param"><span class="n">base_multiplier</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">clip_change_low</span><span class="o">=</span><span class="default_value">0.75</span></em>, <em class="sig-param"><span class="n">clip_change_high</span><span class="o">=</span><span class="default_value">1.25</span></em>, <em class="sig-param"><span class="n">iterations</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">multiplier_func</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/supplydemand.html#supply_and_demand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.supplydemand.supply_and_demand" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adjust real estate prices to compensate for supply and demand effects.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>lcm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">LocationChoiceModel</span></dt>
-<dd><p class="first last">Used to calculate the probability of agents choosing among
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lcm</strong><span class="classifier">LocationChoiceModel</span></dt><dd><p>Used to calculate the probability of agents choosing among
 alternatives. Must be fully configured and fitted.</p>
 </dd>
-<dt><strong>choosers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>alternatives</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>alt_segmenter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, array, or pandas.Series</span></dt>
-<dd><p class="first last">Will be used to segment alternatives and probabilities to do
+<dt><strong>choosers</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>alternatives</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt><strong>alt_segmenter</strong><span class="classifier">str, array, or pandas.Series</span></dt><dd><p>Will be used to segment alternatives and probabilities to do
 comparisons of supply and demand by submarket.
 If a string, it is expected to be the name of a column
 in <cite>alternatives</cite>. If a Series it should have the same index
 as <cite>alternatives</cite>.</p>
 </dd>
-<dt><strong>price_col</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The name of the column in <cite>alternatives</cite> that corresponds to price.
+<dt><strong>price_col</strong><span class="classifier">str</span></dt><dd><p>The name of the column in <cite>alternatives</cite> that corresponds to price.
 This column is what is adjusted by this model.</p>
 </dd>
-<dt><strong>base_multiplier</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series, optional</span></dt>
-<dd><p class="first last">A series describing a starting multiplier for submarket prices.
+<dt><strong>base_multiplier</strong><span class="classifier">pandas.Series, optional</span></dt><dd><p>A series describing a starting multiplier for submarket prices.
 Index should be submarket IDs.</p>
 </dd>
-<dt><strong>clip_change_low</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">The minimum amount by which to multiply prices each iteration.</p>
+<dt><strong>clip_change_low</strong><span class="classifier">float, optional</span></dt><dd><p>The minimum amount by which to multiply prices each iteration.</p>
 </dd>
-<dt><strong>clip_change_high</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">The maximum amount by which to multiply prices each iteration.</p>
+<dt><strong>clip_change_high</strong><span class="classifier">float, optional</span></dt><dd><p>The maximum amount by which to multiply prices each iteration.</p>
 </dd>
-<dt><strong>iterations</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional</span></dt>
-<dd><p class="first last">Number of times to update prices based on supply/demand comparisons.</p>
+<dt><strong>iterations</strong><span class="classifier">int, optional</span></dt><dd><p>Number of times to update prices based on supply/demand comparisons.</p>
 </dd>
-<dt><strong>multiplier_func</strong> <span class="classifier-delimiter">:</span> <span class="classifier">function (returns Series, boolean)</span></dt>
-<dd><p class="first last">A function which takes separate demand and supply Series
+<dt><strong>multiplier_func</strong><span class="classifier">function (returns Series, boolean)</span></dt><dd><p>A function which takes separate demand and supply Series
 and returns a tuple where the first item is a Series with the
 ratio of new price to old price (all indexes should be the same) -
 by default the ratio of demand to supply is the ratio of the new
@@ -231,22 +220,18 @@ boolean which when True tells this module to stop looping (that
 convergence has been satisfied)</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>new_prices</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
-<dd><p class="first last">Equivalent of the <cite>price_col</cite> in <cite>alternatives</cite>.</p>
 </dd>
-<dt><strong>submarkets_ratios</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
-<dd><p class="first last">Price adjustment ratio for each submarket. If <cite>base_multiplier</cite> is
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>new_prices</strong><span class="classifier">pandas.Series</span></dt><dd><p>Equivalent of the <cite>price_col</cite> in <cite>alternatives</cite>.</p>
+</dd>
+<dt><strong>submarkets_ratios</strong><span class="classifier">pandas.Series</span></dt><dd><p>Price adjustment ratio for each submarket. If <cite>base_multiplier</cite> is
 given this will be a cummulative multiplier including the
 <cite>base_multiplier</cite> and the multipliers calculated for this year.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -263,7 +248,7 @@ given this will be a cummulative multiplier including the
         <a href="transrelo.html" class="btn btn-neutral float-right" title="Transition and Relocation Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="statistical.html" class="btn btn-neutral" title="Statistical Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="statistical.html" class="btn btn-neutral float-left" title="Statistical Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -272,7 +257,7 @@ given this will be a cummulative multiplier including the
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc.
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div>
@@ -289,36 +274,16 @@ given this will be a cummulative multiplier including the
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'3.1.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

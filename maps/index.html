@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>DataFrame Explorer &mdash; urbansim 3.1.1 documentation</title>
+  <title>DataFrame Explorer &mdash; urbansim 3.2 documentation</title>
   
 
   
@@ -17,34 +17,35 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Testing Helpers" href="../utils/testing.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -58,7 +59,7 @@
             
             
               <div class="version">
-                3.1
+                3.2
               </div>
             
           
@@ -182,22 +183,22 @@ browser.</p>
 <span id="dframe-explorer-website"></span><h2>Website Description<a class="headerlink" href="#website-description" title="Permalink to this headline">¶</a></h2>
 <p>Here is what each dropdown on the web page does:</p>
 <ul class="simple">
-<li>The first dropdown gives the names of the DataFames you have passed
-<code class="docutils literal notranslate"><span class="pre">dframe_explorer.start</span></code></li>
-<li>The second dropdown allows you to choose between each of the columns in the
-DataFrame with the name from the first dropdown</li>
-<li>The third dropdown selects the color scheme from the
-<a class="reference external" href="http://colorbrewer2.org/">colorbrewer</a> color schemes</li>
-<li>The fourth dropdown sets <code class="docutils literal notranslate"><span class="pre">quantile</span></code> and <code class="docutils literal notranslate"><span class="pre">equal_interval</span></code>
-<a class="reference external" href="http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html">color schemes</a></li>
-<li>The fifth dropdown selects the Pandas aggregation method to use</li>
-<li>The sixth dropdown executes the
+<li><p>The first dropdown gives the names of the DataFames you have passed
+<code class="docutils literal notranslate"><span class="pre">dframe_explorer.start</span></code></p></li>
+<li><p>The second dropdown allows you to choose between each of the columns in the
+DataFrame with the name from the first dropdown</p></li>
+<li><p>The third dropdown selects the color scheme from the
+<a class="reference external" href="http://colorbrewer2.org/">colorbrewer</a> color schemes</p></li>
+<li><p>The fourth dropdown sets <code class="docutils literal notranslate"><span class="pre">quantile</span></code> and <code class="docutils literal notranslate"><span class="pre">equal_interval</span></code>
+<a class="reference external" href="http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html">color schemes</a></p></li>
+<li><p>The fifth dropdown selects the Pandas aggregation method to use</p></li>
+<li><p>The sixth dropdown executes the
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html">.query</a>
-method on the Pandas DataFrame in order to filter the input data</li>
-<li>The seventh dropdown executes the
+method on the Pandas DataFrame in order to filter the input data</p></li>
+<li><p>The seventh dropdown executes the
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.eval.html">.eval</a>
 method on the Pandas DataFrame in order to create simple computed variables
-that are not already columns on the DataFrame.</li>
+that are not already columns on the DataFrame.</p></li>
 </ul>
 </div>
 <div class="section" id="what-s-it-doing-exactly">
@@ -238,64 +239,48 @@ household in each zone, or the average household size by zone.</p>
 </div>
 <div class="section" id="module-urbansim.maps.dframe_explorer">
 <span id="dataframe-explorer-api"></span><h2>DataFrame Explorer API<a class="headerlink" href="#module-urbansim.maps.dframe_explorer" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.maps.dframe_explorer.start">
-<code class="descclassname">urbansim.maps.dframe_explorer.</code><code class="descname">start</code><span class="sig-paren">(</span><em>views, center=[37.7792, -122.2191], zoom=11, shape_json='data/zones.json', geom_name='ZONE_ID', join_name='zone_id', precision=8, port=8765, host='localhost', testing=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.maps.dframe_explorer.</code><code class="sig-name descname">start</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">views</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">[37.7792, - 122.2191]</span></em>, <em class="sig-param"><span class="n">zoom</span><span class="o">=</span><span class="default_value">11</span></em>, <em class="sig-param"><span class="n">shape_json</span><span class="o">=</span><span class="default_value">'data/zones.json'</span></em>, <em class="sig-param"><span class="n">geom_name</span><span class="o">=</span><span class="default_value">'ZONE_ID'</span></em>, <em class="sig-param"><span class="n">join_name</span><span class="o">=</span><span class="default_value">'zone_id'</span></em>, <em class="sig-param"><span class="n">precision</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8765</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'localhost'</span></em>, <em class="sig-param"><span class="n">testing</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the web service which serves the Pandas queries and generates the
 HTML for the map.  You will need to open a web browser and navigate to
 <a class="reference external" href="http://localhost:8765">http://localhost:8765</a> (or the specified port)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>views</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Python dictionary</span></dt>
-<dd><p class="first last">This is the data that will be displayed in the maps.  Keys are strings
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>views</strong><span class="classifier">Python dictionary</span></dt><dd><p>This is the data that will be displayed in the maps.  Keys are strings
 (table names) and values are dataframes.  Each data frame should have a
 column with the name specified as join_name below</p>
 </dd>
-<dt><strong>center</strong> <span class="classifier-delimiter">:</span> <span class="classifier">a Python list with two floats</span></dt>
-<dd><p class="first last">The initial latitude and longitude of the center of the map</p>
+<dt><strong>center</strong><span class="classifier">a Python list with two floats</span></dt><dd><p>The initial latitude and longitude of the center of the map</p>
 </dd>
-<dt><strong>zoom</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The initial zoom level of the map</p>
+<dt><strong>zoom</strong><span class="classifier">int</span></dt><dd><p>The initial zoom level of the map</p>
 </dd>
-<dt><strong>shape_json</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The path to the geojson file which contains that shapes that will be
+<dt><strong>shape_json</strong><span class="classifier">str</span></dt><dd><p>The path to the geojson file which contains that shapes that will be
 displayed</p>
 </dd>
-<dt><strong>geom_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The field name from the JSON file which contains the id of the geometry</p>
+<dt><strong>geom_name</strong><span class="classifier">str</span></dt><dd><p>The field name from the JSON file which contains the id of the geometry</p>
 </dd>
-<dt><strong>join_name</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The column name from the dataframes passed as views (must be in each
+<dt><strong>join_name</strong><span class="classifier">str</span></dt><dd><p>The column name from the dataframes passed as views (must be in each
 view) which joins to geom_name in the shapes</p>
 </dd>
-<dt><strong>precision</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The precision of values to show in the legend on the map</p>
+<dt><strong>precision</strong><span class="classifier">int</span></dt><dd><p>The precision of values to show in the legend on the map</p>
 </dd>
-<dt><strong>port</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The port for the web service to respond on</p>
+<dt><strong>port</strong><span class="classifier">int</span></dt><dd><p>The port for the web service to respond on</p>
 </dd>
-<dt><strong>host</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd><p class="first last">The hostname to run the web service from</p>
+<dt><strong>host</strong><span class="classifier">str</span></dt><dd><p>The hostname to run the web service from</p>
 </dd>
-<dt><strong>testing</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">Whether to print extra debug information</p>
+<dt><strong>testing</strong><span class="classifier">bool</span></dt><dd><p>Whether to print extra debug information</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>Does not return - takes over control of the thread and responds to</strong></dt>
-<dd></dd>
-<dt><strong>queries from a web browser</strong></dt>
-<dd></dd>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Does not return - takes over control of the thread and responds to</dt><dd></dd>
+<dt>queries from a web browser</dt><dd></dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -310,7 +295,7 @@ view) which joins to geom_name in the shapes</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="../utils/testing.html" class="btn btn-neutral" title="Testing Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../utils/testing.html" class="btn btn-neutral float-left" title="Testing Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -319,7 +304,7 @@ view) which joins to geom_name in the shapes</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc.
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div>
@@ -336,36 +321,16 @@ view) which joins to geom_name in the shapes</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'3.1.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>urbansim.utils.misc &mdash; urbansim 3.1.1 documentation</title>
+  <title>urbansim.utils.misc &mdash; urbansim 3.2 documentation</title>
   
 
   
@@ -17,33 +17,34 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -57,7 +58,7 @@
             
             
               <div class="version">
-                3.1
+                3.2
               </div>
             
           
@@ -155,13 +156,13 @@
 <span class="sd">Utilities used within urbansim that don&#39;t yet have a better home.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">zbox</span> <span class="k">import</span> <span class="n">toolz</span> <span class="k">as</span> <span class="n">tz</span>
+<span class="kn">import</span> <span class="nn">toolz</span> <span class="k">as</span> <span class="nn">tz</span>
 
 
 <span class="k">def</span> <span class="nf">_mkifnotexists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
@@ -291,7 +292,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">travel_data</span> <span class="o">=</span> <span class="n">travel_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">travel_data</span> <span class="o">=</span> <span class="n">travel_data</span><span class="p">[</span><span class="n">travel_data</span><span class="p">[</span><span class="n">travel_time_attr</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="p">]</span>
-    <span class="n">travel_data</span><span class="p">[</span><span class="s2">&quot;attr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="n">travel_data</span><span class="o">.</span><span class="n">to_zone_id</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">travel_data</span><span class="p">[</span><span class="s2">&quot;attr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">travel_data</span><span class="o">.</span><span class="n">to_zone_id</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
     <span class="k">return</span> <span class="n">travel_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span></div>
 
 
@@ -510,7 +511,7 @@
 
 
 <span class="k">def</span> <span class="nf">_pandassummarytojson</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">ndigits</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">index</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="pandasdfsummarytojson"><a class="viewcode-back" href="../../../utils/misc.html#urbansim.utils.misc.pandasdfsummarytojson">[docs]</a><span class="k">def</span> <span class="nf">pandasdfsummarytojson</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ndigits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
@@ -597,7 +598,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc.
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div>
@@ -614,36 +615,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../../',
-            VERSION:'3.1.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-  
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

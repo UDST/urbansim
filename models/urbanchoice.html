@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Location Choice Utilities &mdash; urbansim 3.1.1 documentation</title>
+  <title>Location Choice Utilities &mdash; urbansim 3.2 documentation</title>
   
 
   
@@ -17,35 +17,36 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Real Estate Development Models" href="../developer/index.html" />
     <link rel="prev" title="Model Related Utilities" href="util.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -59,7 +60,7 @@
             
             
               <div class="version">
-                3.1
+                3.2
               </div>
             
           
@@ -178,128 +179,104 @@
 <p>Number crunching code for multinomial logit.
 <code class="docutils literal notranslate"><span class="pre">mnl_estimate</span></code> and <code class="docutils literal notranslate"><span class="pre">mnl_simulate</span></code> especially are used by
 <code class="docutils literal notranslate"><span class="pre">urbansim.models.lcm</span></code>.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.mnl.get_hessian">
-<code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">get_hessian</code><span class="sig-paren">(</span><em>derivative</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#get_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.get_hessian" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.mnl.</code><code class="sig-name descname">get_hessian</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">derivative</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#get_hessian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.get_hessian" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.mnl.get_standard_error">
-<code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">get_standard_error</code><span class="sig-paren">(</span><em>hessian</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#get_standard_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.get_standard_error" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.mnl.</code><code class="sig-name descname">get_standard_error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hessian</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#get_standard_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.get_standard_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.mnl.mnl_estimate">
-<code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">mnl_estimate</code><span class="sig-paren">(</span><em>data</em>, <em>chosen</em>, <em>numalts</em>, <em>GPU=False</em>, <em>coeffrange=(-3</em>, <em>3)</em>, <em>weights=None</em>, <em>lcgrad=False</em>, <em>beta=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_estimate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_estimate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.mnl.</code><code class="sig-name descname">mnl_estimate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">chosen</span></em>, <em class="sig-param"><span class="n">numalts</span></em>, <em class="sig-param"><span class="n">GPU</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">coeffrange</span><span class="o">=</span><span class="default_value">- 3, 3</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lcgrad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_estimate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_estimate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate coefficients of the MNL model.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">2D array</span></dt>
-<dd><p class="first last">The data are expected to be in “long” form where each row is for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">2D array</span></dt><dd><p>The data are expected to be in “long” form where each row is for
 one alternative. Alternatives are in groups of <cite>numalts</cite> rows per
 choosers. Alternatives must be in the same order for each chooser.</p>
 </dd>
-<dt><strong>chosen</strong> <span class="classifier-delimiter">:</span> <span class="classifier">2D array</span></dt>
-<dd><p class="first last">This boolean array has a row for each chooser and a column for each
+<dt><strong>chosen</strong><span class="classifier">2D array</span></dt><dd><p>This boolean array has a row for each chooser and a column for each
 alternative. The column ordering for alternatives is expected to be
 the same as their row ordering in the <cite>data</cite> array.
 A one (True) indicates which alternative each chooser has chosen.</p>
 </dd>
-<dt><strong>numalts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The number of alternatives.</p>
+<dt><strong>numalts</strong><span class="classifier">int</span></dt><dd><p>The number of alternatives.</p>
 </dd>
-<dt><strong>GPU</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd></dd>
-<dt><strong>coeffrange</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple of floats, optional</span></dt>
-<dd><p class="first last">Limits of (min, max) to which coefficients are clipped.</p>
+<dt><strong>GPU</strong><span class="classifier">bool, optional</span></dt><dd></dd>
+<dt><strong>coeffrange</strong><span class="classifier">tuple of floats, optional</span></dt><dd><p>Limits of (min, max) to which coefficients are clipped.</p>
 </dd>
-<dt><strong>weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, optional</span></dt>
-<dd></dd>
-<dt><strong>lcgrad</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd></dd>
-<dt><strong>beta</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1D array, optional</span></dt>
-<dd><p class="first last">Any initial guess for the coefficients.</p>
+<dt><strong>weights</strong><span class="classifier">ndarray, optional</span></dt><dd></dd>
+<dt><strong>lcgrad</strong><span class="classifier">bool, optional</span></dt><dd></dd>
+<dt><strong>beta</strong><span class="classifier">1D array, optional</span></dt><dd><p>Any initial guess for the coefficients.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>log_likelihood</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary of log-likelihood values describing the quality of
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>log_likelihood</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of log-likelihood values describing the quality of
 the model fit.</p>
 </dd>
-<dt><strong>fit_parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd><p class="first last">Table of fit parameters with columns ‘Coefficient’, ‘Std. Error’,
+<dt><strong>fit_parameters</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table of fit parameters with columns ‘Coefficient’, ‘Std. Error’,
 ‘T-Score’. Each row corresponds to a column in <cite>data</cite> and are given
 in the same order as in <cite>data</cite>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<dl class="last docutils">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.optimize.fmin_l_bfgs_b</span></code></dt>
-<dd>The optimization routine used.</dd>
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scipy.optimize.fmin_l_bfgs_b</span></code></dt><dd><p>The optimization routine used.</p>
+</dd>
 </dl>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.mnl.mnl_loglik">
-<code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">mnl_loglik</code><span class="sig-paren">(</span><em>beta</em>, <em>data</em>, <em>chosen</em>, <em>numalts</em>, <em>weights=None</em>, <em>lcgrad=False</em>, <em>stderr=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_loglik"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_loglik" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.mnl.</code><code class="sig-name descname">mnl_loglik</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">chosen</span></em>, <em class="sig-param"><span class="n">numalts</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lcgrad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">stderr</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_loglik"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_loglik" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.mnl.mnl_probs">
-<code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">mnl_probs</code><span class="sig-paren">(</span><em>data</em>, <em>beta</em>, <em>numalts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_probs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_probs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.mnl.</code><code class="sig-name descname">mnl_probs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">numalts</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_probs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_probs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.mnl.mnl_simulate">
-<code class="descclassname">urbansim.urbanchoice.mnl.</code><code class="descname">mnl_simulate</code><span class="sig-paren">(</span><em>data</em>, <em>coeff</em>, <em>numalts</em>, <em>GPU=False</em>, <em>returnprobs=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_simulate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.mnl.</code><code class="sig-name descname">mnl_simulate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">coeff</span></em>, <em class="sig-param"><span class="n">numalts</span></em>, <em class="sig-param"><span class="n">GPU</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">returnprobs</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/mnl.html#mnl_simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.mnl.mnl_simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the probabilities for each chooser choosing between <cite>numalts</cite>
 alternatives.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">2D array</span></dt>
-<dd><p class="first last">The data are expected to be in “long” form where each row is for
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">2D array</span></dt><dd><p>The data are expected to be in “long” form where each row is for
 one alternative. Alternatives are in groups of <cite>numalts</cite> rows per
 choosers. Alternatives must be in the same order for each chooser.</p>
 </dd>
-<dt><strong>coeff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">1D array</span></dt>
-<dd><p class="first last">The model coefficients corresponding to each column in <cite>data</cite>.</p>
+<dt><strong>coeff</strong><span class="classifier">1D array</span></dt><dd><p>The model coefficients corresponding to each column in <cite>data</cite>.</p>
 </dd>
-<dt><strong>numalts</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The number of alternatives available to each chooser.</p>
+<dt><strong>numalts</strong><span class="classifier">int</span></dt><dd><p>The number of alternatives available to each chooser.</p>
 </dd>
-<dt><strong>GPU</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd></dd>
-<dt><strong>returnprobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">If True, return the probabilities for each chooser/alternative instead
+<dt><strong>GPU</strong><span class="classifier">bool, optional</span></dt><dd></dd>
+<dt><strong>returnprobs</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, return the probabilities for each chooser/alternative instead
 of actual choices.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>probs or choices: 2D array</strong></dt>
-<dd><p class="first last">If <cite>returnprobs</cite> is True the probabilities are a 2D array with a
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>probs or choices: 2D array</dt><dd><p>If <cite>returnprobs</cite> is True the probabilities are a 2D array with a
 row for each chooser and columns for each alternative.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -308,14 +285,14 @@ row for each chooser and columns for each alternative.</p>
 <p>Utilities for making merged interaction tables of choosers and
 the alternatives from which they are choosing.
 Used for location choice models.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.interaction.enable_gpu">
-<code class="descclassname">urbansim.urbanchoice.interaction.</code><code class="descname">enable_gpu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/interaction.html#enable_gpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.interaction.enable_gpu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.interaction.</code><code class="sig-name descname">enable_gpu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/interaction.html#enable_gpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.interaction.enable_gpu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="urbansim.urbanchoice.interaction.mnl_interaction_dataset">
-<code class="descclassname">urbansim.urbanchoice.interaction.</code><code class="descname">mnl_interaction_dataset</code><span class="sig-paren">(</span><em>choosers</em>, <em>alternatives</em>, <em>SAMPLE_SIZE</em>, <em>chosenalts=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/interaction.html#mnl_interaction_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.interaction.mnl_interaction_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">urbansim.urbanchoice.interaction.</code><code class="sig-name descname">mnl_interaction_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">choosers</span></em>, <em class="sig-param"><span class="n">alternatives</span></em>, <em class="sig-param"><span class="n">SAMPLE_SIZE</span></em>, <em class="sig-param"><span class="n">chosenalts</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/urbanchoice/interaction.html#mnl_interaction_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.urbanchoice.interaction.mnl_interaction_dataset" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -332,7 +309,7 @@ Used for location choice models.</p>
         <a href="../developer/index.html" class="btn btn-neutral float-right" title="Real Estate Development Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="util.html" class="btn btn-neutral" title="Model Related Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="util.html" class="btn btn-neutral float-left" title="Model Related Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -341,7 +318,7 @@ Used for location choice models.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, UrbanSim Inc.
+        &copy; Copyright 2020, UrbanSim Inc.
 
     </p>
   </div>
@@ -358,36 +335,16 @@ Used for location choice models.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../',
-            VERSION:'3.1.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../_static/jquery.js"></script>
-      <script type="text/javascript" src="../_static/underscore.js"></script>
-      <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
