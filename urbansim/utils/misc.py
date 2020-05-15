@@ -8,7 +8,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from zbox import toolz as tz
+import toolz as tz
 
 
 def _mkifnotexists(folder):
@@ -138,7 +138,7 @@ def compute_range(travel_data, attr, travel_time_attr, dist, agg=np.sum):
     """
     travel_data = travel_data.reset_index(level=1)
     travel_data = travel_data[travel_data[travel_time_attr] < dist]
-    travel_data["attr"] = attr[travel_data.to_zone_id].values
+    travel_data["attr"] = attr.reindex(travel_data.to_zone_id, fill_value=0).values
     return travel_data.groupby(level=0).attr.apply(agg)
 
 
@@ -357,7 +357,7 @@ def series64bitto32bit(s):
 
 
 def _pandassummarytojson(v, ndigits=3):
-    return {i: round(float(v.ix[i]), ndigits) for i in v.index}
+    return {i: round(float(v.loc[i]), ndigits) for i in v.index}
 
 
 def pandasdfsummarytojson(df, ndigits=3):

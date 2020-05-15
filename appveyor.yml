@@ -6,29 +6,34 @@ environment:
       MINICONDA: C:\Miniconda
     - PYTHON_VERSION: 3.5
       MINICONDA: C:\Miniconda3
+    - PYTHON_VERSION: 3.6
+      MINICONDA: C:\Miniconda3
+    - PYTHON_VERSION: 3.7
+      MINICONDA: C:\Miniconda3
+    # - PYTHON_VERSION: 3.8  # doesn't run yet
+    #   MINICONDA: C:\Miniconda3
 
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
 
+# Requirements or sub-requirements that don't install well with pip
+# are included directly in the conda environment
+
 install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-  - "conda create -q -n test-environment python=%PYTHON_VERSION% cytoolz ipython-notebook jinja2 matplotlib numpy pandas patsy pip scipy statsmodels pytables pytest pyyaml toolz"
-  - activate test-environment
-  - conda install -c conda-forge shapely geopandas
-  - pip install orca osmnet pandana bottle simplejson zbox
-  - pip install pycodestyle
+  - conda update conda --yes --quiet
+  - "conda create --name test-env python=%PYTHON_VERSION% pip geopandas --yes --quiet"
+  - activate test-env
   - pip install .
+  - pip install -r requirements-dev.txt
+  - pip show urbansim
 
 before_test:
-# Update sanfran_urbansim clone once python3 branch is merged
-  - git clone -b python3 https://github.com/udst/sanfran_urbansim.git
+  - git clone https://github.com/udst/sanfran_urbansim.git
   - cd sanfran_urbansim & jupyter nbconvert --to python Simulation.ipynb
   - cd..
 
 test_script:
-  - pycodestyle urbansim scripts
+  - pycodestyle --max-line-length=100 urbansim
   - pytest urbansim
   - cd sanfran_urbansim & python Simulation.py

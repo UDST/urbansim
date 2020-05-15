@@ -1,2 +1,5 @@
-include ez_setup.py
+include CHANGELOG.rst
+include CONTRIBUTING.md
+include LICENSE.txt
 include README.rst
+include requirements-dev.txt

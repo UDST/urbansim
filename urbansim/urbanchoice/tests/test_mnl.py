@@ -110,12 +110,12 @@ def choosers_dm(choosers, test_data):
 
 @pytest.fixture
 def fit_coeffs(dm, chosen, num_alts):
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts)
+    log_like, fit = mnl.mnl_estimate(dm.values, chosen, num_alts)
     return fit.Coefficient.values
 
 
 def test_mnl_estimate(dm, chosen, num_alts, test_data):
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts)
+    log_like, fit = mnl.mnl_estimate(dm.values, chosen, num_alts)
     result = pd.Series(fit.Coefficient.values, index=dm.columns)
     result, expected = result.align(test_data['est_expected'])
     npt.assert_allclose(result.values, expected.values, rtol=1e-4)
@@ -134,10 +134,10 @@ def test_mnl_simulate(dm, fit_coeffs, num_alts, test_data, choosers_dm):
 
     # now test with real data
     probs = mnl.mnl_simulate(
-        choosers_dm.as_matrix(), fit_coeffs, num_alts, returnprobs=True)
+        choosers_dm.values, fit_coeffs, num_alts, returnprobs=True)
     results = pd.DataFrame(probs, columns=test_data['sim_expected'].columns)
     results, expected = results.align(test_data['sim_expected'])
-    npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
+    npt.assert_allclose(results.values, expected.values, rtol=1e-4)
 
 
 def test_alternative_specific_coeffs(num_alts):
@@ -193,7 +193,7 @@ def test_alternative_specific_coeffs(num_alts):
             'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)',
             'boat:income', 'charter:income', 'pier:income'])
 
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), fish_chosen, num_alts)
+    log_like, fit = mnl.mnl_estimate(dm.values, fish_chosen, num_alts)
     result = pd.Series(fit.Coefficient.values, index=dm.columns)
     result, expected = result.align(expected)
     npt.assert_allclose(result.values, expected.values, rtol=1e-4)
@@ -206,7 +206,7 @@ def test_alternative_specific_coeffs(num_alts):
 
     fit_coeffs = fit.Coefficient.values
     probs = mnl.mnl_simulate(
-        choosers_dm.as_matrix(), fit_coeffs, num_alts, returnprobs=True)
+        choosers_dm.values, fit_coeffs, num_alts, returnprobs=True)
     results = pd.DataFrame(probs, columns=expected.columns)
     results, expected = results.align(expected)
-    npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
+    npt.assert_allclose(results.values, expected.values, rtol=1e-4)
