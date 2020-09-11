@@ -62,7 +62,8 @@ class Developer(object):
         f = self.feasibility
 
         if forms is not None:
-            f = f[forms]
+            f_index = f[forms].columns.remove_unused_levels()
+            f = pd.DataFrame(data=f[forms], columns=f_index)
 
         if len(f) > 0:
             mu = self._max_form(f, "max_profit")
