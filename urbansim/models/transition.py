@@ -310,11 +310,11 @@ class TabularGrowthRateTransition(object):
                 continue
 
             if self.accounting_column is None:
-                nrows = self._calc_nrows(len(subset), row[self._config_column])
+                nrows = self._calc_nrows(len(subset), int(row[self._config_column]))
             else:
                 nrows = self._calc_nrows(
                     subset[self.accounting_column].sum(),
-                    row[self._config_column])
+                    int(row[self._config_column]))
 
             updated, added, copied, removed = \
                 add_or_remove_rows(subset, nrows, starting_index, self.accounting_column)
