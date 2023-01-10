@@ -60,7 +60,7 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
     new_rows = sample_rows(nrows, data, accounting_column=accounting_column)
     copied_index = new_rows.index
     added_index = pd.Index(np.arange(
-        starting_index, starting_index + len(new_rows.index), dtype=np.int))
+        starting_index, starting_index + len(new_rows.index), dtype=int))
     new_rows.index = added_index
 
     logger.debug(
@@ -462,7 +462,7 @@ def _update_linked_table(table, col_name, added, copied, removed):
 
     # index the new rows
     starting_index = table.index.values.max() + 1
-    new_rows.index = np.arange(starting_index, starting_index + len(new_rows), dtype=np.int)
+    new_rows.index = np.arange(starting_index, starting_index + len(new_rows), dtype=int)
 
     logger.debug('finish: update linked table after transition')
     return pd.concat([table, new_rows])
