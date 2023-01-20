@@ -60,7 +60,7 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
     new_rows = sample_rows(nrows, data, accounting_column=accounting_column)
     copied_index = new_rows.index
     added_index = pd.Index(np.arange(
-        starting_index, starting_index + len(new_rows.index), dtype=np.int))
+        starting_index, starting_index + len(new_rows.index), dtype=int))
     new_rows.index = added_index
 
     logger.debug(
@@ -301,13 +301,19 @@ class TabularGrowthRateTransition(object):
         # out here where their new indexes will begin
         starting_index = data.index.values.max() + 1
 
+        #add group for particular regions
         for _, row in year_config.iterrows():
+
+            subregion_id = row.subregion_id
+            mpo_group = groups[subregion_id]
+            row = row.drop('subregion_id')
+
             subset = util.filter_table(data, row, ignore={self._config_column})
 
             # Do not run on segment if it is empty
-            if len(subset) == 0:
-                logger.debug('empty segment encountered')
-                continue
+            # if len(subset) == 0:
+            #     logger.debug('empty segment encountered')
+                # continue
 
             if self.accounting_column is None:
                 nrows = self._calc_nrows(len(subset), row[self._config_column])
@@ -316,8 +322,27 @@ class TabularGrowthRateTransition(object):
                     subset[self.accounting_column].sum(),
                     row[self._config_column])
 
+            flag = 0
+            if (len(subset) == 0) & (nrows != 0):
+                logger.debug('empty segment encountered')
+                flag = 1
+                muni_id = row['muni_id']
+                row = row.drop('muni_id')
+                subset = util.filter_table(data, row, ignore={self._config_column})
+                if len(subset) == 0:
+                    logger.debug('empty segment encountered in the whole region')
+                    print(row)
+                    continue
+
             updated, added, copied, removed = \
                 add_or_remove_rows(subset, nrows, starting_index, self.accounting_column)
+
+            if flag == 1:
+                updated = updated.loc[added]
+                updated['muni_id'] = muni_id
+                updated['subregion_id'] = subregion_id
+                updated['mpo_group'] = mpo_group
+
             if nrows > 0:
                 # only update the starting index if rows were added
                 starting_index = starting_index + nrows
