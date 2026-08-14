@@ -476,7 +476,7 @@ def test_mnl_dcm_segmented(seed, grouped_choosers, alternatives):
             index=pd.Index([0, 2, 3, 1, 4], name='chooser_id')))
 
 
-def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
+def test_mnl_dcm_segmented_yaml(seed, grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
