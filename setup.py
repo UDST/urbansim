@@ -16,29 +16,27 @@ setup(
     classifiers=[
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Information Analysis',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'License :: OSI Approved :: BSD License'
     ],
     package_data={
         '': ['*.html'],
     },
     packages=find_packages(exclude=['*.tests']),
+    python_requires='>=3.10',
     install_requires=[
         'numpy >= 1.8.0',
         'orca >= 1.1',
-        'pandas >= 0.17.0',
+        'pandas >= 1.5, <3',
         'patsy >= 0.4.1',
         'prettytable >= 0.7.2',
         'pyyaml >= 3.10',
         'scipy >= 1.0',
-        'statsmodels >= 0.8, <0.11; python_version <"3.6"',
-        'statsmodels >= 0.8; python_version >="3.6"',
+        'statsmodels >= 0.8',
         'toolz >= 0.8.1'
     ]
 )

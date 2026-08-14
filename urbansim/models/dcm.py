@@ -589,8 +589,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
                 normalize(probs) * len(choosers)
                 ).reset_index(level=0, drop=True)
         elif self.probability_mode == 'full_product':
-            return probs.groupby(level=0).apply(normalize)\
-                .groupby(level=1).sum()
+            normalized = probs / probs.groupby(level=0).transform('sum')
+            return normalized.groupby(level=1).sum()
         else:
             raise ValueError(
                 'Unrecognized probability_mode option: {}'.format(

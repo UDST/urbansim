@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import yaml
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 from collections import OrderedDict
 
 from .. import yamlio

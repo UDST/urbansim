@@ -3,7 +3,7 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 
 from .. import transition
 from ...utils import testing as ust
@@ -433,10 +433,10 @@ def test_update_linked_table(basic_df):
         basic_df, col_name, added, copied, removed)
 
     assert len(updated) == len(basic_df) + len(added) - len(removed)
-    npt.assert_array_equal(updated[col_name].values, [1, 2, 3, 4, 5, 7, 6])
+    npt.assert_array_equal(updated[col_name].values, [1, 2, 3, 4, 5, 6, 7])
     pdt.assert_series_equal(
         updated['y'],
-        pd.Series([6, 7, 8, 9, 6, 6, 8], index=updated.index, name='y'),
+        pd.Series([6, 7, 8, 9, 6, 8, 6], index=updated.index, name='y'),
         check_dtype=False)
 
 

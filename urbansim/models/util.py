@@ -2,7 +2,7 @@
 Utilities used within the ``urbansim.models`` package.
 
 """
-import collections
+from collections.abc import Mapping
 import logging
 import numbers
 try:
@@ -118,7 +118,7 @@ def filter_table(table, filter_series, ignore=None):
         ignore = ignore if ignore else set()
 
         filters = [_filterize(name, val)
-                   for name, val in filter_series.iteritems()
+                   for name, val in filter_series.items()
                    if not (name in ignore or
                            (isinstance(val, numbers.Number) and
                             np.isnan(val)))]
@@ -199,7 +199,7 @@ def str_model_expression(expr, add_constant=True):
 
     """
     if not isinstance(expr, str):
-        if isinstance(expr, collections.Mapping):
+        if isinstance(expr, Mapping):
             left_side = expr.get('left_side')
             right_side = str_model_expression(expr['right_side'], add_constant)
         else:

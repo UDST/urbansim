@@ -7,7 +7,7 @@ by tweeting us at `@urbansim <https://twitter.com/urbansim>`__, posting on the U
 Installation
 ------------
 
-The UrbanSim library is currently tested with Python versions 2.7, 3.5, 3.6, 3.7, and 3.8.
+The UrbanSim library is currently tested with Python versions 3.10 through 3.13.
 
 UrbanSim is distributed on the `Python Package Index <https://pypi.org/project/urbansim/>`__ (for Pip) and on `Conda Forge <https://anaconda.org/conda-forge/urbansim>`__. The official source code is hosted on `GitHub <https://github.com/udst/urbansim>`__. (UrbanSim versions before 3.2 are on the UDST Conda channel rather than Conda Forge.)
 
