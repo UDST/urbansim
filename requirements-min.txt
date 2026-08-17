@@ -1,0 +1,18 @@
+# Pip constraints pinning the oldest supported versions of the core
+# scientific dependencies (the floors declared in setup.py). Used by the
+# minimum-dependencies CI job:
+#
+#   pip install -e . -r requirements-dev.txt -c requirements-min.txt
+#
+# These are the oldest versions with binaries available for Python 3.10,
+# the oldest supported Python.
+
+numpy == 1.21.*
+pandas == 1.5.*
+scipy == 1.7.*
+statsmodels == 0.13.*
+
+# PyTables (pulled in via Pandana) must be held back with NumPy 1.21:
+# tables >= 3.9 requires NumPy >= 1.22 at runtime even though its wheel
+# metadata allows older versions
+tables == 3.7.*
