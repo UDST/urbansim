@@ -45,7 +45,7 @@ def series_to_yaml_safe(series, ordered=False):
     safe : dict or OrderedDict
 
     """
-    index = series.index.to_native_types(quoting=True)
+    index = [to_scalar_safe(value) for value in series.index]
     values = series.values.tolist()
 
     if ordered:
@@ -73,10 +73,10 @@ def frame_to_yaml_safe(frame, ordered=False):
     """
     if ordered:
         return OrderedDict(tuple((col, series_to_yaml_safe(series, True))
-                                 for col, series in frame.iteritems()))
+                                 for col, series in frame.items()))
     else:
         return {col: series_to_yaml_safe(series)
-                for col, series in frame.iteritems()}
+                for col, series in frame.items()}
 
 
 def to_scalar_safe(obj):

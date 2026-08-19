@@ -60,7 +60,7 @@ def add_rows(data, nrows, starting_index=None, accounting_column=None):
     new_rows = sample_rows(nrows, data, accounting_column=accounting_column)
     copied_index = new_rows.index
     added_index = pd.Index(np.arange(
-        starting_index, starting_index + len(new_rows.index), dtype=np.int))
+        starting_index, starting_index + len(new_rows.index), dtype=int))
     new_rows.index = added_index
 
     logger.debug(
@@ -457,12 +457,19 @@ def _update_linked_table(table, col_name, added, copied, removed):
 
     # join to linked table and assign new id
     new_rows = id_map.merge(table, on=col_name)
+    # pandas < 2.2 returned inner-merge rows grouped by join key, while newer
+    # versions preserve left-frame row order; group explicitly so the row
+    # order (and the sequential index assigned below) is the same across
+    # pandas versions
+    key_rank = {k: i for i, k in enumerate(id_map[col_name].unique())}
+    new_rows = new_rows.sort_values(
+        by=col_name, key=lambda s: s.map(key_rank), kind='stable')
     new_rows.drop(col_name, axis=1, inplace=True)
     new_rows.rename(columns={'temp_id': col_name}, inplace=True)
 
     # index the new rows
     starting_index = table.index.values.max() + 1
-    new_rows.index = np.arange(starting_index, starting_index + len(new_rows), dtype=np.int)
+    new_rows.index = np.arange(starting_index, starting_index + len(new_rows), dtype=int)
 
     logger.debug('finish: update linked table after transition')
     return pd.concat([table, new_rows])

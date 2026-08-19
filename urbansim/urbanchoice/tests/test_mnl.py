@@ -78,10 +78,14 @@ def test_data(request):
     }
 
 
-@pytest.fixture
-def df(test_data):
+def _load_df(test_data):
     filen = os.path.join(os.path.dirname(__file__), 'data', test_data['data'])
     return pd.read_csv(filen)
+
+
+@pytest.fixture
+def df(test_data):
+    return _load_df(test_data)
 
 
 @pytest.fixture
@@ -147,9 +151,12 @@ def test_alternative_specific_coeffs(num_alts):
          [0, 1, 0],
          [0, 0, 1]])
 
-    fish = df({'data': 'fish.csv'})
-    fish_choosers = choosers({'choosers': 'fish_choosers.csv'})
-    fish_chosen = chosen(fish, num_alts, {'column': 'mode'})
+    fish_data = {'data': 'fish.csv'}
+    fish = _load_df(fish_data)
+    fish_choosers = pd.read_csv(os.path.join(
+        os.path.dirname(__file__), 'data', 'fish_choosers.csv'))
+    fish_chosen = fish['mode'].values.astype('int').reshape(
+        (int(len(fish) / num_alts), num_alts))
 
     # construct design matrix with columns repeated for 3 / 4 of alts
     num_choosers = len(fish['chid'].unique())

@@ -1,7 +1,11 @@
 # Additional requirements for development and testing
 
 bottle
+jinja2
 matplotlib
+# Pandana 0.7 extensions are not compatible with the NumPy 2 ABI.
+numpy < 2
+pandas < 3
 pandana
 simplejson
 
@@ -9,7 +13,7 @@ simplejson
 coveralls
 jupyter
 pycodestyle
-pytest < 4.0
+pytest
 pytest-cov
 
 # building documentation

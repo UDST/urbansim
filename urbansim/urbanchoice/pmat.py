@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from numpy.linalg import inv
-from numpy.core.umath_tests import inner1d
 
 
 def initialize_gpu():

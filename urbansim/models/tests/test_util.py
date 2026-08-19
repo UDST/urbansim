@@ -3,7 +3,7 @@ import string
 import numpy as np
 import pandas as pd
 import pytest
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 
 from .. import util
 
