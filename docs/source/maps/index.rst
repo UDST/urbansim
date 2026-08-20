@@ -61,7 +61,7 @@ The web service will print out each statement it executes.  The website then
 transparently joins the output Pandas series to the shapes and create an
 interactive *slippy* web map using the `Leaflet <http://leafletjs.com/>`_
 Javasript library.  The code for this map is really
-`quite simple <https://github.com/udst/urbansim/tree/master/urbansim/maps>`_
+`quite simple <https://github.com/udst/urbansim/tree/main/urbansim/maps>`_
 - feel free to browse the code and add functionality as required.
 
 To be clear, the website is performing a Pandas aggregation on the fly.
