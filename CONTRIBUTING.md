@@ -27,9 +27,9 @@ You can contact Sam Maurer, the lead maintainer, at `maurer@urbansim.com`.
 
 - Make your changes, following the existing styles for code and inline documentation
 
-- Add [tests](https://github.com/UDST/urbansim/tree/master/urbansim/tests) if possible!
+- Add [tests](https://github.com/UDST/urbansim/tree/main/urbansim/tests) if possible!
 
-- Open a pull request to the `UDST/urbansim` dev branch, including a writeup of your changes -- take a look at some of the closed PR's for examples
+- Open a pull request to the `UDST/urbansim` main branch, including a writeup of your changes -- take a look at some of the closed PR's for examples
 
 - Current maintainers will review the code, suggest changes, and hopefully merge it!
 
@@ -51,7 +51,7 @@ You can contact Sam Maurer, the lead maintainer, at `maurer@urbansim.com`.
 
 - Make sure all the tests are passing, and check if updates are needed to `README.md` or to the documentation
 
-- Open a pull request to the master branch to finalize it
+- Open a pull request to the main branch to finalize it
 
 - After merging, tag the release on GitHub and follow the distribution procedures below
 
@@ -78,3 +78,10 @@ You can contact Sam Maurer, the lead maintainer, at `maurer@urbansim.com`.
 - Conda Forge bots usually detect new releases on PyPI and set in motion the appropriate feedstock updates, which a current maintainer will need to approve and merge
 
 - Check https://anaconda.org/conda-forge/urbansim for the new version (may take a few minutes for it to appear)
+
+
+## Branch policy
+
+The `main` branch is the default integration and release branch. All new pull requests should target `main`.
+
+The historical `dev` and `master` branches are retained temporarily for reference and compatibility with existing links. They are deprecated and will not receive new development.

@@ -5,13 +5,9 @@ UrbanSim
     :target: https://pypi.python.org/pypi/urbansim/
     :alt: Latest Version
 
-.. image:: https://travis-ci.org/UDST/urbansim.svg?branch=master
+.. image:: https://github.com/UDST/urbansim/actions/workflows/test.yml/badge.svg?branch=main
    :alt: Build Status
-   :target: https://travis-ci.org/UDST/urbansim
-
-.. image:: https://coveralls.io/repos/UDST/urbansim/badge.svg?branch=master
-   :alt: Test Coverage
-   :target: https://coveralls.io/r/UDST/urbansim?branch=master
+   :target: https://github.com/UDST/urbansim/actions/workflows/test.yml
 
 UrbanSim is a platform for building statistical models of cities and regions. These models help forecast long-range patterns in real estate development, demographics, and related outcomes, under various policy scenarios.
 
