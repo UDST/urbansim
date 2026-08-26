@@ -5,14 +5,14 @@ multinomial logit and make subsequent choice predictions.
 """
 from __future__ import print_function, division
 
-import abc
 import logging
+from functools import partial, reduce
+from itertools import chain
 
 import numpy as np
 import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
-import toolz as tz
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -89,10 +89,10 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
 # look like we expect DCMs to look
 class DiscreteChoiceModel(object):
     """
-    Abstract base class for discrete choice models.
+    Base class for discrete choice models. Provides shared filter
+    helpers and probability/choice mode compatibility checks.
 
     """
-    __metaclass__ = abc.ABCMeta
 
     @staticmethod
     def _check_prob_choice_mode_compat(probability_mode, choice_mode):
@@ -129,56 +129,18 @@ class DiscreteChoiceModel(object):
                 "interaction filters may not be used in "
                 "'full_product' mode")
 
-    @abc.abstractmethod
     def apply_fit_filters(self, choosers, alternatives):
         choosers = util.apply_filter_query(choosers, self.choosers_fit_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_fit_filters)
         return choosers, alternatives
 
-    @abc.abstractmethod
     def apply_predict_filters(self, choosers, alternatives):
         choosers = util.apply_filter_query(
             choosers, self.choosers_predict_filters)
         alternatives = util.apply_filter_query(
             alternatives, self.alts_predict_filters)
         return choosers, alternatives
-
-    @abc.abstractproperty
-    def fitted(self):
-        pass
-
-    @abc.abstractmethod
-    def probabilities(self):
-        pass
-
-    @abc.abstractmethod
-    def summed_probabilities(self):
-        pass
-
-    @abc.abstractmethod
-    def fit(self):
-        pass
-
-    @abc.abstractmethod
-    def predict(self):
-        pass
-
-    @abc.abstractmethod
-    def choosers_columns_used(self):
-        pass
-
-    @abc.abstractmethod
-    def alts_columns_used(self):
-        pass
-
-    @abc.abstractmethod
-    def interaction_columns_used(self):
-        pass
-
-    @abc.abstractmethod
-    def columns_used(self):
-        pass
 
 
 class MNLDiscreteChoiceModel(DiscreteChoiceModel):
@@ -714,7 +676,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Columns from the choosers table that are used for filtering.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.choosers_predict_filters),
             util.columns_in_filters(self.choosers_fit_filters))))
 
@@ -723,7 +685,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         Columns from the alternatives table that are used for filtering.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.alts_predict_filters),
             util.columns_in_filters(self.alts_fit_filters))))
 
@@ -734,7 +696,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         alternatives tables.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.interaction_predict_filters),
             util.columns_in_formula(self.model_expression))))
 
@@ -744,7 +706,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         the choosers or alternatives tables.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             self.choosers_columns_used(),
             self.alts_columns_used(),
             self.interaction_columns_used())))
@@ -1147,8 +1109,8 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
             probs.append(
                 self.models[name].summed_probabilities(df, alternatives))
 
-        add = tz.curry(pd.Series.add, fill_value=0)
-        probs = tz.reduce(add, probs)
+        add = partial(pd.Series.add, fill_value=0)
+        probs = reduce(add, probs)
 
         logger.debug(
             'finish: calculate summed probabilities in LCM group {}'.format(
@@ -1199,7 +1161,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         Columns from the choosers table that are used for filtering.
 
         """
-        return list(tz.unique(tz.concat(
+        return list(dict.fromkeys(chain.from_iterable(
             m.choosers_columns_used() for m in self.models.values())))
 
     def alts_columns_used(self):
@@ -1207,7 +1169,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         Columns from the alternatives table that are used for filtering.
 
         """
-        return list(tz.unique(tz.concat(
+        return list(dict.fromkeys(chain.from_iterable(
             m.alts_columns_used() for m in self.models.values())))
 
     def interaction_columns_used(self):
@@ -1217,7 +1179,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         alternatives tables.
 
         """
-        return list(tz.unique(tz.concat(
+        return list(dict.fromkeys(chain.from_iterable(
             m.interaction_columns_used() for m in self.models.values())))
 
     def columns_used(self):
@@ -1226,7 +1188,7 @@ class MNLDiscreteChoiceModelGroup(DiscreteChoiceModel):
         the choosers or alternatives tables.
 
         """
-        return list(tz.unique(tz.concat(
+        return list(dict.fromkeys(chain.from_iterable(
             m.columns_used() for m in self.models.values())))
 
 
@@ -1732,7 +1694,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Columns from the choosers table that are used for filtering.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.choosers_predict_filters),
             util.columns_in_filters(self.choosers_fit_filters))))
 
@@ -1741,7 +1703,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         Columns from the alternatives table that are used for filtering.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.alts_predict_filters),
             util.columns_in_filters(self.alts_fit_filters))))
 
@@ -1760,7 +1722,7 @@ class SegmentedMNLDiscreteChoiceModel(DiscreteChoiceModel):
         the choosers or alternatives tables.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             self.choosers_columns_used(),
             self.alts_columns_used(),
             self.interaction_columns_used(),

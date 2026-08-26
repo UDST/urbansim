@@ -9,16 +9,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from . import pmat
-
 logger = logging.getLogger(__name__)
-GPU = False
-
-
-def enable_gpu():
-    global GPU
-    GPU = 1
-    pmat.initialize_gpu()
 
 
 # TODO: split this out into separate functions for estimation

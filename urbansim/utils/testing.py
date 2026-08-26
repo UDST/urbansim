@@ -2,9 +2,8 @@
 Utilities used in testing of UrbanSim.
 
 """
-import numpy as np
-import numpy.testing as npt
 import pandas as pd
+import pandas.testing as pdt
 
 
 def assert_frames_equal(actual, expected, use_close=False):
@@ -12,48 +11,32 @@ def assert_frames_equal(actual, expected, use_close=False):
     Compare DataFrame items by index and column and
     raise AssertionError if any item is not equal.
 
-    Ordering is unimportant, items are compared only by label.
-    NaN and infinite values are supported.
+    Ordering is unimportant, items are compared only by label
+    (``check_like=True``). NaN and infinite values are supported.
 
     Parameters
     ----------
     actual : pandas.DataFrame
     expected : pandas.DataFrame
     use_close : bool, optional
-        If True, use numpy.testing.assert_allclose instead of
-        numpy.testing.assert_equal.
+        If True, compare with ``assert_frame_equal(check_exact=False)``
+        (numerical tolerance); otherwise compare exactly
+        (``check_exact=True``).
 
     """
-    if use_close:
-        comp = npt.assert_allclose
-    else:
-        comp = npt.assert_equal
-
     assert (isinstance(actual, pd.DataFrame) and
             isinstance(expected, pd.DataFrame)), \
         'Inputs must both be pandas DataFrames.'
 
-    for i, exp_row in expected.iterrows():
-        assert i in actual.index, 'Expected row {!r} not found.'.format(i)
-
-        act_row = actual.loc[i]
-
-        for j, exp_item in exp_row.items():
-            assert j in act_row.index, \
-                'Expected column {!r} not found.'.format(j)
-
-            act_item = act_row[j]
-
-            try:
-                comp(act_item, exp_item)
-            except AssertionError as e:
-                raise AssertionError(
-                    str(e) + '\n\nColumn: {!r}\nRow: {!r}'.format(j, i))
+    pdt.assert_frame_equal(
+        actual, expected, check_exact=not use_close, check_dtype=False,
+        check_like=True)
 
 
 def assert_index_equal(left, right):
     """
-    Similar to pdt.assert_index_equal but is not sensitive to key ordering.
+    Order-agnostic index equality: the indexes are equal if neither has
+    keys the other lacks, regardless of ordering.
 
     Parameters
     ----------

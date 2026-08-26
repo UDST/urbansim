@@ -39,7 +39,6 @@ setup(
         'prettytable >= 0.7.2',
         'pyyaml >= 3.10',
         'scipy >= 1.7',
-        'statsmodels >= 0.13',
-        'toolz >= 0.8.1'
+        'statsmodels >= 0.13'
     ]
 )

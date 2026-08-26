@@ -4,16 +4,11 @@ Number crunching code for multinomial logit.
 ``urbansim.models.lcm``.
 
 """
-from __future__ import print_function
-
 import logging
 
 import numpy as np
 import pandas as pd
 import scipy.optimize
-
-from . import pmat
-from .pmat import PMAT
 
 from ..utils.logutil import log_start_finish
 
@@ -29,27 +24,22 @@ logger = logging.getLogger(__name__)
 
 def mnl_probs(data, beta, numalts):
     logging.debug('start: calculate MNL probabilities')
-    clamp = data.typ == 'numpy'
-    utilities = beta.multiply(data)
     if numalts == 0:
         raise Exception("Number of alternatives is zero")
-    utilities.reshape(numalts, utilities.size() // numalts)
+    utilities = np.dot(beta, data)
+    utilities = np.reshape(utilities, (numalts, utilities.size // numalts),
+                          order='F')
 
     # https://stats.stackexchange.com/questions/304758/softmax-overflow
-    utilities = utilities.subtract(utilities.max(0))
+    utilities = utilities - utilities.max(0, keepdims=True)
 
-    exponentiated_utility = utilities.exp(inplace=True)
-    if clamp:
-        exponentiated_utility.inftoval(1e20)
-    if clamp:
-        exponentiated_utility.clamptomin(1e-300)
-    sum_exponentiated_utility = exponentiated_utility.sum(axis=0)
-    probs = exponentiated_utility.divide_by_row(
-        sum_exponentiated_utility, inplace=True)
-    if clamp:
-        probs.nantoval(1e-300)
-    if clamp:
-        probs.clamptomin(1e-300)
+    exponentiated_utility = np.exp(utilities)
+    exponentiated_utility[np.isinf(exponentiated_utility)] = 1e20
+    np.clip(exponentiated_utility, 1e-300, None, out=exponentiated_utility)
+    sum_exponentiated_utility = exponentiated_utility.sum(axis=0, keepdims=True)
+    probs = exponentiated_utility / sum_exponentiated_utility
+    probs[np.isnan(probs)] = 1e-300
+    np.clip(probs, 1e-300, None, out=probs)
 
     logging.debug('finish: calculate MNL probabilities')
     return probs
@@ -70,58 +60,49 @@ def mnl_loglik(beta, data, chosen, numalts, weights=None, lcgrad=False,
                stderr=0):
     logger.debug('start: calculate MNL log-likelihood')
     numvars = beta.size
-    numobs = data.size() // numvars // numalts
+    numobs = data.size // numvars // numalts
 
     beta = np.reshape(beta, (1, beta.size))
-    beta = PMAT(beta, data.typ)
 
     probs = mnl_probs(data, beta, numalts)
 
     # lcgrad is the special gradient for the latent class membership model
     if lcgrad:
         assert weights
-        gradmat = weights.subtract(probs).reshape(probs.size(), 1)
-        gradarr = data.multiply(gradmat)
+        gradmat = np.reshape(weights - probs, (probs.size, 1), order='F')
+        gradarr = np.dot(data, gradmat)
     else:
         if not weights:
-            gradmat = chosen.subtract(probs).reshape(probs.size(), 1)
+            gradmat = np.reshape(chosen - probs, (probs.size, 1), order='F')
         else:
-            gradmat = chosen.subtract(probs).multiply_by_row(
-                weights).reshape(probs.size(), 1)
-        gradarr = data.multiply(gradmat)
+            gradmat = np.reshape((chosen - probs) * weights,
+                                 (probs.size, 1), order='F')
+        gradarr = np.dot(data, gradmat)
 
     if stderr:
-        gradmat = data.multiply_by_row(gradmat.reshape(1, gradmat.size()))
-        gradmat.reshape(numvars, numalts * numobs)
-        return get_standard_error(get_hessian(gradmat.get_mat()))
+        gradmat = data * np.reshape(gradmat, (1, gradmat.size), order='F')
+        gradmat = np.reshape(gradmat, (numvars, numalts * numobs), order='F')
+        return get_standard_error(get_hessian(gradmat))
 
-    chosen.reshape(numalts, numobs)
+    chosen = np.reshape(chosen, (numalts, numobs), order='F')
     if weights is not None:
-        if probs.shape() == weights.shape():
-            loglik = ((probs.log(inplace=True)
-                       .element_multiply(weights, inplace=True)
-                       .element_multiply(chosen, inplace=True))
-                      .sum(axis=1).sum(axis=0))
+        if probs.shape == weights.shape:
+            loglik = ((np.log(probs) * weights * chosen)
+                      .sum(axis=1, keepdims=True).sum(axis=0, keepdims=True))
         else:
-            loglik = ((probs.log(inplace=True)
-                       .multiply_by_row(weights, inplace=True)
-                       .element_multiply(chosen, inplace=True))
-                      .sum(axis=1).sum(axis=0))
+            loglik = ((np.log(probs) * (weights * chosen))
+                      .sum(axis=1, keepdims=True).sum(axis=0, keepdims=True))
     else:
-        loglik = (probs.log(inplace=True).element_multiply(
-            chosen, inplace=True)).sum(axis=1).sum(axis=0)
+        loglik = ((np.log(probs) * chosen)
+                  .sum(axis=1, keepdims=True).sum(axis=0, keepdims=True))
 
-    if loglik.typ == 'numpy':
-        loglik, gradarr = loglik.get_mat(), gradarr.get_mat().flatten()
-    else:
-        loglik = loglik.get_mat()[0, 0]
-        gradarr = np.reshape(gradarr.get_mat(), (1, gradarr.size()))[0]
+    gradarr = gradarr.flatten()
 
     logger.debug('finish: calculate MNL log-likelihood')
     return -1 * loglik, -1 * gradarr
 
 
-def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
+def mnl_simulate(data, coeff, numalts, returnprobs=True):
     """
     Get the probabilities for each chooser choosing between `numalts`
     alternatives.
@@ -136,7 +117,6 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
         The model coefficients corresponding to each column in `data`.
     numalts : int
         The number of alternatives available to each chooser.
-    GPU : bool, optional
     returnprobs : bool, optional
         If True, return the probabilities for each chooser/alternative instead
         of actual choices.
@@ -151,31 +131,24 @@ def mnl_simulate(data, coeff, numalts, GPU=False, returnprobs=True):
     logger.debug(
         'start: MNL simulation with len(data)={} and numalts={}'.format(
             len(data), numalts))
-    atype = 'numpy' if not GPU else 'cuda'
 
     data = np.transpose(data)
     coeff = np.reshape(np.array(coeff), (1, len(coeff)))
 
-    data, coeff = PMAT(data, atype), PMAT(coeff, atype)
-
     probs = mnl_probs(data, coeff, numalts)
 
     if returnprobs:
-        return np.transpose(probs.get_mat())
+        return np.transpose(probs)
 
-    # convert to cpu from here on - gpu doesn't currently support these ops
-    if probs.typ == 'cuda':
-        probs = PMAT(probs.get_mat())
-
-    probs = probs.cumsum(axis=0)
-    r = pmat.random(probs.size() // numalts)
-    choices = probs.subtract(r, inplace=True).firstpositive(axis=0)
+    probs = np.cumsum(probs, axis=0)
+    r = np.random.uniform(size=probs.size // numalts).reshape(1, -1)
+    choices = (probs - r).argmax(axis=0)
 
     logger.debug('finish: MNL simulation')
-    return choices.get_mat()
+    return choices
 
 
-def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
+def mnl_estimate(data, chosen, numalts, coeffrange=(-3, 3),
                  weights=None, lcgrad=False, beta=None):
     """
     Calculate coefficients of the MNL model.
@@ -193,7 +166,6 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
         A one (True) indicates which alternative each chooser has chosen.
     numalts : int
         The number of alternatives.
-    GPU : bool, optional
     coeffrange : tuple of floats, optional
         Limits of (min, max) to which coefficients are clipped.
     weights : ndarray, optional
@@ -204,8 +176,8 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     Returns
     -------
     log_likelihood : dict
-        Dictionary of log-likelihood values describing the quality of
-        the model fit.
+        Dictionary of log-likelihood values describing the quality of the
+        model fit.
     fit_parameters : pandas.DataFrame
         Table of fit parameters with columns 'Coefficient', 'Std. Error',
         'T-Score'. Each row corresponds to a column in `data` and are given
@@ -219,7 +191,6 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     logger.debug(
         'start: MNL fit with len(data)={} and numalts={}'.format(
             len(data), numalts))
-    atype = 'numpy' if not GPU else 'cuda'
 
     numvars = data.shape[1]
     numobs = data.shape[0] // numalts
@@ -230,9 +201,8 @@ def mnl_estimate(data, chosen, numalts, GPU=False, coeffrange=(-3, 3),
     data = np.transpose(data)
     chosen = np.transpose(chosen)
 
-    data, chosen = PMAT(data, atype), PMAT(chosen, atype)
     if weights is not None:
-        weights = PMAT(np.transpose(weights), atype)
+        weights = np.transpose(weights)
 
     if beta is None:
         beta = np.zeros(numvars)

@@ -2,31 +2,25 @@
 Utilities for doing IO to YAML files.
 
 """
-try:
-    from itertools import izip as zip
-except ImportError:
-    pass
 import os
-import sys
+
 import numpy as np
 
 import yaml
 from collections import OrderedDict
 
 
-if sys.version_info[0] < 3:
-
-    def __represent_long(dumper, data):
-        """
-        Strips away extraneous long format text. Only applicable
-        for py27.
-
-        e.g. !!python/long '14' will be formatted as 14
-
-        """
-        return dumper.represent_int(data)
-
-    yaml.add_representer(long, __represent_long)
+# default key ordering for human-readable model configuration dumps
+_DEFAULT_ORDER = [
+    'name', 'model_type', 'segmentation_col', 'fit_filters',
+    'predict_filters',
+    'choosers_fit_filters', 'choosers_predict_filters',
+    'alts_fit_filters', 'alts_predict_filters',
+    'interaction_predict_filters',
+    'choice_column', 'sample_size', 'estimation_sample_size',
+    'prediction_sample_size',
+    'model_expression', 'ytransform', 'min_segment_size',
+    'default_config', 'models', 'coefficients', 'fitted']
 
 
 def series_to_yaml_safe(series, ordered=False):
@@ -89,17 +83,32 @@ def to_scalar_safe(obj):
         return obj
 
 
+def _to_plain(obj):
+    """
+    Recursively convert OrderedDict (and dict) to plain dict so that
+    ``yaml.safe_dump``/``yaml.safe_load`` round-trip without python-specific
+    tags. Plain dicts preserve insertion order on Python 3.7+.
+    """
+    if isinstance(obj, (OrderedDict, dict)):
+        return {k: _to_plain(v) for k, v in obj.items()}
+    return obj
+
+
 def ordered_yaml(cfg, order=None):
     """
     Convert a dictionary to a YAML string with preferential ordering
     for some keys. Converted string is meant to be fairly human readable.
 
+    Uses ``yaml.dump(sort_keys=False)`` after arranging keys in the
+    requested order, so dict insertion order is preserved on output.
+
     Parameters
     ----------
     cfg : dict
         Dictionary to convert to a YAML string.
-    order: list
-        If provided, overrides the default key ordering.
+    order: list, optional
+        If provided, overrides the default key ordering. An empty list
+        preserves the insertion order of ``cfg``.
 
     Returns
     -------
@@ -108,53 +117,18 @@ def ordered_yaml(cfg, order=None):
 
     """
     if order is None:
-        order = ['name', 'model_type', 'segmentation_col', 'fit_filters',
-                 'predict_filters',
-                 'choosers_fit_filters', 'choosers_predict_filters',
-                 'alts_fit_filters', 'alts_predict_filters',
-                 'interaction_predict_filters',
-                 'choice_column', 'sample_size', 'estimation_sample_size',
-                 'prediction_sample_size',
-                 'model_expression', 'ytransform', 'min_segment_size',
-                 'default_config', 'models', 'coefficients', 'fitted']
+        order = _DEFAULT_ORDER
 
-    s = []
+    built = {}
     for key in order:
-        if key not in cfg:
-            continue
-        s.append(
-            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
-
+        if key in cfg:
+            built[key] = cfg[key]
     for key in cfg:
-        if key in order:
-            continue
-        s.append(
-            yaml.dump({key: cfg[key]}, default_flow_style=False, indent=4))
+        if key not in built:
+            built[key] = cfg[key]
 
-    return '\n'.join(s)
-
-
-def __represent_ordereddict(dumper, data):
-    """
-    Allows for OrderedDict to be written out to yaml.
-
-    References:
-        https://codedump.io/share/2MLFLtw3wnX7/1/can-pyyaml-dump-dict-items-in-non-alphabetical-order
-        http://stackoverflow.com/questions/16782112/can-pyyaml-dump-dict-items-in-non-alphabetical-order
-
-    """
-    value = []
-
-    for item_key, item_value in data.items():
-        node_key = dumper.represent_data(item_key)
-        node_value = dumper.represent_data(item_value)
-
-        value.append((node_key, node_value))
-
-    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
-
-
-yaml.add_representer(OrderedDict, __represent_ordereddict)
+    return yaml.dump(_to_plain(built), sort_keys=False,
+                     default_flow_style=False, indent=4)
 
 
 def convert_to_yaml(cfg, str_or_buffer):
@@ -216,40 +190,14 @@ def yaml_to_dict(yaml_str=None, str_or_buffer=None, ordered=False):
     if not yaml_str and not str_or_buffer:
         raise ValueError('One of yaml_str or str_or_buffer is required.')
 
-    # determine which load method to use
-    if ordered:
-        loader = __ordered_load
-    else:
-        loader = yaml.safe_load
-
     if yaml_str:
-        d = loader(yaml_str)
+        d = yaml.safe_load(yaml_str)
     elif isinstance(str_or_buffer, str):
         with open(str_or_buffer) as f:
-            d = loader(f)
+            d = yaml.safe_load(f)
     else:
-        d = loader(str_or_buffer)
+        d = yaml.safe_load(str_or_buffer)
 
+    if ordered:
+        d = OrderedDict(d) if d is not None else OrderedDict()
     return d
-
-
-def __ordered_load(stream, Loader=yaml.Loader, object_pairs_hook=OrderedDict):
-    """
-    Loads yaml into an OrderedDict.
-
-    From:
-    https://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts
-
-    """
-
-    class OrderedLoader(Loader):
-        pass
-
-    def construct_mapping(loader, node):
-        loader.flatten_mapping(node)
-        return object_pairs_hook(loader.construct_pairs(node))
-
-    OrderedLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        construct_mapping)
-    return yaml.load(stream, OrderedLoader)

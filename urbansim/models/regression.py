@@ -6,13 +6,13 @@ OLS capability and then do subsequent prediction.
 from __future__ import print_function
 
 import logging
+from itertools import chain
 
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 from patsy import dmatrix
 from prettytable import PrettyTable
-import toolz as tz
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -463,7 +463,7 @@ class RegressionModel(object):
         and in the model expression.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.model_expression))))
@@ -671,7 +671,7 @@ class RegressionModelGroup(object):
         for filtering and in the model expression.
 
         """
-        return list(tz.unique(tz.concat(
+        return list(dict.fromkeys(chain.from_iterable(
             m.columns_used() for m in self.models.values())))
 
 
@@ -959,7 +959,7 @@ class SegmentedRegressionModel(object):
         for filtering and in the model expression.
 
         """
-        return list(tz.unique(tz.concatv(
+        return list(dict.fromkeys(chain(
             util.columns_in_filters(self.fit_filters),
             util.columns_in_filters(self.predict_filters),
             util.columns_in_formula(self.default_model_expr),
