@@ -73,6 +73,9 @@ def _filterize(name, value):
     filter_exp : str
 
     """
+    if isinstance(value, np.generic):
+        value = value.item()
+
     if name.endswith('_min'):
         name = name[:-4]
         comp = '>='

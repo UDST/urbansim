@@ -48,6 +48,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         for all the choosers.
 
     """
+    alternative_dtype = pd.Index(alternative_ids).dtype
     chooser_ids = np.asanyarray(chooser_ids)
     alternative_ids = np.asanyarray(alternative_ids)
     probabilities = np.asanyarray(probabilities)
@@ -56,7 +57,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         'start: unit choice with {} choosers and {} alternatives'.format(
             len(chooser_ids), len(alternative_ids)))
 
-    choices = pd.Series(index=chooser_ids)
+    choices = pd.Series(index=chooser_ids, dtype=alternative_dtype)
 
     if probabilities.sum() == 0:
         # return all nan if there are no available units
@@ -79,7 +80,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         chooser_ids = np.random.choice(
             chooser_ids, size=n_to_choose, replace=False)
 
-    choices[chooser_ids] = chosen
+    choices.loc[chooser_ids] = chosen
 
     logger.debug('finish: unit choice')
     return choices

@@ -166,7 +166,7 @@ def test_alternative_specific_coeffs(num_alts):
         columns=[
             'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)'])
     income_df = pd.DataFrame(
-        np.tile(template, (num_choosers, 1)),
+        np.tile(template, (num_choosers, 1)).astype(float),
         columns=[
             'boat:income', 'charter:income', 'pier:income'])
 
@@ -183,7 +183,7 @@ def test_alternative_specific_coeffs(num_alts):
         columns=[
             'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)'])
     income_df = pd.DataFrame(
-        np.tile(template, (num_choosers, 1)),
+        np.tile(template, (num_choosers, 1)).astype(float),
         columns=[
             'boat:income', 'charter:income', 'pier:income'])
 
