@@ -1,18 +1,31 @@
-# Pip constraints pinning the oldest supported versions of the core
-# scientific dependencies (the floors declared in setup.py). Used by the
-# minimum-dependencies CI job:
+# Pip constraints pinning the tested lower bounds of direct runtime, test, and
+# Pandana integration dependencies. Used by the minimum-dependencies CI job:
 #
-#   pip install -e . -r requirements-dev.txt -c requirements-min.txt
+#   pip install -r requirements-dev.txt -c requirements-min.txt
 #
-# These are the oldest versions with binaries available for Python 3.10,
-# the oldest supported Python.
+# Pandana 0.8 establishes the NumPy 1.26 and pandas 2.2 floors for the full
+# UrbanSim development and network-integration environment.
 
-numpy == 1.21.*
-pandas == 1.5.*
-scipy == 1.7.*
-statsmodels == 0.13.*
+numpy == 1.26.4
+orca == 1.8
+pandas == 2.2.3
+pandana == 0.8
+patsy == 0.5.6
+prettytable == 3.10.0
+pyyaml == 6.0.1
+scipy == 1.10.1
+statsmodels == 0.14.1
+toolz == 0.12.1
 
-# PyTables (pulled in via Pandana) must be held back with NumPy 1.21:
-# tables >= 3.9 requires NumPy >= 1.22 at runtime even though its wheel
-# metadata allows older versions
-tables == 3.7.*
+bottle == 0.12.25
+jinja2 == 3.1.4
+matplotlib == 3.7.5
+pytest == 8.3.5
+pytest-cov == 5.0.0
+simplejson == 3.19.2
+
+# Direct Pandana dependencies with compiled components are pinned so the
+# lower-bound environment remains reproducible.
+requests == 2.32.3
+scikit-learn == 1.5.0
+tables == 3.10.1

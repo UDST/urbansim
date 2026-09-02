@@ -30,22 +30,61 @@ jobs:
             pip-args: '-c requirements-min.txt'
           # Forward boundary: newest supported Python plus current
           # versions of all dependencies
-          - name: Python 3.12 + latest deps
-            python-version: '3.12'
+          - name: Python 3.14 + latest deps
+            python-version: '3.14'
             pip-args: ''
 
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: |
-            requirements-dev.txt
+            pyproject.toml
             requirements-min.txt
       - name: Install package and test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e . -r requirements-dev.txt ${{ matrix.pip-args }}
+        run: python -m pip install -e ".[network,test]" ${{ matrix.pip-args }}
       - name: Run tests
         run: python -m pytest --cov=urbansim --cov-report=term-missing
+
+  style:
+    name: Code style
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install style checker
+        run: python -m pip install pycodestyle
+      - name: Check code style
+        run: pycodestyle --max-line-length=100 urbansim
+
+  package:
+    name: Package build and install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install build tools
+        run: python -m pip install build twine
+      - name: Build source and wheel distributions
+        run: python -m build
+      - name: Validate package metadata
+        run: python -m twine check dist/*
+      - name: Install wheel and validate dependencies
+        run: |
+          python -m pip install --force-reinstall dist/*.whl
+          python -m pip check
+      - name: Import installed package outside the source tree
+        working-directory: /tmp
+        run: python -c "import urbansim; print(urbansim.__version__)"
