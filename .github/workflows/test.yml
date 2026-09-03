@@ -110,7 +110,9 @@ jobs:
           python-version: '3.14'
           cache: pip
           cache-dependency-path: pyproject.toml
+      # autodoc imports urbansim.maps.dframe_explorer, whose dependencies
+      # (bottle, jinja2, simplejson) are declared in the test extra
       - name: Install package and documentation tools
-        run: python -m pip install ".[docs]"
+        run: python -m pip install ".[docs,test]"
       - name: Build documentation (warnings are errors)
         run: python -m sphinx -E -W --keep-going -b html docs/source docs/build/html
