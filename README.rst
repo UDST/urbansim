@@ -13,6 +13,45 @@ UrbanSim is a platform for building statistical models of cities and regions. Th
 
 This ``urbansim`` Python library is a core component. It contains tools for statistical estimation and simulation; domain-specific logic about housing markets, household relocation, and other processes; and frameworks and utilities for assembling a model. 
 
+Project scope
+-------------
+
+**Status:** Active
+
+**Mission:** The UrbanSim Python library provides methods and reusable model
+components for building self-managed simulations of urban development,
+household and employment location, real estate markets, and related regional
+change.
+
+**Architecture:** UrbanSim is a portable, self-managed Python library designed
+primarily for conventional CPU-based execution. It provides reusable model
+components and interfaces that can also be implemented by other execution
+engines.
+
+The project maintains and develops:
+
+* statistical model components used in urban simulation;
+* location-choice, relocation, transition, and development models;
+* real-estate feasibility and related urban-development methods;
+* estimation and simulation utilities;
+* model APIs and configuration patterns; and
+* reusable components for assembling regional UrbanSim implementations.
+
+UrbanSim is designed to work with other UDST libraries and with external data,
+estimation, accessibility, and workflow systems through documented Python
+interfaces and model specifications.
+
+Development of urban-simulation methods and reusable model components is
+welcome within this mission and architecture. Material changes to the
+project's mission or execution architecture are considered through UDST's
+organization-level governance process.
+
+See the `UDST Project Directory
+<https://github.com/UDST/.github/blob/main/PROJECTS.md>`__ and
+`Open-source projects and commercial offerings
+<https://github.com/UDST/.github/blob/main/OPEN_SOURCE_AND_COMMERCIAL.md>`__
+for organization-wide project status and policy.
+
 How it works
 ------------
 
