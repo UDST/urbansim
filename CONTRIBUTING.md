@@ -27,11 +27,22 @@ You can contact Sam Maurer, the lead maintainer, at `maurer@urbansim.com`.
 
 - Make your changes, following the existing styles for code and inline documentation
 
-- Add [tests](https://github.com/UDST/urbansim/tree/main/urbansim/tests) if possible!
+- Add tests if possible! They live in a `tests/` folder within each subpackage, for example [`urbansim/models/tests`](https://github.com/UDST/urbansim/tree/main/urbansim/models/tests)
 
 - Open a pull request to the `UDST/urbansim` main branch, including a writeup of your changes -- take a look at some of the closed PR's for examples
 
 - Current maintainers will review the code, suggest changes, and hopefully merge it!
+
+
+## Updating the version number:
+
+- Each pull request that changes substantive code should increment the development version number, e.g. from `3.3.dev0` to `3.3.dev1`, so that users know exactly which version they're running
+
+- It works best to do this just before merging (in case other PR's are merged first, and so you know the release date for the changelog and documentation)
+
+- The version number lives in `urbansim/__init__.py` (`pyproject.toml` and the documentation read it from there); `docs/source/index.rst` also names the latest production release
+
+- Please also add a section to `CHANGELOG.rst` describing the changes!
 
 
 ## Updating the documentation: 
@@ -44,12 +55,11 @@ You can contact Sam Maurer, the lead maintainer, at `maurer@urbansim.com`.
 - Make a new branch for release prep
 
 - Update the version number and changelog
-  - `CHANGELOG.md`
-  - `setup.py`
+  - `CHANGELOG.rst`
   - `urbansim/__init__.py`
   - `docs/source/index.rst`
 
-- Make sure all the tests are passing, and check if updates are needed to `README.md` or to the documentation
+- Make sure all the tests are passing, and check if updates are needed to `README.rst` or to the documentation
 
 - Open a pull request to the main branch to finalize it
 
@@ -58,11 +68,11 @@ You can contact Sam Maurer, the lead maintainer, at `maurer@urbansim.com`.
 
 ## Distributing a release on PyPI (for pip installation):
 
-- Register an account at https://pypi.org, ask one of the current maintainers to add you to the project, and `pip install twine`
+- Register an account at https://pypi.org, ask one of the current maintainers to add you to the project, and `pip install build twine`
 
 - Check out the copy of the code you'd like to release
 
-- Run `python setup.py sdist bdist_wheel --universal`
+- Run `python -m build`, then `twine check --strict dist/*`
 
 - This should create a `dist` directory containing two package files -- delete any old ones before the next step
 

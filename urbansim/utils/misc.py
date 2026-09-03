@@ -189,8 +189,8 @@ def fidx(right, left, left_fk=None):
     re-indexes and supports re-indexing data frames or
     series with a multi-index.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     right: pandas.DataFrame or pandas.Series
         Series or data frame to re-index from.
     left: pandas.Series or pandas.DataFrame
@@ -204,8 +204,8 @@ def fidx(right, left, left_fk=None):
         the left to serve as foreign keys. The specified columns' ordering
         must match the order of the multi-index in the right.
 
-    Returns:
-    --------
+    Returns
+    -------
     pandas.Series or pandas.DataFrame with column(s) from
     right aligned with the left.
 

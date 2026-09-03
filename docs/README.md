@@ -13,18 +13,16 @@ The files in `docs/source`, along with docstrings in the source code, determine 
 Install the copy of UrbanSim that the documentation is meant to reflect. Install the documentation tools.
 
 ```
-pip install . 
-pip install sphinx sphinx_rtd_theme numpydoc
+pip install ".[docs]"
 ```
 
-Build the documentation. There should be status messages and warnings, but no errors.
+Build the documentation. Warnings are treated as errors, matching the check that runs in CI.
 
 ```
-cd docs
-sphinx-build -b html source build
+sphinx-build -E -W --keep-going -b html docs/source docs/build/html
 ```
 
-The HTML files will show up in `docs/build/`. 
+The HTML files will show up in `docs/build/html/`. 
 
 ### Uploading changes
 

@@ -7,7 +7,7 @@ by tweeting us at `@urbansim <https://twitter.com/urbansim>`__, posting on the U
 Installation
 ------------
 
-The UrbanSim library is currently tested with Python versions 3.10 through 3.12.
+The UrbanSim library requires Python 3.10 or later, and is tested on Linux, macOS, and Windows with Python 3.10 through 3.14.
 
 UrbanSim is distributed on the `Python Package Index <https://pypi.org/project/urbansim/>`__ (for Pip) and on `Conda Forge <https://anaconda.org/conda-forge/urbansim>`__. The official source code is hosted on `GitHub <https://github.com/udst/urbansim>`__. (UrbanSim versions before 3.2 are on the UDST Conda channel rather than Conda Forge.)
 
@@ -22,6 +22,12 @@ You can install UrbanSim with either the Pip or Conda package manager:
     conda install urbansim --channel conda-forge
 
 Dependencies include `NumPy <http://numpy.org/>`__, `Pandas <http://pandas.pydata.org/>`__, and `Statsmodels <http://statsmodels.org/>`__, plus another UDST library: `Orca <http://udst.github.io/orca>`__ for task orchestration. These will be installed automatically if needed.
+
+The network accessibility utilities in ``urbansim.utils.networks`` also require `Pandana <http://udst.github.io/pandana>`__ (version 0.8 or later), which is optional. Install it alongside UrbanSim with the ``network`` extra:
+
+.. code-block:: python
+
+    pip install "urbansim[network]"
 
 When new releases of UrbanSim come out, you can upgrade like this:
 

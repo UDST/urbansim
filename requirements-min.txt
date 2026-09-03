@@ -1,7 +1,7 @@
 # Pip constraints pinning the tested lower bounds of direct runtime, test, and
 # Pandana integration dependencies. Used by the minimum-dependencies CI job:
 #
-#   pip install -r requirements-dev.txt -c requirements-min.txt
+#   pip install ".[network,test]" -c requirements-min.txt
 #
 # Pandana 0.8 establishes the NumPy 1.26 and pandas 2.2 floors for the full
 # UrbanSim development and network-integration environment.
