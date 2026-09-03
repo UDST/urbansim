@@ -1,22 +1,4 @@
-# Additional requirements for development and testing
+# Development, testing, documentation, and Pandana integration dependencies.
+# Runtime dependencies are declared in pyproject.toml.
 
-bottle
-jinja2
-matplotlib
-# Pandana 0.7 extensions are not compatible with the NumPy 2 ABI.
-numpy < 2
-pandas < 3
-pandana
-simplejson
-
-# testing
-coveralls
-jupyter
-pycodestyle
-pytest
-pytest-cov
-
-# building documentation
-numpydoc
-sphinx
-sphinx-rtd-theme
+-e .[dev,docs,network,test]

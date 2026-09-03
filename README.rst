@@ -71,9 +71,13 @@ Learn More
 Installation
 ------------
 
+UrbanSim requires Python 3.10 or later.
+
 * ``pip install urbansim``
 
 * ``conda install urbansim --channel conda-forge``
+
+The network accessibility utilities also require `Pandana <https://github.com/UDST/pandana>`__, which is optional: ``pip install "urbansim[network]"``.
 
 Technical documentation
 -----------------------

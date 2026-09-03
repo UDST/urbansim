@@ -3,3 +3,9 @@ include CONTRIBUTING.md
 include LICENSE.txt
 include README.rst
 include requirements-dev.txt
+recursive-include urbansim/developer/tests *.py *.csv *.h5 *.R
+recursive-include urbansim/maps/tests *.py *.csv *.h5 *.R
+recursive-include urbansim/models/tests *.py *.csv *.h5 *.R
+recursive-include urbansim/tests *.py *.csv *.h5 *.R
+recursive-include urbansim/urbanchoice/tests *.py *.csv *.h5 *.R
+recursive-include urbansim/utils/tests *.py *.csv *.h5 *.R

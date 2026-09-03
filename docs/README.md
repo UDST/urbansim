@@ -10,21 +10,19 @@ The files in `docs/source`, along with docstrings in the source code, determine 
 
 ### Previewing changes locally
 
-Install the copy of UrbanSim that the documentation is meant to reflect. Install the documentation tools.
+Install the copy of UrbanSim that the documentation is meant to reflect, along with the documentation tools. The `test` extra is needed too, because the API documentation imports the DataFrame explorer, whose dependencies are declared there.
 
 ```
-pip install . 
-pip install sphinx sphinx_rtd_theme numpydoc
+pip install ".[docs,test]"
 ```
 
-Build the documentation. There should be status messages and warnings, but no errors.
+Build the documentation. Warnings are treated as errors, matching the check that runs in CI.
 
 ```
-cd docs
-sphinx-build -b html source build
+sphinx-build -E -W --keep-going -b html docs/source docs/build/html
 ```
 
-The HTML files will show up in `docs/build/`. 
+The HTML files will show up in `docs/build/html/`. 
 
 ### Uploading changes
 

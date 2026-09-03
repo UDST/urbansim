@@ -1,3 +1,17 @@
+Next release
+============
+
+* Add support for Python 3.14, NumPy 2, Pandas 3, and Pandana 0.8.
+* Establish NumPy 1.26 and Pandas 2.2 as the tested dependency floors.
+* Move package metadata to ``pyproject.toml`` and validate source and wheel
+  distributions in continuous integration; declare Pandana as an optional
+  ``network`` extra.
+* Test on macOS and Windows as well as Linux, and build the documentation with
+  warnings as errors in continuous integration.
+* Preserve choice-result dtypes and filtering behavior under Pandas 3.
+* Correct chained assignment in the square-foot pro forma under Pandas 3
+  copy-on-write semantics.
+
 v3.2
 ====
 

@@ -49,9 +49,7 @@ def test_apply_filter_query(test_df):
 def test_apply_filter_query_empty(test_df):
     filters = ['col1 < 1', 'col2 > 8']
     filtered = util.apply_filter_query(test_df, filters)
-    expected = pd.DataFrame(
-        {'col1': [], 'col2': []},
-        index=[])
+    expected = test_df.iloc[0:0]
     pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 

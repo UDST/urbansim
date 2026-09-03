@@ -26,9 +26,7 @@ class PMAT:
 
     def __init__(self, mat, typ='numpy'):
         self.typ = typ
-        if (type(mat) != np.ndarray and
-                type(mat) != np.matrix and
-                type(mat) != np.float64):
+        if type(mat) not in (np.ndarray, np.matrix, np.float64):
             self.typ = 'cuda'
             self.mat = mat
         elif typ == 'numpy':
