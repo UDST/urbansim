@@ -11,6 +11,9 @@ Next release
 * Preserve choice-result dtypes and filtering behavior under Pandas 3.
 * Correct chained assignment in the square-foot pro forma under Pandas 3
   copy-on-write semantics.
+* Fix ``Developer.pick()`` failing when ``form`` is None: all the forms in the
+  feasibility table now compete on profitability, as intended (#194, thanks to
+  Hana Sevcikova). Passing a flat single-form feasibility table still works.
 
 v3.2
 ====
