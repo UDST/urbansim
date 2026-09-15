@@ -297,7 +297,7 @@ class TabularGrowthRateTransition(object):
         added_indexes = []
         copied_indexes = []
         removed_indexes = []
-        covered = np.zeros(len(data), dtype=bool)
+        matches = np.zeros(len(data), dtype=int)
 
         # since we're looping over discrete segments we need to track
         # out here where their new indexes will begin
@@ -305,7 +305,7 @@ class TabularGrowthRateTransition(object):
 
         for _, row in year_config.iterrows():
             subset = util.filter_table(data, row, ignore={self._config_column})
-            covered |= data.index.isin(subset.index)
+            matches += data.index.isin(subset.index)
 
             # Do not run on segment if it is empty
             if len(subset) == 0:
@@ -329,14 +329,20 @@ class TabularGrowthRateTransition(object):
             copied_indexes.append(copied)
             removed_indexes.append(removed)
 
-        if not covered.all():
-            # rows that match none of the segments are left out of the
-            # updated table (and are not reported as removed), which is
-            # usually a sign that the configuration doesn't cover the data
+        # rows that match none of the segments are left out of the updated
+        # table (and are not reported as removed), and rows that match more
+        # than one are duplicated; both are usually a sign that the
+        # configuration doesn't line up with the data
+        if (matches == 0).any():
             logger.warning(
                 '{} of {} rows match none of the transition segments for year {} '
                 'and will be dropped from the updated table'.format(
-                    (~covered).sum(), len(data), year))
+                    (matches == 0).sum(), len(data), year))
+        if (matches > 1).any():
+            logger.warning(
+                '{} of {} rows match more than one transition segment for year {} '
+                'and will be duplicated in the updated table'.format(
+                    (matches > 1).sum(), len(data), year))
 
         updated = pd.concat(segments)
         added_indexes = util.concat_indexes(added_indexes)
@@ -480,8 +486,9 @@ def _update_linked_table(table, col_name, added, copied, removed):
     new_rows.drop(col_name, axis=1, inplace=True)
     new_rows.rename(columns={'temp_id': col_name}, inplace=True)
 
-    # index the new rows
-    starting_index = updated.index.values.max() + 1
+    # index the new rows, starting past the ids in the original table so
+    # that the ids of rows removed in this step are not reused
+    starting_index = table.index.values.max() + 1
     new_rows.index = pd.Index(
         np.arange(starting_index, starting_index + len(new_rows), dtype=int),
         name=table.index.name)
