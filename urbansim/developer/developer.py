@@ -51,13 +51,16 @@ class Developer(object):
 
         Parameters
         ----------
-        forms: list of strings
-            List of forms which compete which other.  Can leave some out.
+        forms : list of strings, optional
+            List of forms which compete with each other.  Can leave some out.
+            If None, all the forms in the feasibility table compete.
 
         Returns
         -------
-        Nothing.  Goes from a multi-index to a single index with only the
-        most profitable form.
+        df : DataFrame
+            Subset of the feasibility table with only the most profitable form
+            for each parcel, with flat columns and the form named in a "form"
+            column.
         """
         f = self.feasibility
 
@@ -113,12 +116,15 @@ class Developer(object):
 
         Parameters
         ----------
-        form : string or list
+        form : string, list, or None
             One or more of the building forms from the pro forma specification -
             e.g. "residential" or "mixedresidential" - these are configuration
             parameters passed previously to the pro forma.  If more than one form
             is passed the forms compete with each other (based on profitability)
-            for which one gets built in order to meet demand.
+            for which one gets built in order to meet demand.  If None, all the
+            forms in the feasibility table compete; or, if the feasibility table
+            is a flat table of attributes for a single form (rather than the
+            usual hierarchical columns of form and attribute), it is used as is.
         target_units : int
             The number of units to build.  For non-residential buildings this
             should be passed as the number of job spaces that need to be created.
@@ -169,7 +175,10 @@ class Developer(object):
             # no feasible buildings, might as well bail
             return
 
-        if form is None or isinstance(form, list):
+        if form is None and not isinstance(self.feasibility.columns, pd.MultiIndex):
+            # a flat table of attributes for a single form
+            df = self.feasibility
+        elif form is None or isinstance(form, list):
             df = self.keep_form_with_max_profit(form)
         else:
             df = self.feasibility[form]

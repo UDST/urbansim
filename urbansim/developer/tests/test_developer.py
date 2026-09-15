@@ -32,10 +32,6 @@ def test_developer(simple_dev_inputs):
                      current_units)
     assert len(bldgs) == 1
 
-    # bldgs = dev.pick(["residential", "office"], target_units,
-    #                 parcel_size, ave_unit_size, current_units)
-    # assert len(bldgs) == 1
-
     target_units = 1000
     bldgs = dev.pick("residential", target_units, parcel_size, ave_unit_size,
                      current_units)
@@ -50,6 +46,56 @@ def test_developer(simple_dev_inputs):
     bldgs = dev.pick("residential", target_units, parcel_size, ave_unit_size,
                      current_units, residential=False)
     assert bldgs is None
+
+
+@pytest.fixture
+def two_form_feasibility(simple_dev_inputs):
+    # office out-earns residential on parcels a and c, and is not feasible
+    # at all on parcel b, so the two forms split the parcels between them
+    inputs = simple_dev_inputs.copy()
+    inputs['office'] = [50, 15, 50]
+    pf = sqpf.SqFtProForma()
+    return {"residential": pf.lookup("residential", inputs),
+            "office": pf.lookup("office", inputs)}
+
+
+@pytest.fixture
+def pick_args():
+    index = ['a', 'b', 'c']
+    return dict(target_units=1000,
+                parcel_size=pd.Series([1000, 1000, 1000], index=index),
+                ave_unit_size=pd.Series([650, 650, 650], index=index),
+                current_units=pd.Series([0, 0, 0], index=index))
+
+
+@pytest.mark.parametrize('form', [None, ["residential", "office"]])
+def test_developer_pick_competing_forms(two_form_feasibility, pick_args, form):
+    # residential wins only on parcel b, so that's the only residential
+    # building; office wins on a and c
+    dev = developer.Developer(two_form_feasibility)
+    bldgs = dev.pick(form, **pick_args)
+    assert bldgs.parcel_id.tolist() == ['b']
+    assert bldgs.form.tolist() == ['residential']
+
+    dev = developer.Developer(two_form_feasibility)
+    bldgs = dev.pick(form, residential=False, **pick_args)
+    assert sorted(bldgs.parcel_id) == ['a', 'c']
+    assert bldgs.form.tolist() == ['office', 'office']
+
+
+def test_developer_pick_flat_feasibility(simple_dev_inputs, pick_args):
+    # a flat table of attributes for a single form can be passed directly,
+    # and form=None then uses it as is
+    pf = sqpf.SqFtProForma()
+    out = pf.lookup("residential", simple_dev_inputs)
+    assert not isinstance(out.columns, pd.MultiIndex)
+
+    dev = developer.Developer({"residential": out.copy()})
+    expected = dev.pick("residential", **pick_args)
+
+    dev = developer.Developer(out)
+    bldgs = dev.pick(None, **pick_args)
+    assert bldgs.parcel_id.tolist() == expected.parcel_id.tolist() == ['a', 'b', 'c']
 
 
 def test_developer_compute_units_to_build(simple_dev_inputs):
