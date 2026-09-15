@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 
 from .. import accounts
 

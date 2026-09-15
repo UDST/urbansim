@@ -7,8 +7,7 @@ import pytest
 from .. import sqftproforma as sqpf
 
 
-@pytest.fixture
-def simple_dev_inputs():
+def _simple_dev_inputs():
     return pd.DataFrame(
         {'residential': [40, 40, 40],
          'office': [15, 18, 15],
@@ -22,8 +21,13 @@ def simple_dev_inputs():
 
 
 @pytest.fixture
+def simple_dev_inputs():
+    return _simple_dev_inputs()
+
+
+@pytest.fixture
 def max_dua_dev_inputs():
-    sdi = simple_dev_inputs()
+    sdi = _simple_dev_inputs()
     sdi['max_dua'] = [0, 0, 0]
     sdi['ave_unit_size'] = [650, 650, 650]
     return sdi
@@ -31,14 +35,14 @@ def max_dua_dev_inputs():
 
 @pytest.fixture
 def simple_dev_inputs_high_cost():
-    sdi = simple_dev_inputs()
+    sdi = _simple_dev_inputs()
     sdi.land_cost *= 20
     return sdi
 
 
 @pytest.fixture
 def simple_dev_inputs_low_cost():
-    sdi = simple_dev_inputs()
+    sdi = _simple_dev_inputs()
     sdi.land_cost /= 20
     return sdi
 

@@ -5,7 +5,7 @@ An Account class for tracking monetary transactions during UrbanSim runs.
 from collections import namedtuple
 
 import pandas as pd
-from zbox import toolz as tz
+import toolz as tz
 
 
 Transaction = namedtuple('Transaction', ('amount', 'subaccount', 'metadata'))

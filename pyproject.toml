@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "urbansim"
+dynamic = ["version"]
+description = "Platform for building statistical models of cities and regions"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+authors = [
+    {name = "UrbanSim Inc.", email = "info@urbansim.com"},
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.26",
+    "orca>=1.8",
+    "pandas>=2.2,<4",
+    "patsy>=0.5.6",
+    "prettytable>=3.10",
+    "pyyaml>=6.0",
+    "scipy>=1.10",
+    "statsmodels>=0.14",
+    "toolz>=0.12",
+]
+
+[project.optional-dependencies]
+network = [
+    "pandana>=0.8",
+]
+test = [
+    "bottle>=0.12",
+    "jinja2>=3.1",
+    "matplotlib>=3.7",
+    "pytest>=8",
+    "pytest-cov>=5",
+    "simplejson>=3.19",
+]
+docs = [
+    "numpydoc>=1.6",
+    "sphinx>=7",
+    "sphinx-rtd-theme>=2",
+]
+dev = [
+    "build>=1.2",
+    "pycodestyle>=2.11",
+    "twine>=6",
+]
+
+[project.urls]
+Documentation = "https://udst.github.io/urbansim/"
+Repository = "https://github.com/UDST/urbansim"
+Issues = "https://github.com/UDST/urbansim/issues"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "urbansim.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["urbansim", "urbansim.*"]
+exclude = ["*.tests", "*.tests.*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["urbansim"]
+
+[tool.coverage.run]
+source = ["urbansim"]
+
+[tool.coverage.report]
+show_missing = true
+omit = ["*/tests/*"]

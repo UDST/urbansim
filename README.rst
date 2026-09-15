@@ -1,85 +1,91 @@
 UrbanSim
 ========
 
-.. image:: https://travis-ci.org/UDST/urbansim.svg?branch=master
-   :alt: Build Status (Linux)
-   :target: https://travis-ci.org/UDST/urbansim
+.. image:: https://img.shields.io/pypi/v/urbansim.svg
+    :target: https://pypi.python.org/pypi/urbansim/
+    :alt: Latest Version
 
+.. image:: https://github.com/UDST/urbansim/actions/workflows/test.yml/badge.svg?branch=main
+   :alt: Build Status
+   :target: https://github.com/UDST/urbansim/actions/workflows/test.yml
 
-.. image:: https://ci.appveyor.com/api/projects/status/0ygo756020jpcrg3?svg=true
-   :alt: Build Status (Windows)
-   :target: https://ci.appveyor.com/project/pksohn/urbansim
+UrbanSim is a platform for building statistical models of cities and regions. These models help forecast long-range patterns in real estate development, demographics, and related outcomes, under various policy scenarios.
 
+This ``urbansim`` Python library is a core component. It contains tools for statistical estimation and simulation; domain-specific logic about housing markets, household relocation, and other processes; and frameworks and utilities for assembling a model. 
 
-.. image:: https://coveralls.io/repos/UDST/urbansim/badge.png?branch=master
-   :alt: Test Coverage
-   :target: https://coveralls.io/r/UDST/urbansim?branch=master
+Project scope
+-------------
 
-New version of UrbanSim, a tool for modeling metropolitan real estate
-markets
+**Status:** Active
 
-.. image:: http://i.imgur.com/4YyN8ob.jpg
-   :alt: UrbanSim
+**Mission:** The UrbanSim Python library provides methods and reusable model
+components for building self-managed simulations of urban development,
+household and employment location, real estate markets, and related regional
+change.
 
-`Detailed documentation <http://udst.github.io/urbansim/>`__ for
-UrbanSim is now available.
+**Architecture:** UrbanSim is a portable, self-managed Python library designed
+primarily for conventional CPU-based execution. It provides reusable model
+components and interfaces that can also be implemented by other execution
+engines.
 
-`Click
-here <http://udst.github.io/urbansim/gettingstarted.html#installation>`__
-for installation instructions.
+The project maintains and develops:
 
-UrbanSim History
-----------------
+* statistical model components used in urban simulation;
+* location-choice, relocation, transition, and development models;
+* real-estate feasibility and related urban-development methods;
+* estimation and simulation utilities;
+* model APIs and configuration patterns; and
+* reusable components for assembling regional UrbanSim implementations.
 
-UrbanSim (http://urbansim.org/) is a model system for analyzing
-urban development. It is an open source platform that has been
-continuously refined and distributed for planning applications around
-the world for over 15 years. Part of the evolution of the platform is
-the necessary process of re-engineering the code to take advantage of
-new developments in computational libraries and infrastructure. We
-implemented UrbanSim initially in Java in the late 1990's, and by 2005
-determined that it was time to re-implement it in Python, and created
-the Open Platform for Urban Simulation (OPUS) software implementation at
-that time. Now, almost a decade later, it is time again to revisit the
-implementation to take advantage of an amazing amount of innovation in
-the scientific computing community. The new implementation is hosted on
-this GitHub site, and maintained by UrbanSim Inc. and a growing
-community of contributors.
+UrbanSim is designed to work with other UDST libraries and with external data,
+estimation, accessibility, and workflow systems through documented Python
+interfaces and model specifications.
 
-New UrbanSim Implementation
----------------------------
+Development of urban-simulation methods and reusable model components is
+welcome within this mission and architecture. Material changes to the
+project's mission or execution architecture are considered through UDST's
+organization-level governance process.
 
-This new code base is a streamlined complete re-implementation of the
-longstanding UrbanSim project aimed at *reducing the complexity* of
-using the UrbanSim methodology. Redesigned from the ground up, the new
-library is trivial to install, the development process is made
-transparent via this GitHub site, and exhaustive documentation has been
-created in the hopes of making modeling much more widely accessible to
-planners and new modelers.
+See the `UDST Project Directory
+<https://github.com/UDST/.github/blob/main/PROJECTS.md>`__ and
+`Open-source projects and commercial offerings
+<https://github.com/UDST/.github/blob/main/OPEN_SOURCE_AND_COMMERCIAL.md>`__
+for organization-wide project status and policy.
 
-We lean heavily on the `PyData <http://pydata.org>`__ community to make
-our work easier - Pandas, `IPython <http://ipython.org/>`__, and
-`statsmodels <http://statsmodels.sourceforge.net/>`__ are ubiquitous in
-this work. These Python libraries essentially replace the UrbanSim
-Dataset class, tools to read and write from other storage, and some of
-the statistical estimation previously implemented by UrbanSim.
+How it works
+------------
 
-This makes our task easier as we can focus on urban modeling and leave
-the infrastructure to the wider Python community. The
-`Pandas <http://pandas.pydata.org>`__ library is the core of the new
-UrbanSim, which is an extremely popular data manipulation library with a
-large community providing support and a very helpful
-`book <http://www.amazon.com/Python-Data-Analysis-Wes-McKinney/dp/1449319793>`__.
+Operational UrbanSim models begin with detailed data about a particular region, and then estimate and validate a system of interconnected model components. Full models draw on a number of libraries: not just ``urbansim``, but also `Orca <https://github.com/UDST/orca>`__ for task orchestration, `Synthpop <https://github.com/UDST/synthpop>`__ for population synthesis, `Pandana <https://github.com/UDST/pandana>`__ for network analysis, and so on. Collectively, these make up the `Urban Data Science Toolkit <https://github.com/UDST>`__ (UDST).
 
-We have now converted a full set of UrbanSim models to the new
-framework, and have running applications for the Paris, Albuquerque,
-Denver, Bay Area, and Detroit regions. We have implemented a complete
-set of hedonic price models, location choice models, relocation and
-transition models, as well as a new real estate development model using
-proforma analysis.
+UrbanSim models are used by public agencies, consultancies, and researchers in dozens of cities around the U.S. and world. The core platform is open source, but many operational models make use of additional cloud-hosted model building and visualization tools provided by `UrbanSim Inc. <https://urbansim.com>`__
 
-We do strongly recommend that you contact the team at www.urbansim.com about your
-project to make sure you can get support when you need it,
-and know what you are getting into. For major applied projects,
-professional support is highly recommended.
+Learn More
+----------
 
+* `An Introduction to UrbanSim <https://udst.github.io/urbansim/gettingstarted.html#a-gentle-introduction-to-urbansim>`__
+
+* `UrbanSim for San Francisco: An example implementation <https://github.com/UDST/sanfran_urbansim>`__
+
+* `UrbanSim Inc. <https://urbansim.com>`__
+
+Installation
+------------
+
+UrbanSim requires Python 3.10 or later.
+
+* ``pip install urbansim``
+
+* ``conda install urbansim --channel conda-forge``
+
+The network accessibility utilities also require `Pandana <https://github.com/UDST/pandana>`__, which is optional: ``pip install "urbansim[network]"``.
+
+Technical documentation
+-----------------------
+
+* `Getting started <https://udst.github.io/urbansim/gettingstarted.html>`__
+
+* `Full documentation <https://udst.github.io/urbansim/>`__
+
+* Other `UDST <https://docs.udst.org>`__ libraries
+
+* Documentation for `UrbanCanvas <https://cloud.urbansim.com/docs/>`__, the UrbanSim cloud platform

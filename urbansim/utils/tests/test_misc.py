@@ -170,7 +170,7 @@ def right_df2(right_df):
 def test_fidx_right_not_unique(right_df, left_df):
     with pytest.raises(ValueError):
         s = right_df.col1
-        misc.fidx(s.append(s), left_df.fk)
+        misc.fidx(pd.concat([s, s]), left_df.fk)
 
 
 def test_series_fidx(right_df, left_df):

@@ -13,6 +13,8 @@ class SqFtProFormaConfig(object):
     This class encapsulates the configuration options for the square
     foot based pro forma.
 
+    Parameters
+    ----------
     parcel_sizes : list
         A list of parcel sizes to test.  Interestingly, right now
         the parcel sizes cancel in this style of pro forma computation so
@@ -387,9 +389,9 @@ class SqFtProForma(object):
                 df['ave_cost_sqft'] = (df.cost / df.total_built_sqft) * c.profit_factor
 
                 if name == 'retail':
-                    df['ave_cost_sqft'][c.fars > c.max_retail_height] = np.nan
+                    df.loc[c.fars > c.max_retail_height, 'ave_cost_sqft'] = np.nan
                 if name == 'industrial':
-                    df['ave_cost_sqft'][c.fars > c.max_industrial_height] = np.nan
+                    df.loc[c.fars > c.max_industrial_height, 'ave_cost_sqft'] = np.nan
 
                 df_d[(name, parking_config)] = df
 
@@ -421,6 +423,7 @@ class SqFtProForma(object):
     def get_ave_cost_sqft(self, form, parking_config):
         """
         Get the average cost per sqft for the pro forma for a given form
+
         Parameters
         ----------
         form : string
@@ -428,12 +431,14 @@ class SqFtProForma(object):
             the config
         parking_config : string
             The parking configuration to get debug info for
+
         Returns
         -------
         cost : series
             A series where the index is the far and the values are the average
             cost per sqft at which the building is "break even" given the
             configuration parameters that were passed at run time.
+
         """
         return self.dev_d[(form, parking_config)].ave_cost_sqft
 
@@ -696,9 +701,9 @@ class SqFtProForma(object):
             del sumdf['far']
 
             if share is None:
-                share = plt.subplot(len(keys) / 2, 2, cnt)
+                share = plt.subplot(len(keys) // 2, 2, cnt)
             else:
-                plt.subplot(len(keys) / 2, 2, cnt, sharex=share, sharey=share)
+                plt.subplot(len(keys) // 2, 2, cnt, sharex=share, sharey=share)
 
             handles = plt.plot(far, sumdf)
             plt.ylabel('even_rent')

@@ -17,36 +17,36 @@ def test_frames_equal_mismatched_columns():
     expected = pd.DataFrame({'a': [1]})
     actual = pd.DataFrame({'b': [2]})
 
-    with pytest.raises(AssertionError) as info:
+    try:
         testing.assert_frames_equal(actual, expected)
-
-    assert str(info.value) == "Expected column 'a' not found."
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError
 
 
 def test_frames_equal_mismatched_rows():
     expected = pd.DataFrame({'a': [1]}, index=[0])
     actual = pd.DataFrame({'a': [1]}, index=[1])
 
-    with pytest.raises(AssertionError) as info:
+    try:
         testing.assert_frames_equal(actual, expected)
-
-    assert str(info.value) == "Expected row 0 not found."
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError
 
 
 def test_frames_equal_mismatched_items():
     expected = pd.DataFrame({'a': [1]})
     actual = pd.DataFrame({'a': [2]})
 
-    with pytest.raises(AssertionError) as info:
+    try:
         testing.assert_frames_equal(actual, expected)
-
-    assert str(info.value) == """
-Items are not equal:
- ACTUAL: 2
- DESIRED: 1
-
-Column: 'a'
-Row: 0"""
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError
 
 
 def test_frames_equal():

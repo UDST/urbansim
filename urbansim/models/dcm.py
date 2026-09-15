@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from patsy import dmatrix
 from prettytable import PrettyTable
-from zbox import toolz as tz
+import toolz as tz
 
 from . import util
 from ..exceptions import ModelEvaluationError
@@ -48,6 +48,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         for all the choosers.
 
     """
+    alternative_dtype = pd.Index(alternative_ids).dtype
     chooser_ids = np.asanyarray(chooser_ids)
     alternative_ids = np.asanyarray(alternative_ids)
     probabilities = np.asanyarray(probabilities)
@@ -56,7 +57,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         'start: unit choice with {} choosers and {} alternatives'.format(
             len(chooser_ids), len(alternative_ids)))
 
-    choices = pd.Series(index=chooser_ids)
+    choices = pd.Series(index=chooser_ids, dtype=alternative_dtype)
 
     if probabilities.sum() == 0:
         # return all nan if there are no available units
@@ -79,7 +80,7 @@ def unit_choice(chooser_ids, alternative_ids, probabilities):
         chooser_ids = np.random.choice(
             chooser_ids, size=n_to_choose, replace=False)
 
-    choices[chooser_ids] = chosen
+    choices.loc[chooser_ids] = chosen
 
     logger.debug('finish: unit choice')
     return choices
@@ -413,14 +414,14 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
 
-        if len(merged) != model_design.as_matrix().shape[0]:
+        if len(merged) != model_design.values.shape[0]:
             raise ModelEvaluationError(
                 'Estimated data does not have the same length as input.  '
                 'This suggests there are null values in one or more of '
                 'the input columns.')
 
         self.log_likelihoods, self.fit_parameters = mnl.mnl_estimate(
-            model_design.as_matrix(), chosen, self.sample_size)
+            model_design.values, chosen, self.sample_size)
         self.fit_parameters.index = model_design.columns
 
         logger.debug('finish: fit LCM model {}'.format(self.name))
@@ -523,7 +524,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
         model_design = dmatrix(
             self.str_model_expression, data=merged, return_type='dataframe')
 
-        if len(merged) != model_design.as_matrix().shape[0]:
+        if len(merged) != model_design.values.shape[0]:
             raise ModelEvaluationError(
                 'Simulated data does not have the same length as input.  '
                 'This suggests there are null values in one or more of '
@@ -542,7 +543,7 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
             numalts = sample_size
 
         probabilities = mnl.mnl_simulate(
-            model_design.as_matrix(),
+            model_design.values,
             coeffs,
             numalts=numalts, returnprobs=True)
 
@@ -589,8 +590,8 @@ class MNLDiscreteChoiceModel(DiscreteChoiceModel):
                 normalize(probs) * len(choosers)
                 ).reset_index(level=0, drop=True)
         elif self.probability_mode == 'full_product':
-            return probs.groupby(level=0).apply(normalize)\
-                .groupby(level=1).sum()
+            normalized = probs / probs.groupby(level=0).transform('sum')
+            return normalized.groupby(level=1).sum()
         else:
             raise ValueError(
                 'Unrecognized probability_mode option: {}'.format(

@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 import yaml
-from pandas.util import testing as pdt
+from pandas import testing as pdt
+from collections import OrderedDict
 
 from .. import yamlio
 
@@ -122,7 +123,7 @@ def test_series_to_yaml_safe_int_index():
 
     assert d == {0: 100, 1: 101, 2: 102}
     y = yaml.dump(d, default_flow_style=False)
-    assert_series_equal(pd.Series(yaml.load(y)), s)
+    assert_series_equal(pd.Series(yaml.safe_load(y)), s)
 
 
 def test_series_to_yaml_safe_str_index():
@@ -132,7 +133,7 @@ def test_series_to_yaml_safe_str_index():
 
     assert d == {'x': 'a', 'y': 'b', 'z': 'c'}
     y = yaml.dump(d, default_flow_style=False)
-    assert_series_equal(pd.Series(yaml.load(y)), s)
+    assert_series_equal(pd.Series(yaml.safe_load(y)), s)
 
 
 def test_frame_to_yaml_safe():
@@ -145,4 +146,54 @@ def test_frame_to_yaml_safe():
     assert d == {'col1': {0: 100, 1: 200, 2: 300},
                  'col2': {0: 'a', 1: 'b', 2: 'c'}}
     y = yaml.dump(d, default_flow_style=False)
-    assert_dfs_equal(pd.DataFrame(yaml.load(y)), df)
+    assert_dfs_equal(pd.DataFrame(yaml.safe_load(y)), df)
+
+
+def test_ordered_dict():
+
+    inner_dict = OrderedDict()
+    inner_dict['z'] = 'had'
+    inner_dict['a'] = 'a'
+    inner_dict['f'] = 'little'
+
+    outer_dict = OrderedDict()
+    outer_dict[10] = 'marry'
+    outer_dict['inner'] = inner_dict
+    outer_dict['a'] = 'lamb'
+
+    y = yamlio.convert_to_yaml(outer_dict, None)
+    d = yamlio.yaml_to_dict(y, ordered=True)
+    assert outer_dict == d
+
+
+def test_ordered_series_to_yaml_safe():
+
+    s = pd.Series(np.arange(3), index=list('zxy'))
+
+    od = yamlio.series_to_yaml_safe(s, True)
+    y = yamlio.convert_to_yaml(od, None)
+    new_od = yamlio.yaml_to_dict(y, ordered=True)
+    new_s = pd.Series(new_od)
+    assert_series_equal(s, new_s)
+
+
+def test_ordered_frame_to_yaml_safe():
+
+    # data frame to test with
+    df = pd.DataFrame(
+        OrderedDict([
+            ('z', np.arange(0, 5)),
+            ('y', np.arange(5, 10)),
+            ('x', list('abcde'))
+        ]),
+        index=pd.Index(np.arange(20, 15, -1))
+    )
+
+    # send to yaml
+    od = yamlio.frame_to_yaml_safe(df, True)
+    y = yamlio.convert_to_yaml(od, None)
+
+    # load from yaml
+    new_od = yamlio.yaml_to_dict(y, ordered=True)
+    new_df = pd.DataFrame.from_dict(new_od, orient='index').reindex(new_od.keys()).T
+    assert_dfs_equal(df, new_df)

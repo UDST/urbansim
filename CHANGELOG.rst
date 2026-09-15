@@ -1,3 +1,43 @@
+Next release
+============
+
+* Add support for Python 3.14, NumPy 2, Pandas 3, and Pandana 0.8.
+* Establish NumPy 1.26 and Pandas 2.2 as the tested dependency floors.
+* Move package metadata to ``pyproject.toml`` and validate source and wheel
+  distributions in continuous integration; declare Pandana as an optional
+  ``network`` extra.
+* Test on macOS and Windows as well as Linux, and build the documentation with
+  warnings as errors in continuous integration.
+* Preserve choice-result dtypes and filtering behavior under Pandas 3.
+* Correct chained assignment in the square-foot pro forma under Pandas 3
+  copy-on-write semantics.
+
+v3.2
+====
+
+2020/05/05
+
+* Improved installation and compatibility
+* Support for Pandas 1.0
+* Various improvements and bug fixes
+* Note that active development of certain UrbanSim components has moved to stand-alone libraries in UDST: Developer, Choicemodels, UrbanSim Templates
+
+v3.1.1
+======
+
+2017/5/9
+
+* Updated deprecated `sort` method for Pandas Series and DataFrames
+
+v3.1.0
+======
+
+2017/5/8
+
+* Python 3 compatibility
+* Updated documentation
+* Various improvements and bugfixes
+
 v3.0.0
 ======
 

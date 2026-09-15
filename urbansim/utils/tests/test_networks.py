@@ -6,23 +6,21 @@ import orca
 import pandana as pdna
 import pandas as pd
 import pytest
+from pandana.loaders.pandash5 import open_hdf_store
 
 from .. import networks
 
 
 @pytest.fixture(scope="module")
-def sample_osm(request):
-    store = pd.HDFStore(
-        os.path.join(os.path.dirname(__file__), 'osm_sample.h5'), "r")
-    nodes, edges = store.nodes, store.edges
+def sample_osm():
+    path = os.path.join(os.path.dirname(__file__), 'osm_sample.h5')
+    with open_hdf_store(path, migrate_legacy=True) as store:
+        nodes, edges = store.nodes, store.edges
+
     net = pdna.Network(nodes.x, nodes.y, edges["from"], edges.to,
                        edges[["weight"]])
 
     net.precompute(500)
-
-    def fin():
-        store.close()
-    request.addfinalizer(fin)
 
     return net
 

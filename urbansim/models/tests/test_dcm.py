@@ -5,7 +5,7 @@ import pytest
 import os
 import tempfile
 import yaml
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 
 from ...utils import testing
 
@@ -222,10 +222,10 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
         'fit_parameters': None
     }
 
-    assert yaml.load(basic_dcm.to_yaml()) == expected_dict
+    assert yaml.safe_load(basic_dcm.to_yaml()) == expected_dict
 
     new_mod = dcm.MNLDiscreteChoiceModel.from_yaml(basic_dcm.to_yaml())
-    assert yaml.load(new_mod.to_yaml()) == expected_dict
+    assert yaml.safe_load(new_mod.to_yaml()) == expected_dict
 
     basic_dcm.fit(choosers, alternatives, 'thing_id')
 
@@ -233,7 +233,7 @@ def test_mnl_dcm_yaml(basic_dcm, choosers, alternatives):
     del expected_dict['log_likelihoods']
     del expected_dict['fit_parameters']
 
-    actual_dict = yaml.load(basic_dcm.to_yaml())
+    actual_dict = yaml.safe_load(basic_dcm.to_yaml())
     assert isinstance(actual_dict.pop('log_likelihoods'), dict)
     assert isinstance(actual_dict.pop('fit_parameters'), dict)
 
@@ -476,7 +476,7 @@ def test_mnl_dcm_segmented(seed, grouped_choosers, alternatives):
             index=pd.Index([0, 2, 3, 1, 4], name='chooser_id')))
 
 
-def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
+def test_mnl_dcm_segmented_yaml(seed, grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
@@ -524,10 +524,10 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
         }
     }
 
-    assert yaml.load(group.to_yaml()) == expected_dict
+    assert yaml.safe_load(group.to_yaml()) == expected_dict
 
     new_seg = dcm.SegmentedMNLDiscreteChoiceModel.from_yaml(group.to_yaml())
-    assert yaml.load(new_seg.to_yaml()) == expected_dict
+    assert yaml.safe_load(new_seg.to_yaml()) == expected_dict
 
     group.fit(grouped_choosers, alternatives, 'thing_id')
 
@@ -539,7 +539,7 @@ def test_mnl_dcm_segmented_yaml(grouped_choosers, alternatives):
     del expected_dict['models']['y']['fit_parameters']
     del expected_dict['models']['y']['log_likelihoods']
 
-    actual_dict = yaml.load(group.to_yaml())
+    actual_dict = yaml.safe_load(group.to_yaml())
     assert isinstance(actual_dict['models']['x'].pop('fit_parameters'), dict)
     assert isinstance(actual_dict['models']['x'].pop('log_likelihoods'), dict)
     assert isinstance(actual_dict['models']['y'].pop('fit_parameters'), dict)

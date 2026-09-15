@@ -1,0 +1,4 @@
+# Development, testing, documentation, and Pandana integration dependencies.
+# Runtime dependencies are declared in pyproject.toml.
+
+-e .[dev,docs,network,test]

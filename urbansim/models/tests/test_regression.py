@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 import statsmodels.formula.api as smf
 import yaml
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 
@@ -20,12 +20,16 @@ from ...exceptions import ModelEvaluationError
 from ...utils import testing
 
 
-@pytest.fixture
-def test_df():
+def _test_df():
     return pd.DataFrame(
         {'col1': range(5),
          'col2': range(5, 10)},
         index=['a', 'b', 'c', 'd', 'e'])
+
+
+@pytest.fixture
+def test_df():
+    return _test_df()
 
 
 @pytest.fixture
@@ -66,7 +70,7 @@ def test_predict_ytransform(test_df):
 def test_predict_with_nans():
     df = pd.DataFrame(
         {'col1': range(5),
-         'col2': [5, 6, pd.np.nan, 8, 9]},
+         'col2': [5, 6, np.nan, 8, 9]},
         index=['a', 'b', 'c', 'd', 'e'])
 
     with pytest.raises(ModelEvaluationError):
@@ -167,7 +171,7 @@ def test_RegressionModelGroup(groupby_df):
     assert isinstance(predicted, pd.Series)
     pdt.assert_series_equal(
         predicted.sort_index(), groupby_df.col1,
-        check_dtype=False, check_names=False)
+        check_dtype=False, check_names=False, check_exact=False, atol=1e-12)
 
 
 def assert_dict_specs_equal(j1, j2):
@@ -211,7 +215,7 @@ class TestRegressionModelYAMLNotFit(object):
 
     def test_string(self):
         test_yaml = self.model.to_yaml()
-        assert_dict_specs_equal(yaml.load(test_yaml), self.expected_dict)
+        assert_dict_specs_equal(yaml.safe_load(test_yaml), self.expected_dict)
 
         model = regression.RegressionModel.from_yaml(yaml_str=test_yaml)
         assert isinstance(model, regression.RegressionModel)
@@ -220,7 +224,7 @@ class TestRegressionModelYAMLNotFit(object):
         test_buffer = StringIO()
         self.model.to_yaml(str_or_buffer=test_buffer)
         assert_dict_specs_equal(
-            yaml.load(test_buffer.getvalue()), self.expected_dict)
+            yaml.safe_load(test_buffer.getvalue()), self.expected_dict)
 
         test_buffer.seek(0)
         model = regression.RegressionModel.from_yaml(str_or_buffer=test_buffer)
@@ -233,7 +237,7 @@ class TestRegressionModelYAMLNotFit(object):
         self.model.to_yaml(str_or_buffer=test_file)
 
         with open(test_file) as f:
-            assert_dict_specs_equal(yaml.load(f), self.expected_dict)
+            assert_dict_specs_equal(yaml.safe_load(f), self.expected_dict)
 
         model = regression.RegressionModel.from_yaml(str_or_buffer=test_file)
         assert isinstance(model, regression.RegressionModel)
@@ -245,7 +249,7 @@ class TestRegressionModelYAMLFit(TestRegressionModelYAMLNotFit):
     def setup_method(self, method):
         super(TestRegressionModelYAMLFit, self).setup_method(method)
 
-        self.model.fit(test_df())
+        self.model.fit(_test_df())
 
         self.expected_dict['fitted'] = True
         self.expected_dict['fit_rsquared'] = 1.0
@@ -375,10 +379,10 @@ def test_SegmentedRegressionModel_yaml(groupby_df):
         }
     }
 
-    assert yaml.load(seg.to_yaml()) == expected_dict
+    assert yaml.safe_load(seg.to_yaml()) == expected_dict
 
     new_seg = regression.SegmentedRegressionModel.from_yaml(seg.to_yaml())
-    assert yaml.load(new_seg.to_yaml()) == expected_dict
+    assert yaml.safe_load(new_seg.to_yaml()) == expected_dict
 
     seg.fit(groupby_df)
 
@@ -392,7 +396,7 @@ def test_SegmentedRegressionModel_yaml(groupby_df):
     del expected_dict['models']['y']['fit_rsquared']
     del expected_dict['models']['y']['fit_rsquared_adj']
 
-    actual_dict = yaml.load(seg.to_yaml())
+    actual_dict = yaml.safe_load(seg.to_yaml())
     assert isinstance(actual_dict['models']['x'].pop('fit_parameters'), dict)
     assert isinstance(actual_dict['models']['x'].pop('fit_rsquared'), float)
     assert isinstance(

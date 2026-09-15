@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def from_yaml(net, cfgname):
     print("Computing accessibility variables")
-    cfg = yaml.load(open(misc.config(cfgname)))
+    cfg = yaml.safe_load(open(misc.config(cfgname)))
 
     nodes = pd.DataFrame(index=net.node_ids)
 

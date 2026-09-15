@@ -3,7 +3,7 @@ import string
 import numpy as np
 import pandas as pd
 import pytest
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 
 from .. import util
 
@@ -49,9 +49,7 @@ def test_apply_filter_query(test_df):
 def test_apply_filter_query_empty(test_df):
     filters = ['col1 < 1', 'col2 > 8']
     filtered = util.apply_filter_query(test_df, filters)
-    expected = pd.DataFrame(
-        {'col1': [], 'col2': []},
-        index=[])
+    expected = test_df.iloc[0:0]
     pdt.assert_frame_equal(filtered, expected, check_dtype=False)
 
 
@@ -152,7 +150,7 @@ def test_sorted_groupby():
     df = pd.DataFrame(
         {'alpha': np.random.choice(list(letters), 100),
          'num': np.random.randint(100)})
-    sorted_df = df.sort('alpha')
+    sorted_df = df.sort_values('alpha')
 
     expected = {name: d.to_dict() for name, d in df.groupby('alpha')}
     test = {name: d.to_dict()

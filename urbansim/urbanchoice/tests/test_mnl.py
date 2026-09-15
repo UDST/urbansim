@@ -78,10 +78,14 @@ def test_data(request):
     }
 
 
-@pytest.fixture
-def df(test_data):
+def _load_df(test_data):
     filen = os.path.join(os.path.dirname(__file__), 'data', test_data['data'])
     return pd.read_csv(filen)
+
+
+@pytest.fixture
+def df(test_data):
+    return _load_df(test_data)
 
 
 @pytest.fixture
@@ -110,12 +114,12 @@ def choosers_dm(choosers, test_data):
 
 @pytest.fixture
 def fit_coeffs(dm, chosen, num_alts):
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts)
+    log_like, fit = mnl.mnl_estimate(dm.values, chosen, num_alts)
     return fit.Coefficient.values
 
 
 def test_mnl_estimate(dm, chosen, num_alts, test_data):
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), chosen, num_alts)
+    log_like, fit = mnl.mnl_estimate(dm.values, chosen, num_alts)
     result = pd.Series(fit.Coefficient.values, index=dm.columns)
     result, expected = result.align(test_data['est_expected'])
     npt.assert_allclose(result.values, expected.values, rtol=1e-4)
@@ -134,10 +138,10 @@ def test_mnl_simulate(dm, fit_coeffs, num_alts, test_data, choosers_dm):
 
     # now test with real data
     probs = mnl.mnl_simulate(
-        choosers_dm.as_matrix(), fit_coeffs, num_alts, returnprobs=True)
+        choosers_dm.values, fit_coeffs, num_alts, returnprobs=True)
     results = pd.DataFrame(probs, columns=test_data['sim_expected'].columns)
     results, expected = results.align(test_data['sim_expected'])
-    npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
+    npt.assert_allclose(results.values, expected.values, rtol=1e-4)
 
 
 def test_alternative_specific_coeffs(num_alts):
@@ -147,9 +151,12 @@ def test_alternative_specific_coeffs(num_alts):
          [0, 1, 0],
          [0, 0, 1]])
 
-    fish = df({'data': 'fish.csv'})
-    fish_choosers = choosers({'choosers': 'fish_choosers.csv'})
-    fish_chosen = chosen(fish, num_alts, {'column': 'mode'})
+    fish_data = {'data': 'fish.csv'}
+    fish = _load_df(fish_data)
+    fish_choosers = pd.read_csv(os.path.join(
+        os.path.dirname(__file__), 'data', 'fish_choosers.csv'))
+    fish_chosen = fish['mode'].values.astype('int').reshape(
+        (int(len(fish) / num_alts), num_alts))
 
     # construct design matrix with columns repeated for 3 / 4 of alts
     num_choosers = len(fish['chid'].unique())
@@ -159,7 +166,7 @@ def test_alternative_specific_coeffs(num_alts):
         columns=[
             'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)'])
     income_df = pd.DataFrame(
-        np.tile(template, (num_choosers, 1)),
+        np.tile(template, (num_choosers, 1)).astype(float),
         columns=[
             'boat:income', 'charter:income', 'pier:income'])
 
@@ -176,7 +183,7 @@ def test_alternative_specific_coeffs(num_alts):
         columns=[
             'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)'])
     income_df = pd.DataFrame(
-        np.tile(template, (num_choosers, 1)),
+        np.tile(template, (num_choosers, 1)).astype(float),
         columns=[
             'boat:income', 'charter:income', 'pier:income'])
 
@@ -193,7 +200,7 @@ def test_alternative_specific_coeffs(num_alts):
             'boat:(intercept)', 'charter:(intercept)', 'pier:(intercept)',
             'boat:income', 'charter:income', 'pier:income'])
 
-    log_like, fit = mnl.mnl_estimate(dm.as_matrix(), fish_chosen, num_alts)
+    log_like, fit = mnl.mnl_estimate(dm.values, fish_chosen, num_alts)
     result = pd.Series(fit.Coefficient.values, index=dm.columns)
     result, expected = result.align(expected)
     npt.assert_allclose(result.values, expected.values, rtol=1e-4)
@@ -206,7 +213,7 @@ def test_alternative_specific_coeffs(num_alts):
 
     fit_coeffs = fit.Coefficient.values
     probs = mnl.mnl_simulate(
-        choosers_dm.as_matrix(), fit_coeffs, num_alts, returnprobs=True)
+        choosers_dm.values, fit_coeffs, num_alts, returnprobs=True)
     results = pd.DataFrame(probs, columns=expected.columns)
     results, expected = results.align(expected)
-    npt.assert_allclose(results.as_matrix(), expected.as_matrix(), rtol=1e-4)
+    npt.assert_allclose(results.values, expected.values, rtol=1e-4)

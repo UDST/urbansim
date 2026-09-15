@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from numpy.linalg import inv
-from numpy.core.umath_tests import inner1d
 
 
 def initialize_gpu():
@@ -27,9 +26,7 @@ class PMAT:
 
     def __init__(self, mat, typ='numpy'):
         self.typ = typ
-        if (type(mat) != np.ndarray and
-                type(mat) != np.matrix and
-                type(mat) != np.float64):
+        if type(mat) not in (np.ndarray, np.matrix, np.float64):
             self.typ = 'cuda'
             self.mat = mat
         elif typ == 'numpy':
@@ -78,6 +75,12 @@ class PMAT:
             return PMAT(np.cumsum(self.mat, axis=axis))
         # elif self.typ == 'cuda':
         #  return PMAT(misc.cumsum(self.mat,axis=axis))
+
+    def max(self, axis):
+        if self.typ == 'numpy':
+            return PMAT(np.max(self.mat, axis=axis))
+        elif self.typ == 'cuda':
+            return PMAT(self.mat.max(axis=axis))
 
     def argmax(self, axis):
         if self.typ == 'numpy':
