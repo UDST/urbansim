@@ -423,6 +423,108 @@ def test_tabular_transition_add_filters(
     assert len(removed) == 1
 
 
+def test_tgrtransition_warns_on_uncovered_rows(basic_df, year, rates_col, caplog):
+    # rows that match none of the segments are dropped from the updated
+    # table without being reported as removed, so warn about them
+    growth_rates = pd.DataFrame({'x_max': [3], rates_col: [0]}, index=[year])
+    tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
+
+    with caplog.at_level('WARNING', logger='urbansim.models.transition'):
+        new, added, copied, removed = tgrt.transition(basic_df, year)
+
+    assert len(new) == 3
+    assert_empty_index(removed)
+    assert '2 of 5 rows match none of the transition segments' in caplog.text
+
+
+def test_tgrtransition_warns_on_overlapping_segments(
+        basic_df, year, rates_col, caplog):
+    # rows that match more than one segment are duplicated in the updated
+    # table (and can end up both copied and removed), so warn about them
+    growth_rates = pd.DataFrame(
+        {'x_min': [0, 3], rates_col: [0, 0]}, index=[year, year])
+    tgrt = transition.TabularGrowthRateTransition(growth_rates, rates_col)
+
+    with caplog.at_level('WARNING', logger='urbansim.models.transition'):
+        new, added, copied, removed = tgrt.transition(basic_df, year)
+
+    assert len(new) == 7
+    assert '2 of 5 rows match more than one transition segment' in caplog.text
+
+
+def test_tgrtransition_no_warning_when_covered(
+        basic_df, growth_rates_filters, year, rates_col, caplog):
+    tgrt = transition.TabularGrowthRateTransition(growth_rates_filters, rates_col)
+
+    with caplog.at_level('WARNING', logger='urbansim.models.transition'):
+        tgrt.transition(basic_df, year)
+
+    assert caplog.text == ''
+
+
+def test_update_linked_table_copied_and_removed(basic_df):
+    # a row that is both copied (to make a new row) and removed in the same
+    # transition should still have its linked rows copied to the new row
+    col_name = 'x'
+    added = pd.Index([5])
+    copied = pd.Index([1])
+    removed = pd.Index([1])
+
+    updated = transition._update_linked_table(
+        basic_df, col_name, added, copied, removed)
+
+    assert 1 not in updated[col_name].values
+    assert updated.loc[updated[col_name] == 5, 'y'].tolist() == [6]
+    assert len(updated) == len(basic_df)
+
+
+def test_update_linked_table_new_ids_not_reused(basic_df):
+    # new linked rows should not take the ids of linked rows removed in
+    # the same step, even if those were the highest ids
+    col_name = 'x'
+    added = pd.Index([5])
+    copied = pd.Index([0])
+    removed = pd.Index([4])  # row 104, the highest index in basic_df
+
+    updated = transition._update_linked_table(
+        basic_df, col_name, added, copied, removed)
+
+    assert 104 not in updated.index
+    assert updated.index[updated[col_name] == 5].tolist() == [105]
+
+
+def test_update_linked_table_remove_all_and_add(basic_df):
+    # removing every linked row while also copying some should not fail
+    col_name = 'x'
+    added = pd.Index([5, 6])
+    copied = pd.Index([0, 1])
+    removed = pd.Index(basic_df[col_name])
+
+    updated = transition._update_linked_table(
+        basic_df, col_name, added, copied, removed)
+
+    assert updated[col_name].tolist() == [5, 6]
+    assert updated.index.tolist() == [105, 106]
+
+
+def test_index_names_preserved(basic_df, grow_targets_filters, totals_col, year):
+    basic_df.index.name = 'thing_id'
+    grow_targets_filters[totals_col] = [3, 1, 1]
+    tran = transition.TabularTotalsTransition(grow_targets_filters, totals_col)
+    model = transition.TransitionModel(tran)
+
+    linked_table = pd.DataFrame(
+        {'z': ['a', 'b', 'c', 'd', 'e'],
+         'thing_id': basic_df.index},
+        index=pd.Index(range(5), name='linked_id'))
+
+    new, added, new_linked = model.transition(
+        basic_df, year, linked_tables={'linked': (linked_table, 'thing_id')})
+
+    assert new.index.name == 'thing_id'
+    assert new_linked['linked'].index.name == 'linked_id'
+
+
 def test_update_linked_table(basic_df):
     col_name = 'x'
     added = pd.Index([5, 6, 7])

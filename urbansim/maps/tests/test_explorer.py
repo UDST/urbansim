@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import pandas as pd
 
@@ -33,3 +34,16 @@ def test_explorer(simple_map_input):
 
     with pytest.raises(Exception):
         dframe_explorer.start(d, testing=True)
+
+
+def test_explorer_float_zone_ids(simple_map_input):
+    # zone ids stored as floats (e.g. because of missing values) should
+    # still come back as integer keys
+    df = simple_map_input.astype({'zone_id': float})
+    df.loc['c', 'zone_id'] = np.nan
+    dframe_explorer.start({"dfname": df}, testing=True)
+
+    results = dframe_explorer.map_query(
+        "dfname", "empty", "zone_id", "test_var", "mean()")
+
+    assert results == {10: 45.0}
