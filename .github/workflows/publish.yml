@@ -1,0 +1,120 @@
+name: Publish
+
+# Builds the distributions for a GitHub release and uploads them to PyPI using
+# Trusted Publishing. Merging to main never publishes anything; only publishing a
+# release on GitHub (which creates or points at a v* tag) does, and the upload
+# step waits for approval in the protected "pypi" environment. See CONTRIBUTING.md.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # build and verify only, without publishing
+
+permissions:
+  contents: read
+
+# Never run two publishes at once, and never cancel one that is in progress
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and verify distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+
+      - name: Build distributions
+        run: |
+          python -m pip install build twine
+          python -m build
+          python -m twine check --strict dist/*
+          ls -l dist
+
+      - name: Install the wheel and run the tests against it
+        run: |
+          python -m pip install "$(ls dist/*.whl)[network,test]"
+          python -m pip check
+          # Work from outside the checkout so that "urbansim" resolves to the
+          # installed wheel rather than the source tree
+          cd "$RUNNER_TEMP"
+          python -c "from importlib.metadata import version; print('installed version', version('urbansim'))"
+          # The tests live inside the package but are left out of the wheel, so
+          # copy the test folders (and their data files) into the installed
+          # package and run them from there, exercising the wheel and its
+          # package data rather than the source tree
+          installed="$(python -c 'import os, urbansim; print(os.path.dirname(urbansim.__file__))')"
+          echo "installed package at $installed"
+          (cd "$GITHUB_WORKSPACE/urbansim" && find . -type d -name tests -print0 | tar -cf - --null -T -) \
+            | tar -C "$installed" -xf -
+          python -m pytest --pyargs urbansim -q -p no:cacheprovider
+
+      - name: Check that the package version matches the release
+        if: github.event_name == 'release'
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          # Read the version from the installed wheel's metadata, from outside the
+          # checkout, so the check binds the tag to the artifact being uploaded rather
+          # than to the source tree (or the egg-info that the build leaves behind)
+          cd "$RUNNER_TEMP"
+          expected="${GITHUB_REF_NAME#v}"
+          actual="$(python -c 'from importlib.metadata import version; print(version("urbansim"))')"
+          echo "tag $GITHUB_REF_NAME expects version $expected; installed wheel reports $actual"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::the package version does not match the release tag"
+            exit 1
+          fi
+          if [[ "$actual" =~ (a|b|rc|dev)[0-9]*$ ]]; then
+            if [ "$PRERELEASE" != "true" ]; then
+              echo "::error::$actual is a pre-release version, but the GitHub release is not marked as a pre-release"
+              exit 1
+            fi
+          elif [ "$PRERELEASE" = "true" ]; then
+            echo "::error::$actual is a final version, but the GitHub release is marked as a pre-release"
+            exit 1
+          fi
+
+      - name: Save distributions
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/urbansim/
+    permissions:
+      id-token: write  # for Trusted Publishing; no other access is needed
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: dist
+          path: dist/
+
+      - name: Upload to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          # Files upload one at a time and PyPI refuses re-uploads of a filename, so
+          # let a re-run after a partial failure finish the release instead of aborting
+          skip-existing: true

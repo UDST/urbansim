@@ -567,7 +567,7 @@ def test_mnl_dcm_segmented_yaml(seed, grouped_choosers, alternatives):
         expected_dict['prediction_sample_size'])
 
 
-def test_segmented_dcm_removes_old_models(grouped_choosers, alternatives):
+def test_segmented_dcm_removes_old_models(seed, grouped_choosers, alternatives):
     model_exp = 'var2 + var1:var3'
     sample_size = 4
 
