@@ -14,6 +14,15 @@ Next release
 * Fix ``Developer.pick()`` failing when ``form`` is None: all the forms in the
   feasibility table now compete on profitability, as intended (#194, thanks to
   Hana Sevcikova). Passing a flat single-form feasibility table still works.
+* Fix the transition model dropping linked rows (e.g. persons) for a row that
+  is both copied and removed in the same transition (#233, reported by Hana
+  Sevcikova with the fix used at PSRC).
+* Preserve index names in tables returned by the transition model (#221).
+* Warn when rows match none of the segments in a transition model's
+  configuration, since they are silently dropped from the updated table
+  (#207).
+* The DataFrame explorer handles non-integer zone ids in map queries (#204;
+  fixed as a side effect of the Pandas compatibility work).
 
 v3.2
 ====
