@@ -140,7 +140,7 @@ workflows.
 
 This also makes the notebook a fantastic pedagogical tool - in other words
 it's great for demos and communicating both the input and output of cells of
-Python code (e.g. `nbviewer <https://nbviewer.jupyter.org/>`_).
+Python code (e.g. `nbviewer <https://nbviewer.org/>`_).
 Many of the full-size examples of UrbanSim on this site are presented
 in notebooks.
 
@@ -162,7 +162,7 @@ Background
 
 UrbanSim has been an active research project since the late 1990's, and has
 undergone continual re-thinking, and re-engineering over the ensuing years,
-as documented in many of the `accumulated research papers <http://www.urbansim.com/research/>`_.
+as documented in many accumulated research papers.
 Below is a brief, high-level summary of UrbanSim in only a few paragraphs from
 a modeling/programmer perspective.  In pseudocode, UrbanSim can be boiled down
 to a series of models estimated and then simulated in sequence.::
@@ -352,7 +352,7 @@ in the tutorials section.
 
 Note that this approach is inspired by a number of different frameworks (in
 Python and otherwise) such as `py.test <https://docs.pytest.org/en/latest/fixture.html>`_,
-`flask <http://flask.pocoo.org/>`_, and even web frameworks like
+`flask <https://flask.palletsprojects.com/>`_, and even web frameworks like
 `Angular <https://docs.angularjs.org/guide/di>`_.
 
 Note that this is designed to be an *extremely* flexible framework.  Models can

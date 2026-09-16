@@ -41,10 +41,10 @@ long-standing bugs.
 * ``main`` is now the integration branch; ``dev`` and ``master`` are retired
   (#236).
 * Thanks to Paul Waddell for the compatibility, packaging, and CI work; to Juan
-  Caicedo and @msoltadeo, whose earlier NumPy and Pandas compatibility fixes
+  Caicedo and Sol Tadeo, whose earlier NumPy and Pandas compatibility fixes
   were incorporated; to Hana Sevcikova for the developer model fix and the
-  transition model reports and fix; and to Scott Bridwell, Stefan Coe, and
-  @Han-aorweb for the reports.
+  transition model reports and fix; and to Scott Bridwell and Stefan Coe for
+  the reports.
 
 v3.2
 ====
