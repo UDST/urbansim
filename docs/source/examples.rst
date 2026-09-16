@@ -6,7 +6,7 @@ Basic Example - Residential Price Hedonic
 
 A fairly complete case study of using UrbanSim can be shown entirely within a
 single Jupyter Notebook, as is the case with
-`this Notebook <http://nbviewer.jupyter.org/github/udst/sanfran_urbansim/blob/master/Hedonic%20Example.ipynb>`_
+`this Notebook <https://nbviewer.org/github/udst/sanfran_urbansim/blob/master/Hedonic%20Example.ipynb>`_
 from the `example repository <https://github.com/udst/sanfran_urbansim>`_.
 
 As the canonical example of using UrbanSim, take the case of a residential
@@ -66,8 +66,8 @@ Complete Example - San Francisco UrbanSim Modules
 A complete example of the latest UrbanSim framework is now being maintained on
 `GitHub <https://github.com/udst/sanfran_urbansim>`_.  The example requires
 that the UrbanSim package is already installed (no other dependencies are
-required).  The example is maintained under `Travis Continuous Integration <https://travis-ci.org/UDST/sanfran_urbansim>`_
-so should always run with the latest version of UrbanSim.
+required).  The example dates from 2017 and may need small updates to run
+with current versions of UrbanSim and its dependencies.
 
 The example has a number of Python modules including ``dataset.py``,
 ``assumptions.py``, ``variables.py``, ``models.py`` which will be discussed one
@@ -127,7 +127,7 @@ use category names. ::
 
     # this maps building type ids to general building types
     # basically just reduces dimensionality
-    sim.add_injectable("building_type_map", {
+    orca.add_injectable("building_type_map", {
         1: "Residential",
         2: "Residential",
         3: "Residential",
@@ -408,8 +408,8 @@ YAML configuration files currently can also be used to define location choice
 models and even accessibility variables, and in theory can be added to any
 UrbanSim model that supports `YAML persistence <models/statistical.html#yaml-persistence>`_
 as described in the API docs.  Using configuration files specified in YAML
-also allows interactivity with the `UrbanSim web portal <https://github.com/udst/usui>`_,
-which is one of the main reasons for following this architecture.
+also allows the models to be edited and shared outside of Python, which is one
+of the main reasons for following this architecture.
 
 As can be seen, these configuration files are a great way to separate
 specification of the model from the actual infrastructure that stores and
@@ -442,7 +442,7 @@ Estimation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
 A sample estimation workflow is available
-`in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Estimation.ipynb>`__.
+`in this Notebook <https://nbviewer.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Estimation.ipynb>`__.
 
 This notebook estimates all of the models in the example that need estimation
 (because they are statistical models).  In fact, every cell simply calls the
@@ -462,7 +462,7 @@ Simulation Workflow
 ~~~~~~~~~~~~~~~~~~~
 
 A sample simulation workflow (a complete UrbanSim simulation) is available
-`in this Notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Simulation.ipynb>`__.
+`in this Notebook <https://nbviewer.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Simulation.ipynb>`__.
 
 This notebook is possibly even simpler than the estimation workflow as it has
 only one substantive cell which runs all of the available models in the
@@ -478,7 +478,7 @@ Exploration Workflow
 
 UrbanSim now also provides a method to interactively explore UrbanSim inputs
 and outputs using web mapping tools, and the
-`exploration notebook <http://nbviewer.ipython.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Exploration.ipynb>`_
+`exploration notebook <https://nbviewer.org/github/udst/sanfran_urbansim/blob/5b93eb4708fc7ea97f38a497ad16264e4203dbca/Exploration.ipynb>`_
 demonstrates how to set up and use this interactive display tool.
 
 This is another simple and powerful notebook which can be used to quickly map

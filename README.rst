@@ -2,7 +2,7 @@ UrbanSim
 ========
 
 .. image:: https://img.shields.io/pypi/v/urbansim.svg
-    :target: https://pypi.python.org/pypi/urbansim/
+    :target: https://pypi.org/project/urbansim/
     :alt: Latest Version
 
 .. image:: https://github.com/UDST/urbansim/actions/workflows/test.yml/badge.svg?branch=main
@@ -86,6 +86,6 @@ Technical documentation
 
 * `Full documentation <https://udst.github.io/urbansim/>`__
 
-* Other `UDST <https://docs.udst.org>`__ libraries
+* Other `UDST <https://github.com/UDST>`__ libraries
 
 * Documentation for `UrbanCanvas <https://cloud.urbansim.com/docs/>`__, the UrbanSim cloud platform

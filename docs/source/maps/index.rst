@@ -6,7 +6,7 @@ DataFrame Explorer
 Introduction
 ------------
 
-The DataFrame Explorer is used to create a web service within the IPython
+The DataFrame Explorer is used to create a web service within the Jupyter
 Notebook which responds to queries from a web browser.  The REST API is
 undocumented as the user does not interact with that API.  Simply call the
 ``start`` method below and then open `http://localhost:8765
@@ -38,8 +38,7 @@ Here is what each dropdown on the web page does:
   DataFrame with the name from the first dropdown
 * The third dropdown selects the color scheme from the
   `colorbrewer <http://colorbrewer2.org/>`_ color schemes
-* The fourth dropdown sets ``quantile`` and ``equal_interval``
-  `color schemes <http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html>`_
+* The fourth dropdown sets ``quantile`` and ``equal_interval`` color schemes
 * The fifth dropdown selects the Pandas aggregation method to use
 * The sixth dropdown executes the
   `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_
