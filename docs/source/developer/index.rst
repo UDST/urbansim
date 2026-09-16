@@ -21,8 +21,7 @@ and adds the new buildings to the set of current buildings.  Thus
 
 An example of the sample code required to generate the set of feasible
 buildings is shown below.  This code comes from the ``utils`` module of the
-current `sanfran_urbansim <https://github
-.com/udst/sanfran_urbansim>`_ demo.  Notice that the SqFtProForma is
+current `sanfran_urbansim <https://github.com/udst/sanfran_urbansim>`_ demo.  Notice that the SqFtProForma is
 first initialized and a DataFrame of parcels is tested for feasibliity (each
 individual parcel is tested for feasibility).  Each *use* (e.g. retail, office,
 residential, etc) is assigned a price per parcel, typically from empirical data
@@ -65,12 +64,12 @@ translation to units. ::
 
     d = {}
     for form in pf.config.forms:
-        print "Computing feasibility for form %s" % form
+        print("Computing feasibility for form %s" % form)
         d[form] = pf.lookup(form, df[parcel_use_allowed_callback(form)])
 
     far_predictions = pd.concat(d.values(), keys=d.keys(), axis=1)
 
-    sim.add_table("feasibility", far_predictions)
+    orca.add_table("feasibility", far_predictions)
 
 
 The ``developer model`` is responsible for picking among feasible buildings
@@ -121,7 +120,7 @@ ids+1 and then incremented from there).  ::
     all_buildings = dev.merge(buildings.to_frame(buildings.local_columns),
                               new_buildings[buildings.local_columns])
 
-    sim.add_table("buildings", all_buildings)
+    orca.add_table("buildings", all_buildings)
 
 .. toctree::
    :maxdepth: 2
