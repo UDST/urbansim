@@ -1,89 +1,47 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Model Related Utilities &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Related Utilities &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Location Choice Utilities" href="urbanchoice.html" />
     <link rel="prev" title="Transition and Relocation Models" href="transrelo.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -108,85 +66,42 @@
 <li class="toctree-l1"><a class="reference internal" href="../maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="index.html">Core Models</a> &raquo;</li>
-        
-      <li>Model Related Utilities</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Core Models</a></li>
+      <li class="breadcrumb-item active">Model Related Utilities</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/models/util.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="model-related-utilities">
-<h1>Model Related Utilities<a class="headerlink" href="#model-related-utilities" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="model-related-utilities">
+<h1>Model Related Utilities<a class="headerlink" href="#model-related-utilities" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>These are utility functions used within UrbanSim’s model packages.
 They may be useful when implementing new models or adding custom
 behavior to UrbanSim.</p>
-</div>
-<div class="section" id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="api">
+<h2>API<a class="headerlink" href="#api" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#urbansim.models.util.apply_filter_query" title="urbansim.models.util.apply_filter_query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_filter_query</span></code></a>(df[, filters])</p></td>
 <td><p>Use the DataFrame.query method to filter a table down to the desired rows.</p></td>
@@ -211,14 +126,14 @@ behavior to UrbanSim.</p>
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-urbansim.models.util"></span><p>Utilities used within the <code class="docutils literal notranslate"><span class="pre">urbansim.models</span></code> package.</p>
+<p id="module-urbansim.models.util">Utilities used within the <code class="docutils literal notranslate"><span class="pre">urbansim.models</span></code> package.</p>
 <dl class="py function">
-<dt id="urbansim.models.util.apply_filter_query">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">apply_filter_query</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#apply_filter_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.apply_filter_query" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.apply_filter_query">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">apply_filter_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#apply_filter_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.apply_filter_query" title="Link to this definition"></a></dt>
 <dd><p>Use the DataFrame.query method to filter a table down to the
 desired rows.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>df</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 <dt><strong>filters</strong><span class="classifier">list of str or str, optional</span></dt><dd><p>List of filters to apply. Will be joined together with
@@ -228,7 +143,7 @@ If not supplied no filtering will be done.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>filtered_df</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 </dl>
@@ -237,17 +152,17 @@ If not supplied no filtering will be done.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.columns_in_filters">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">columns_in_filters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filters</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_filters" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.columns_in_filters">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">columns_in_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.columns_in_filters" title="Link to this definition"></a></dt>
 <dd><p>Returns a list of the columns used in a set of query filters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>filters</strong><span class="classifier">list of str or str</span></dt><dd><p>List of the filters as passed passed to <code class="docutils literal notranslate"><span class="pre">apply_filter_query</span></code>.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>columns</strong><span class="classifier">list of str</span></dt><dd><p>List of all the strings mentioned in the filters.</p>
 </dd>
@@ -257,17 +172,17 @@ If not supplied no filtering will be done.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.columns_in_formula">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">columns_in_formula</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">formula</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.columns_in_formula" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.columns_in_formula">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">columns_in_formula</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#columns_in_formula"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.columns_in_formula" title="Link to this definition"></a></dt>
 <dd><p>Returns the names of all the columns used in a patsy formula.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>formula</strong><span class="classifier">str, iterable, or dict</span></dt><dd><p>Any formula construction supported by <code class="docutils literal notranslate"><span class="pre">str_model_expression</span></code>.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>columns</strong><span class="classifier">list of str</span></dt><dd></dd>
 </dl>
@@ -276,16 +191,16 @@ If not supplied no filtering will be done.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.concat_indexes">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">concat_indexes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indexes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#concat_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.concat_indexes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.concat_indexes">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">concat_indexes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#concat_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.concat_indexes" title="Link to this definition"></a></dt>
 <dd><p>Concatenate a sequence of pandas Indexes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>indexes</strong><span class="classifier">sequence of pandas.Index</span></dt><dd></dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>pandas.Index</dt><dd></dd>
 </dl>
@@ -294,14 +209,14 @@ If not supplied no filtering will be done.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.filter_table">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">filter_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">table</span></em>, <em class="sig-param"><span class="n">filter_series</span></em>, <em class="sig-param"><span class="n">ignore</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#filter_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.filter_table" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.filter_table">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">filter_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#filter_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.filter_table" title="Link to this definition"></a></dt>
 <dd><p>Filter a table based on a set of restrictions given in
 Series of column name / filter parameter pairs. The column
 names can have suffixes <cite>_min</cite> and <cite>_max</cite> to indicate
 “less than” and “greater than” constraints.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>table</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table to filter.</p>
 </dd>
@@ -315,7 +230,7 @@ A column with no suffix will be used to make an ‘equal to’ filter.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>filtered</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 </dl>
@@ -324,19 +239,19 @@ A column with no suffix will be used to make an ‘equal to’ filter.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.has_constant_expr">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">has_constant_expr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expr</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#has_constant_expr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.has_constant_expr" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.has_constant_expr">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">has_constant_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#has_constant_expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.has_constant_expr" title="Link to this definition"></a></dt>
 <dd><p>Report whether a model expression has constant specific term.
 That is, a term explicitly specying whether the model should or
 should not include a constant. (e.g. ‘+ 1’ or ‘- 1’.)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>expr</strong><span class="classifier">str</span></dt><dd><p>Model expression to check.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>has_constant</strong><span class="classifier">bool</span></dt><dd></dd>
 </dl>
@@ -345,19 +260,19 @@ should not include a constant. (e.g. ‘+ 1’ or ‘- 1’.)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.sorted_groupby">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">sorted_groupby</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">groupby</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#sorted_groupby"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.sorted_groupby" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.sorted_groupby">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">sorted_groupby</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#sorted_groupby"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.sorted_groupby" title="Link to this definition"></a></dt>
 <dd><p>Perform a groupby on a DataFrame using a specific column
 and assuming that that column is sorted.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>df</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 <dt><strong>groupby</strong><span class="classifier">object</span></dt><dd><p>Column name on which to groupby. This column must be sorted.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>generator</dt><dd><p>Yields pairs of group_name, DataFrame.</p>
 </dd>
@@ -367,13 +282,13 @@ and assuming that that column is sorted.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.util.str_model_expression">
-<code class="sig-prename descclassname">urbansim.models.util.</code><code class="sig-name descname">str_model_expression</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expr</span></em>, <em class="sig-param"><span class="n">add_constant</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#str_model_expression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.util.str_model_expression" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.util.str_model_expression">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.util.</span></span><span class="sig-name descname"><span class="pre">str_model_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_constant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/util.html#str_model_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.util.str_model_expression" title="Link to this definition"></a></dt>
 <dd><p>We support specifying model expressions as strings, lists, or dicts;
 but for use with patsy and statsmodels we need a string.
 This function will take any of those as input and return a string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>expr</strong><span class="classifier">str, iterable, or dict</span></dt><dd><p>A string will be returned unmodified except to add or remove
 a constant.
@@ -389,7 +304,7 @@ ignored.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>model_expression</strong><span class="classifier">str</span></dt><dd><p>A string model expression suitable for use with statsmodels and patsy.</p>
 </dd>
@@ -398,56 +313,38 @@ ignored.</p>
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="urbanchoice.html" class="btn btn-neutral float-right" title="Location Choice Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="transrelo.html" class="btn btn-neutral float-left" title="Transition and Relocation Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="transrelo.html" class="btn btn-neutral float-left" title="Transition and Relocation Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="urbanchoice.html" class="btn btn-neutral float-right" title="Location Choice Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

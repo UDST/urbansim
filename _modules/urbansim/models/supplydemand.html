@@ -1,87 +1,44 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>urbansim.models.supplydemand &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>urbansim.models.supplydemand &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../../../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
@@ -91,85 +48,49 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-      <li>urbansim.models.supplydemand</li>
-    
-    
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">urbansim.models.supplydemand</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for urbansim.models.supplydemand</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Tools for modeling how supply and demand affect real estate prices.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="sd">"""</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">division</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_calculate_adjustment</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_adjustment</span><span class="p">(</span>
         <span class="n">lcm</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">alt_segmenter</span><span class="p">,</span>
         <span class="n">clip_change_low</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="p">,</span> <span class="n">multiplier_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate adjustments to prices to compensate for</span>
 <span class="sd">    supply and demand effects.</span>
 
@@ -209,8 +130,8 @@
 <span class="sd">        final adjustment (if True).  If false, the iterative algorithm</span>
 <span class="sd">        should continue.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;start: calculate supply and demand price adjustment ratio&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'start: calculate supply and demand price adjustment ratio'</span><span class="p">)</span>
     <span class="c1"># probabilities of agents choosing * number of agents = demand</span>
     <span class="n">demand</span> <span class="o">=</span> <span class="n">lcm</span><span class="o">.</span><span class="n">summed_probabilities</span><span class="p">(</span><span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">)</span>
     <span class="c1"># group by submarket</span>
@@ -230,16 +151,18 @@
     <span class="n">alts_muliplier</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">alt_segmenter</span><span class="o">.</span><span class="n">index</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="p">(</span><span class="s1">&#39;finish: calculate supply and demand price adjustment multiplier &#39;</span>
-         <span class="s1">&#39;with mean multiplier </span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">multiplier</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+        <span class="p">(</span><span class="s1">'finish: calculate supply and demand price adjustment multiplier '</span>
+         <span class="s1">'with mean multiplier </span><span class="si">{}</span><span class="s1">'</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">multiplier</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
     <span class="k">return</span> <span class="n">alts_muliplier</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">,</span> <span class="n">finished</span>
 
 
-<div class="viewcode-block" id="supply_and_demand"><a class="viewcode-back" href="../../../models/supplydemand.html#urbansim.models.supplydemand.supply_and_demand">[docs]</a><span class="k">def</span> <span class="nf">supply_and_demand</span><span class="p">(</span>
+<div class="viewcode-block" id="supply_and_demand">
+<a class="viewcode-back" href="../../../models/supplydemand.html#urbansim.models.supplydemand.supply_and_demand">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">supply_and_demand</span><span class="p">(</span>
         <span class="n">lcm</span><span class="p">,</span> <span class="n">choosers</span><span class="p">,</span> <span class="n">alternatives</span><span class="p">,</span> <span class="n">alt_segmenter</span><span class="p">,</span> <span class="n">price_col</span><span class="p">,</span>
         <span class="n">base_multiplier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clip_change_low</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">clip_change_high</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span>
         <span class="n">iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">multiplier_func</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Adjust real estate prices to compensate for supply and demand effects.</span>
 
 <span class="sd">    Parameters</span>
@@ -285,9 +208,9 @@
 <span class="sd">        given this will be a cummulative multiplier including the</span>
 <span class="sd">        `base_multiplier` and the multipliers calculated for this year.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;start: calculating supply and demand price adjustment&#39;</span><span class="p">)</span>
-    <span class="c1"># copy alternatives so we don&#39;t modify the user&#39;s original</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'start: calculating supply and demand price adjustment'</span><span class="p">)</span>
+    <span class="c1"># copy alternatives so we don't modify the user's original</span>
     <span class="n">alternatives</span> <span class="o">=</span> <span class="n">alternatives</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="c1"># if alt_segmenter is a string, get the actual column for segmenting demand</span>
@@ -323,47 +246,36 @@
         <span class="k">if</span> <span class="n">finished</span><span class="p">:</span>
             <span class="k">break</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;finish: calculating supply and demand price adjustment&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'finish: calculating supply and demand price adjustment'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">alternatives</span><span class="p">[</span><span class="n">price_col</span><span class="p">],</span> <span class="n">base_multiplier</span></div>
+
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,87 +1,44 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>urbansim.utils.yamlio &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>urbansim.utils.yamlio &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../../../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../../../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
@@ -91,100 +48,66 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-      <li>urbansim.utils.yamlio</li>
-    
-    
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">urbansim.utils.yamlio</li>
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for urbansim.utils.yamlio</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Utilities for doing IO to YAML files.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span> <span class="k">as</span> <span class="nb">zip</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">izip</span> <span class="k">as</span> <span class="nb">zip</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">yaml</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 
 
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">__represent_long</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__represent_long</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Strips away extraneous long format text. Only applicable</span>
 <span class="sd">        for py27.</span>
 
-<span class="sd">        e.g. !!python/long &#39;14&#39; will be formatted as 14</span>
+<span class="sd">        e.g. !!python/long '14' will be formatted as 14</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_int</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">long</span><span class="p">,</span> <span class="n">__represent_long</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="series_to_yaml_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.series_to_yaml_safe">[docs]</a><span class="k">def</span> <span class="nf">series_to_yaml_safe</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="series_to_yaml_safe">
+<a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.series_to_yaml_safe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">series_to_yaml_safe</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a pandas Series to a dict that will survive YAML serialization</span>
 <span class="sd">    and re-conversion back to a Series.</span>
 
@@ -198,8 +121,8 @@
 <span class="sd">    -------</span>
 <span class="sd">    safe : dict or OrderedDict</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_native_types</span><span class="p">(</span><span class="n">quoting</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">to_scalar_safe</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
     <span class="n">values</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">ordered</span><span class="p">:</span>
@@ -209,8 +132,11 @@
         <span class="k">return</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">)}</span></div>
 
 
-<div class="viewcode-block" id="frame_to_yaml_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.frame_to_yaml_safe">[docs]</a><span class="k">def</span> <span class="nf">frame_to_yaml_safe</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="frame_to_yaml_safe">
+<a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.frame_to_yaml_safe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">frame_to_yaml_safe</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a pandas DataFrame to a dictionary that will survive</span>
 <span class="sd">    YAML serialization and re-conversion back to a DataFrame.</span>
 
@@ -224,27 +150,33 @@
 <span class="sd">    -------</span>
 <span class="sd">    safe : dict or OrderedDict</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">ordered</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">col</span><span class="p">,</span> <span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
-                                 <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()))</span>
+                                 <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">series_to_yaml_safe</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span></div>
+                <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">series</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 
 
-<div class="viewcode-block" id="to_scalar_safe"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.to_scalar_safe">[docs]</a><span class="k">def</span> <span class="nf">to_scalar_safe</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="to_scalar_safe">
+<a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.to_scalar_safe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_scalar_safe</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a numpy data type to a standard python scalar.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">obj</span></div>
 
 
-<div class="viewcode-block" id="ordered_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.ordered_yaml">[docs]</a><span class="k">def</span> <span class="nf">ordered_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ordered_yaml">
+<a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.ordered_yaml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ordered_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a dictionary to a YAML string with preferential ordering</span>
 <span class="sd">    for some keys. Converted string is meant to be fairly human readable.</span>
 
@@ -260,17 +192,17 @@
 <span class="sd">    str</span>
 <span class="sd">        Nicely formatted YAML string.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;model_type&#39;</span><span class="p">,</span> <span class="s1">&#39;segmentation_col&#39;</span><span class="p">,</span> <span class="s1">&#39;fit_filters&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;predict_filters&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;choosers_fit_filters&#39;</span><span class="p">,</span> <span class="s1">&#39;choosers_predict_filters&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;alts_fit_filters&#39;</span><span class="p">,</span> <span class="s1">&#39;alts_predict_filters&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;interaction_predict_filters&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;choice_column&#39;</span><span class="p">,</span> <span class="s1">&#39;sample_size&#39;</span><span class="p">,</span> <span class="s1">&#39;estimation_sample_size&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;prediction_sample_size&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;model_expression&#39;</span><span class="p">,</span> <span class="s1">&#39;ytransform&#39;</span><span class="p">,</span> <span class="s1">&#39;min_segment_size&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;default_config&#39;</span><span class="p">,</span> <span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="s1">&#39;coefficients&#39;</span><span class="p">,</span> <span class="s1">&#39;fitted&#39;</span><span class="p">]</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'model_type'</span><span class="p">,</span> <span class="s1">'segmentation_col'</span><span class="p">,</span> <span class="s1">'fit_filters'</span><span class="p">,</span>
+                 <span class="s1">'predict_filters'</span><span class="p">,</span>
+                 <span class="s1">'choosers_fit_filters'</span><span class="p">,</span> <span class="s1">'choosers_predict_filters'</span><span class="p">,</span>
+                 <span class="s1">'alts_fit_filters'</span><span class="p">,</span> <span class="s1">'alts_predict_filters'</span><span class="p">,</span>
+                 <span class="s1">'interaction_predict_filters'</span><span class="p">,</span>
+                 <span class="s1">'choice_column'</span><span class="p">,</span> <span class="s1">'sample_size'</span><span class="p">,</span> <span class="s1">'estimation_sample_size'</span><span class="p">,</span>
+                 <span class="s1">'prediction_sample_size'</span><span class="p">,</span>
+                 <span class="s1">'model_expression'</span><span class="p">,</span> <span class="s1">'ytransform'</span><span class="p">,</span> <span class="s1">'min_segment_size'</span><span class="p">,</span>
+                 <span class="s1">'default_config'</span><span class="p">,</span> <span class="s1">'models'</span><span class="p">,</span> <span class="s1">'coefficients'</span><span class="p">,</span> <span class="s1">'fitted'</span><span class="p">]</span>
 
     <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
@@ -285,18 +217,19 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]},</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">__represent_ordereddict</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__represent_ordereddict</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Allows for OrderedDict to be written out to yaml.</span>
 
 <span class="sd">    References:</span>
 <span class="sd">        https://codedump.io/share/2MLFLtw3wnX7/1/can-pyyaml-dump-dict-items-in-non-alphabetical-order</span>
 <span class="sd">        http://stackoverflow.com/questions/16782112/can-pyyaml-dump-dict-items-in-non-alphabetical-order</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">item_key</span><span class="p">,</span> <span class="n">item_value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -305,14 +238,16 @@
 
         <span class="n">value</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node_key</span><span class="p">,</span> <span class="n">node_value</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">MappingNode</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;tag:yaml.org,2002:map&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">MappingNode</span><span class="p">(</span><span class="sa">u</span><span class="s1">'tag:yaml.org,2002:map'</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
 <span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">,</span> <span class="n">__represent_ordereddict</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="convert_to_yaml"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.convert_to_yaml">[docs]</a><span class="k">def</span> <span class="nf">convert_to_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="convert_to_yaml">
+<a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.convert_to_yaml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_to_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Convert a dictionary to YAML and return the string or write it out</span>
 <span class="sd">    depending on the type of `str_or_buffer`.</span>
 
@@ -331,7 +266,7 @@
 <span class="sd">        YAML string if `str_or_buffer` is None, otherwise None since YAML</span>
 <span class="sd">        is written out to a separate destination.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">order</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
         <span class="n">order</span> <span class="o">=</span> <span class="p">[]</span>
@@ -341,14 +276,17 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">str_or_buffer</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">s</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">str_or_buffer</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">str_or_buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="yaml_to_dict"><a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.yaml_to_dict">[docs]</a><span class="k">def</span> <span class="nf">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="yaml_to_dict">
+<a class="viewcode-back" href="../../../utils/yamlio.html#urbansim.utils.yamlio.yaml_to_dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">yaml_to_dict</span><span class="p">(</span><span class="n">yaml_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">str_or_buffer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load YAML from a string, file, or buffer (an object with a .read method).</span>
 <span class="sd">    Parameters are mutually exclusive.</span>
 
@@ -366,9 +304,9 @@
 <span class="sd">    dict</span>
 <span class="sd">        Conversion from YAML.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">yaml_str</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">str_or_buffer</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;One of yaml_str or str_or_buffer is required.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'One of yaml_str or str_or_buffer is required.'</span><span class="p">)</span>
 
     <span class="c1"># determine which load method to use</span>
     <span class="k">if</span> <span class="n">ordered</span><span class="p">:</span>
@@ -387,19 +325,20 @@
     <span class="k">return</span> <span class="n">d</span></div>
 
 
-<span class="k">def</span> <span class="nf">__ordered_load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__ordered_load</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">,</span> <span class="n">object_pairs_hook</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Loads yaml into an OrderedDict.</span>
 
 <span class="sd">    From:</span>
 <span class="sd">    https://stackoverflow.com/questions/5121931/in-python-how-can-you-load-yaml-mappings-as-ordereddicts</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">class</span> <span class="nc">OrderedLoader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">OrderedLoader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">construct_mapping</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">construct_mapping</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="n">loader</span><span class="o">.</span><span class="n">flatten_mapping</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">object_pairs_hook</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">construct_pairs</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
 
@@ -410,42 +349,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

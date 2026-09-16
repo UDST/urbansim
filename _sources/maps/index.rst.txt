@@ -6,7 +6,7 @@ DataFrame Explorer
 Introduction
 ------------
 
-The DataFrame Explorer is used to create a web service within the IPython
+The DataFrame Explorer is used to create a web service within the Jupyter
 Notebook which responds to queries from a web browser.  The REST API is
 undocumented as the user does not interact with that API.  Simply call the
 ``start`` method below and then open `http://localhost:8765
@@ -38,8 +38,7 @@ Here is what each dropdown on the web page does:
   DataFrame with the name from the first dropdown
 * The third dropdown selects the color scheme from the
   `colorbrewer <http://colorbrewer2.org/>`_ color schemes
-* The fourth dropdown sets ``quantile`` and ``equal_interval``
-  `color schemes <http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html>`_
+* The fourth dropdown sets ``quantile`` and ``equal_interval`` color schemes
 * The fifth dropdown selects the Pandas aggregation method to use
 * The sixth dropdown executes the
   `.query <http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html>`_
@@ -61,7 +60,7 @@ The web service will print out each statement it executes.  The website then
 transparently joins the output Pandas series to the shapes and create an
 interactive *slippy* web map using the `Leaflet <http://leafletjs.com/>`_
 Javasript library.  The code for this map is really
-`quite simple <https://github.com/udst/urbansim/tree/master/urbansim/maps>`_
+`quite simple <https://github.com/udst/urbansim/tree/main/urbansim/maps>`_
 - feel free to browse the code and add functionality as required.
 
 To be clear, the website is performing a Pandas aggregation on the fly.

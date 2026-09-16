@@ -1,88 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>DataFrame Explorer &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataFrame Explorer &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Testing Helpers" href="../utils/testing.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -93,78 +51,43 @@
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#website-description">Website Description</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-s-it-doing-exactly">What’s it Doing Exactly?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.maps.dframe_explorer">DataFrame Explorer API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#urbansim.maps.dframe_explorer.start"><code class="docutils literal notranslate"><span class="pre">start()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-      <li>DataFrame Explorer</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DataFrame Explorer</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/maps/index.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="dataframe-explorer">
-<span id="dframe-explorer"></span><h1>DataFrame Explorer<a class="headerlink" href="#dataframe-explorer" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>The DataFrame Explorer is used to create a web service within the IPython
+             
+  <section id="dataframe-explorer">
+<span id="dframe-explorer"></span><h1>DataFrame Explorer<a class="headerlink" href="#dataframe-explorer" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>The DataFrame Explorer is used to create a web service within the Jupyter
 Notebook which responds to queries from a web browser.  The REST API is
 undocumented as the user does not interact with that API.  Simply call the
 <code class="docutils literal notranslate"><span class="pre">start</span></code> method below and then open <a class="reference external" href="http://localhost:8765">http://localhost:8765</a> in any web browser.</p>
@@ -177,10 +100,10 @@ you).  Then set the center and zoom level for the map, the name of the geojson
 shapefile is passed, and the join keys both in the geojson file and the
 DataFrames.  Below is a screenshot of the result as displayed in your web
 browser.</p>
-<img alt="../_images/dframe_explorer_screenshot1.png" src="../_images/dframe_explorer_screenshot1.png" />
-</div>
-<div class="section" id="website-description">
-<span id="dframe-explorer-website"></span><h2>Website Description<a class="headerlink" href="#website-description" title="Permalink to this headline">¶</a></h2>
+<img alt="../_images/dframe_explorer_screenshot.png" src="../_images/dframe_explorer_screenshot.png" />
+</section>
+<section id="website-description">
+<span id="dframe-explorer-website"></span><h2>Website Description<a class="headerlink" href="#website-description" title="Link to this heading"></a></h2>
 <p>Here is what each dropdown on the web page does:</p>
 <ul class="simple">
 <li><p>The first dropdown gives the names of the DataFames you have passed
@@ -189,8 +112,7 @@ browser.</p>
 DataFrame with the name from the first dropdown</p></li>
 <li><p>The third dropdown selects the color scheme from the
 <a class="reference external" href="http://colorbrewer2.org/">colorbrewer</a> color schemes</p></li>
-<li><p>The fourth dropdown sets <code class="docutils literal notranslate"><span class="pre">quantile</span></code> and <code class="docutils literal notranslate"><span class="pre">equal_interval</span></code>
-<a class="reference external" href="http://www.ncgia.ucsb.edu/cctp/units/unit47/html/quanteq.html">color schemes</a></p></li>
+<li><p>The fourth dropdown sets <code class="docutils literal notranslate"><span class="pre">quantile</span></code> and <code class="docutils literal notranslate"><span class="pre">equal_interval</span></code> color schemes</p></li>
 <li><p>The fifth dropdown selects the Pandas aggregation method to use</p></li>
 <li><p>The sixth dropdown executes the
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html">.query</a>
@@ -200,19 +122,19 @@ method on the Pandas DataFrame in order to filter the input data</p></li>
 method on the Pandas DataFrame in order to create simple computed variables
 that are not already columns on the DataFrame.</p></li>
 </ul>
-</div>
-<div class="section" id="what-s-it-doing-exactly">
-<h2>What’s it Doing Exactly?<a class="headerlink" href="#what-s-it-doing-exactly" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="what-s-it-doing-exactly">
+<h2>What’s it Doing Exactly?<a class="headerlink" href="#what-s-it-doing-exactly" title="Link to this heading"></a></h2>
 <p>So what is this doing?  The web service is translating the drop downs to a
 simple interactive Pandas statement, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)[</span><span class="s1">&#39;residential_units&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'zone_id'</span><span class="p">)[</span><span class="s1">'residential_units'</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The web service will print out each statement it executes.  The website then
 transparently joins the output Pandas series to the shapes and create an
 interactive <em>slippy</em> web map using the <a class="reference external" href="http://leafletjs.com/">Leaflet</a>
 Javasript library.  The code for this map is really
-<a class="reference external" href="https://github.com/udst/urbansim/tree/master/urbansim/maps">quite simple</a>
+<a class="reference external" href="https://github.com/udst/urbansim/tree/main/urbansim/maps">quite simple</a>
 - feel free to browse the code and add functionality as required.</p>
 <p>To be clear, the website is performing a Pandas aggregation on the fly.
 If you have a buildings DataFrame with millions of records, Pandas will
@@ -225,28 +147,28 @@ and is thus available for aggregation in <code class="docutils literal notransla
 service is running aggregations on the <em>disaggregate</em> data, clicking to the
 <code class="docutils literal notranslate"><span class="pre">households</span></code> table and <code class="docutils literal notranslate"><span class="pre">persons</span></code> attribute and an aggregation of <code class="docutils literal notranslate"><span class="pre">sum</span></code>
 will run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'zone_id'</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This computes the sum of persons in each household by zone, or more simply,
 the population of each zone.  If the aggregation is changed to mean, the
 service will run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;zone_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">households</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">'zone_id'</span><span class="p">)</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>What does this compute exactly?  It computes the average number of persons per
 household in each zone, or the average household size by zone.</p>
-</div>
-<div class="section" id="module-urbansim.maps.dframe_explorer">
-<span id="dataframe-explorer-api"></span><h2>DataFrame Explorer API<a class="headerlink" href="#module-urbansim.maps.dframe_explorer" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-urbansim.maps.dframe_explorer">
+<span id="dataframe-explorer-api"></span><h2>DataFrame Explorer API<a class="headerlink" href="#module-urbansim.maps.dframe_explorer" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt id="urbansim.maps.dframe_explorer.start">
-<code class="sig-prename descclassname">urbansim.maps.dframe_explorer.</code><code class="sig-name descname">start</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">views</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">[37.7792, - 122.2191]</span></em>, <em class="sig-param"><span class="n">zoom</span><span class="o">=</span><span class="default_value">11</span></em>, <em class="sig-param"><span class="n">shape_json</span><span class="o">=</span><span class="default_value">'data/zones.json'</span></em>, <em class="sig-param"><span class="n">geom_name</span><span class="o">=</span><span class="default_value">'ZONE_ID'</span></em>, <em class="sig-param"><span class="n">join_name</span><span class="o">=</span><span class="default_value">'zone_id'</span></em>, <em class="sig-param"><span class="n">precision</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8765</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'localhost'</span></em>, <em class="sig-param"><span class="n">testing</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.maps.dframe_explorer.start">
+<span class="sig-prename descclassname"><span class="pre">urbansim.maps.dframe_explorer.</span></span><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">views</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[37.7792,</span> <span class="pre">-122.2191]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_json</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data/zones.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ZONE_ID'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">join_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zone_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8765</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/maps/dframe_explorer.html#start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.maps.dframe_explorer.start" title="Link to this definition"></a></dt>
 <dd><p>Start the web service which serves the Pandas queries and generates the
 HTML for the map.  You will need to open a web browser and navigate to
 <a class="reference external" href="http://localhost:8765">http://localhost:8765</a> (or the specified port)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>views</strong><span class="classifier">Python dictionary</span></dt><dd><p>This is the data that will be displayed in the maps.  Keys are strings
 (table names) and values are dataframes.  Each data frame should have a
@@ -274,7 +196,7 @@ view) which joins to geom_name in the shapes</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>Does not return - takes over control of the thread and responds to</dt><dd></dd>
 <dt>queries from a web browser</dt><dd></dd>
@@ -283,54 +205,37 @@ view) which joins to geom_name in the shapes</p>
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="../utils/testing.html" class="btn btn-neutral float-left" title="Testing Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../utils/testing.html" class="btn btn-neutral float-left" title="Testing Helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

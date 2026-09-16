@@ -1,89 +1,47 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>YAML Input &amp; Output &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YAML Input &amp; Output &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Misc. Utilities" href="misc.html" />
     <link rel="prev" title="UrbanSim Utilities" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -105,82 +63,43 @@
 <li class="toctree-l1"><a class="reference internal" href="../maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="index.html">UrbanSim Utilities</a> &raquo;</li>
-        
-      <li>YAML Input &amp; Output</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">UrbanSim Utilities</a></li>
+      <li class="breadcrumb-item active">YAML Input &amp; Output</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/utils/yamlio.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="yaml-input-output">
-<h1>YAML Input &amp; Output<a class="headerlink" href="#yaml-input-output" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-urbansim.utils.yamlio">
-<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.utils.yamlio" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="yaml-input-output">
+<h1>YAML Input &amp; Output<a class="headerlink" href="#yaml-input-output" title="Link to this heading"></a></h1>
+<section id="module-urbansim.utils.yamlio">
+<span id="api"></span><h2>API<a class="headerlink" href="#module-urbansim.utils.yamlio" title="Link to this heading"></a></h2>
 <p>Utilities for doing IO to YAML files.</p>
 <dl class="py function">
-<dt id="urbansim.utils.yamlio.convert_to_yaml">
-<code class="sig-prename descclassname">urbansim.utils.yamlio.</code><code class="sig-name descname">convert_to_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em>, <em class="sig-param"><span class="n">str_or_buffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#convert_to_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.convert_to_yaml" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.utils.yamlio.convert_to_yaml">
+<span class="sig-prename descclassname"><span class="pre">urbansim.utils.yamlio.</span></span><span class="sig-name descname"><span class="pre">convert_to_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_or_buffer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#convert_to_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.utils.yamlio.convert_to_yaml" title="Link to this definition"></a></dt>
 <dd><p>Convert a dictionary to YAML and return the string or write it out
 depending on the type of <cite>str_or_buffer</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>cfg</strong><span class="classifier">dict or OrderedDict</span></dt><dd><p>Dictionary or OrderedDict to convert.</p>
 </dd>
@@ -190,7 +109,7 @@ If buffer: YAML will be written to buffer using the <code class="docutils litera
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>str or None</dt><dd><p>YAML string if <cite>str_or_buffer</cite> is None, otherwise None since YAML
 is written out to a separate destination.</p>
@@ -201,19 +120,19 @@ is written out to a separate destination.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.utils.yamlio.frame_to_yaml_safe">
-<code class="sig-prename descclassname">urbansim.utils.yamlio.</code><code class="sig-name descname">frame_to_yaml_safe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">frame</span></em>, <em class="sig-param"><span class="n">ordered</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#frame_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.frame_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.utils.yamlio.frame_to_yaml_safe">
+<span class="sig-prename descclassname"><span class="pre">urbansim.utils.yamlio.</span></span><span class="sig-name descname"><span class="pre">frame_to_yaml_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#frame_to_yaml_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.utils.yamlio.frame_to_yaml_safe" title="Link to this definition"></a></dt>
 <dd><p>Convert a pandas DataFrame to a dictionary that will survive
 YAML serialization and re-conversion back to a DataFrame.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>frame</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 <dt><strong>ordered: bool, optional, default False</strong></dt><dd><p>If True, an OrderedDict is returned.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>safe</strong><span class="classifier">dict or OrderedDict</span></dt><dd></dd>
 </dl>
@@ -222,12 +141,12 @@ YAML serialization and re-conversion back to a DataFrame.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.utils.yamlio.ordered_yaml">
-<code class="sig-prename descclassname">urbansim.utils.yamlio.</code><code class="sig-name descname">ordered_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cfg</span></em>, <em class="sig-param"><span class="n">order</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#ordered_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.ordered_yaml" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.utils.yamlio.ordered_yaml">
+<span class="sig-prename descclassname"><span class="pre">urbansim.utils.yamlio.</span></span><span class="sig-name descname"><span class="pre">ordered_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#ordered_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.utils.yamlio.ordered_yaml" title="Link to this definition"></a></dt>
 <dd><p>Convert a dictionary to a YAML string with preferential ordering
 for some keys. Converted string is meant to be fairly human readable.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>cfg</strong><span class="classifier">dict</span></dt><dd><p>Dictionary to convert to a YAML string.</p>
 </dd>
@@ -235,7 +154,7 @@ for some keys. Converted string is meant to be fairly human readable.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>str</dt><dd><p>Nicely formatted YAML string.</p>
 </dd>
@@ -245,19 +164,19 @@ for some keys. Converted string is meant to be fairly human readable.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.utils.yamlio.series_to_yaml_safe">
-<code class="sig-prename descclassname">urbansim.utils.yamlio.</code><code class="sig-name descname">series_to_yaml_safe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">series</span></em>, <em class="sig-param"><span class="n">ordered</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#series_to_yaml_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.series_to_yaml_safe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.utils.yamlio.series_to_yaml_safe">
+<span class="sig-prename descclassname"><span class="pre">urbansim.utils.yamlio.</span></span><span class="sig-name descname"><span class="pre">series_to_yaml_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#series_to_yaml_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.utils.yamlio.series_to_yaml_safe" title="Link to this definition"></a></dt>
 <dd><p>Convert a pandas Series to a dict that will survive YAML serialization
 and re-conversion back to a Series.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>series</strong><span class="classifier">pandas.Series</span></dt><dd></dd>
 <dt><strong>ordered: bool, optional, default False</strong></dt><dd><p>If True, an OrderedDict is returned.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>safe</strong><span class="classifier">dict or OrderedDict</span></dt><dd></dd>
 </dl>
@@ -266,18 +185,18 @@ and re-conversion back to a Series.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.utils.yamlio.to_scalar_safe">
-<code class="sig-prename descclassname">urbansim.utils.yamlio.</code><code class="sig-name descname">to_scalar_safe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#to_scalar_safe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.to_scalar_safe" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.utils.yamlio.to_scalar_safe">
+<span class="sig-prename descclassname"><span class="pre">urbansim.utils.yamlio.</span></span><span class="sig-name descname"><span class="pre">to_scalar_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#to_scalar_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.utils.yamlio.to_scalar_safe" title="Link to this definition"></a></dt>
 <dd><p>Convert a numpy data type to a standard python scalar.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.utils.yamlio.yaml_to_dict">
-<code class="sig-prename descclassname">urbansim.utils.yamlio.</code><code class="sig-name descname">yaml_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">yaml_str</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">str_or_buffer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ordered</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#yaml_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.utils.yamlio.yaml_to_dict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.utils.yamlio.yaml_to_dict">
+<span class="sig-prename descclassname"><span class="pre">urbansim.utils.yamlio.</span></span><span class="sig-name descname"><span class="pre">yaml_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">str_or_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/utils/yamlio.html#yaml_to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.utils.yamlio.yaml_to_dict" title="Link to this definition"></a></dt>
 <dd><p>Load YAML from a string, file, or buffer (an object with a .read method).
 Parameters are mutually exclusive.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>yaml_str</strong><span class="classifier">str, optional</span></dt><dd><p>A string of YAML.</p>
 </dd>
@@ -287,7 +206,7 @@ Parameters are mutually exclusive.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>dict</dt><dd><p>Conversion from YAML.</p>
 </dd>
@@ -296,56 +215,38 @@ Parameters are mutually exclusive.</p>
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="misc.html" class="btn btn-neutral float-right" title="Misc. Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="index.html" class="btn btn-neutral float-left" title="UrbanSim Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="UrbanSim Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="misc.html" class="btn btn-neutral float-right" title="Misc. Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

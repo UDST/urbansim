@@ -115,6 +115,6 @@ Discrete Choice API Docs
 .. automodule:: urbansim.models.dcm
    :members:
 
-.. _patsy: http://patsy.readthedocs.org/
+.. _patsy: https://patsy.readthedocs.io/
 .. _DataFrame: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
 .. _DataFrames: http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe

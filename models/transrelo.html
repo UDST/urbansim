@@ -1,89 +1,47 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Transition and Relocation Models &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transition and Relocation Models &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Model Related Utilities" href="util.html" />
     <link rel="prev" title="Supply and Demand Accounting" href="supplydemand.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -110,81 +68,42 @@
 <li class="toctree-l1"><a class="reference internal" href="../maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="index.html">Core Models</a> &raquo;</li>
-        
-      <li>Transition and Relocation Models</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Core Models</a></li>
+      <li class="breadcrumb-item active">Transition and Relocation Models</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/models/transrelo.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="transition-and-relocation-models">
-<span id="transition-relocation"></span><h1>Transition and Relocation Models<a class="headerlink" href="#transition-and-relocation-models" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="transition-and-relocation-models">
+<span id="transition-relocation"></span><h1>Transition and Relocation Models<a class="headerlink" href="#transition-and-relocation-models" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>Transition models are used to add (via copying) or remove rows from a table
 based on prescribed rates or totals.
 Relocation models are used to select movers from a table, also based on
 prescribed rates.</p>
-</div>
-<div class="section" id="control-table-formatting">
-<h2>Control Table Formatting<a class="headerlink" href="#control-table-formatting" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="control-table-formatting">
+<h2>Control Table Formatting<a class="headerlink" href="#control-table-formatting" title="Link to this heading"></a></h2>
 <p>The tables of rates and totals used in transition and relocation models have
 a particular format that allows them to specify different values for
 different segments of the table. Below is an example table:</p>
@@ -211,9 +130,9 @@ For example, the second row of the above table will have a filter like
 “equal to” filter. In the above table the first, second, and third rows
 will have a filter like <code class="docutils literal notranslate"><span class="pre">num_cars</span> <span class="pre">==</span> <span class="pre">0</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">nan</span></code> values indicate filters that do not apply in a given row.</p>
-</div>
-<div class="section" id="transition-model-notes">
-<h2>Transition Model Notes<a class="headerlink" href="#transition-model-notes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="transition-model-notes">
+<h2>Transition Model Notes<a class="headerlink" href="#transition-model-notes" title="Link to this heading"></a></h2>
 <p>Transition models have two components. The main interface is the
 <a class="reference internal" href="#urbansim.models.transition.TransitionModel" title="urbansim.models.transition.TransitionModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransitionModel</span></code></a>, but it
 is configured by providing a “transitioner”.
@@ -229,21 +148,17 @@ Transitioners are expected to be callable and take arguments of a
 <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">DataFrame</a> with the data to transition and a year number.
 They should return a new data table, the indexes of rows added,
 the indexes of rows copied, and the indexes of rows removed.</p>
-</div>
-<div class="section" id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="transition-api">
-<h3>Transition API<a class="headerlink" href="#transition-api" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="api">
+<h2>API<a class="headerlink" href="#api" title="Link to this heading"></a></h2>
+<section id="transition-api">
+<h3>Transition API<a class="headerlink" href="#transition-api" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GrowthRateTransition</span></code></a>(growth_rate[, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#urbansim.models.transition.GrowthRateTransition" title="urbansim.models.transition.GrowthRateTransition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GrowthRateTransition</span></code></a>(growth_rate[, ...])</p></td>
 <td><p>Transition given tables using a simple growth rate.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TabularGrowthRateTransition</span></code></a>(growth_rates, …)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#urbansim.models.transition.TabularGrowthRateTransition" title="urbansim.models.transition.TabularGrowthRateTransition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TabularGrowthRateTransition</span></code></a>(growth_rates, ...)</p></td>
 <td><p>Growth rate based transitions where the rates are stored in a table indexed by year with optional segmentation.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#urbansim.models.transition.TabularTotalsTransition" title="urbansim.models.transition.TabularTotalsTransition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TabularTotalsTransition</span></code></a>(targets, totals_column)</p></td>
@@ -254,31 +169,27 @@ the indexes of rows copied, and the indexes of rows removed.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="relocation-api">
-<h3>Relocation API<a class="headerlink" href="#relocation-api" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="relocation-api">
+<h3>Relocation API<a class="headerlink" href="#relocation-api" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#urbansim.models.relocation.RelocationModel" title="urbansim.models.relocation.RelocationModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RelocationModel</span></code></a>(rates[, rate_column])</p></td>
 <td><p>Find movers within a population according to a table of relocation rates.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="module-urbansim.models.transition">
-<span id="transition-api-docs"></span><h3>Transition API Docs<a class="headerlink" href="#module-urbansim.models.transition" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="module-urbansim.models.transition">
+<span id="transition-api-docs"></span><h3>Transition API Docs<a class="headerlink" href="#module-urbansim.models.transition" title="Link to this heading"></a></h3>
 <p>Use the <code class="docutils literal notranslate"><span class="pre">TransitionModel</span></code> class with the different transitioners to
 add or remove agents based on growth rates or target totals.</p>
 <dl class="py class">
-<dt id="urbansim.models.transition.GrowthRateTransition">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">GrowthRateTransition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">growth_rate</span></em>, <em class="sig-param"><span class="n">accounting_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.GrowthRateTransition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">GrowthRateTransition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">growth_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accounting_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition" title="Link to this definition"></a></dt>
 <dd><p>Transition given tables using a simple growth rate.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>growth_rate</strong><span class="classifier">float</span></dt><dd></dd>
 <dt><strong>accounting_column: string, optional</strong></dt><dd><p>Name of column with accounting totals/quanties to apply towards the control. If not provided
@@ -288,12 +199,12 @@ then row counts will be used for accounting.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="urbansim.models.transition.GrowthRateTransition.transition">
-<code class="sig-name descname">transition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">year</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition.transition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.GrowthRateTransition.transition">
+<span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#GrowthRateTransition.transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.GrowthRateTransition.transition" title="Link to this definition"></a></dt>
 <dd><p>Add or remove rows to/from a table according to the prescribed
 growth rate for this model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Rows will be removed from or added to this table.</p>
 </dd>
@@ -302,7 +213,7 @@ but ignored.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with rows removed or added.</p>
 </dd>
@@ -321,12 +232,12 @@ will have multiple entries.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="urbansim.models.transition.TabularGrowthRateTransition">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">TabularGrowthRateTransition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">growth_rates</span></em>, <em class="sig-param"><span class="n">rates_column</span></em>, <em class="sig-param"><span class="n">accounting_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.TabularGrowthRateTransition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">TabularGrowthRateTransition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">growth_rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rates_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accounting_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition" title="Link to this definition"></a></dt>
 <dd><p>Growth rate based transitions where the rates are stored in
 a table indexed by year with optional segmentation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>growth_rates</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 <dt><strong>rates_column</strong><span class="classifier">str</span></dt><dd><p>Name of the column in <cite>growth_rates</cite> that contains the rates.</p>
@@ -338,12 +249,12 @@ then row counts will be used for accounting.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="urbansim.models.transition.TabularGrowthRateTransition.transition">
-<code class="sig-name descname">transition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">year</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition.transition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.TabularGrowthRateTransition.transition">
+<span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularGrowthRateTransition.transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.TabularGrowthRateTransition.transition" title="Link to this definition"></a></dt>
 <dd><p>Add or remove rows to/from a table according to the prescribed
 growth rate for this model and year.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Rows will be removed from or added to this table.</p>
 </dd>
@@ -352,7 +263,7 @@ but ignored.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with rows removed or added.</p>
 </dd>
@@ -371,12 +282,12 @@ will have multiple entries.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="urbansim.models.transition.TabularTotalsTransition">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">TabularTotalsTransition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">targets</span></em>, <em class="sig-param"><span class="n">totals_column</span></em>, <em class="sig-param"><span class="n">accounting_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.TabularTotalsTransition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">TabularTotalsTransition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">totals_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accounting_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition" title="Link to this definition"></a></dt>
 <dd><p>Transition data via control totals in pandas DataFrame with
 optional segmentation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>targets</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 <dt><strong>totals_column</strong><span class="classifier">str</span></dt><dd><p>Name of the column in <cite>targets</cite> that contains the control totals.</p>
@@ -388,12 +299,12 @@ then row counts will be used for accounting.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="urbansim.models.transition.TabularTotalsTransition.transition">
-<code class="sig-name descname">transition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">year</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition.transition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.TabularTotalsTransition.transition">
+<span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TabularTotalsTransition.transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.TabularTotalsTransition.transition" title="Link to this definition"></a></dt>
 <dd><p>Add or remove rows to/from a table according to the prescribed
 totals for this model and year.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Rows will be removed from or added to this table.</p>
 </dd>
@@ -402,7 +313,7 @@ but ignored.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with rows removed or added.</p>
 </dd>
@@ -421,11 +332,11 @@ will have multiple entries.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="urbansim.models.transition.TransitionModel">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">TransitionModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">transitioner</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TransitionModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TransitionModel" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.TransitionModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">TransitionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transitioner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TransitionModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.TransitionModel" title="Link to this definition"></a></dt>
 <dd><p>Models things moving into or out of a region.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>transitioner</strong><span class="classifier">callable</span></dt><dd><p>A callable that takes a data table and a year number and returns
 and new data table, the indexes of rows added, the indexes
@@ -435,11 +346,11 @@ of rows copied, and the indexes of rows removed.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="urbansim.models.transition.TransitionModel.transition">
-<code class="sig-name descname">transition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">year</span></em>, <em class="sig-param"><span class="n">linked_tables</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TransitionModel.transition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.TransitionModel.transition" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.TransitionModel.transition">
+<span class="sig-name descname"><span class="pre">transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linked_tables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#TransitionModel.transition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.TransitionModel.transition" title="Link to this definition"></a></dt>
 <dd><p>Add or remove rows from a table based on population targets.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Rows will be removed from or added to this table.</p>
 </dd>
@@ -453,7 +364,7 @@ returned <cite>updated_links</cite>.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with rows removed or added.</p>
 </dd>
@@ -468,12 +379,12 @@ returned <cite>updated_links</cite>.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.transition.add_or_remove_rows">
-<code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">add_or_remove_rows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">nrows</span></em>, <em class="sig-param"><span class="n">starting_index</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accounting_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_or_remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_or_remove_rows" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.add_or_remove_rows">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">add_or_remove_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accounting_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_or_remove_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.add_or_remove_rows" title="Link to this definition"></a></dt>
 <dd><p>Add or remove rows to/from a table. Rows are added
 for positive <cite>nrows</cite> and removed for negative <cite>nrows</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">DataFrame</span></dt><dd></dd>
 <dt><strong>nrows</strong><span class="classifier">float</span></dt><dd><p>Number of rows to add or remove.</p>
@@ -484,7 +395,7 @@ If not given the max + 1 of the index of <cite>data</cite> will be used.
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with random rows removed.</p>
 </dd>
@@ -501,12 +412,12 @@ will have multiple entries.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.transition.add_rows">
-<code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">add_rows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">nrows</span></em>, <em class="sig-param"><span class="n">starting_index</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">accounting_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.add_rows" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.add_rows">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">add_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accounting_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#add_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.add_rows" title="Link to this definition"></a></dt>
 <dd><p>Add rows to data table according to a given nrows.
 New rows will have their IDs set to NaN.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
 <dt><strong>nrows</strong><span class="classifier">int</span></dt><dd><p>Number of rows to add.</p>
@@ -519,7 +430,7 @@ then row counts will be used for accounting.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with rows added. New rows will have their index values
 set to NaN.</p>
@@ -535,11 +446,11 @@ will have multiple entries.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.transition.remove_rows">
-<code class="sig-prename descclassname">urbansim.models.transition.</code><code class="sig-name descname">remove_rows</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">nrows</span></em>, <em class="sig-param"><span class="n">accounting_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#remove_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.transition.remove_rows" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.transition.remove_rows">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.transition.</span></span><span class="sig-name descname"><span class="pre">remove_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accounting_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/transition.html#remove_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.transition.remove_rows" title="Link to this definition"></a></dt>
 <dd><p>Remove a random <cite>nrows</cite> number of rows from a table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">DataFrame</span></dt><dd></dd>
 <dt><strong>nrows</strong><span class="classifier">float</span></dt><dd><p>Number of rows to remove.</p>
@@ -549,7 +460,7 @@ then row counts will be used for accounting.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>updated</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table with random rows removed.</p>
 </dd>
@@ -560,18 +471,18 @@ then row counts will be used for accounting.</p>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-urbansim.models.relocation">
-<span id="relocation-api-docs"></span><h3>Relocation API Docs<a class="headerlink" href="#module-urbansim.models.relocation" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="module-urbansim.models.relocation">
+<span id="relocation-api-docs"></span><h3>Relocation API Docs<a class="headerlink" href="#module-urbansim.models.relocation" title="Link to this heading"></a></h3>
 <p>Use the <code class="docutils literal notranslate"><span class="pre">RelocationModel</span></code> class to choose movers based on
 relocation rates.</p>
 <dl class="py class">
-<dt id="urbansim.models.relocation.RelocationModel">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.models.relocation.</code><code class="sig-name descname">RelocationModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rates</span></em>, <em class="sig-param"><span class="n">rate_column</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.relocation.RelocationModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.models.relocation.</span></span><span class="sig-name descname"><span class="pre">RelocationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel" title="Link to this definition"></a></dt>
 <dd><p>Find movers within a population according to a table of
 relocation rates.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>rates</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table of relocation rates. Index is unused.</p>
 <p>Other columns describe filters on the <cite>choosers</cite>
@@ -600,18 +511,18 @@ If not given ‘probability_of_relocating’ is used.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="urbansim.models.relocation.RelocationModel.find_movers">
-<code class="sig-name descname">find_movers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">choosers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel.find_movers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel.find_movers" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.relocation.RelocationModel.find_movers">
+<span class="sig-name descname"><span class="pre">find_movers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choosers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/relocation.html#RelocationModel.find_movers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.relocation.RelocationModel.find_movers" title="Link to this definition"></a></dt>
 <dd><p>Select movers from among a table of <cite>choosers</cite> according to the
 stored relocation rates.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>choosers</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table of agents from which to find movers.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>movers</strong><span class="classifier">pandas.Index</span></dt><dd><p>Suitable for indexing <cite>choosers</cite> by index.</p>
 </dd>
@@ -623,12 +534,12 @@ stored relocation rates.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="urbansim.models.relocation.find_movers">
-<code class="sig-prename descclassname">urbansim.models.relocation.</code><code class="sig-name descname">find_movers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">choosers</span></em>, <em class="sig-param"><span class="n">rates</span></em>, <em class="sig-param"><span class="n">rate_column</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/relocation.html#find_movers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.models.relocation.find_movers" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.models.relocation.find_movers">
+<span class="sig-prename descclassname"><span class="pre">urbansim.models.relocation.</span></span><span class="sig-name descname"><span class="pre">find_movers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choosers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/models/relocation.html#find_movers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.models.relocation.find_movers" title="Link to this definition"></a></dt>
 <dd><p>Returns an array of the indexes of the <cite>choosers</cite> that are slated
 to move.</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>choosers</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table of agents from which to find movers.</p>
 </dd>
@@ -656,7 +567,7 @@ in a given row.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>movers</strong><span class="classifier">pandas.Index</span></dt><dd><p>Suitable for indexing <cite>choosers</cite> by index.</p>
 </dd>
@@ -665,57 +576,39 @@ in a given row.</p>
 </dl>
 </dd></dl>
 
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="util.html" class="btn btn-neutral float-right" title="Model Related Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="supplydemand.html" class="btn btn-neutral float-left" title="Supply and Demand Accounting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="supplydemand.html" class="btn btn-neutral float-left" title="Supply and Demand Accounting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="util.html" class="btn btn-neutral float-right" title="Model Related Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

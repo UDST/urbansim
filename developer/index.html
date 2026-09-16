@@ -1,166 +1,104 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Real Estate Development Models &mdash; urbansim 3.2 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Estate Development Models &mdash; urbansim 3.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=26f62d79"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="UrbanSim Utilities" href="../utils/index.html" />
     <link rel="prev" title="Location Choice Utilities" href="../models/urbanchoice.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> urbansim
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            urbansim
           </a>
-
-          
-            
-            
-              <div class="version">
-                3.2
-              </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models/index.html">Core Models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Real Estate Development Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.developer.developer">Developer Model API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.developer.sqftproforma">Square Foot Pro Forma API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#urbansim.developer.sqftproforma.SqFtProForma"><code class="docutils literal notranslate"><span class="pre">SqFtProForma</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft"><code class="docutils literal notranslate"><span class="pre">SqFtProForma.get_ave_cost_sqft()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info"><code class="docutils literal notranslate"><span class="pre">SqFtProForma.get_debug_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup"><code class="docutils literal notranslate"><span class="pre">SqFtProForma.lookup()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig"><code class="docutils literal notranslate"><span class="pre">SqFtProFormaConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-urbansim.developer.developer">Developer Model API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#urbansim.developer.developer.Developer"><code class="docutils literal notranslate"><span class="pre">Developer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.developer.Developer.compute_units_to_build"><code class="docutils literal notranslate"><span class="pre">Developer.compute_units_to_build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit"><code class="docutils literal notranslate"><span class="pre">Developer.keep_form_with_max_profit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.developer.Developer.merge"><code class="docutils literal notranslate"><span class="pre">Developer.merge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#urbansim.developer.developer.Developer.pick"><code class="docutils literal notranslate"><span class="pre">Developer.pick()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../utils/index.html">UrbanSim Utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../maps/index.html">DataFrame Explorer</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">urbansim</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
-      <li>Real Estate Development Models</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Real Estate Development Models</li>
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/developer/index.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="real-estate-development-models">
-<h1>Real Estate Development Models<a class="headerlink" href="#real-estate-development-models" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="real-estate-development-models">
+<h1>Real Estate Development Models<a class="headerlink" href="#real-estate-development-models" title="Link to this heading"></a></h1>
 <p>The real estate development models included in this module are designed to
 implement pencil out pro formas, which generally measure the cash inflows and
 outflows of a potential investment (in this case, real estate development)
@@ -215,16 +153,16 @@ translation to units.</p>
 
 <span class="c1"># convert from cost to yearly rent</span>
 <span class="k">if</span> <span class="n">residential_to_yearly</span><span class="p">:</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;residential&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cap_rate</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"residential"</span><span class="p">]</span> <span class="o">*=</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cap_rate</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">forms</span><span class="p">:</span>
-    <span class="nb">print</span> <span class="s2">&quot;Computing feasibility for form </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">form</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Computing feasibility for form </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="n">form</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[</span><span class="n">form</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">parcel_use_allowed_callback</span><span class="p">(</span><span class="n">form</span><span class="p">)])</span>
 
 <span class="n">far_predictions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">keys</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s2">&quot;feasibility&quot;</span><span class="p">,</span> <span class="n">far_predictions</span><span class="p">)</span>
+<span class="n">orca</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s2">"feasibility"</span><span class="p">,</span> <span class="n">far_predictions</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">developer</span> <span class="pre">model</span></code> is responsible for picking among feasible buildings
@@ -263,25 +201,25 @@ ids+1 and then incremented from there).</p>
                          <span class="n">bldg_sqft_per_job</span><span class="o">=</span><span class="n">bldg_sqft_per_job</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">year</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">new_buildings</span><span class="p">[</span><span class="s2">&quot;year_built&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
+    <span class="n">new_buildings</span><span class="p">[</span><span class="s2">"year_built"</span><span class="p">]</span> <span class="o">=</span> <span class="n">year</span>
 
 <span class="k">if</span> <span class="n">form_to_btype_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">new_buildings</span><span class="p">[</span><span class="s2">&quot;building_type_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_buildings</span><span class="p">[</span><span class="s2">&quot;form&quot;</span><span class="p">]</span><span class="o">.</span>\
+    <span class="n">new_buildings</span><span class="p">[</span><span class="s2">"building_type_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_buildings</span><span class="p">[</span><span class="s2">"form"</span><span class="p">]</span><span class="o">.</span>\
         <span class="n">apply</span><span class="p">(</span><span class="n">form_to_btype_callback</span><span class="p">)</span>
 
 <span class="n">all_buildings</span> <span class="o">=</span> <span class="n">dev</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">),</span>
                           <span class="n">new_buildings</span><span class="p">[</span><span class="n">buildings</span><span class="o">.</span><span class="n">local_columns</span><span class="p">])</span>
 
-<span class="n">sim</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s2">&quot;buildings&quot;</span><span class="p">,</span> <span class="n">all_buildings</span><span class="p">)</span>
+<span class="n">orca</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="s2">"buildings"</span><span class="p">,</span> <span class="n">all_buildings</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
 </div>
-<div class="section" id="module-urbansim.developer.sqftproforma">
-<span id="square-foot-pro-forma-api"></span><h2>Square Foot Pro Forma API<a class="headerlink" href="#module-urbansim.developer.sqftproforma" title="Permalink to this headline">¶</a></h2>
+<section id="module-urbansim.developer.sqftproforma">
+<span id="square-foot-pro-forma-api"></span><h2>Square Foot Pro Forma API<a class="headerlink" href="#module-urbansim.developer.sqftproforma" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt id="urbansim.developer.sqftproforma.SqFtProForma">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.developer.sqftproforma.</code><code class="sig-name descname">SqFtProForma</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.sqftproforma.SqFtProForma">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.developer.sqftproforma.</span></span><span class="sig-name descname"><span class="pre">SqFtProForma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma" title="Link to this definition"></a></dt>
 <dd><p>Initialize the square foot based pro forma.</p>
 <p>This pro forma has no representation of units - it does not
 differentiate between the rent attained by 1BR, 2BR, or 3BR and change
@@ -292,7 +230,7 @@ and current buildings which assumes there is a constant return on
 increasing and decreasing unit sizes, an extremely useful simplifying
 assumption above the project scale (i.e. city of regional scale)</p>
 <dl class="field-list">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
 <dt><strong>config</strong><span class="classifier"><cite>SqFtProFormaConfig</cite></span></dt><dd><p>The configuration object which should be an
 instance of <cite>SqFtProFormaConfig</cite>.  The configuration options for this
@@ -302,11 +240,11 @@ pro forma are documented on the configuration object.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
-<code class="sig-name descname">get_ave_cost_sqft</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">parking_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft">
+<span class="sig-name descname"><span class="pre">get_ave_cost_sqft</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parking_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_ave_cost_sqft"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_ave_cost_sqft" title="Link to this definition"></a></dt>
 <dd><p>Get the average cost per sqft for the pro forma for a given form</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>form</strong><span class="classifier">string</span></dt><dd><p>Get a series representing the average cost per sqft for each form in
 the config</p>
@@ -315,7 +253,7 @@ the config</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>cost</strong><span class="classifier">series</span></dt><dd><p>A series where the index is the far and the values are the average
 cost per sqft at which the building is “break even” given the
@@ -327,12 +265,12 @@ configuration parameters that were passed at run time.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">
-<code class="sig-name descname">get_debug_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">parking_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.sqftproforma.SqFtProForma.get_debug_info">
+<span class="sig-name descname"><span class="pre">get_debug_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parking_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.get_debug_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.get_debug_info" title="Link to this definition"></a></dt>
 <dd><p>Get the debug info after running the pro forma for a given form and parking
 configuration</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>form</strong><span class="classifier">string</span></dt><dd><p>The form to get debug info for</p>
 </dd>
@@ -340,7 +278,7 @@ configuration</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>debug_info</strong><span class="classifier">dataframe</span></dt><dd><p>A dataframe where the index is the far with many columns
 representing intermediate steps in the pro forma computation.
@@ -353,11 +291,11 @@ many of the columns should be fairly self-expanatory.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="urbansim.developer.sqftproforma.SqFtProForma.lookup">
-<code class="sig-name descname">lookup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">only_built</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">pass_through</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.sqftproforma.SqFtProForma.lookup">
+<span class="sig-name descname"><span class="pre">lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_built</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_through</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProForma.lookup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProForma.lookup" title="Link to this definition"></a></dt>
 <dd><p>This function does the developer model lookups for all the actual input data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>form</strong><span class="classifier">string</span></dt><dd><p>One of the forms specified in the configuration file</p>
 </dd>
@@ -402,7 +340,7 @@ same series).</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>index</strong><span class="classifier">Series, int</span></dt><dd><p>parcel identifiers</p>
 </dd>
@@ -425,7 +363,7 @@ rate (with a few adjustment factors including building efficiency).</p>
 <dt><strong>max_profit_far</strong><span class="classifier">Series, float</span></dt><dd><p>The FAR of the maximum profit building (constrained by the max_far and
 max_height from the input dataframe).</p>
 </dd>
-<dt>max_profit :</dt><dd><p>The profit for the maximum profit building (constrained by the max_far
+<dt>max_profit</dt><dd><p>The profit for the maximum profit building (constrained by the max_far
 and max_height from the input dataframe).</p>
 </dd>
 </dl>
@@ -436,12 +374,12 @@ and max_height from the input dataframe).</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="urbansim.developer.sqftproforma.SqFtProFormaConfig">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.developer.sqftproforma.</code><code class="sig-name descname">SqFtProFormaConfig</code><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.sqftproforma.SqFtProFormaConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.developer.sqftproforma.</span></span><span class="sig-name descname"><span class="pre">SqFtProFormaConfig</span></span><a class="reference internal" href="../_modules/urbansim/developer/sqftproforma.html#SqFtProFormaConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.sqftproforma.SqFtProFormaConfig" title="Link to this definition"></a></dt>
 <dd><p>This class encapsulates the configuration options for the square
 foot based pro forma.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>parcel_sizes</strong><span class="classifier">list</span></dt><dd><p>A list of parcel sizes to test.  Interestingly, right now
 the parcel sizes cancel in this style of pro forma computation so
@@ -547,21 +485,21 @@ internet.</p>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-urbansim.developer.developer">
-<span id="developer-model-api"></span><h2>Developer Model API<a class="headerlink" href="#module-urbansim.developer.developer" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-urbansim.developer.developer">
+<span id="developer-model-api"></span><h2>Developer Model API<a class="headerlink" href="#module-urbansim.developer.developer" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt id="urbansim.developer.developer.Developer">
-<em class="property">class </em><code class="sig-prename descclassname">urbansim.developer.developer.</code><code class="sig-name descname">Developer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feasibility</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.developer.Developer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">urbansim.developer.developer.</span></span><span class="sig-name descname"><span class="pre">Developer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feasibility</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.developer.Developer" title="Link to this definition"></a></dt>
 <dd><p>Pass the dataframe that is returned by feasibility here</p>
 <p>Can also be a dictionary where keys are building forms and values are
 the individual data frames returned by the proforma lookup routine.</p>
 <dl class="py method">
-<dt id="urbansim.developer.developer.Developer.compute_units_to_build">
-<em class="property">static </em><code class="sig-name descname">compute_units_to_build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_agents</span></em>, <em class="sig-param"><span class="n">num_units</span></em>, <em class="sig-param"><span class="n">target_vacancy</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.compute_units_to_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.compute_units_to_build" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.developer.Developer.compute_units_to_build">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">compute_units_to_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_agents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_vacancy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.compute_units_to_build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.compute_units_to_build" title="Link to this definition"></a></dt>
 <dd><p>Compute number of units to build to match target vacancy.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>num_agents</strong><span class="classifier">int</span></dt><dd><p>number of agents that need units in the region</p>
 </dd>
@@ -571,7 +509,7 @@ the individual data frames returned by the proforma lookup routine.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>number_of_units</strong><span class="classifier">int</span></dt><dd><p>the number of units that need to be built</p>
 </dd>
@@ -581,35 +519,38 @@ the individual data frames returned by the proforma lookup routine.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="urbansim.developer.developer.Developer.keep_form_with_max_profit">
-<code class="sig-name descname">keep_form_with_max_profit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">forms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.keep_form_with_max_profit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.developer.Developer.keep_form_with_max_profit">
+<span class="sig-name descname"><span class="pre">keep_form_with_max_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.keep_form_with_max_profit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.keep_form_with_max_profit" title="Link to this definition"></a></dt>
 <dd><p>This converts the dataframe, which shows all profitable forms,
 to the form with the greatest profit, so that more profitable
 forms outcompete less profitable forms.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>forms: list of strings</strong></dt><dd><p>List of forms which compete which other.  Can leave some out.</p>
+<dt><strong>forms</strong><span class="classifier">list of strings, optional</span></dt><dd><p>List of forms which compete with each other.  Can leave some out.
+If None, all the forms in the feasibility table compete.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>Nothing.  Goes from a multi-index to a single index with only the</dt><dd></dd>
-<dt>most profitable form.</dt><dd></dd>
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Subset of the feasibility table with only the most profitable form
+for each parcel, with flat columns and the form named in a “form”
+column.</p>
+</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="urbansim.developer.developer.Developer.merge">
-<em class="property">static </em><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">old_df</span></em>, <em class="sig-param"><span class="n">new_df</span></em>, <em class="sig-param"><span class="n">return_index</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.developer.Developer.merge">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.merge" title="Link to this definition"></a></dt>
 <dd><p>Merge two dataframes of buildings.  The old dataframe is
 usually the buildings dataset and the new dataframe is a modified
 (by the user) version of what is returned by the pick method.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>old_df</strong><span class="classifier">dataframe</span></dt><dd><p>Current set of buildings</p>
 </dd>
@@ -621,7 +562,7 @@ index after the merge)</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt><strong>df</strong><span class="classifier">dataframe</span></dt><dd><p>Combined DataFrame of buildings, makes sure indexes don’t overlap</p>
 </dd>
@@ -635,18 +576,21 @@ after the merge)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="urbansim.developer.developer.Developer.pick">
-<code class="sig-name descname">pick</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">form</span></em>, <em class="sig-param"><span class="n">target_units</span></em>, <em class="sig-param"><span class="n">parcel_size</span></em>, <em class="sig-param"><span class="n">ave_unit_size</span></em>, <em class="sig-param"><span class="n">current_units</span></em>, <em class="sig-param"><span class="n">max_parcel_size</span><span class="o">=</span><span class="default_value">200000</span></em>, <em class="sig-param"><span class="n">min_unit_size</span><span class="o">=</span><span class="default_value">400</span></em>, <em class="sig-param"><span class="n">drop_after_build</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">residential</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">bldg_sqft_per_job</span><span class="o">=</span><span class="default_value">400.0</span></em>, <em class="sig-param"><span class="n">profit_to_prob_func</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="urbansim.developer.developer.Developer.pick">
+<span class="sig-name descname"><span class="pre">pick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parcel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ave_unit_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_parcel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_unit_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_after_build</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bldg_sqft_per_job</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_to_prob_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/urbansim/developer/developer.html#Developer.pick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#urbansim.developer.developer.Developer.pick" title="Link to this definition"></a></dt>
 <dd><p>Choose the buildings from the list that are feasible to build in
 order to match the specified demand.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>form</strong><span class="classifier">string or list</span></dt><dd><p>One or more of the building forms from the pro forma specification -
+<dt><strong>form</strong><span class="classifier">string, list, or None</span></dt><dd><p>One or more of the building forms from the pro forma specification -
 e.g. “residential” or “mixedresidential” - these are configuration
 parameters passed previously to the pro forma.  If more than one form
 is passed the forms compete with each other (based on profitability)
-for which one gets built in order to meet demand.</p>
+for which one gets built in order to meet demand.  If None, all the
+forms in the feasibility table compete; or, if the feasibility table
+is a flat table of attributes for a single form (rather than the
+usual hierarchical columns of form and attribute), it is used as is.</p>
 </dd>
 <dt><strong>target_units</strong><span class="classifier">int</span></dt><dd><p>The number of units to build.  For non-residential buildings this
 should be passed as the number of job spaces that need to be created.</p>
@@ -687,7 +631,7 @@ of this method will not change</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>None if thar are no feasible buildings</dt><dd></dd>
 <dt><strong>new_buildings</strong><span class="classifier">dataframe</span></dt><dd><p>DataFrame of buildings to add.  These buildings are rows from the
@@ -700,56 +644,38 @@ DataFrame that is returned from feasibility.</p>
 
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../utils/index.html" class="btn btn-neutral float-right" title="UrbanSim Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../models/urbanchoice.html" class="btn btn-neutral float-left" title="Location Choice Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../models/urbanchoice.html" class="btn btn-neutral float-left" title="Location Choice Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../utils/index.html" class="btn btn-neutral float-right" title="UrbanSim Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2020, UrbanSim Inc.
-
-    </p>
+    <p>&#169; Copyright 2014-2026, UrbanSim Inc..</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
