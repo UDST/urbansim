@@ -1,35 +1,50 @@
-Next release
-============
+v3.3rc1
+=======
 
-* Add support for Python 3.14, NumPy 2, Pandas 3, and Pandana 0.8.
-* Establish NumPy 1.26 and Pandas 2.2 as the tested dependency floors.
-* Move package metadata to ``pyproject.toml`` and validate source and wheel
-  distributions in continuous integration; declare Pandana as an optional
-  ``network`` extra.
-* Test on macOS and Windows as well as Linux, and build the documentation with
-  warnings as errors in continuous integration.
-* Preserve choice-result dtypes and filtering behavior under Pandas 3.
-* Correct chained assignment in the square-foot pro forma under Pandas 3
-  copy-on-write semantics.
-* Fix ``Developer.pick()`` failing when ``form`` is None: all the forms in the
-  feasibility table now compete on profitability, as intended (#194, thanks to
-  Hana Sevcikova). Passing a flat single-form feasibility table still works.
-* Fix the transition model dropping linked rows (e.g. persons) for a row that
-  is both copied and removed in the same transition (#233, reported by Hana
-  Sevcikova with the fix used at PSRC).
-* Preserve index names in tables returned by the transition model (#221,
-  thanks to Scott Bridwell and Hana Sevcikova).
-* Warn when rows match none of the segments in a transition model's
+2026/09/15
+
+Release candidate for v3.3, the first release since v3.2 in May 2020. It restores
+compatibility with current versions of Python and the scientific Python stack,
+modernizes the packaging and continuous integration, and fixes several
+long-standing bugs.
+
+* Requires Python 3.10 or later, and is tested on Python 3.10 through 3.14 with
+  NumPy 1.26 through 2.x, Pandas 2.2 through 3.x, SciPy 1.10+, Statsmodels 0.14+,
+  and Orca 1.8+. Drops support for Python 2 and for Python 3.5 through 3.9
+  (#235, #239).
+* Removes uses of NumPy and Pandas features that no longer exist, such as
+  ``np.int`` and ``Series.iteritems()``, which made v3.2 fail on NumPy 1.24+ and
+  Pandas 2 (#231, #232).
+* Preserves choice-result dtypes and filtering behavior under Pandas 3, and
+  corrects chained assignment in the square-foot pro forma under Pandas 3
+  copy-on-write semantics (#239).
+* Supports Pandana 0.8 for the network accessibility utilities, now declared as
+  an optional ``network`` extra: ``pip install "urbansim[network]"`` (#239).
+* Fixes ``Developer.pick()`` failing when ``form`` is None: all the forms in the
+  feasibility table now compete on profitability, as intended. Passing a flat
+  single-form feasibility table still works (#194).
+* Fixes the transition model dropping linked rows (e.g. persons) for a row that
+  is both copied and removed in the same transition (#233), and no longer reuses
+  the ids of removed linked rows for new ones.
+* Preserves index names in tables returned by the transition model (#221).
+* Warns when rows match none of the segments in a transition model's
   configuration, since they are silently dropped from the updated table, or
-  match more than one segment, since they are duplicated (#207, reported by
-  Stefan Coe and Hana Sevcikova).
-* New rows added to linked tables by the transition model no longer reuse the
-  ids of rows removed in the same step.
-* The DataFrame explorer handles float-typed zone ids in map queries (#204;
-  fixed as a side effect of the Pandas compatibility work).
-* Releases are built, verified, and published to PyPI by a GitHub Actions
-  workflow using Trusted Publishing, and the contributor guide documents the
-  release process.
+  match more than one segment, since they are duplicated (#207).
+* The DataFrame explorer handles float-typed zone ids in map queries (#204).
+* Moves package metadata to ``pyproject.toml`` and removes ``setup.py`` (#239).
+* Replaces Travis CI and AppVeyor with GitHub Actions continuous integration
+  that tests the minimum and current dependency versions on Linux, macOS, and
+  Windows, checks code style, validates the built distributions, and builds the
+  documentation with warnings as errors (#235, #239). Releases are built,
+  verified, and published to PyPI by a GitHub Actions workflow using Trusted
+  Publishing (#244).
+* ``main`` is now the integration branch; ``dev`` and ``master`` are retired
+  (#236).
+* Thanks to Paul Waddell for the compatibility, packaging, and CI work; to Juan
+  Caicedo and @msoltadeo, whose earlier NumPy and Pandas compatibility fixes
+  were incorporated; to Hana Sevcikova for the developer model fix and the
+  transition model reports and fix; and to Scott Bridwell, Stefan Coe, and
+  @Han-aorweb for the reports.
 
 v3.2
 ====
