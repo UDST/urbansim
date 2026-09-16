@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Keep the GitHub Actions used by the workflows current. Once actions are
+  # pinned by commit SHA, this is what keeps the pins from going stale.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # No pip entry: requirements-min.txt is a deliberately old constraint set
+  # for compatibility testing and should not be bumped automatically.

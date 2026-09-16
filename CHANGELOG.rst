@@ -27,6 +27,9 @@ Next release
   ids of rows removed in the same step.
 * The DataFrame explorer handles float-typed zone ids in map queries (#204;
   fixed as a side effect of the Pandas compatibility work).
+* Releases are built, verified, and published to PyPI by a GitHub Actions
+  workflow using Trusted Publishing, and the contributor guide documents the
+  release process.
 
 v3.2
 ====
