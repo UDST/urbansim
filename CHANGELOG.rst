@@ -1,12 +1,11 @@
-v3.3rc1
-=======
+v3.3
+====
 
-2026/09/15
+2026/09/16
 
-Release candidate for v3.3, the first release since v3.2 in May 2020. It restores
-compatibility with current versions of Python and the scientific Python stack,
-modernizes the packaging and continuous integration, and fixes several
-long-standing bugs.
+First release since v3.2 in May 2020. It restores compatibility with current
+versions of Python and the scientific Python stack, modernizes the packaging
+and continuous integration, and fixes several long-standing bugs.
 
 * Requires Python 3.10 or later, and is tested on Python 3.10 through 3.14 with
   NumPy 1.26 through 2.x, Pandas 2.2 through 3.x, SciPy 1.10+, Statsmodels 0.14+,
